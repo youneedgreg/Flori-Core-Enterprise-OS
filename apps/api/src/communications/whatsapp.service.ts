@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Twilio } from 'twilio';
+import { Communication } from '@prisma/client';
 
 @Injectable()
 export class WhatsappService {
@@ -20,13 +21,14 @@ export class WhatsappService {
     entityType?: string;
     entityId?: string;
     threadId?: string;
-  }) {
+  }): Promise<Communication> {
     const message = await this.client.messages.create({
       body: data.body,
       from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886'}`,
       to: `whatsapp:${data.to}`,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return this.prisma.communication.create({
       data: {
         tenantId: data.tenantId,

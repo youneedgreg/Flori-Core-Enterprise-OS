@@ -23,7 +23,7 @@ export class InboundWebhooksController {
     // Body.From = "whatsapp:+1234567890"
     // Body.Body = "Customer response"
     // Note: In production, tenantId and threadId should be resolved based on the sender's phone number or active conversational state.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     await this.prisma.communication.create({
       data: {
         tenantId: 'system', // Placeholder until routing logic is implemented
@@ -41,7 +41,7 @@ export class InboundWebhooksController {
   @HttpCode(200)
   async handleResendInbound(@Body() body: ResendInboundBody) {
     // Handle Resend inbound email parsing webhooks
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+
     await this.prisma.communication.create({
       data: {
         tenantId: 'system', // Placeholder until routing logic is implemented

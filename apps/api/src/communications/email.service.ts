@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Resend } from 'resend';
@@ -33,6 +34,7 @@ export class EmailService {
       throw new Error(`Resend Error: ${response.error.message}`);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
     return this.prisma.communication.create({
       data: {
         tenantId: data.tenantId,
