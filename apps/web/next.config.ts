@@ -11,6 +11,4 @@ export default withSentryConfig(nextConfig, {
   org: "flori-core",
   project: "web",
   widenClientFileUpload: true,
-  hideSourceMaps: true,
-  disableLogger: true,
 });

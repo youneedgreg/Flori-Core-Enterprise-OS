@@ -54,8 +54,8 @@
 - [x] Sentry DSN configured for both apps
 
 ### 0.7 Landing Page
-- [ ] Next.js marketing page (pricing, features, contact/demo form)
-- [ ] SEO optimised with Next.js Metadata API
+- [x] Next.js marketing page (pricing, features, contact/demo form)
+- [x] SEO optimised with Next.js Metadata API
 
 ---
 
