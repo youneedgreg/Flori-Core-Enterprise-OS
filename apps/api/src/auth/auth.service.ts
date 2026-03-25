@@ -1,0 +1,77 @@
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { RegisterTenantDto, LoginDto } from '@flori/shared';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
+
+  async registerTenant(dto: RegisterTenantDto) {
+    const { farmName, adminEmail, adminPassword } = dto;
+    
+    const existing = await this.prisma.user.findUnique({ where: { email: adminEmail } });
+    if (existing) {
+      throw new BadRequestException('User already exists');
+    }
+
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+    const slug = farmName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+    const result = await this.prisma.$transaction(async (prisma) => {
+      const tenant = await prisma.tenant.create({
+        data: { name: farmName, slug, status: 'ACTIVE' },
+      });
+
+      const role = await prisma.role.create({
+        data: {
+          name: 'gold_admin',
+          isSystem: false,
+          tenantId: tenant.id,
+          permissions: ['*'],
+        },
+      });
+
+      const user = await prisma.user.create({
+        data: {
+          email: adminEmail,
+          passwordHash: hashedPassword,
+          tenantId: tenant.id,
+          roleId: role.id,
+        },
+      });
+
+      return { tenant, role, user };
+    });
+
+    const payload = { sub: result.user.id, email: result.user.email, tenantId: result.tenant.id, role: result.role.name };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: { id: result.user.id, email: result.user.email, role: result.role.name },
+    };
+  }
+
+  async login(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+      include: { role: true },
+    });
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
+    if (!isMatch) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    
+    const payload = { sub: user.id, email: user.email, tenantId: user.tenantId, role: user.role.name };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: { id: user.id, email: user.email, role: user.role.name },
+    };
+  }
+}

@@ -24,7 +24,22 @@ async function main() {
   });
   console.log(`✅ Tenant created: ${tenant.name} (${tenant.id})`);
 
-  // 2. Create Gold Admin User
+  // 2. Create Default Roles
+  let goldAdminRole = await prisma.role.findFirst({
+    where: { name: 'gold_admin', isSystem: true },
+  });
+  if (!goldAdminRole) {
+    goldAdminRole = await prisma.role.create({
+      data: {
+        name: 'gold_admin',
+        isSystem: true,
+        permissions: ['*'],
+      },
+    });
+    console.log(`✅ Default Role created: ${goldAdminRole.name}`);
+  }
+
+  // 3. Create Gold Admin User
   const adminEmail = 'admin@floricore.io';
   const hashedPassword = await bcrypt.hash('admin123', 10);
 
@@ -34,7 +49,7 @@ async function main() {
     create: {
       email: adminEmail,
       passwordHash: hashedPassword,
-      role: 'gold_admin',
+      roleId: goldAdminRole.id,
       tenantId: tenant.id,
     },
   });
