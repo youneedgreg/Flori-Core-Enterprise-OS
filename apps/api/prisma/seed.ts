@@ -3,7 +3,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-
+import { DEFAULT_ROLES } from '@flori/shared';
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool as any);
@@ -25,19 +25,33 @@ async function main() {
   console.log(`✅ Tenant created: ${tenant.name} (${tenant.id})`);
 
   // 2. Create Default Roles
-  let goldAdminRole = await prisma.role.findFirst({
-    where: { name: 'gold_admin', isSystem: true },
-  });
-  if (!goldAdminRole) {
-    goldAdminRole = await prisma.role.create({
-      data: {
-        name: 'gold_admin',
-        isSystem: true,
-        permissions: ['*'],
-      },
-    });
-    console.log(`✅ Default Role created: ${goldAdminRole.name}`);
-  }
+  const createdRoles = await Promise.all(
+    DEFAULT_ROLES.map(async (r) => {
+      let role = await prisma.role.findFirst({
+        where: { name: r.name, tenantId: tenant.id },
+      });
+      if (!role) {
+        role = await prisma.role.create({
+          data: {
+            name: r.name,
+            isSystem: false,
+            tenantId: tenant.id,
+            permissions: r.permissions,
+          },
+        });
+      } else {
+        role = await prisma.role.update({
+          where: { id: role.id },
+          data: { permissions: r.permissions },
+        });
+      }
+      return role;
+    })
+  );
+  console.log(`✅ Default Roles created for tenant: ${tenant.name}`);
+
+  const goldAdminRole = createdRoles.find((r) => r.name === 'gold_admin');
+  if (!goldAdminRole) throw new Error('Missing gold_admin role');
 
   // 3. Create Gold Admin User
   const adminEmail = 'admin@floricore.io';

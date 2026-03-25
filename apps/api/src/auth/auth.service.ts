@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterTenantDto, LoginDto } from '@flori/shared';
+import { RegisterTenantDto, LoginDto, DEFAULT_ROLES } from '@flori/shared';
 
 @Injectable()
 export class AuthService {
@@ -27,14 +27,21 @@ export class AuthService {
         data: { name: farmName, slug, status: 'ACTIVE' },
       });
 
-      const role = await prisma.role.create({
-        data: {
-          name: 'gold_admin',
-          isSystem: false,
-          tenantId: tenant.id,
-          permissions: ['*'],
-        },
-      });
+      const createdRoles = await Promise.all(
+        DEFAULT_ROLES.map((r) =>
+          prisma.role.create({
+            data: {
+              name: r.name,
+              isSystem: false,
+              tenantId: tenant.id,
+              permissions: r.permissions,
+            },
+          })
+        )
+      );
+
+      const role = createdRoles.find((r) => r.name === 'gold_admin');
+      if (!role) throw new Error('Missing gold_admin role');
 
       const user = await prisma.user.create({
         data: {

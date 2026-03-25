@@ -28,14 +28,14 @@
 - [x] Middleware to inject `tenantId` on every authenticated request
 
 ### 0.4 Roles Defined
-- [ ] `gold_admin` — all modules, all tenant data
-- [ ] `field_supervisor` — Production module only
-- [ ] `qc_lead` — Pack house + inventory
-- [ ] `accountant` — Finance + payroll read
-- [ ] `hr_manager` — HR module + attendance
-- [ ] `driver` — Logistics + PoD module
-- [ ] `store_manager` — Stores + procurement
-- [ ] `sales_agent` — CRM + orders
+- [x] `gold_admin` — all modules, all tenant data
+- [x] `field_supervisor` — Production module only
+- [x] `qc_lead` — Pack house + inventory
+- [x] `accountant` — Finance + payroll read
+- [x] `hr_manager` — HR module + attendance
+- [x] `driver` — Logistics + PoD module
+- [x] `store_manager` — Stores + procurement
+- [x] `sales_agent` — CRM + orders
 
 ### 0.5 Communications Engine (Foundational)
 - [ ] `MailModule` with SendGrid / AWS SES integration
