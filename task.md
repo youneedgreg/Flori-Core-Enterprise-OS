@@ -38,10 +38,11 @@
 - [x] `sales_agent` — CRM + orders
 
 ### 0.5 Communications Engine (Foundational)
-- [ ] `MailModule` with SendGrid / AWS SES integration
-- [ ] `communications` table: `thread_id`, `entity_type`, `entity_id`, `direction`, `subject`, `body`, `attachments[]`
-- [ ] In-app notification centre (Socket.io + `notifications` table)
-- [ ] SendGrid Inbound Parse webhook for received emails
+- [x] `MailModule` with Resend integration
+- [x] `communications` table (included in schema)
+- [x] In-app notification centre (Socket.io + `notifications` table)
+- [x] Resend Inbound Parse webhook for received emails
+- [x] WhatsApp notifications integration (Twilio API)
 
 ### 0.6 DevOps
 - [ ] `Dockerfile` per app

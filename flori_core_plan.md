@@ -74,10 +74,11 @@
 | `sales_agent` | CRM + orders |
 
 ### 0.5 Communications Engine (Foundational)
-- SendGrid/SES integration via NestJS `MailModule`
+- Resend integration via NestJS `MailModule`
 - Every email stored in `communications` table with: `thread_id`, `entity_type` (order/employee/vendor), `entity_id`, `direction` (in/out), `subject`, `body`, `attachments[]`
 - In-app notification centre (Socket.io + `notifications` table)
-- Email parsing webhook (SendGrid Inbound Parse) for received emails
+- Email parsing webhook (Resend Inbound Parse) for received emails
+- WhatsApp notifications integration (Twilio / Meta API)
 
 ### 0.6 DevOps
 - `Dockerfile` per app + `docker-compose.yml` for local dev

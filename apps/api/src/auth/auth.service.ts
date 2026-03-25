@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -13,8 +17,10 @@ export class AuthService {
 
   async registerTenant(dto: RegisterTenantDto) {
     const { farmName, adminEmail, adminPassword } = dto;
-    
-    const existing = await this.prisma.user.findUnique({ where: { email: adminEmail } });
+
+    const existing = await this.prisma.user.findUnique({
+      where: { email: adminEmail },
+    });
     if (existing) {
       throw new BadRequestException('User already exists');
     }
@@ -36,8 +42,8 @@ export class AuthService {
               tenantId: tenant.id,
               permissions: r.permissions,
             },
-          })
-        )
+          }),
+        ),
       );
 
       const role = createdRoles.find((r) => r.name === 'gold_admin');
@@ -55,10 +61,19 @@ export class AuthService {
       return { tenant, role, user };
     });
 
-    const payload = { sub: result.user.id, email: result.user.email, tenantId: result.tenant.id, role: result.role.name };
+    const payload = {
+      sub: result.user.id,
+      email: result.user.email,
+      tenantId: result.tenant.id,
+      role: result.role.name,
+    };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: result.user.id, email: result.user.email, role: result.role.name },
+      user: {
+        id: result.user.id,
+        email: result.user.email,
+        role: result.role.name,
+      },
     };
   }
 
@@ -74,8 +89,13 @@ export class AuthService {
     if (!isMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    
-    const payload = { sub: user.id, email: user.email, tenantId: user.tenantId, role: user.role.name };
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      tenantId: user.tenantId,
+      role: user.role.name,
+    };
     return {
       access_token: this.jwtService.sign(payload),
       user: { id: user.id, email: user.email, role: user.role.name },
