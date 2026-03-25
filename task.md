@@ -7,11 +7,11 @@
 ## Phase 0 — Foundation & Infrastructure *(Weeks 1–3)*
 
 ### 0.1 Monorepo Setup
-- [ ] Initialise monorepo with Turborepo + pnpm workspaces
-- [ ] Scaffold `apps/web` — Next.js 15 (App Router)
-- [ ] Scaffold `apps/api` — NestJS
-- [ ] Scaffold `packages/shared` — shared DTOs, Zod schemas, types
-- [ ] Confirm Turborepo pipelines (build, lint, test)
+- [x] Initialise monorepo with Turborepo + pnpm workspaces
+- [x] Scaffold `apps/web` — Next.js 15 (App Router)
+- [x] Scaffold `apps/api` — NestJS
+- [x] Scaffold `packages/shared` — shared DTOs, Zod schemas, types
+- [x] Confirm Turborepo pipelines (build, lint, test)
 
 ### 0.2 Database & ORM
 - [ ] `docker-compose.yml` with PostgreSQL + TimescaleDB
