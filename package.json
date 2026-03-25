@@ -10,13 +10,21 @@
     "format": "turbo run format"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^22.10.7",
+    "@types/pg": "^8.20.0",
     "turbo": "^2.5.3",
-    "typescript": "^5.7.3",
-    "@types/node": "^22.10.7"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=20",
     "pnpm": ">=9"
   },
-  "packageManager": "pnpm@10.7.0"
+  "packageManager": "pnpm@10.7.0",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "pg": "^8.20.0",
+    "prisma": "^7.5.0",
+    "zod": "^4.3.6"
+  }
 }

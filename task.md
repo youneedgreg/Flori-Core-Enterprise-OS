@@ -13,12 +13,12 @@
 - [x] Scaffold `packages/shared` — shared DTOs, Zod schemas, types
 - [x] Confirm Turborepo pipelines (build, lint, test)
 
-### 0.2 Database & ORM
-- [ ] `docker-compose.yml` with PostgreSQL + TimescaleDB
-- [ ] Prisma schema skeleton with `tenant_id` on every model
-- [ ] Multi-tenant seed script
-- [ ] Database migration pipeline (Prisma migrate + shadow DB)
-- [ ] AWS RDS config documented for production
+### 0.2 Database & ORM [x]
+- [x] `docker-compose.yml` with PostgreSQL + TimescaleDB
+- [x] Prisma schema skeleton with `tenant_id` on every model
+- [x] Multi-tenant seed script
+- [x] Database migration pipeline (Prisma migrate + shadow DB)
+- [x] AWS RDS config documented for production
 
 ### 0.3 Auth System
 - [ ] Tenant registration flow: create `Tenant` + first `User` (Gold Admin)
