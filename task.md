@@ -45,13 +45,13 @@
 - [x] WhatsApp notifications integration (Twilio API)
 
 ### 0.6 DevOps
-- [ ] `Dockerfile` per app
-- [ ] `docker-compose.yml` for local dev (all services)
-- [ ] GitHub Actions pipeline: lint → test → build → deploy on `main`
-- [ ] Vercel frontend preview deployments per PR
-- [ ] AWS ECS Fargate setup for NestJS API production
-- [ ] AWS S3 + CloudFront for static assets
-- [ ] Sentry DSN configured for both apps
+- [x] `Dockerfile` per app
+- [x] `docker-compose.yml` for local dev (all services)
+- [x] GitHub Actions pipeline: lint → test → build → deploy on `main`
+- [x] Vercel frontend preview deployments per PR
+- [x] AWS ECS Fargate setup for NestJS API production
+- [x] AWS S3 + CloudFront for static assets
+- [x] Sentry DSN configured for both apps
 
 ### 0.7 Landing Page
 - [ ] Next.js marketing page (pricing, features, contact/demo form)

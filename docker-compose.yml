@@ -12,5 +12,41 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: flori-core-api
+    restart: always
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgresql://postgres:floricore_dev_pwd@db:5432/floricore?schema=public
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: flori-core-web
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+
+  redis:
+    image: redis:7-alpine
+    container_name: flori-core-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
 volumes:
   postgres_data:
