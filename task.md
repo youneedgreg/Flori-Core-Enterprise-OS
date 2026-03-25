@@ -21,11 +21,11 @@
 - [x] AWS RDS config documented for production
 
 ### 0.3 Auth System
-- [ ] Tenant registration flow: create `Tenant` + first `User` (Gold Admin)
-- [ ] JWT access + refresh token rotation
-- [ ] `roles` table with `permissions[]` JSON array
-- [ ] NestJS guards: `@Roles()`, `@TenantScoped()` decorators
-- [ ] Middleware to inject `tenantId` on every authenticated request
+- [x] Tenant registration flow: create `Tenant` + first `User` (Gold Admin)
+- [x] JWT access + refresh token rotation
+- [x] `roles` table with `permissions[]` JSON array
+- [x] NestJS guards: `@Roles()`, `@TenantScoped()` decorators
+- [x] Middleware to inject `tenantId` on every authenticated request
 
 ### 0.4 Roles Defined
 - [ ] `gold_admin` — all modules, all tenant data
