@@ -30,6 +30,9 @@ model Tenant {
   auditLogs      AuditLog[]
   communications Communication[]
   notifications  Notification[]
+  farmProfile    FarmProfile?
+  zones          Zone[]
+  iotDevices     IoTDevice[]
 
   @@map("tenants")
 }
@@ -136,4 +139,53 @@ model Notification {
   @@index([userId])
   @@index([tenantId])
   @@map("notifications")
+}
+
+// ── Onboarding & Farm Setup ────────────────────────────────────────
+
+model FarmProfile {
+  id             String   @id @default(uuid())
+  tenantId       String   @unique
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  name           String
+  location       String?
+  gpsCoordinates String?
+  certifications String[]
+  contactEmail   String?
+  contactPhone   String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("farm_profiles")
+}
+
+model Zone {
+  id            String   @id @default(uuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  name          String
+  areaSqm       Float?
+  cropVarieties String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  devices       IoTDevice[]
+
+  @@map("zones")
+}
+
+model IoTDevice {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  zoneId      String?
+  zone        Zone?    @relation(fields: [zoneId], references: [id])
+  type        String   // e.g. "MOISTURE", "TEMPERATURE"
+  macAddress  String   @unique
+  mqttTopic   String
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("iot_devices")
 }
