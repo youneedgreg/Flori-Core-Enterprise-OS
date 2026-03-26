@@ -41,4 +41,4 @@ COPY --from=sourcer /app/apps/api/node_modules ./apps/api/node_modules
 COPY --from=sourcer /app/apps/api/package.json ./package.json
 
 EXPOSE 3001
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
