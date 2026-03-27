@@ -40,11 +40,13 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
-# Next.js standalone output automatically copies necessary node_modules.
+# In a monorepo, standalone output needs public and static assets in the specific app folder
+# but sometimes also looks at the root depending on how it's run.
 COPY --from=sourcer /app/apps/web/public ./public
-# Automatically leverage output traces to reduce image size
+COPY --from=sourcer /app/apps/web/public ./apps/web/public
 COPY --from=sourcer /app/apps/web/.next/standalone ./
 COPY --from=sourcer /app/apps/web/.next/static ./.next/static
+COPY --from=sourcer /app/apps/web/.next/static ./apps/web/.next/static
 
 EXPOSE 3000
 CMD ["node", "apps/web/server.js"]

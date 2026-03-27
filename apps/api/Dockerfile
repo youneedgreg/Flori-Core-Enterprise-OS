@@ -34,11 +34,9 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy the built output from api
-COPY --from=sourcer /app/apps/api/dist ./dist
-COPY --from=sourcer /app/node_modules ./node_modules
-COPY --from=sourcer /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=sourcer /app/apps/api/package.json ./package.json
+# Copy everything from sourcer stage to ensure all dependencies and built files are present
+COPY --from=sourcer /app/ .
 
 EXPOSE 3001
-CMD ["node", "dist/src/main"]
+# Start the application using node from the api directory
+CMD ["node", "apps/api/dist/src/main"]
