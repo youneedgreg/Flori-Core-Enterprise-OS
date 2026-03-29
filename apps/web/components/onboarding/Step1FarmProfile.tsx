@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useRef } from 'react';
+import { Country, City } from 'country-state-city';
+import { ChevronDown } from 'lucide-react';
 
 interface Props {
   data: { name: string; location: string; gpsCoordinates: string; certifications: string[]; contactEmail: string; contactPhone: string; logoUrl: string };
@@ -29,6 +31,41 @@ export default function Step1FarmProfile({ data, onChange, onNext }: Props) {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const countries = React.useMemo(() => Country.getAllCountries(), []);
+
+  // Parse existing location if navigating back
+  const initialParse = React.useMemo(() => {
+    if (!data.location) return { code: '', city: '' };
+    if (data.location.includes(', ')) {
+      const [cityStr, countryStr] = data.location.split(', ');
+      const foundCountry = countries.find(c => c.name === countryStr);
+      return { code: foundCountry?.isoCode || '', city: cityStr };
+    }
+    const foundCountry = countries.find(c => c.name === data.location);
+    return { code: foundCountry?.isoCode || '', city: '' };
+  }, [data.location, countries]);
+
+  // For country/city cascading dropdown
+  const [countryCode, setCountryCode] = React.useState(initialParse.code);
+  const [cityName, setCityName] = React.useState(initialParse.city);
+
+  const cities = React.useMemo(() => (countryCode ? City.getCitiesOfCountry(countryCode) ?? [] : []), [countryCode]);
+
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const code = e.target.value;
+    setCountryCode(code);
+    setCityName('');
+    const countryName = Country.getCountryByCode(code)?.name || '';
+    onChange({ ...data, location: countryName });
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const city = e.target.value;
+    setCityName(city);
+    const countryName = Country.getCountryByCode(countryCode)?.name || '';
+    onChange({ ...data, location: `${city}, ${countryName}` });
   };
 
   return (
@@ -79,12 +116,49 @@ export default function Step1FarmProfile({ data, onChange, onNext }: Props) {
           onChange={(e) => onChange({ ...data, name: e.target.value })}
           className="w-full px-5 py-4 rounded-xl bg-slate-800/50 border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none text-white placeholder:text-slate-500 transition-all"
         />
-        <input
-          placeholder="Location (city, country)"
-          value={data.location}
-          onChange={(e) => onChange({ ...data, location: e.target.value })}
-          className="w-full px-5 py-4 rounded-xl bg-slate-800/50 border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none text-white placeholder:text-slate-500 transition-all"
-        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="relative" style={{ position: 'relative' }}>
+            <select
+              value={countryCode}
+              onChange={handleCountryChange}
+              style={{ paddingLeft: '1.25rem', paddingRight: '3rem', WebkitAppearance: 'none', appearance: 'none', backgroundImage: 'none', height: '58px' }}
+              className="w-full rounded-xl bg-slate-800/50 border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none text-white transition-all cursor-pointer"
+            >
+              <option value="" disabled className="text-slate-500">Select Country</option>
+              {countries.map((c) => (
+                <option key={c.isoCode} value={c.isoCode} className="bg-slate-800 text-white">
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown 
+              className="text-slate-400 pointer-events-none" 
+              style={{ position: 'absolute', right: '1.25rem', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px' }} 
+            />
+          </div>
+
+          <div className="relative" style={{ position: 'relative' }}>
+            <select
+              value={cityName}
+              onChange={handleCityChange}
+              disabled={!countryCode || cities.length === 0}
+              style={{ paddingLeft: '1.25rem', paddingRight: '3rem', WebkitAppearance: 'none', appearance: 'none', backgroundImage: 'none', height: '58px' }}
+              className="w-full rounded-xl bg-slate-800/50 border border-slate-700 focus:ring-2 focus:ring-emerald-500 outline-none text-white transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="" disabled className="text-slate-500">Select City</option>
+              {cities.map((city, idx) => (
+                <option key={`${city.name}-${idx}`} value={city.name} className="bg-slate-800 text-white">
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown 
+              className="text-slate-400 pointer-events-none" 
+              style={{ position: 'absolute', right: '1.25rem', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px' }} 
+            />
+          </div>
+        </div>
         <input
           placeholder="GPS Coordinates (optional, e.g. -0.3°, 36.9°)"
           value={data.gpsCoordinates}
