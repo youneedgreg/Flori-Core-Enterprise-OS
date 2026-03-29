@@ -25,7 +25,7 @@ export default function WizardContainer({ token }: { token: string }) {
   const [createdZones, setCreatedZones] = useState<CreatedZone[]>([]);
 
   const [farmProfile, setFarmProfile] = useState({
-    name: '', location: '', gpsCoordinates: '', certifications: [] as string[], contactEmail: '', contactPhone: '',
+    name: '', location: '', gpsCoordinates: '', certifications: [] as string[], contactEmail: '', contactPhone: '', logoUrl: '',
   });
   const [zones, setZones] = useState<Zone[]>([{ name: '', areaSqm: '', cropVarieties: '' }]);
   const [members, setMembers] = useState<Member[]>([]);

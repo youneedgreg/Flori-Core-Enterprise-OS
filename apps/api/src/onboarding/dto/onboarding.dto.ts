@@ -1,4 +1,11 @@
-import { IsString, IsOptional, IsArray, IsEmail, IsNumber, IsUUID } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsArray,
+  IsEmail,
+  IsNumber,
+  IsUUID,
+} from 'class-validator';
 
 export class FarmProfileDto {
   @IsString()
@@ -15,6 +22,10 @@ export class FarmProfileDto {
   @IsArray()
   @IsString({ each: true })
   certifications!: string[];
+
+  @IsOptional()
+  @IsString()
+  logoUrl?: string;
 
   @IsOptional()
   @IsEmail()
