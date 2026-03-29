@@ -77,9 +77,11 @@
 
 ### 1.2 Auth & Initial Access
 
-- [ ] Implement Sign Up screen (Tenant + Gold Admin registration)
-- [ ] Implement Login screen (JWT-based authentication)
-- [ ] Verify all landing page buttons and navigation links
+- [x] Implement Sign Up screen (UI)
+- [x] Implement Login screen (UI)
+- [x] Verify all landing page buttons and navigation links
+- [/] Connect Sign Up/Login to Backend API
+- [ ] Implement session management (cookies)
 
 ### 1.3 Gold Admin Master Dashboard
 

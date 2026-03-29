@@ -10,18 +10,37 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
       LoginSchema.parse({ email, password });
-      // In a real app, we would call the API here
-      console.log('Login attempt:', { email, password });
-      alert('Login attempt successful (validation passed). API integration pending.');
+      
+      const response = await fetch('http://localhost:3001/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
+      // Set cookie for session (primitive but effective for now)
+      document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
+      
+      // Redirect to onboarding (or dashboard later)
+      window.location.href = '/onboarding';
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setError(err.issues[0].message);
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
         setError('An unexpected error occurred.');
       }
@@ -89,7 +108,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="font-semibold text-emerald-500 hover:text-emerald-600 transition-colors">
               Request access
             </Link>

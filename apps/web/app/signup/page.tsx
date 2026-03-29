@@ -11,18 +11,37 @@ export default function SignupPage() {
   const [adminPassword, setAdminPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
       RegisterTenantSchema.parse({ farmName, adminEmail, adminPassword });
-      // In a real app, we would call the API here
-      console.log('Signup attempt:', { farmName, adminEmail, adminPassword });
-      alert('Signup attempt successful (validation passed). API integration pending.');
+      
+      const response = await fetch('http://localhost:3001/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ farmName, adminEmail, adminPassword }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
+      // Set cookie for session (primitive but effective for now)
+      document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
+      
+      // Redirect to onboarding
+      window.location.href = '/onboarding';
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setError(err.errors[0].message);
+        setError(err.issues[0].message);
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
         setError('An unexpected error occurred.');
       }

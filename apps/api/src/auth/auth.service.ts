@@ -78,6 +78,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
+    console.log('[AUTH] login called, dto =', JSON.stringify(dto));
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
       include: { role: true },
@@ -90,15 +91,16 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const roleName = user.role?.name ?? 'unknown';
     const payload = {
       sub: user.id,
       email: user.email,
       tenantId: user.tenantId,
-      role: user.role.name,
+      role: roleName,
     };
     return {
       access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, role: user.role.name },
+      user: { id: user.id, email: user.email, role: roleName },
     };
   }
 }

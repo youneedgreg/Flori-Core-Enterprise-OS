@@ -9,7 +9,7 @@ export default async function OnboardingPage() {
   const token = cookieStore.get('access_token')?.value;
 
   if (!token) {
-    redirect('/auth/login');
+    redirect('/login');
   }
 
   return <WizardContainer token={token} />;
