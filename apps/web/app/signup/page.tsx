@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { RegisterTenantSchema } from '@flori/shared';
 import { z } from 'zod';
+import { toast } from 'sonner';
 
 export default function SignupPage() {
   const [farmName, setFarmName] = useState('');
@@ -38,12 +39,16 @@ export default function SignupPage() {
       // Redirect to onboarding
       window.location.href = '/onboarding';
     } catch (err) {
+      console.error("Signup Error:", err);
       if (err instanceof z.ZodError) {
         setError(err.issues[0].message);
+        toast.error(err.issues[0].message);
       } else if (err instanceof Error) {
         setError(err.message);
+        toast.error(err.message);
       } else {
         setError('An unexpected error occurred.');
+        toast.error('An unexpected error occurred.');
       }
     }
   };

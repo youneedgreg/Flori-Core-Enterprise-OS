@@ -4,7 +4,7 @@
 
 ---
 
-## Phase 0 — Foundation & Infrastructure _(Weeks 1–3)_
+## Phase 0 — Foundation & Infrastructure _(Days 1–3)_
 
 ### 0.1 Monorepo Setup
 
@@ -66,7 +66,7 @@
 
 ---
 
-## Phase 1 — Core Dashboard & Tenant Onboarding _(Weeks 4–5)_
+## Phase 1 — Core Dashboard & Tenant Onboarding _(Days 4–5)_
 
 ### 1.1 Onboarding Wizard
 
@@ -98,7 +98,7 @@
 
 ---
 
-## Phase 2 — Module 1: Precision Production & IoT _(Weeks 6–9)_
+## Phase 2 — Module 1: Precision Production & IoT _(Days 6–9)_
 
 ### 2.1 Crop Lifecycle Management
 
