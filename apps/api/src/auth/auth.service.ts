@@ -107,4 +107,11 @@ export class AuthService {
       user: { id: user.id, email: user.email, role: roleName },
     };
   }
+
+  async getRolesForTenant(tenantId: string) {
+    return this.prisma.role.findMany({
+      where: { tenantId },
+      select: { id: true, name: true },
+    });
+  }
 }

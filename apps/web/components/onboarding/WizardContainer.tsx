@@ -31,26 +31,53 @@ export default function WizardContainer({ token }: { token: string }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [devices, setDevices] = useState<Device[]>([]);
 
-  const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  const headers = React.useMemo(() => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }), [token]);
 
   // Fetch roles for the team invite dropdown
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetch(`${API}/auth/roles`, { headers })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (r.status === 401) {
+          router.push('/login');
+          throw new Error('Unauthorized');
+        }
+        if (!r.ok) throw new Error('Failed to fetch roles');
+        return r.json();
+      })
       .then((data: Role[]) => setRoles(data))
-      .catch(() => {});
-  }, []); // headers object is stable — derived from `token` prop which doesn't change
+      .catch((err) => console.error(err));
+  }, [headers, router]);
 
   const post = async (path: string, body: unknown) => {
     const res = await fetch(`${API}${path}`, { method: 'POST', headers, body: JSON.stringify(body) });
-    if (!res.ok) throw new Error(await res.text());
+    if (!res.ok) {
+      if (res.status === 401) {
+        document.cookie = 'access_token=; Max-Age=0; path=/';
+        router.push('/login');
+        throw new Error('Session expired');
+      }
+      let errText = await res.text();
+      try {
+        const json = JSON.parse(errText);
+        errText = json.message || errText;
+      } catch { /* ignore */ }
+      throw new Error(errText);
+    }
     return res.json();
+  };
+
+  const handleError = (e: unknown) => {
+    const msg = e instanceof Error ? e.message : String(e);
+    if (msg !== 'Session expired' && msg !== 'Unauthorized') {
+      alert(`Error: ${msg}`);
+    }
   };
 
   const handleNextStep1 = async () => {
     setLoading(true);
-    try { await post('/onboarding/farm-profile', farmProfile); setStep(1); } finally { setLoading(false); }
+    try { await post('/onboarding/farm-profile', farmProfile); setStep(1); } 
+    catch (e) { handleError(e); } 
+    finally { setLoading(false); }
   };
 
   const handleNextStep2 = async () => {
@@ -60,7 +87,8 @@ export default function WizardContainer({ token }: { token: string }) {
       const result = await post('/onboarding/zones', parsed) as CreatedZone[];
       setCreatedZones(result);
       setStep(2);
-    } finally { setLoading(false); }
+    } catch (e) { handleError(e); } 
+    finally { setLoading(false); }
   };
 
   const handleNextStep3 = async () => {
@@ -68,7 +96,8 @@ export default function WizardContainer({ token }: { token: string }) {
     try {
       if (members.length > 0) await post('/onboarding/invite-team', members);
       setStep(3);
-    } finally { setLoading(false); }
+    } catch (e) { handleError(e); } 
+    finally { setLoading(false); }
   };
 
   const handleSubmit = async () => {
@@ -76,7 +105,8 @@ export default function WizardContainer({ token }: { token: string }) {
     try {
       if (devices.length > 0) await post('/onboarding/iot-devices', devices);
       router.push('/dashboard');
-    } finally { setLoading(false); }
+    } catch (e) { handleError(e); } 
+    finally { setLoading(false); }
   };
 
   return (

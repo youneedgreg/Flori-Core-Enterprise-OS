@@ -1,6 +1,12 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { RegisterTenantDto, LoginDto } from '@flori/shared';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  tenantId: string;
+}
 
 @Controller('auth')
 export class AuthController {
@@ -14,5 +20,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('roles')
+  async getRoles(@Req() req: AuthenticatedRequest) {
+    return this.authService.getRolesForTenant(req.tenantId);
   }
 }
