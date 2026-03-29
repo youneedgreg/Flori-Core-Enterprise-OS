@@ -78,15 +78,16 @@ export default function PricingSection() {
                 ))}
               </ul>
               
-              <button 
-                className={`w-full py-4 rounded-full font-semibold transition-colors ${
+              <a 
+                href="/signup"
+                className={`w-full py-4 rounded-full font-semibold transition-colors text-center ${
                   tier.popular 
                   ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
                   : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
                 }`}
               >
                 {tier.cta}
-              </button>
+              </a>
             </div>
           ))}
         </div>

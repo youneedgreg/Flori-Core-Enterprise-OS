@@ -75,7 +75,13 @@
 - [x] Step 3: Invite team members (email invites → RBAC assignment)
 - [x] Step 4: Connect IoT devices (optional MQTT device registration)
 
-### 1.2 Gold Admin Master Dashboard
+### 1.2 Auth & Initial Access
+
+- [ ] Implement Sign Up screen (Tenant + Gold Admin registration)
+- [ ] Implement Login screen (JWT-based authentication)
+- [ ] Verify all landing page buttons and navigation links
+
+### 1.3 Gold Admin Master Dashboard
 
 - [ ] KPI cards: today's harvest, active orders, cold room status, payroll due
 - [ ] Live notification feed (Socket.io)
