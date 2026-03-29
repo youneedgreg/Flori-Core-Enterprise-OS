@@ -152,6 +152,7 @@ model FarmProfile {
   location       String?
   gpsCoordinates String?
   certifications String[]
+  logoUrl        String?
   contactEmail   String?
   contactPhone   String?
   createdAt      DateTime @default(now())

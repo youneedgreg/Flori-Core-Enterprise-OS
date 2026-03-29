@@ -80,8 +80,13 @@
 - [x] Implement Sign Up screen (UI)
 - [x] Implement Login screen (UI)
 - [x] Verify all landing page buttons and navigation links
-- [/] Connect Sign Up/Login to Backend API
-- [ ] Implement session management (cookies)
+- [x] Connect Sign Up/Login to Backend API
+- [x] Implement session management (cookies)
+
+### 1.25 Flori-Core Dashboard
+
+- [x] Specialized system dashboard for `gregorytemwa1212@gmail.com`
+- [x] View list of all system users and information across tenants
 
 ### 1.3 Gold Admin Master Dashboard
 
@@ -90,7 +95,7 @@
 - [ ] Quick-action shortcuts (new order, approve PO, view alerts)
 - [ ] Drill-down navigation to all modules
 
-### 1.3 Audit Log Viewer
+### 1.4 Audit Log Viewer
 
 - [ ] Timeline view of every system action across all modules
 - [ ] Filter by user, module, date range
