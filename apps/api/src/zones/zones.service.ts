@@ -75,7 +75,7 @@ export class ZonesService {
     );
     const uniqueCrops = new Set(
       zones.flatMap((z: any) => z.cropVarieties || []),
-      .size;
+    ).size;
 
     return {
       activeZones: zones.length,
