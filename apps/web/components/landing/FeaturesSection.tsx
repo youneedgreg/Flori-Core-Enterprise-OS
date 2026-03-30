@@ -1,21 +1,38 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   LineChart, Line, BarChart, Bar, AreaChart, Area,
-  ResponsiveContainer, XAxis, YAxis, Tooltip, Cell
+  ResponsiveContainer, Tooltip, Cell
 } from 'recharts';
 import { 
-  Zap, Thermometer, Briefcase, Globe, BarChart3, Users, 
-  ArrowUpRight, TrendingUp, CheckCircle2, ShieldCheck, PieChart,
-  Truck, ArrowRight
+  Zap, Thermometer, Briefcase, Globe, Users, 
+  TrendingUp, ShieldCheck, PieChart, X
 } from 'lucide-react';
 
-const coreFeatures = [
+interface Feature {
+  id: string;
+  title: string;
+  desc: string;
+  details: string[];
+  icon: any;
+  visualType: string;
+  stats: { label: string; value: string; color: string };
+  data?: any[];
+}
+
+const coreFeatures: Feature[] = [
   {
     id: "module-production",
     title: "Precision Production",
     desc: "Map farm blocks interactively, track crop cycles, and manage smart soil IoT telemetry. Log chemical sprays and verify PHI compliance.",
+    details: [
+      "Digital Farm Mapping: Interactive GIS-based planning for all farm blocks and irrigation zones.",
+      "Smart Soil Telemetry: Real-time moisture, pH, and nutrient monitoring through distributed IoT sensors.",
+      "Compliance Vault: Automated spray logging with intelligent Pre-Harvest Interval (PHI) verification.",
+      "Crop Cycle Analytics: Predictive harvesting windows based on historical performance and weather data."
+    ],
     icon: Zap,
     visualType: "line-area",
     stats: { label: "Yield projection", value: "+12.5%", color: "text-emerald-400" },
@@ -32,6 +49,12 @@ const coreFeatures = [
     id: "module-cold-chain",
     title: "IoT Cold Chain",
     desc: "Temperature monitoring trends, real-time alert bands to preserve shelf life across global logistics networks.",
+    details: [
+      "Multi-Zone Monitoring: High-precision temperature and humidity sensors for cold rooms and packhouses.",
+      "Logistics Telemetry: Live transit monitoring with GPS cross-referencing and departure/arrival alerting.",
+      "Shelf-Life Preservation: Automated warning bands for temperature deviations to preserve product quality.",
+      "Integrated Dispatch: Smooth coordination between the packhouse and international shippers."
+    ],
     icon: Thermometer,
     visualType: "line-temp",
     stats: { label: "Temperature status", value: "Optimal", color: "text-emerald-400" },
@@ -48,6 +71,12 @@ const coreFeatures = [
     id: "module-stores",
     title: "Intelligent Stores",
     desc: "AI-driven inventory minimum thresholds with automated purchase request generation and seamless vendor invoice matching.",
+    details: [
+      "Dynamic Inventory Thresholds: AI-calculated minimum stocks based on seasonal demand data.",
+      "Automated Purchase Requests: Generate orders automatically when stock levels hit critical points.",
+      "Vendor Matching Engine: Sync invoices with digital delivery notes for 100% financial accuracy.",
+      "QR/RFID Stocktakes: Perform rapid inventory audits using integrated mobile scanner support."
+    ],
     icon: ShieldCheck,
     visualType: "bar-inventory",
     stats: { label: "In Stock Rate", value: "94.2%", color: "text-emerald-400" },
@@ -65,6 +94,12 @@ const coreFeatures = [
     id: "module-commerce",
     title: "Global Commerce",
     desc: "Integrated CRM, seamless standing contract generation, and compliance document vault to master international exports.",
+    details: [
+      "Executive CRM: A specialized customer relationship engine for high-volume flower traders.",
+      "Smart Export Contracts: Auto-generate legally compliant trade documents for EU and US markets.",
+      "Compliance Document Vault: Secure repository for phytosanitary certificates and clearing documents.",
+      "Financial Settlement Integration: Track bank transfers and link them to individual shipments."
+    ],
     icon: Globe,
     visualType: "geo-map",
     stats: { label: "Shipment Progress", value: "70%", color: "text-emerald-400" },
@@ -73,6 +108,12 @@ const coreFeatures = [
     id: "module-payroll",
     title: "Enterprise Payroll",
     desc: "Automated payment processes and efficiency metrics for thousands of seasonal and permanent agricultural laborers.",
+    details: [
+      "High-Volume Disbursements: Handle thousands of pay slips with automated bulk MPESA or bank transfers.",
+      "Efficiency Auditing: Correlate field performance with individual payouts to reward productivity.",
+      "Statutory Compliance: Automated KRA, NSSF, and NHIF calculations for easy regulatory filing.",
+      "Advance Management: Track and reconcile staff salary advances through a secure internal ledger."
+    ],
     icon: Briefcase,
     visualType: "bar-payroll",
     stats: { label: "Efficiency", value: "100%", color: "text-emerald-400" },
@@ -90,6 +131,12 @@ const coreFeatures = [
     id: "module-talent",
     title: "HR & Talent",
     desc: "Manage digital employee files, orchestrate shift scheduling, and track performance KPIs across all operational teams.",
+    details: [
+      "Digital Employee Records: Maintain detailed CVs, contracts, and training history for all staff.",
+      "Shift Orchestration: Manage complex shift rotations across diverse labor gangs and departments.",
+      "KPI Driven Performance: Track attendance, quality metrics, and safety records in one unified dashboard.",
+      "Training & Certification: Automated alerts for expiring certifications and mandatory training sessions."
+    ],
     icon: Users,
     visualType: "stats-performance",
     stats: { label: "Shift Completion", value: "98.5%", color: "text-emerald-400" },
@@ -117,6 +164,8 @@ const LogisticsMap = () => (
 );
 
 export default function FeaturesSection() {
+  const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
+
   return (
     <section id="features" className="py-32 bg-brand-dark relative overflow-hidden">
       {/* Anchor for Modules link */}
@@ -143,7 +192,8 @@ export default function FeaturesSection() {
             <div 
               key={i} 
               id={feature.id}
-              className="group relative p-10 rounded-[2.5rem] bg-white/3 backdrop-blur-3xl transition-all duration-700 hover:-translate-y-3 border-white/7 hover:border-emerald-500/30 hover:bg-white/6 overflow-hidden"
+              onClick={() => setSelectedFeature(feature)}
+              className="group relative p-10 rounded-[2.5rem] bg-white/3 backdrop-blur-3xl transition-all duration-700 hover:-translate-y-3 border border-white/7 hover:border-emerald-500/30 hover:bg-white/6 overflow-hidden cursor-pointer"
             >
               {/* Card Title & Icon */}
               <div className="flex justify-between items-start mb-8">
@@ -195,7 +245,7 @@ export default function FeaturesSection() {
                   <ResponsiveContainer width="100%" height={140}>
                     <BarChart data={feature.data}>
                       <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                        {(feature.data || []).map((entry: any, index: number) => (
+                        {(feature.data || []).map((_entry, index: number) => (
                           <Cell key={`cell-${index}`} fill={index === 3 ? '#10b981' : 'rgba(255,255,255,0.15)'} />
                         ))}
                       </Bar>
@@ -245,6 +295,79 @@ export default function FeaturesSection() {
           ))}
         </div>
       </div>
+
+      {/* Feature Details Modal */}
+      {selectedFeature && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6"
+          onClick={() => setSelectedFeature(null)}
+        >
+          {/* Backdrop Blur */}
+          <div className="absolute inset-0 bg-brand-dark/80 backdrop-blur-xl animate-in fade-in duration-300" />
+          
+          {/* Modal Content */}
+          <div 
+            className="relative w-full max-w-2xl bg-slate-900 border border-white/10 rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button 
+              onClick={() => setSelectedFeature(null)}
+              className="absolute top-6 right-6 p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 transition-colors z-10"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex flex-col md:flex-row h-full">
+              {/* Left Side: Icon & Title */}
+              <div className="p-8 md:p-12 md:w-5/12 bg-emerald-500/5 flex flex-col justify-center items-center text-center border-b md:border-b-0 md:border-r border-white/5">
+                <div className="w-20 h-20 rounded-3xl bg-emerald-500/10 flex items-center justify-center mb-6 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
+                  <selectedFeature.icon className="w-10 h-10 text-emerald-400" />
+                </div>
+                <h3 className="text-3xl font-black text-white leading-tight mb-4">
+                  {selectedFeature.title}
+                </h3>
+                <div className="px-4 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-widest">
+                  {selectedFeature.stats.label}: {selectedFeature.stats.value}
+                </div>
+              </div>
+
+              {/* Right Side: Details */}
+              <div className="p-8 md:p-12 md:w-7/12">
+                <p className="text-slate-400 font-medium leading-relaxed mb-10">
+                  {selectedFeature.desc}
+                </p>
+                
+                <div className="space-y-6">
+                  {selectedFeature.details.map((detail: string, idx: number) => {
+                    const [title, content] = detail.split(': ');
+                    return (
+                      <div key={idx} className="group/item flex gap-4">
+                        <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 group-hover/item:scale-150 transition-transform" />
+                        <div>
+                          <h4 className="text-sm font-bold text-white mb-1.5">{title}</h4>
+                          <p className="text-xs text-slate-500 leading-relaxed group-hover/item:text-slate-400 transition-colors">
+                            {content}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-12 flex items-center gap-4">
+                   <button 
+                     onClick={() => setSelectedFeature(null)}
+                     className="flex-1 px-6 py-3 rounded-2xl bg-emerald-500 text-brand-dark font-black text-sm uppercase tracking-widest hover:bg-emerald-400 transition-all active:scale-95"
+                   >
+                     Acknowledge
+                   </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
