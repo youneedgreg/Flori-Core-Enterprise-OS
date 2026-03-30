@@ -83,29 +83,34 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     console.log('[AUTH] login called, dto =', JSON.stringify(dto));
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-      include: { role: true },
-    });
-    if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-    const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+        include: { role: true },
+      });
+      if (!user) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      const isMatch = await bcrypt.compare(dto.password, user.passwordHash);
+      if (!isMatch) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
 
-    const roleName = user.role?.name ?? 'unknown';
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      tenantId: user.tenantId,
-      role: roleName,
-    };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: { id: user.id, email: user.email, role: roleName },
-    };
+      const roleName = user.role?.name ?? 'unknown';
+      const payload = {
+        sub: user.id,
+        email: user.email,
+        tenantId: user.tenantId,
+        role: roleName,
+      };
+      return {
+        access_token: this.jwtService.sign(payload),
+        user: { id: user.id, email: user.email, role: roleName },
+      };
+    } catch (e) {
+      console.error('[AUTH ERROR]', e);
+      throw e;
+    }
   }
 
   async getRolesForTenant(tenantId: string) {
