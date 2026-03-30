@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState } from 'react';
@@ -6,9 +5,9 @@ import {
   LineChart, Line, BarChart, Bar, AreaChart, Area,
   ResponsiveContainer, Tooltip, Cell
 } from 'recharts';
-import { 
+import {
   Zap, Thermometer, Briefcase, Globe, Users, 
-  TrendingUp, ShieldCheck, PieChart, X
+  TrendingUp, ShieldCheck, PieChart, X, LucideIcon
 } from 'lucide-react';
 
 interface Feature {
@@ -16,10 +15,10 @@ interface Feature {
   title: string;
   desc: string;
   details: string[];
-  icon: any;
+  icon: LucideIcon;
   visualType: string;
   stats: { label: string; value: string; color: string };
-  data?: any[];
+  data?: { name: string; value: number }[];
 }
 
 const coreFeatures: Feature[] = [

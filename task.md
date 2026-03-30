@@ -63,6 +63,7 @@
 
 - [x] Next.js marketing page (pricing, features, contact/demo form)
 - [x] SEO optimised with Next.js Metadata API
+- [x] Premium Interactive "Industrial Pillars" with detailed feature modals
 
 ---
 
@@ -89,9 +90,9 @@
 - [x] View list of all system users and information across tenants
 
 ### 1.26 Fix Login & Dev Infrastructure
-- [ ] Restore official `nest start --watch` (Fix CLI commander bug)
-- [ ] Resolve 500 Internal Server Error in Login (Dependency Injection fix)
-- [ ] Verify onboarding flow persists correctly with fresh tokens
+- [x] Restore official `nest start --watch` (Fix CLI commander bug)
+- [x] Resolve 500 Internal Server Error in Login (Dependency Injection fix)
+- [x] Verify onboarding flow persists correctly with fresh tokens
 
 ### 1.3 Gold Admin Master Dashboard
 
