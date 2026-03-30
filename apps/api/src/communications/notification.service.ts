@@ -16,7 +16,6 @@ export class NotificationService {
     title: string;
     message: string;
   }) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     const notification: Notification = await this.prisma.notification.create({
       data: {
         tenantId: data.tenantId,
@@ -30,7 +29,6 @@ export class NotificationService {
     // Emitting real-time event to the specific user via Socket.io
     this.gateway.emitToUser(data.userId, 'new_notification', notification);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return notification;
   }
 }

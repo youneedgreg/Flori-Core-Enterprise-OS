@@ -5,7 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TelemetryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async record(tenantId: string, deviceId: string, value: number, unit?: string) {
+  async record(
+    tenantId: string,
+    deviceId: string,
+    value: number,
+    unit?: string,
+  ) {
     return await (this.prisma as any).telemetryReading.create({
       data: {
         tenantId,

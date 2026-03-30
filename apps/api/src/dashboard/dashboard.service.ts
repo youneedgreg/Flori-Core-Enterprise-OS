@@ -44,10 +44,30 @@ export class DashboardService {
         },
       ],
       recentActivity: [
-        { id: 1, type: 'HARVEST', message: 'Harvest completed at Zone A', time: '10m ago' },
-        { id: 2, type: 'ORDER', message: 'New export order from Bloom & Wild', time: '25m ago' },
-        { id: 3, type: 'ALERT', message: 'Moisture sensor low in Zone C', time: '1h ago' },
-        { id: 4, type: 'LOGISTICS', message: 'Truck 04 departed for Nairobi', time: '2h ago' },
+        {
+          id: 1,
+          type: 'HARVEST',
+          message: 'Harvest completed at Zone A',
+          time: '10m ago',
+        },
+        {
+          id: 2,
+          type: 'ORDER',
+          message: 'New export order from Bloom & Wild',
+          time: '25m ago',
+        },
+        {
+          id: 3,
+          type: 'ALERT',
+          message: 'Moisture sensor low in Zone C',
+          time: '1h ago',
+        },
+        {
+          id: 4,
+          type: 'LOGISTICS',
+          message: 'Truck 04 departed for Nairobi',
+          time: '2h ago',
+        },
       ],
     };
   }

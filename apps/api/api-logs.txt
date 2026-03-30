@@ -1,60 +1,69 @@
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +17ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommunicationsModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOnboardingModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDashboardModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuditLogModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mZonesModule dependencies initialized[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mLogisticsModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTeamModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[NotificationsGateway] [39m[32m🚀 WebSocket Gateway initialized[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mNotificationsGateway subscribed to the "subscribe-to-notifications" message[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:15 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +2ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/, GET} route[39m[38;5;3m +2ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/flori-core-users, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/roles, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mInboundWebhooksController {/webhooks/communications}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/webhooks/communications/twilio-whatsapp, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/webhooks/communications/resend-inbound, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mOnboardingController {/onboarding}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/farm-profile, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/zones, POST} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/invite-team, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/iot-devices, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDashboardController {/dashboard}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/dashboard/stats, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuditLogController {/audit-logs}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/audit-logs, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mZonesController {/zones}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/stats, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTeamController {/team}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/roles, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/invite, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/:id, DELETE} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mLogisticsController {/logistics}:[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders, GET} route[39m[38;5;3m +1ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders/:id, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders/:id/status, PATCH} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/customers, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/customers, POST} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 62780  - [39m03/30/2026, 4:08:16 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +105ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +18ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:17 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommunicationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOnboardingModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDashboardModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuditLogModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mZonesModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mLogisticsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTeamModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[NotificationsGateway] [39m[32m🚀 WebSocket Gateway initialized[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[WebSocketsController] [39m[32mNotificationsGateway subscribed to the "subscribe-to-notifications" message[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +3ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/flori-core-users, GET} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/register, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/login, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/roles, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mInboundWebhooksController {/webhooks/communications}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/webhooks/communications/twilio-whatsapp, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/webhooks/communications/resend-inbound, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mOnboardingController {/onboarding}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/farm-profile, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/zones, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/invite-team, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/onboarding/iot-devices, POST} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDashboardController {/dashboard}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/dashboard/stats, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuditLogController {/audit-logs}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/audit-logs, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mZonesController {/zones}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/stats, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, PATCH} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/zones/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mTeamController {/team}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/roles, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/invite, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/team/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mLogisticsController {/logistics}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/orders/:id/status, PATCH} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/customers, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/logistics/customers, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 67174  - [39m03/30/2026, 4:15:18 AM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +105ms[39m
 🚀 API running on http://localhost:3001
-[31m[Nest] 62780  - [39m03/30/2026, 4:08:20 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39mTypeError: Cannot read properties of undefined (reading 'login')
-    at AuthController.login [90m(/Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/apps/api/[39msrc/auth/auth.controller.ts:22:29[90m)[39m
+[DEBUG] AuthController.this: true
+[DEBUG] AuthController.authService: true
+[AUTH] login called, dto = {"email":"test@test.com","password":"test"}
+[AUTH ERROR] TypeError: Cannot read properties of undefined (reading 'user')
+    at AuthService.login (/Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/apps/api/src/auth/auth.service.ts:87:38)
+    at AuthController.login (/Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/apps/api/src/auth/auth.controller.ts:24:29)
+    at /Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/node_modules/.pnpm/@nestjs+core@11.1.17_@nestjs+common@11.1.17_class-transformer@0.5.1_class-validator@0.1_bd79c0624ae5f4b9a1277bd60dfafc27/node_modules/@nestjs/core/router/router-execution-context.js:38:29
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+[31m[Nest] 67174  - [39m03/30/2026, 4:15:21 AM [31m  ERROR[39m [38;5;3m[ExceptionsHandler] [39mTypeError: Cannot read properties of undefined (reading 'user')
+    at AuthService.login [90m(/Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/apps/api/[39msrc/auth/auth.service.ts:87:38[90m)[39m
+    at AuthController.login [90m(/Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/apps/api/[39msrc/auth/auth.controller.ts:24:29[90m)[39m
     at /Users/greg/Desktop/projects/Flori-Core-Enterprise-OS/node_modules/[4m.pnpm[24m/@nestjs+core@11.1.17_@nestjs+common@11.1.17_class-transformer@0.5.1_class-validator@0.1_bd79c0624ae5f4b9a1277bd60dfafc27/node_modules/[4m@nestjs/core[24m/router/router-execution-context.js:38:29
 [90m    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)[39m

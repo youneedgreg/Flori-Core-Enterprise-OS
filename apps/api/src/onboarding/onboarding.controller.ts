@@ -19,7 +19,10 @@ export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
   @Post('farm-profile')
-  saveFarmProfile(@Req() req: AuthenticatedRequest, @Body() dto: FarmProfileDto) {
+  saveFarmProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: FarmProfileDto,
+  ) {
     return this.onboardingService.upsertFarmProfile(req.tenantId, dto);
   }
 
@@ -29,12 +32,18 @@ export class OnboardingController {
   }
 
   @Post('invite-team')
-  inviteTeam(@Req() req: AuthenticatedRequest, @Body() invites: InviteTeamMemberDto[]) {
+  inviteTeam(
+    @Req() req: AuthenticatedRequest,
+    @Body() invites: InviteTeamMemberDto[],
+  ) {
     return this.onboardingService.inviteTeamMembers(req.tenantId, invites);
   }
 
   @Post('iot-devices')
-  registerDevices(@Req() req: AuthenticatedRequest, @Body() devices: IoTDeviceDto[]) {
+  registerDevices(
+    @Req() req: AuthenticatedRequest,
+    @Body() devices: IoTDeviceDto[],
+  ) {
     return this.onboardingService.registerIotDevices(req.tenantId, devices);
   }
 }

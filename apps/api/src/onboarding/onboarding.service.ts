@@ -1,7 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../communications/email.service';
-import { FarmProfileDto, ZoneDto, InviteTeamMemberDto, IoTDeviceDto } from './dto/onboarding.dto';
+import {
+  FarmProfileDto,
+  ZoneDto,
+  InviteTeamMemberDto,
+  IoTDeviceDto,
+} from './dto/onboarding.dto';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 
@@ -29,7 +34,9 @@ export class OnboardingService {
   }
 
   async inviteTeamMembers(tenantId: string, invites: InviteTeamMemberDto[]) {
-    const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId } });
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
     if (!tenant) throw new NotFoundException('Tenant not found');
 
     const results = [];

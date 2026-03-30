@@ -18,9 +18,10 @@ export class AuditLogService {
     const where: any = { tenantId };
 
     if (filters.actorId) where.actorId = filters.actorId;
-    if (filters.action) where.action = { contains: filters.action, mode: 'insensitive' };
+    if (filters.action)
+      where.action = { contains: filters.action, mode: 'insensitive' };
     if (filters.entityType) where.entityType = filters.entityType;
-    
+
     if (filters.startDate || filters.endDate) {
       where.timestamp = {};
       if (filters.startDate) where.timestamp.gte = new Date(filters.startDate);

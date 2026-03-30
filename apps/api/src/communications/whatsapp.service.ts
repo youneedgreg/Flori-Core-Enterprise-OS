@@ -28,7 +28,6 @@ export class WhatsappService {
       to: `whatsapp:${data.to}`,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     return this.prisma.communication.create({
       data: {
         tenantId: data.tenantId,

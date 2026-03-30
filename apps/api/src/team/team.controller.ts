@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Delete, Body, Param, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TeamService } from './team.service';
 import { Request } from 'express';
@@ -23,7 +32,10 @@ export class TeamController {
   }
 
   @Post('invite')
-  invite(@Req() req: AuthenticatedRequest, @Body() dto: { email: string; roleId: string }) {
+  invite(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: { email: string; roleId: string },
+  ) {
     return this.teamService.inviteMember(req.tenantId, dto);
   }
 

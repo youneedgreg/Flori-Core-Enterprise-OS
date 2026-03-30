@@ -17,7 +17,10 @@ export class PayrollService {
     });
   }
 
-  async create(tenantId: string, data: { userId: string; amount: number; period: string; currency?: string }) {
+  async create(
+    tenantId: string,
+    data: { userId: string; amount: number; period: string; currency?: string },
+  ) {
     return await (this.prisma as any).payrollRecord.create({
       data: {
         ...data,

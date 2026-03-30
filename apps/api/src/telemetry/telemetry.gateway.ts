@@ -17,7 +17,11 @@ import { PrismaService } from '../prisma/prisma.service';
   },
 })
 export class TelemetryGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, OnModuleInit
+  implements
+    OnGatewayInit,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnModuleInit
 {
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('TelemetryGateway');
@@ -48,7 +52,9 @@ export class TelemetryGateway
 
   @SubscribeMessage('subscribe-to-telemetry')
   handleSubscription(client: Socket, data: { tenantId: string }) {
-    this.logger.log(`📊 Client ${client.id} subscribed to telemetry for tenant: ${data.tenantId}`);
+    this.logger.log(
+      `📊 Client ${client.id} subscribed to telemetry for tenant: ${data.tenantId}`,
+    );
     client.join(`telemetry-tenant-${data.tenantId}`);
   }
 
@@ -56,7 +62,7 @@ export class TelemetryGateway
     try {
       // Find all temperature/moisture devices
       const devices = await (this.prisma as any).ioTDevice.findMany();
-      
+
       for (const device of devices) {
         let value: number;
         let unit: string;
@@ -80,10 +86,17 @@ export class TelemetryGateway
         };
 
         // Record in DB
-        void this.telemetryService.record(device.tenantId, device.id, reading.value, reading.unit);
+        void this.telemetryService.record(
+          device.tenantId,
+          device.id,
+          reading.value,
+          reading.unit,
+        );
 
         // Broadcast to tenant room
-        this.server.to(`telemetry-tenant-${device.tenantId}`).emit('telemetry-update', reading);
+        this.server
+          .to(`telemetry-tenant-${device.tenantId}`)
+          .emit('telemetry-update', reading);
       }
     } catch (e) {
       this.logger.error('Telemetry simulation failed:', e);

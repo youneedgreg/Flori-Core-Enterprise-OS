@@ -18,7 +18,10 @@ export class AuditLogInterceptor implements NestInterceptor {
 
     // Only log state-changing actions (POST, PATCH, DELETE)
     // and skip the audit-logs endpoint itself to avoid infinite loops
-    if (!['POST', 'PATCH', 'DELETE'].includes(method) || url.includes('/audit-logs')) {
+    if (
+      !['POST', 'PATCH', 'DELETE'].includes(method) ||
+      url.includes('/audit-logs')
+    ) {
       return next.handle();
     }
 
@@ -28,8 +31,11 @@ export class AuditLogInterceptor implements NestInterceptor {
       tap((responseContent) => {
         // Derive entityType from the URL (e.g., /onboarding/farm-profile -> FarmProfile)
         const parts = url.split('/').filter(Boolean);
-        const entityType = parts[parts.length - 1] 
-          ? parts[parts.length - 1].split('-').map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join('')
+        const entityType = parts[parts.length - 1]
+          ? parts[parts.length - 1]
+              .split('-')
+              .map((s: string) => s.charAt(0).toUpperCase() + s.slice(1))
+              .join('')
           : 'Unknown';
 
         void this.auditLogService.create({

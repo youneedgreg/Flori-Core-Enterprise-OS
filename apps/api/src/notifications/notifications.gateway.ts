@@ -23,7 +23,7 @@ export class NotificationsGateway
 
   afterInit(server: Server) {
     this.logger.log('🚀 WebSocket Gateway initialized');
-    
+
     // Simulate periodic live alerts for the demo
     setInterval(() => {
       this.sendSimulatedAlert();
@@ -40,7 +40,9 @@ export class NotificationsGateway
 
   @SubscribeMessage('subscribe-to-notifications')
   handleSubscription(client: Socket, data: any) {
-    this.logger.log(`🔔 Client ${client.id} subscribed to notifications for tenant: ${data.tenantId}`);
+    this.logger.log(
+      `🔔 Client ${client.id} subscribed to notifications for tenant: ${data.tenantId}`,
+    );
     client.join(`tenant-${data.tenantId}`);
   }
 
@@ -52,7 +54,7 @@ export class NotificationsGateway
       'New purchase order awaits approval',
     ];
     const alert = alerts[Math.floor(Math.random() * alerts.length)];
-    
+
     this.server.emit('notification', {
       id: Date.now(),
       title: 'Real-time Alert',

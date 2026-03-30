@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -26,14 +30,17 @@ export class LogisticsService {
     return order;
   }
 
-  async create(tenantId: string, data: { 
-    type: 'EXPORT' | 'LOCAL'; 
-    customerId: string; 
-    items: any; 
-    totalAmount: number;
-    currency?: string;
-    shipmentDate?: string;
-  }) {
+  async create(
+    tenantId: string,
+    data: {
+      type: 'EXPORT' | 'LOCAL';
+      customerId: string;
+      items: any;
+      totalAmount: number;
+      currency?: string;
+      shipmentDate?: string;
+    },
+  ) {
     // Check if customer exists and belongs to tenant
     const customer = await (this.prisma as any).customer.findFirst({
       where: { id: data.customerId, tenantId },
@@ -50,7 +57,11 @@ export class LogisticsService {
     });
   }
 
-  async updateStatus(tenantId: string, id: string, status: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED') {
+  async updateStatus(
+    tenantId: string,
+    id: string,
+    status: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
+  ) {
     await this.findOne(tenantId, id);
     return await (this.prisma as any).order.update({
       where: { id },
@@ -66,7 +77,10 @@ export class LogisticsService {
     });
   }
 
-  async createCustomer(tenantId: string, data: { name: string; email?: string; country?: string; address?: string }) {
+  async createCustomer(
+    tenantId: string,
+    data: { name: string; email?: string; country?: string; address?: string },
+  ) {
     return await (this.prisma as any).customer.create({
       data: {
         ...data,

@@ -88,6 +88,11 @@
 - [x] Specialized system dashboard for `gregorytemwa1212@gmail.com`
 - [x] View list of all system users and information across tenants
 
+### 1.26 Fix Login & Dev Infrastructure
+- [ ] Restore official `nest start --watch` (Fix CLI commander bug)
+- [ ] Resolve 500 Internal Server Error in Login (Dependency Injection fix)
+- [ ] Verify onboarding flow persists correctly with fresh tokens
+
 ### 1.3 Gold Admin Master Dashboard
 
 - [x] KPI cards: today's harvest, active orders, cold room status, payroll due

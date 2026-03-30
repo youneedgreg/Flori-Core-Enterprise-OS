@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmailService } from '../communications/email.service';
 import * as crypto from 'crypto';
@@ -33,7 +37,9 @@ export class TeamService {
   }
 
   async inviteMember(tenantId: string, dto: { email: string; roleId: string }) {
-    const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId } });
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
     if (!tenant) throw new NotFoundException('Tenant not found');
 
     const role = await this.prisma.role.findFirst({
@@ -86,7 +92,7 @@ export class TeamService {
 
   async removeMember(tenantId: string, id: string) {
     const user = await this.findOne(tenantId, id);
-    
+
     // Prevent self-deletion or removing the last admin in a more complex app,
     // but here we just ensure ownership.
     return this.prisma.user.delete({
@@ -95,9 +101,9 @@ export class TeamService {
   }
 
   async getRoles(tenantId: string) {
-     return this.prisma.role.findMany({
-       where: { tenantId },
-       select: { id: true, name: true }
-     });
+    return this.prisma.role.findMany({
+      where: { tenantId },
+      select: { id: true, name: true },
+    });
   }
 }
