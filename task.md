@@ -90,16 +90,16 @@
 
 ### 1.3 Gold Admin Master Dashboard
 
-- [ ] KPI cards: today's harvest, active orders, cold room status, payroll due
-- [ ] Live notification feed (Socket.io)
-- [ ] Quick-action shortcuts (new order, approve PO, view alerts)
-- [ ] Drill-down navigation to all modules
+- [x] KPI cards: today's harvest, active orders, cold room status, payroll due
+- [x] Live notification feed (Socket.io)
+- [x] Quick-action shortcuts (new order, approve PO, view alerts)
+- [x] Drill-down navigation to all modules
 
 ### 1.4 Audit Log Viewer
 
-- [ ] Timeline view of every system action across all modules
-- [ ] Filter by user, module, date range
-- [ ] Export to CSV / PDF
+- [x] Timeline view of every system action across all modules
+- [x] Filter by user, module, date range
+- [x] Export to CSV / PDF
 
 ---
 
