@@ -15,6 +15,10 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 
 import { ZonesModule } from './zones/zones.module';
+import { TeamModule } from './team/team.module';
+import { LogisticsModule } from './logistics/logistics.module';
+import { PayrollModule } from './payroll/payroll.module';
+import { TelemetryModule } from './telemetry/telemetry.module';
 
 @Module({
   imports: [
@@ -26,6 +30,8 @@ import { ZonesModule } from './zones/zones.module';
     NotificationsModule,
     AuditLogModule,
     ZonesModule,
+    TeamModule,
+    LogisticsModule,
   ],
   controllers: [AppController],
   providers: [

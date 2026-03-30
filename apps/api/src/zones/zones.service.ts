@@ -69,8 +69,12 @@ export class ZonesService {
       select: { areaSqm: true, cropVarieties: true },
     });
 
-    const totalArea = zones.reduce((acc, z) => acc + (z.areaSqm || 0), 0);
-    const uniqueCrops = new Set(zones.flatMap((z) => z.cropVarieties || []))
+    const totalArea = zones.reduce(
+      (acc: number, z: any) => acc + (z.areaSqm || 0),
+      0,
+    );
+    const uniqueCrops = new Set(
+      zones.flatMap((z: any) => z.cropVarieties || []),
       .size;
 
     return {

@@ -34,6 +34,10 @@ model Tenant {
   farmProfile    FarmProfile?
   zones          Zone[]
   iotDevices     IoTDevice[]
+  customers      Customer[]
+  orders         Order[]
+  telemetry      TelemetryReading[]
+  payroll        PayrollRecord[]
 
   @@map("tenants")
 }
@@ -72,6 +76,7 @@ model User {
 
   actorAuditLogs AuditLog[] @relation("ActorLogs")
   notifications  Notification[] @relation("UserNotifications")
+  payrollRecords PayrollRecord[]
 
   @@map("users")
 }
@@ -189,5 +194,103 @@ model IoTDevice {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  readings    TelemetryReading[]
+
   @@map("iot_devices")
+}
+
+// ── Logistics & Orders ──────────────────────────────────────────────
+
+model Customer {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  name      String
+  email     String?
+  address   String?
+  country   String?
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("customers")
+}
+
+enum OrderStatus {
+  PENDING
+  PACKING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderType {
+  EXPORT
+  LOCAL
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  tenantId     String
+  tenant       Tenant      @relation(fields: [tenantId], references: [id])
+  type         OrderType   @default(EXPORT)
+  status       OrderStatus @default(PENDING)
+  
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [id])
+  
+  items        Json        // List of items, quantities, and prices
+  totalAmount  Float
+  currency     String      @default("USD")
+  
+  shipmentDate DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@map("orders")
+}
+
+// ── Telemetry & Payroll ──────────────────────────────────────────────
+
+model TelemetryReading {
+  id        String   @id @default(uuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  deviceId  String
+  device    IoTDevice @relation(fields: [deviceId], references: [id])
+  value     Float
+  unit      String?
+  timestamp DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([deviceId])
+  @@index([timestamp])
+  @@map("telemetry_readings")
+}
+
+enum PayrollStatus {
+  PENDING
+  PAID
+  CANCELLED
+}
+
+model PayrollRecord {
+  id          String        @id @default(uuid())
+  tenantId    String
+  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  amount      Float
+  currency    String        @default("KES")
+  status      PayrollStatus @default(PENDING)
+  period      String        // e.g. "March 2026"
+  paymentDate DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@map("payroll_records")
 }
