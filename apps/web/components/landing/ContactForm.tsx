@@ -17,7 +17,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section id="demo" className="py-32 bg-brand-dark">
+    <section id="contact" className="py-32 bg-brand-dark">
       <div className="max-w-5xl mx-auto px-6 lg:px-8">
         <div className="bg-white/5 p-10 md:p-16 rounded-4xl relative overflow-hidden border border-white/5">
           {/* Subtle gradient behind form */}
@@ -93,7 +93,7 @@ export default function ContactForm() {
                   disabled={submitted}
                   className="w-full px-10 py-5 rounded-2xl bg-brand-green hover:bg-emerald-400 text-brand-dark font-bold transition-all shadow-lg shadow-emerald-500/20 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed uppercase tracking-widest text-sm"
                 >
-                  {submitted ? 'Message Sent! ✓' : 'Request Demo'}
+                  {submitted ? 'Message Sent! ✓' : 'Signup'}
                 </button>
               </form>
             </div>

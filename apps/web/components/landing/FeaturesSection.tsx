@@ -13,6 +13,7 @@ import {
 
 const coreFeatures = [
   {
+    id: "module-production",
     title: "Precision Production",
     desc: "Map farm blocks interactively, track crop cycles, and manage smart soil IoT telemetry. Log chemical sprays and verify PHI compliance.",
     icon: Zap,
@@ -28,6 +29,7 @@ const coreFeatures = [
     ]
   },
   {
+    id: "module-cold-chain",
     title: "IoT Cold Chain",
     desc: "Temperature monitoring trends, real-time alert bands to preserve shelf life across global logistics networks.",
     icon: Thermometer,
@@ -43,6 +45,7 @@ const coreFeatures = [
     ]
   },
   {
+    id: "module-stores",
     title: "Intelligent Stores",
     desc: "AI-driven inventory minimum thresholds with automated purchase request generation and seamless vendor invoice matching.",
     icon: ShieldCheck,
@@ -59,6 +62,7 @@ const coreFeatures = [
     ]
   },
   {
+    id: "module-commerce",
     title: "Global Commerce",
     desc: "Integrated CRM, seamless standing contract generation, and compliance document vault to master international exports.",
     icon: Globe,
@@ -66,6 +70,7 @@ const coreFeatures = [
     stats: { label: "Shipment Progress", value: "70%", color: "text-emerald-400" },
   },
   {
+    id: "module-payroll",
     title: "Enterprise Payroll",
     desc: "Automated payment processes and efficiency metrics for thousands of seasonal and permanent agricultural laborers.",
     icon: Briefcase,
@@ -82,6 +87,7 @@ const coreFeatures = [
     ]
   },
   {
+    id: "module-talent",
     title: "HR & Talent",
     desc: "Manage digital employee files, orchestrate shift scheduling, and track performance KPIs across all operational teams.",
     icon: Users,
@@ -113,6 +119,8 @@ const LogisticsMap = () => (
 export default function FeaturesSection() {
   return (
     <section id="features" className="py-32 bg-brand-dark relative overflow-hidden">
+      {/* Anchor for Modules link */}
+      <div id="modules" className="absolute top-0 left-0" />
       {/* Subtle background glow */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none translate-y-1/2 -translate-x-1/2" />
@@ -134,6 +142,7 @@ export default function FeaturesSection() {
           {coreFeatures.map((feature, i) => (
             <div 
               key={i} 
+              id={feature.id}
               className="group relative p-10 rounded-[2.5rem] bg-white/3 backdrop-blur-3xl transition-all duration-700 hover:-translate-y-3 border-white/7 hover:border-emerald-500/30 hover:bg-white/6 overflow-hidden"
             >
               {/* Card Title & Icon */}
@@ -176,7 +185,7 @@ export default function FeaturesSection() {
                      <div className="absolute top-2 right-4 bg-white/5 border border-white/10 px-2 py-1 rounded-lg text-[10px] text-white/50 backdrop-blur-md z-20">18.0 - 25°C</div>
                      <ResponsiveContainer width="100%" height={140}>
                        <LineChart data={feature.data}>
-                         <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: '#10b981', border: 0 }} activeDot={{ r: 6, fill: '#ffffff', stroke: '#10b981', strokeWidth: 2 }} />
+                         <Line type="monotone" dataKey="value" stroke="#10b981" strokeWidth={4} dot={{ r: 4, fill: '#10b981', stroke: 'none' }} activeDot={{ r: 6, fill: '#ffffff', stroke: '#10b981', strokeWidth: 2 }} />
                        </LineChart>
                      </ResponsiveContainer>
                   </div>

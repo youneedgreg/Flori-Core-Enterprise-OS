@@ -27,9 +27,9 @@ export default function Footer() {
           <div className="lg:col-span-2 text-left">
             <h4 className="text-white font-bold mb-8 tracking-tight">Product</h4>
             <ul className="space-y-4 text-slate-400 text-sm font-light">
-              <li><a href="#platform" className="hover:text-brand-green transition-colors">Platform</a></li>
-              <li><a href="#solutions" className="hover:text-brand-green transition-colors">Solutions</a></li>
-              <li><a href="#insights" className="hover:text-brand-green transition-colors">Insights</a></li>
+              <li><a href="#features" className="hover:text-brand-green transition-colors">Features</a></li>
+              <li><a href="#modules" className="hover:text-brand-green transition-colors">Modules</a></li>
+              <li><a href="#contact" className="hover:text-brand-green transition-colors">Contact</a></li>
               <li><a href="#pricing" className="hover:text-brand-green transition-colors">Pricing</a></li>
             </ul>
           </div>
@@ -40,7 +40,7 @@ export default function Footer() {
             <ul className="space-y-4 text-slate-400 text-sm font-light">
               <li><a href="#" className="hover:text-brand-green transition-colors">Privacy Policy</a></li>
               <li><a href="#" className="hover:text-brand-green transition-colors">Terms of Service</a></li>
-              <li><a href="#demo" className="hover:text-brand-green transition-colors">Contact</a></li>
+              <li><a href="#contact" className="hover:text-brand-green transition-colors">Contact</a></li>
             </ul>
           </div>
 

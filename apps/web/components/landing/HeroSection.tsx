@@ -38,7 +38,7 @@ export default function HeroSection() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
           <a href="/signup" className="w-full sm:w-auto px-10 py-4 rounded-full bg-brand-green hover:bg-emerald-400 text-brand-dark font-bold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5">
-            Request Demo
+            Signup
           </a>
           <a href="#features" className="w-full sm:w-auto px-10 py-4 rounded-full glass hover:bg-white/10 text-white font-bold transition-all border border-white/10 hover:border-white/20">
             View Platform
