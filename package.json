@@ -29,8 +29,7 @@
   },
   "pnpm": {
     "overrides": {
-      "lru-cache": "^10.4.3",
-      "commander": "12.1.0"
+      "lru-cache": "^10.4.3"
     },
     "onlyBuiltDependencies": [
       "@nestjs/core",

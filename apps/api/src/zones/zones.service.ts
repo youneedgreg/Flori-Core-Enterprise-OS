@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -10,7 +6,7 @@ export class ZonesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(tenantId: string) {
-    return await (this.prisma as any).zone.findMany({
+    return await this.prisma.zone.findMany({
       where: { tenantId },
       include: {
         _count: {
@@ -22,7 +18,7 @@ export class ZonesService {
   }
 
   async findOne(tenantId: string, id: string) {
-    const zone = await (this.prisma as any).zone.findFirst({
+    const zone = await this.prisma.zone.findFirst({
       where: { id, tenantId },
       include: { devices: true },
     });
@@ -34,7 +30,7 @@ export class ZonesService {
     tenantId: string,
     data: { name: string; areaSqm?: number; cropVarieties?: string[] },
   ) {
-    return await (this.prisma as any).zone.create({
+    return await this.prisma.zone.create({
       data: {
         ...data,
         tenantId,
@@ -49,7 +45,7 @@ export class ZonesService {
   ) {
     // Ensure ownership before update
     await this.findOne(tenantId, id);
-    return await (this.prisma as any).zone.update({
+    return await this.prisma.zone.update({
       where: { id },
       data,
     });
@@ -58,13 +54,13 @@ export class ZonesService {
   async remove(tenantId: string, id: string) {
     // Ensure ownership before deletion
     await this.findOne(tenantId, id);
-    return await (this.prisma as any).zone.delete({
+    return await this.prisma.zone.delete({
       where: { id },
     });
   }
 
   async getZoneStats(tenantId: string) {
-    const zones = await (this.prisma as any).zone.findMany({
+    const zones = await this.prisma.zone.findMany({
       where: { tenantId },
       select: { areaSqm: true, cropVarieties: true },
     });
@@ -73,9 +69,10 @@ export class ZonesService {
       (acc: number, z: any) => acc + (z.areaSqm || 0),
       0,
     );
-    const uniqueCrops = new Set(
-      zones.flatMap((z: any) => z.cropVarieties || []) as string[],
-    ).size;
+    const allCrops = (zones as { cropVarieties: string[] | null }[]).flatMap(
+      (z) => z.cropVarieties || [],
+    );
+    const uniqueCrops = new Set(allCrops).size;
 
     return {
       activeZones: zones.length,

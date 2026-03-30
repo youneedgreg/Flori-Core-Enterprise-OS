@@ -29,11 +29,11 @@ const tiers = [
 
 export default function PricingSection() {
   return (
-    <section className="py-24 bg-slate-50 dark:bg-slate-950 relative">
+    <section className="py-32 bg-brand-dark relative">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Transparent Pricing for Every Scale</h2>
-          <p className="text-lg text-slate-600 dark:text-slate-400">
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-white tracking-tight">Transparent <span className="text-brand-green">Pricing</span></h2>
+          <p className="text-lg text-slate-400 font-light">
             Start small and seamlessly upgrade as your operations grow.
           </p>
         </div>
@@ -42,36 +42,38 @@ export default function PricingSection() {
           {tiers.map((tier, i) => (
             <div 
               key={i} 
-              className={`relative flex flex-col p-8 rounded-3xl transition-transform hover:-translate-y-2 ${
+              className={`relative flex flex-col p-10 rounded-4xl transition-all duration-700 hover:-translate-y-3 backdrop-blur-3xl ${
                 tier.popular 
-                ? 'bg-slate-900 dark:bg-slate-800 text-white shadow-2xl shadow-emerald-500/10 ring-2 ring-emerald-500' 
-                : 'glass hover:bg-white dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800'
+                ? 'bg-emerald-500/12 border-2 border-brand-green shadow-2xl shadow-emerald-500/10' 
+                : 'bg-white/4 border-white/7 hover:bg-white/8 hover:border-white/15'
               }`}
             >
               {tier.popular && (
-                <div className="absolute top-0 right-6 transform -translate-y-1/2">
-                  <span className="bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">
+                <div className="absolute top-0 right-10 transform -translate-y-1/2">
+                  <span className="bg-brand-green text-brand-dark text-[10px] font-bold px-4 py-1.5 rounded-full uppercase tracking-widest">
                     Most Popular
                   </span>
                 </div>
               )}
               
-              <h3 className={`text-2xl font-semibold mb-4 ${tier.popular ? 'text-white' : 'text-slate-900 dark:text-white'}`}>
+              <h3 className="text-2xl font-bold mb-4 text-white">
                 {tier.name}
               </h3>
               
-              <div className="mb-8">
-                <span className="text-5xl font-extrabold">{tier.price}</span>
-                <span className={tier.popular ? 'text-slate-300' : 'text-slate-500'}>{tier.period}</span>
+              <div className="mb-10">
+                <span className="text-6xl font-black text-white">{tier.price}</span>
+                <span className="text-slate-400 ml-2 font-light">{tier.period}</span>
               </div>
               
-              <ul className="mb-8 flex-1 space-y-4">
+              <ul className="mb-10 flex-1 space-y-5">
                 {tier.features.map((feat, j) => (
-                  <li key={j} className="flex items-center gap-3">
-                    <svg className={`shrink-0 w-5 h-5 ${tier.popular ? 'text-emerald-400' : 'text-emerald-500'}`} fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    <span className={tier.popular ? 'text-slate-100' : 'text-slate-700 dark:text-slate-300'}>
+                  <li key={j} className="flex items-center gap-4">
+                    <div className="shrink-0 w-6 h-6 rounded-full bg-brand-green/20 flex items-center justify-center">
+                      <svg className="w-3 h-3 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-slate-300 font-light text-sm">
                       {feat}
                     </span>
                   </li>
@@ -80,10 +82,10 @@ export default function PricingSection() {
               
               <a 
                 href="/signup"
-                className={`w-full py-4 rounded-full font-semibold transition-colors text-center ${
+                className={`w-full py-4 rounded-full font-bold transition-all text-center ${
                   tier.popular 
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                  : 'bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white'
+                  ? 'bg-brand-green hover:bg-emerald-400 text-brand-dark shadow-lg shadow-emerald-500/20' 
+                  : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
                 }`}
               >
                 {tier.cta}

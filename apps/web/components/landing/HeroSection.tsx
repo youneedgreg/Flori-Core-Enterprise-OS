@@ -1,40 +1,51 @@
 import React from 'react';
+import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32">
-      {/* Decorative gradient background */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-30 dark:opacity-20 pointer-events-none">
-        <div className="absolute inset-0 bg-linear-to-r from-emerald-400 to-blue-500 blur-[100px] rounded-full mix-blend-multiply dark:mix-blend-screen" />
+    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image 
+          src="/hero-bg.png" 
+          alt="Floriculture background" 
+          fill
+          className="object-cover opacity-60"
+          priority
+        />
+        <div className="absolute inset-0 bg-brand-dark/40" />
+        <div className="absolute inset-0 bg-radial-[at_center_center,transparent_0%,var(--color-brand-dark)_100%]" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-sm font-medium text-emerald-600 dark:text-emerald-400 mb-8 border border-emerald-500/20">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 text-[10px] tracking-widest uppercase font-bold text-emerald-400 mb-8 border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          Next-Generation Farm Operating System
+          Next Gen Enterprise OS
         </div>
         
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8">
-          Cultivate Success with <br className="hidden md:block" />
-          <span className="text-gradient">Flori-Core Enterprise</span>
+        <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-white">
+          Cultivate the Future of <br className="hidden md:block" />
+          <span className="text-brand-green">Global Floriculture</span>
         </h1>
         
-        <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-600 dark:text-slate-300 mb-10 leading-relaxed">
-          The all-in-one platform for precision agriculture, advanced cold chain logistics, and global sales. Built for scale, engineered for yield.
+        <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-slate-300 mb-12 leading-relaxed font-light">
+          A unified enterprise operating system for production, cold chain, and logistics. <br className="hidden sm:block" />
+          Scalable architecture for the world&apos;s most delicate supply chain.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/signup" className="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition-all shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:-translate-y-1">
-            Book a Demo
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          <a href="/signup" className="w-full sm:w-auto px-10 py-4 rounded-full bg-brand-green hover:bg-emerald-400 text-brand-dark font-bold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5">
+            Request Demo
           </a>
-          <a href="#features" className="w-full sm:w-auto px-8 py-4 rounded-full glass hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-semibold transition-all border border-slate-200 dark:border-slate-700">
-            Explore Features
+          <a href="#features" className="w-full sm:w-auto px-10 py-4 rounded-full glass hover:bg-white/10 text-white font-bold transition-all border border-white/10 hover:border-white/20">
+            View Platform
           </a>
         </div>
       </div>
     </section>
   );
 }
+
