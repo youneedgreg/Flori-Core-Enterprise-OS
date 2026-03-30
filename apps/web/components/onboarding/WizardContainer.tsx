@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import Stepper from './Stepper';
 import Step1FarmProfile from './Step1FarmProfile';
 import Step2Zones from './Step2Zones';
@@ -69,13 +70,17 @@ export default function WizardContainer({ token }: { token: string }) {
   const handleError = (e: unknown) => {
     const msg = e instanceof Error ? e.message : String(e);
     if (msg !== 'Session expired' && msg !== 'Unauthorized') {
-      alert(`Error: ${msg}`);
+      toast.error(msg);
     }
   };
 
   const handleNextStep1 = async () => {
     setLoading(true);
-    try { await post('/onboarding/farm-profile', farmProfile); setStep(1); } 
+    try { 
+      await post('/onboarding/farm-profile', farmProfile); 
+      toast.success('Farm profile saved!');
+      setStep(1); 
+    } 
     catch (e) { handleError(e); } 
     finally { setLoading(false); }
   };
@@ -86,6 +91,7 @@ export default function WizardContainer({ token }: { token: string }) {
       const parsed = zones.map((z) => ({ ...z, areaSqm: parseFloat(z.areaSqm) || undefined, cropVarieties: z.cropVarieties.split(',').map((c) => c.trim()).filter(Boolean) }));
       const result = await post('/onboarding/zones', parsed) as CreatedZone[];
       setCreatedZones(result);
+      toast.success('Zones configured successfully!');
       setStep(2);
     } catch (e) { handleError(e); } 
     finally { setLoading(false); }
@@ -94,7 +100,10 @@ export default function WizardContainer({ token }: { token: string }) {
   const handleNextStep3 = async () => {
     setLoading(true);
     try {
-      if (members.length > 0) await post('/onboarding/invite-team', members);
+      if (members.length > 0) {
+        await post('/onboarding/invite-team', members);
+        toast.success(`Sent ${members.length} team invite(s)!`);
+      }
       setStep(3);
     } catch (e) { handleError(e); } 
     finally { setLoading(false); }
@@ -104,6 +113,7 @@ export default function WizardContainer({ token }: { token: string }) {
     setLoading(true);
     try {
       if (devices.length > 0) await post('/onboarding/iot-devices', devices);
+      toast.success('Onboarding complete! Welcome to Flori-Core OS.');
       router.push('/dashboard');
     } catch (e) { handleError(e); } 
     finally { setLoading(false); }

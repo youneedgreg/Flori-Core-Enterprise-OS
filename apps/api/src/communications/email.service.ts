@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Resend } from 'resend';
 
@@ -31,11 +31,17 @@ export class EmailService {
     });
 
     if (response.error) {
-      throw new Error(`Resend Error: ${response.error.message}`);
+      console.error('❌ Resend Error:', response.error);
+      const msg =
+        `Email Invite Failed: ${response.error.message}. ` +
+        `Please check your Resend configuration (API key and verified domain).`;
+      throw new BadRequestException(msg);
     }
 
+    console.log('✅ Email sent successfully via Resend:', response.data);
+
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access
-    return this.prisma.communication.create({
+    return (this.prisma as any).communication.create({
       data: {
         tenantId: data.tenantId,
         direction: 'OUTBOUND',

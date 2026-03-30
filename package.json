@@ -29,7 +29,18 @@
   },
   "pnpm": {
     "overrides": {
-      "lru-cache": "^10.4.3"
-    }
+      "lru-cache": "^10.4.3",
+      "commander": "^11.0.0"
+    },
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/engines",
+      "@sentry-internal/node-cpu-profiler",
+      "@sentry/cli",
+      "bcrypt",
+      "prisma",
+      "sharp",
+      "unrs-resolver"
+    ]
   }
 }
