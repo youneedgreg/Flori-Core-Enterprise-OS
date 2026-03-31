@@ -1,3 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Injectable,
   NotFoundException,
@@ -62,11 +67,33 @@ export class LogisticsService {
     id: string,
     status: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
   ) {
-    await this.findOne(tenantId, id);
-    return await (this.prisma as any).order.update({
+    const order = await this.findOne(tenantId, id);
+    const updatedOrder = await (this.prisma as any).order.update({
       where: { id },
       data: { status },
     });
+
+    // Stock Automation: Reduce inventory when marked as DELIVERED
+    if (status === 'DELIVERED' && order.status !== 'DELIVERED') {
+      const items = (order.items as any) || [];
+      const productItems = Array.isArray(items) ? items : [items];
+
+      for (const item of productItems) {
+        if (item.sku && item.quantity) {
+          const product = await (this.prisma as any).product.findFirst({
+            where: { sku: item.sku, tenantId },
+          });
+          if (product) {
+            await (this.prisma as any).product.update({
+              where: { id: product.id },
+              data: { stock: { decrement: Number(item.quantity) } },
+            });
+          }
+        }
+      }
+    }
+
+    return updatedOrder;
   }
 
   // Customer sub-management

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -52,15 +53,15 @@ export default function LogisticsPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newOrder, setNewOrder] = useState({
-    type: 'EXPORT',
+    type: 'EXPORT' as 'EXPORT' | 'LOCAL',
     customerId: '',
-    totalAmount: '',
     currency: 'USD',
-    items: [{ sku: '', quantity: 1, price: 0 }]
+    items: [{ productId: '', sku: '', name: '', quantity: 1, price: 0 }]
   });
 
   const fetchData = useCallback(async () => {
@@ -76,9 +77,10 @@ export default function LogisticsPage() {
 
       const headers = { Authorization: `Bearer ${token}` };
       
-      const [ordersRes, customersRes] = await Promise.all([
+      const [ordersRes, customersRes, productsRes] = await Promise.all([
         fetch(`${API}/logistics/orders`, { headers }),
-        fetch(`${API}/logistics/customers`, { headers })
+        fetch(`${API}/logistics/customers`, { headers }),
+        fetch(`${API}/products`, { headers })
       ]);
 
       if (ordersRes.status === 401 || customersRes.status === 401) {
@@ -90,9 +92,13 @@ export default function LogisticsPage() {
         setOrders(await ordersRes.json());
         const customersData = await customersRes.json();
         setCustomers(customersData);
-        if (customersData.length > 0) {
+        if (customersData.length > 0 && !newOrder.customerId) {
           setNewOrder(prev => ({ ...prev, customerId: customersData[0].id }));
         }
+      }
+
+      if (productsRes.ok) {
+        setProducts(await productsRes.json());
       }
     } catch (error) {
       console.error('Failed to fetch logistics data:', error);
@@ -100,15 +106,17 @@ export default function LogisticsPage() {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, [newOrder.customerId]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  const totalAmount = newOrder.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newOrder.customerId || !newOrder.totalAmount) return;
+    if (!newOrder.customerId || totalAmount === 0) return;
 
     setIsSubmitting(true);
     try {
@@ -123,13 +131,19 @@ export default function LogisticsPage() {
         },
         body: JSON.stringify({
           ...newOrder,
-          totalAmount: parseFloat(newOrder.totalAmount)
+          totalAmount: totalAmount
         })
       });
 
       if (res.ok) {
-        toast.success(`Order created successfully`);
+        toast.success(`Order manifest confirmed`);
         setShowOrderModal(false);
+        setNewOrder({
+          type: 'EXPORT',
+          customerId: customers[0]?.id || '',
+          currency: 'USD',
+          items: [{ productId: '', sku: '', name: '', quantity: 1, price: 0 }]
+        });
         fetchData();
       } else {
         const error = await res.json();
@@ -158,13 +172,41 @@ export default function LogisticsPage() {
       });
 
       if (res.ok) {
-        toast.success('Order status updated');
+        toast.success('Order status updated. Inventory adjusted if Delivered.');
         fetchData();
       }
     } catch (err) {
       console.error('Status update failed:', err);
       toast.error('Failed to update status');
     }
+  };
+
+  const addLineItem = () => {
+    setNewOrder({
+      ...newOrder,
+      items: [...newOrder.items, { productId: '', sku: '', name: '', quantity: 1, price: 0 }]
+    });
+  };
+
+  const updateLineItem = (index: number, productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const newItems = [...newOrder.items];
+    newItems[index] = {
+      productId,
+      sku: product.sku,
+      name: product.name,
+      quantity: newItems[index].quantity,
+      price: product.unitPrice
+    };
+    setNewOrder({ ...newOrder, items: newItems, currency: product.currency });
+  };
+
+  const updateQuantity = (index: number, quantity: number) => {
+    const newItems = [...newOrder.items];
+    newItems[index].quantity = quantity;
+    setNewOrder({ ...newOrder, items: newItems });
   };
 
   return (
@@ -295,87 +337,129 @@ export default function LogisticsPage() {
       {/* Order Creation Modal */}
       {showOrderModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md bg-brand-dark/60 overflow-y-auto">
-          <div className="bg-brand-dark/80 backdrop-blur-3xl w-full max-w-xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 my-auto">
+          <div className="bg-brand-dark/80 backdrop-blur-3xl w-full max-w-2xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300 my-8">
             <h2 className="text-3xl font-black text-white mb-8 flex items-center gap-4 tracking-tight">
               <ShoppingBag className="w-8 h-8 text-brand-green" />
               Manifest New Order
             </h2>
             
-            <form onSubmit={handleCreateOrder} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2 col-span-full">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Order Classification</label>
+            <form onSubmit={handleCreateOrder} className="space-y-8">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-2 col-span-2 md:col-span-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Classification</label>
+                  <div className="flex gap-2">
+                    {['EXPORT', 'LOCAL'].map((t) => (
+                      <button 
+                        key={t}
+                        type="button"
+                        onClick={() => setNewOrder({ ...newOrder, type: t as any })}
+                        className={`flex-1 py-3 rounded-xl font-black text-[9px] transition-all border uppercase tracking-widest ${
+                          newOrder.type === t ? 'bg-brand-green/10 text-brand-green border-brand-green/30' : 'bg-white/5 text-slate-600 border-white/5'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-2 col-span-2 md:col-span-1">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Currency</label>
+                  <select 
+                    value={newOrder.currency}
+                    onChange={(e) => setNewOrder({ ...newOrder, currency: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-brand-green/30 transition-all text-white uppercase font-black tracking-widest"
+                  >
+                    <option value="USD" className="bg-brand-dark">USD ($)</option>
+                    <option value="KES" className="bg-brand-dark">KES (Sh)</option>
+                    <option value="EUR" className="bg-brand-dark">EUR (€)</option>
+                    <option value="GBP" className="bg-brand-dark">GBP (£)</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2 col-span-full">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Customer</label>
+                  <select 
+                    value={newOrder.customerId}
+                    onChange={(e) => setNewOrder({ ...newOrder, customerId: e.target.value })}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-brand-green/30 transition-all text-white uppercase font-black tracking-widest"
+                  >
+                    <option value="" className="bg-brand-dark">Select Recipient...</option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id} className="bg-brand-dark">{c.name} ({c.country})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Line Items (Inventory Linked)</label>
+                  <button 
+                    type="button" 
+                    onClick={addLineItem}
+                    className="text-[9px] font-black text-brand-green uppercase tracking-widest hover:text-emerald-400 transition-colors"
+                  >
+                    + Add Product
+                  </button>
+                </div>
+                
+                <div className="space-y-3">
+                  {newOrder.items.map((item, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-3 items-center">
+                      <div className="col-span-6">
+                        <select 
+                          value={item.productId}
+                          onChange={(e) => updateLineItem(idx, e.target.value)}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] text-white font-black uppercase focus:outline-none"
+                        >
+                          <option value="" className="bg-brand-dark">Select SKU...</option>
+                          {products.map((p) => (
+                            <option key={p.id} value={p.id} className="bg-brand-dark">{p.name} ({p.sku})</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="col-span-3">
+                        <input 
+                          type="number"
+                          placeholder="Qty"
+                          value={item.quantity}
+                          onChange={(e) => updateQuantity(idx, parseInt(e.target.value))}
+                          className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] text-white font-black focus:outline-none"
+                        />
+                      </div>
+                      <div className="col-span-3 text-right">
+                        <span className="text-[10px] font-black text-slate-500">{newOrder.currency} {(item.price * item.quantity).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-white/5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Total Manifest Value</p>
+                  <p className="text-2xl font-black text-white">{newOrder.currency} {totalAmount.toLocaleString()}</p>
+                </div>
                 <div className="flex gap-4">
                   <button 
                     type="button"
-                    onClick={() => setNewOrder({ ...newOrder, type: 'EXPORT' })}
-                    className={`flex-1 py-4 rounded-2xl font-black text-[10px] transition-all border uppercase tracking-widest ${
-                      newOrder.type === 'EXPORT' ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 shadow-lg shadow-indigo-500/5' : 'bg-white/5 text-slate-600 border-white/5 hover:border-white/10'
-                    }`}
+                    onClick={() => setShowOrderModal(false)}
+                    className="px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-xl font-black text-[10px] border border-white/10 transition-all uppercase tracking-widest"
                   >
-                    Global Export
+                    Discard
                   </button>
                   <button 
-                    type="button"
-                    onClick={() => setNewOrder({ ...newOrder, type: 'LOCAL' })}
-                    className={`flex-1 py-4 rounded-2xl font-black text-[10px] transition-all border uppercase tracking-widest ${
-                      newOrder.type === 'LOCAL' ? 'bg-brand-green/10 text-brand-green border-brand-green/30 shadow-lg shadow-emerald-500/5' : 'bg-white/5 text-slate-600 border-white/5 hover:border-white/10'
-                    }`}
+                    type="submit"
+                    disabled={isSubmitting || !newOrder.customerId || totalAmount === 0}
+                    className="px-8 py-4 bg-brand-green hover:bg-emerald-400 disabled:opacity-50 text-slate-950 rounded-xl font-black text-[10px] transition-all shadow-xl shadow-emerald-500/20 flex items-center gap-2 group uppercase tracking-widest"
                   >
-                    Local Distribution
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                    Confirm Manifest
                   </button>
                 </div>
               </div>
-
-              <div className="space-y-2 col-span-full md:col-span-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Select Customer</label>
-                <select 
-                  value={newOrder.customerId}
-                  onChange={(e) => setNewOrder({ ...newOrder, customerId: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 transition-all text-white uppercase font-black tracking-widest cursor-pointer"
-                >
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id} className="bg-brand-dark">{c.name} ({c.country})</option>
-                  ))}
-                  {customers.length === 0 && <option className="bg-brand-dark">No customers found</option>}
-                </select>
-              </div>
-
-              <div className="space-y-2 col-span-full md:col-span-1">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">Financial Manifest (Total)</label>
-                <div className="relative">
-                  <BadgeDollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-                  <input 
-                    type="number" 
-                    step="0.01"
-                    required
-                    value={newOrder.totalAmount}
-                    onChange={(e) => setNewOrder({ ...newOrder, totalAmount: e.target.value })}
-                    placeholder="0.00"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-green/30 transition-all text-white font-black placeholder:text-slate-600"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-6 col-span-full">
-                <button 
-                  type="button"
-                  onClick={() => setShowOrderModal(false)}
-                  className="flex-1 py-5 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-[10px] border border-white/10 transition-all uppercase tracking-widest"
-                >
-                  Discard Draft
-                </button>
-                <button 
-                  type="submit"
-                  disabled={isSubmitting || customers.length === 0}
-                  className="flex-2 py-5 bg-brand-green hover:bg-emerald-400 disabled:opacity-50 text-slate-950 rounded-2xl font-black text-[10px] transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2 group px-12 uppercase tracking-widest"
-                >
-                  {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
-                  Confirm Logistics Manifest
-                </button>
-              </div>
             </form>
-
-            <div className="absolute top-0 left-0 -ml-8 -mt-8 w-48 h-48 bg-brand-green/5 blur-3xl rounded-full" />
           </div>
         </div>
       )}

@@ -22,6 +22,7 @@ model Tenant {
   notifications  Notification[]
   orders         Order[]
   payroll        PayrollRecord[]
+  products       Product[]
   roles          Role[]
   telemetry      TelemetryReading[]
   users          User[]
@@ -258,4 +259,20 @@ enum PayrollStatus {
   PENDING
   PAID
   CANCELLED
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  tenantId    String
+  name        String
+  sku         String   @unique
+  stock       Int      @default(0)
+  unitPrice   Float
+  currency    String   @default("USD")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("products")
 }

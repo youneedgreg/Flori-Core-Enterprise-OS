@@ -21,6 +21,7 @@ import { PayrollModule } from './payroll/payroll.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantsModule } from './tenants/tenants.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { TenantsModule } from './tenants/tenants.module';
     TelemetryModule,
     SuperAdminModule,
     TenantsModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [

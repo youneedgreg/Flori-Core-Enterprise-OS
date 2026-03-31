@@ -18,8 +18,8 @@
 
 - [x] `docker-compose.yml` with PostgreSQL + TimescaleDB
 - [x] Prisma schema skeleton with `tenant_id` on every model
-- [x] Multi-tenant seed script
-- [x] Database migration pipeline (Prisma migrate + shadow DB)
+- [x] Update Prisma schema (`Product` model)
+- [/] Refactor and apply database migration pipeline (Prisma migrate + shadow DB)
 - [x] AWS RDS config documented for production
 
 ### 0.3 Auth System

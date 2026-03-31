@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes } from 'lucide-react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
-import { logout, isTokenExpired } from '../../lib/auth';
+import { logout, decodeJWT, isTokenExpired } from '../../lib/auth';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -25,7 +25,11 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = decodeJWT(token);
+      if (!payload) {
+        logout();
+        return;
+      }
       setUser({ email: payload.email, role: payload.role });
     } catch (err) {
       console.error('Layout init failed:', err);
@@ -38,6 +42,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     { icon: Map, label: 'Farm Zones', href: '/dashboard/zones' },
     { icon: Users, label: 'Team', href: '/dashboard/team' },
     { icon: Package, label: 'Logistics', href: '/dashboard/logistics' },
+    { icon: Boxes, label: 'Inventory', href: '/dashboard/inventory' },
     { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
   ];
 

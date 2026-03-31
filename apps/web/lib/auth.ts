@@ -4,6 +4,8 @@ export interface JWTPayload {
   sub: string;
   iat: number;
   exp: number;
+  role: string;
+  tenantId: string;
   [key: string]: unknown;
 }
 
@@ -25,7 +27,7 @@ export function decodeJWT(token: string): JWTPayload | null {
     );
 
     return JSON.parse(jsonPayload);
-  } catch (e) {
+  } catch {
     return null;
   }
 }
