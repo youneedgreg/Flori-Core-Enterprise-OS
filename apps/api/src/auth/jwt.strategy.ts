@@ -16,7 +16,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'super_secret',
+      secretOrKey: process.env.JWT_SECRET || 'super_secret_flori_core_key',
     });
   }
 
@@ -26,6 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       include: { role: true },
     });
     if (!user) {
+      console.warn(`[JwtStrategy] User not found for id: ${payload.sub}`);
       throw new UnauthorizedException();
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

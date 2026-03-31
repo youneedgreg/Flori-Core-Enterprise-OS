@@ -25,6 +25,12 @@ export class OnboardingService {
     });
   }
 
+  async getFarmProfile(tenantId: string) {
+    return this.prisma.farmProfile.findUnique({
+      where: { tenantId },
+    });
+  }
+
   async setZones(tenantId: string, zones: ZoneDto[]) {
     // Delete old zones and recreate (simple replace strategy for wizard flow)
     await this.prisma.zone.deleteMany({ where: { tenantId } });

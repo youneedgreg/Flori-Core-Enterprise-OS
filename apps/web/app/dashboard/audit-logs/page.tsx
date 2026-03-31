@@ -4,8 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import TimelineView from '../../../components/audit-logs/TimelineView';
 import LogFilterBar from '../../../components/audit-logs/LogFilterBar';
-import { ShieldCheck, ArrowLeft, Loader2 } from 'lucide-react';
-import Link from 'next/link';
+import { ShieldCheck, Loader2 } from 'lucide-react';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -32,6 +31,7 @@ export default function AuditLogsPage() {
         return;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const params = new URLSearchParams(filters as any).toString();
       const response = await fetch(`${API}/audit-logs?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -41,8 +41,8 @@ export default function AuditLogsPage() {
         const data = await response.json();
         setLogs(data);
       }
-    } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
+    } catch (err) {
+      console.error('Failed to fetch audit logs:', err);
     } finally {
       setLoading(false);
     }
@@ -57,6 +57,7 @@ export default function AuditLogsPage() {
 
     // Simple CSV generation
     const headers = ['ID', 'Action', 'Entity', 'Actor', 'Timestamp', 'Data'];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = logs.map((log: any) => [
       log.id,
       log.action,
@@ -83,60 +84,49 @@ export default function AuditLogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
-      <div className="max-w-6xl mx-auto p-8 lg:p-12">
-        {/* Breadcrumbs / Back */}
-        <Link 
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-500 transition-colors mb-8 group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Back to Dashboard
-        </Link>
-
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                <ShieldCheck className="w-6 h-6 text-emerald-500" />
-              </div>
-              <h1 className="text-3xl font-black tracking-tight text-white">System Audit Trail</h1>
+    <div className="max-w-7xl mx-auto space-y-12">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2 rounded-xl bg-brand-green/10 border border-brand-green/20">
+              <ShieldCheck className="w-5 h-5 text-brand-green" />
             </div>
-            <p className="text-slate-400 font-medium">Compliance-grade logs of every administrative action.</p>
+            <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">System Audit Trail</h1>
           </div>
-          
-          {loading && (
-            <div className="flex items-center gap-2 text-emerald-500 font-bold text-sm animate-pulse">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              UPDATING TIMELINE...
-            </div>
-          )}
-        </header>
+          <p className="text-slate-500 font-medium tracking-tight">Compliance-grade logs of every administrative action.</p>
+        </div>
+        
+        {loading && (
+          <div className="flex items-center gap-2 text-brand-green font-black text-[10px] animate-pulse tracking-widest uppercase">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Updating Timeline...
+          </div>
+        )}
+      </header>
 
-        {/* Filters */}
+      {/* Filters */}
+      <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 p-2 shadow-xl">
         <LogFilterBar 
           filters={filters} 
           onFilterChange={setFilters} 
           onExport={handleExport} 
         />
-
-        {/* Timeline */}
-        <div className="mt-10">
-           {loading && logs.length === 0 ? (
-             <div className="flex flex-col items-center justify-center py-20 grayscale opacity-50">
-                <Loader2 className="w-12 h-12 animate-spin text-emerald-500 mb-4" />
-                <p>Initialising Audit Stream...</p>
-             </div>
-           ) : (
-             <TimelineView logs={logs} />
-           )}
-        </div>
       </div>
 
-      {/* Background Decor */}
-      <div className="fixed top-0 right-0 -z-10 w-[500px] h-[500px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="fixed bottom-0 left-0 -z-10 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* Timeline */}
+      <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 p-8 shadow-2xl relative overflow-hidden transition-all">
+         {loading && logs.length === 0 ? (
+           <div className="flex flex-col items-center justify-center py-20 grayscale opacity-50">
+              <Loader2 className="w-12 h-12 animate-spin text-brand-green mb-4" />
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Initialising Audit Stream...</p>
+           </div>
+         ) : (
+           <TimelineView logs={logs} />
+         )}
+         
+         <div className="absolute top-0 right-0 -mr-12 -mt-12 w-64 h-64 bg-brand-green/5 blur-3xl rounded-full" />
+      </div>
     </div>
   );
 }

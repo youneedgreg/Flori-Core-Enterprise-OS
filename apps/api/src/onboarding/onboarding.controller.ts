@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { OnboardingService } from './onboarding.service';
 import {
@@ -17,6 +17,11 @@ interface AuthenticatedRequest extends Request {
 @Controller('onboarding')
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
+
+  @Get('farm-profile')
+  getFarmProfile(@Req() req: AuthenticatedRequest) {
+    return this.onboardingService.getFarmProfile(req.tenantId);
+  }
 
   @Post('farm-profile')
   saveFarmProfile(

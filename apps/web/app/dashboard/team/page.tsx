@@ -108,6 +108,7 @@ export default function TeamPage() {
         const error = await res.json();
         throw new Error(error.message || 'Failed to send invite');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       toast.error(e.message);
     } finally {
@@ -139,112 +140,101 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans">
-      <div className="max-w-7xl mx-auto p-8 lg:p-12">
-        {/* Breadcrumbs */}
-        <Link 
-          href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-emerald-500 transition-colors mb-8 group"
-        >
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          Dashboard
-        </Link>
-
-        {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
-                <Users className="w-6 h-6 text-blue-400" />
-              </div>
-              <h1 className="text-4xl font-black tracking-tight text-white uppercase">Workforce</h1>
+    <div className="max-w-7xl mx-auto space-y-12">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2 rounded-xl bg-blue-500/10 border border-blue-500/20">
+              <Users className="w-5 h-5 text-blue-400" />
             </div>
-            <p className="text-slate-400 font-medium tracking-tight">Manage your farm operators, logistics experts and administrators.</p>
+            <h1 className="text-3xl font-black tracking-tight text-white uppercase">Workforce</h1>
           </div>
-
-          <button 
-            onClick={() => setShowInviteModal(true)}
-            className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-          >
-            <UserPlus className="w-5 h-5" />
-            Invite New Member
-          </button>
-        </header>
-
-        {/* Members List */}
-        <div className="glass rounded-[40px] border border-slate-800 overflow-hidden shadow-2xl relative">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-900/50 border-b border-slate-800">
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Member Info</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Assigned Role</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mx-auto mb-4" />
-                    <p className="text-sm font-bold text-slate-500 animate-pulse tracking-widest">LOADING WORKFORCE...</p>
-                  </td>
-                </tr>
-              ) : members.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="px-8 py-20 text-center">
-                    <p className="text-slate-500 font-bold">No team members found.</p>
-                  </td>
-                </tr>
-              ) : members.map((member) => (
-                <tr key={member.id} className="hover:bg-white/2 transition-colors group">
-                  <td className="px-8 py-6">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700 font-black text-emerald-500 group-hover:border-emerald-500/30 transition-colors uppercase">
-                        {member.email.charAt(0)}
-                      </div>
-                      <div>
-                        <p className="text-sm font-black text-white group-hover:text-emerald-400 transition-colors">{member.email}</p>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Joined {new Date(member.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-800 text-slate-300 rounded-lg text-[10px] font-black uppercase tracking-wider border border-slate-700">
-                      <Shield className="w-3 h-3 text-emerald-500" />
-                      {member.role.name.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className="flex items-center gap-1.5 text-[10px] font-black text-emerald-500 uppercase tracking-widest leading-none">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                      Active
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 text-right">
-                    <button 
-                      onClick={() => handleRemove(member.id, member.email)}
-                      className="p-2 rounded-xl hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-all border border-transparent hover:border-rose-500/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <p className="text-slate-500 font-medium tracking-tight">Manage your farm operators, logistics experts and administrators.</p>
         </div>
+
+        <button 
+          onClick={() => setShowInviteModal(true)}
+          className="flex items-center justify-center gap-2 px-6 py-4 bg-brand-green hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+        >
+          <UserPlus className="w-5 h-5" />
+          Invite New Member
+        </button>
+      </header>
+
+      {/* Members List */}
+      <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl relative">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-white/5 border-b border-white/5">
+              <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Member Info</th>
+              <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Assigned Role</th>
+              <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Status</th>
+              <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/5">
+            {loading ? (
+              <tr>
+                <td colSpan={4} className="px-8 py-20 text-center">
+                  <Loader2 className="w-8 h-8 animate-spin text-brand-green mx-auto mb-4" />
+                  <p className="text-[10px] font-black text-slate-500 animate-pulse tracking-widest uppercase">LOADING WORKFORCE...</p>
+                </td>
+              </tr>
+            ) : members.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-8 py-20 text-center text-slate-500 font-black text-[10px] uppercase tracking-widest">
+                  No team members found.
+                </td>
+              </tr>
+            ) : members.map((member) => (
+              <tr key={member.id} className="hover:bg-white/2 transition-colors group">
+                <td className="px-8 py-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/5 font-black text-brand-green group-hover:border-brand-green/30 transition-colors uppercase">
+                      {member.email.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-white group-hover:text-brand-green transition-colors">{member.email}</p>
+                      <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                        <Clock className="w-3 h-3" />
+                        Joined {new Date(member.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-8 py-6">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 text-slate-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-white/5">
+                    <Shield className="w-3 h-3 text-brand-green" />
+                    {member.role.name.replace('_', ' ')}
+                  </span>
+                </td>
+                <td className="px-8 py-6">
+                  <span className="flex items-center gap-1.5 text-[10px] font-black text-brand-green uppercase tracking-widest leading-none">
+                    <div className="w-1.5 h-1.5 rounded-full bg-brand-green shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    Active
+                  </span>
+                </td>
+                <td className="px-8 py-6 text-right">
+                  <button 
+                    onClick={() => handleRemove(member.id, member.email)}
+                    className="p-2 rounded-xl hover:bg-rose-500/10 text-slate-500 hover:text-rose-500 transition-all border border-transparent hover:border-rose-500/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Invite Modal */}
       {showInviteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md bg-slate-950/60 transition-all">
-          <div className="glass w-full max-w-md p-8 rounded-[40px] border border-slate-800 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
-            <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-3">
-              <UserPlus className="w-6 h-6 text-emerald-500" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-md bg-brand-dark/60 transition-all">
+          <div className="bg-brand-dark/80 backdrop-blur-3xl w-full max-w-md p-8 rounded-[2.5rem] border border-white/5 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
+            <h2 className="text-2xl font-black text-white mb-8 flex items-center gap-3 tracking-tight">
+              <UserPlus className="w-6 h-6 text-brand-green" />
               Invite Member
             </h2>
             
@@ -252,14 +242,14 @@ export default function TeamPage() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                   <input 
                     type="email" 
                     required
                     value={inviteData.email}
                     onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
                     placeholder="teammate@example.com"
-                    className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 transition-all text-white"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-green/30 focus:ring-4 focus:ring-brand-green/5 transition-all text-white font-bold placeholder:text-slate-600"
                   />
                 </div>
               </div>
@@ -267,31 +257,31 @@ export default function TeamPage() {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Assign Role</label>
                 <div className="relative">
-                  <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                  <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
                   <select 
                     value={inviteData.roleId}
                     onChange={(e) => setInviteData({ ...inviteData, roleId: e.target.value })}
-                    className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-emerald-500/50 transition-all text-white appearance-none uppercase font-bold tracking-wider"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-green/30 transition-all text-white appearance-none uppercase font-black tracking-wider cursor-pointer"
                   >
                     {roles.map((role) => (
-                      <option key={role.id} value={role.id}>{role.name.replace('_', ' ')}</option>
+                      <option key={role.id} value={role.id} className="bg-brand-dark text-white font-bold">{role.name.replace('_', ' ')}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-4">
+              <div className="flex gap-4 pt-6">
                 <button 
                   type="button"
                   onClick={() => setShowInviteModal(false)}
-                  className="flex-1 py-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-bold text-sm border border-slate-800 transition-all"
+                  className="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-sm border border-white/10 transition-all uppercase tracking-widest"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
                   disabled={isInviting}
-                  className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-brand-green hover:bg-emerald-400 disabled:opacity-50 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center gap-2 uppercase tracking-widest"
                 >
                   {isInviting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                   Send Invite
@@ -299,14 +289,11 @@ export default function TeamPage() {
               </div>
             </form>
 
-            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full" />
+            {/* Glow */}
+            <div className="absolute top-0 right-0 -mr-4 -mt-4 w-32 h-32 bg-brand-green/5 blur-3xl rounded-full" />
           </div>
         </div>
       )}
-
-      {/* Decorative Glows */}
-      <div className="fixed top-0 left-0 -z-10 w-[600px] h-[600px] bg-blue-500/5 blur-[150px] rounded-full pointer-events-none opacity-50" />
-      <div className="fixed bottom-0 right-0 -z-10 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full pointer-events-none opacity-50" />
     </div>
   );
 }

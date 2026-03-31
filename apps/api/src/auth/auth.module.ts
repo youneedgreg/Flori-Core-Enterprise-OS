@@ -11,7 +11,7 @@ import { CommunicationsModule } from '../communications/communications.module';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super_secret',
+      secret: process.env.JWT_SECRET || 'super_secret_flori_core_key',
       signOptions: { expiresIn: (process.env.JWT_EXPIRES_IN || '15m') as any },
     }),
     CommunicationsModule,
