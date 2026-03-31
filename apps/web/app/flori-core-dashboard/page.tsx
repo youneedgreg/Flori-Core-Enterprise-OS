@@ -26,19 +26,9 @@ export default function FloriCoreDashboard() {
     // Safe check for browser environment
     if (typeof document === 'undefined') return;
 
-    // Check if the user used the backdoor credentials by looking for the explicit cookie 
-    if (!document.cookie.includes('access_token=superadmin_floricore_dev')) {
-      router.push('/login');
-      return;
-    }
-
     const fetchUsers = async () => {
       try {
-        const response = await fetch('http://localhost:3001/flori-core-users', {
-          headers: {
-            'x-superadmin-password': '12password',
-          },
-        });
+        const response = await fetch('http://localhost:3001/flori-core-users');
 
         if (!response.ok) {
           throw new Error('Failed to fetch system users');
