@@ -314,6 +314,16 @@
 
 ---
 
+## Phase 6.5 — Tenant Customization & RBAC _(Week 26)_
+
+### 6.5.1 Custom Role Definition
+- [ ] Create/Edit custom roles with specific dashboard module visibility
+- [ ] Assign custom roles during onboarding team invitation
+- [ ] Manage members and roles in a dedicated "Members & Roles" settings tab
+- [ ] Filter dashboard navigation based on role permissions (visibility control)
+
+---
+
 ## Phase 7 — Module 6: Human Resources & Talent _(Weeks 27–30)_
 
 ### 7.1 Employee Digital File
@@ -382,6 +392,17 @@
 - [ ] Single Gold Admin overseeing multiple farm tenants
 - [ ] Cross-farm consolidated P&L view
 - [ ] KPI benchmarking between farms
+
+---
+
+## Phase 8.5 — Monetisation & Subscription Management _(Week 36.5)_
+
+### 8.5.1 Billing Infrastructure
+- [ ] Stripe integration for recurring tenant subscriptions
+- [ ] Multi-tier pricing plans (Basic, Professional, Enterprise)
+- [ ] Free trial logic (14-day auto-expiry without card)
+- [ ] Super Admin "Manual Override" — Authorise usage/extend trials (Cash/Friend manual bypass)
+- [ ] Automated invoice generation for subscriptions
 
 ---
 

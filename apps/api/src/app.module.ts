@@ -20,6 +20,7 @@ import { LogisticsModule } from './logistics/logistics.module';
 import { PayrollModule } from './payroll/payroll.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
+import { TenantsModule } from './tenants/tenants.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SuperAdminModule } from './super-admin/super-admin.module';
     PayrollModule,
     TelemetryModule,
     SuperAdminModule,
+    TenantsModule,
   ],
   controllers: [AppController],
   providers: [

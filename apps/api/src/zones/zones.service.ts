@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,7 +10,10 @@ export class ZonesService {
 
   async findAll(tenantId: string) {
     return await this.prisma.zone.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+        isArchived: false,
+      },
       include: {
         _count: {
           select: { devices: true },
@@ -52,16 +58,20 @@ export class ZonesService {
   }
 
   async remove(tenantId: string, id: string) {
-    // Ensure ownership before deletion
+    // Soft delete (archive)
     await this.findOne(tenantId, id);
-    return await this.prisma.zone.delete({
+    return await this.prisma.zone.update({
       where: { id },
+      data: { isArchived: true },
     });
   }
 
   async getZoneStats(tenantId: string) {
     const zones = await this.prisma.zone.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+        isArchived: false,
+      },
       select: { areaSqm: true, cropVarieties: true },
     });
 

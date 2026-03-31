@@ -39,6 +39,8 @@ model Tenant {
   telemetry      TelemetryReading[]
   payroll        PayrollRecord[]
 
+  settings       Json?         @default("{}")
+
   @@map("tenants")
 }
 
@@ -173,6 +175,8 @@ model Zone {
   name          String
   areaSqm       Float?
   cropVarieties String[]
+  isArchived    Boolean  @default(false)
+  layout        Json?    // Stores tactical map coordinates and style
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

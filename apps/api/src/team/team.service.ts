@@ -91,7 +91,7 @@ export class TeamService {
   }
 
   async removeMember(tenantId: string, id: string) {
-    const user = await this.findOne(tenantId, id);
+    await this.findOne(tenantId, id);
 
     // Prevent self-deletion or removing the last admin in a more complex app,
     // but here we just ensure ownership.
