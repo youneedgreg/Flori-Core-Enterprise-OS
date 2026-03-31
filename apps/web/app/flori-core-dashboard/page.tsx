@@ -29,6 +29,7 @@ import {
   Save,
   AlertCircle
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // --- Types ---
 
@@ -77,9 +78,11 @@ export default function FloriCoreDashboard() {
       const response = await fetch(url);
       if (!response.ok) throw new Error(`Failed to fetch ${activeModel} data`);
       const result = await response.json();
-      setData(result);
+      const extracted = Array.isArray(result) ? result : (result?.data || []);
+      setData(extracted);
     } catch (err: any) {
       setError(err.message);
+      toast.error(`Data Sync Failed: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -98,8 +101,9 @@ export default function FloriCoreDashboard() {
       });
       if (!response.ok) throw new Error('Delete failed');
       setData(data.filter(item => item.id !== id));
+      toast.success('Record successfully purged from node');
     } catch (err: any) {
-      alert(err.message);
+      toast.error(`Purge Failed: ${err.message}`);
     }
   };
 
@@ -120,8 +124,9 @@ export default function FloriCoreDashboard() {
       
       setIsEditorOpen(false);
       fetchData();
+      toast.success(editingRecord.id ? 'Core data stream updated' : 'New record injected to cluster');
     } catch (err: any) {
-      alert(err.message);
+      toast.error(`Commit Failed: ${err.message}`);
     } finally {
       setIsSaving(false);
     }
@@ -154,24 +159,26 @@ export default function FloriCoreDashboard() {
   };
 
   // Helpers
-  const filteredData = data.filter(item => 
-    Object.values(item).some(val => 
-      String(val).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
+  const filteredData = Array.isArray(data) 
+    ? data.filter(item => 
+        Object.values(item).some(val => 
+          String(val).toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    : [];
 
   const activeConfig = MODELS.find(m => m.id === activeModel) || MODELS[0];
 
   // Dynamic Columns
   const getColumns = () => {
-    if (data.length === 0) return [];
+    if (!Array.isArray(data) || data.length === 0) return [];
     // Priority keys first, then others, exclude objects
     const keys = Object.keys(data[0]).filter(k => typeof data[0][k] !== 'object' || Array.isArray(data[0][k]));
     const priority = ['id', 'email', 'name', 'slug', 'status', 'type'];
     return [...new Set([...priority.filter(p => keys.includes(p)), ...keys])];
   };
 
-  if (loading && data.length === 0) {
+  if (loading && (!Array.isArray(data) || data.length === 0)) {
     return (
       <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 text-white space-y-6">
         <div className="relative">
@@ -439,7 +446,7 @@ export default function FloriCoreDashboard() {
         {/* Footer */}
         <footer className="h-12 border-t border-white/5 bg-brand-dark/60 flex items-center justify-between px-8 text-[10px] font-black text-slate-500 uppercase tracking-widest shrink-0">
           <div className="flex items-center gap-6">
-            <span>Directory Size: {data.length} Records</span>
+            <span>Directory Size: {Array.isArray(data) ? data.length : 0} Records</span>
             <span>Selection: {selectedIds.size}</span>
           </div>
           <div className="flex items-center gap-2">

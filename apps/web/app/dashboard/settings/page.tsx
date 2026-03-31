@@ -49,9 +49,9 @@ export default function SettingsPage() {
 
         const headers = { Authorization: `Bearer ${token}` };
         
-        const farmRes = await fetch(`${API}/onboarding/farm-profile`, { headers });
-        if (farmRes.ok) {
-          const data = await farmRes.json();
+        const response = await fetch(`${API}/onboarding/farm-profile`, { headers });
+        if (response.ok) {
+          const data = await response.json();
           if (data) {
             setFarmData({
               name: data.name || '',
@@ -63,10 +63,13 @@ export default function SettingsPage() {
               logoUrl: data.logoUrl || ''
             });
           }
+        } else {
+          console.error(`API Error (${response.status}):`, response.statusText);
+          toast.error(`Backend synchronisation failed (${response.status})`);
         }
       } catch (error) {
-        console.error('Failed to fetch settings:', error);
-        toast.error('Failed to load settings');
+        console.error('Network or Load Failure:', error);
+        toast.error('Could not reach the core node architecture. Verify API status.');
       } finally {
         setLoading(false);
       }

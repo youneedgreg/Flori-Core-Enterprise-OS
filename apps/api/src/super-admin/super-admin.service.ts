@@ -17,8 +17,10 @@ export class SuperAdminService {
   constructor(private readonly prisma: PrismaService) {}
 
   private getModel(modelName: string) {
-    const key = modelName.toLowerCase();
-    const prismaModel = (this.prisma as any)[key];
+    const keys = Object.keys(this.prisma);
+    const matchedKey = keys.find(k => k.toLowerCase() === modelName.toLowerCase());
+    const prismaModel = matchedKey ? (this.prisma as any)[matchedKey] : null;
+
     if (!prismaModel) {
       throw new BadRequestException(`Model "${modelName}" not found in system.`);
     }
