@@ -232,7 +232,7 @@ export default function ZonesPage() {
       {viewMode === 'map' && (
         <div className="relative bg-slate-950/50 backdrop-blur-3xl rounded-[3rem] border border-white/5 aspect-[21/9] overflow-hidden group shadow-2xl">
           <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-          <div className="absolute inset-0 p-12">
+          <div className="absolute inset-0 pt-20 p-12">
              <div className="grid grid-cols-12 grid-rows-6 gap-4 h-full">
                 {zones.map((zone, i) => {
                   const layout = zone.layout || {
@@ -247,8 +247,8 @@ export default function ZonesPage() {
                       key={zone.id}
                       className={`relative bg-${layout.color || 'emerald'}-500/10 border border-${layout.color || 'emerald'}-500/30 rounded-3xl p-6 transition-all hover:scale-[1.02] hover:bg-${layout.color || 'emerald'}-500/20 group/sector cursor-pointer shadow-lg overflow-hidden`}
                       style={{
-                        gridColumn: `span ${layout.w}`,
-                        gridRow: `span ${layout.h}`
+                        gridColumn: `${layout.x} / span ${layout.w}`,
+                        gridRow: `${layout.y} / span ${layout.h}`
                       }}
                     >
                       <div className="relative z-10">
@@ -262,7 +262,7 @@ export default function ZonesPage() {
                     </div>
                   );
                 })}
-                <div className="absolute bottom-8 right-8 flex gap-6 px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/5">
+                <div className="absolute bottom-8 right-8 flex gap-6 px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/5 z-20">
                    <div className="flex items-center gap-2">
                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">High Yield</span>
@@ -274,7 +274,7 @@ export default function ZonesPage() {
                 </div>
              </div>
           </div>
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
+          <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full z-30 shadow-2xl backdrop-blur-xl">
              <MapPin className="w-3 h-3 text-emerald-400" />
              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em]">Precision Sector Satellite Active</span>
           </div>
