@@ -262,8 +262,11 @@ export default function InventoryPage() {
                   <input 
                     type="number" 
                     required
-                    value={newProduct.stock}
-                    onChange={(e) => setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })}
+                    value={newProduct.stock === 0 ? '' : newProduct.stock}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNewProduct({ ...newProduct, stock: val === '' ? 0 : parseInt(val) });
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/30 transition-all text-white font-black"
                   />
                 </div>
@@ -273,8 +276,11 @@ export default function InventoryPage() {
                     type="number" 
                     step="0.01"
                     required
-                    value={newProduct.unitPrice}
-                    onChange={(e) => setNewProduct({ ...newProduct, unitPrice: parseFloat(e.target.value) })}
+                    value={newProduct.unitPrice === 0 ? '' : newProduct.unitPrice}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setNewProduct({ ...newProduct, unitPrice: val === '' ? 0 : parseFloat(val) });
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-blue-500/30 transition-all text-white font-black"
                   />
                 </div>

@@ -1,8 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   Injectable,
   NotFoundException,
@@ -15,7 +10,7 @@ export class LogisticsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll(tenantId: string) {
-    return await (this.prisma as any).order.findMany({
+    return await this.prisma.order.findMany({
       where: { tenantId },
       include: {
         customer: {
@@ -27,7 +22,7 @@ export class LogisticsService {
   }
 
   async findOne(tenantId: string, id: string) {
-    const order = await (this.prisma as any).order.findFirst({
+    const order = await this.prisma.order.findFirst({
       where: { id, tenantId },
       include: { customer: true },
     });
@@ -47,12 +42,12 @@ export class LogisticsService {
     },
   ) {
     // Check if customer exists and belongs to tenant
-    const customer = await (this.prisma as any).customer.findFirst({
+    const customer = await this.prisma.customer.findFirst({
       where: { id: data.customerId, tenantId },
     });
     if (!customer) throw new BadRequestException('Invalid customer reference');
 
-    return await (this.prisma as any).order.create({
+    return await this.prisma.order.create({
       data: {
         ...data,
         tenantId,
@@ -68,7 +63,7 @@ export class LogisticsService {
     status: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
   ) {
     const order = await this.findOne(tenantId, id);
-    const updatedOrder = await (this.prisma as any).order.update({
+    const updatedOrder = await this.prisma.order.update({
       where: { id },
       data: { status },
     });
@@ -80,11 +75,11 @@ export class LogisticsService {
 
       for (const item of productItems) {
         if (item.sku && item.quantity) {
-          const product = await (this.prisma as any).product.findFirst({
+          const product = await this.prisma.product.findFirst({
             where: { sku: item.sku, tenantId },
           });
           if (product) {
-            await (this.prisma as any).product.update({
+            await this.prisma.product.update({
               where: { id: product.id },
               data: { stock: { decrement: Number(item.quantity) } },
             });
@@ -98,7 +93,7 @@ export class LogisticsService {
 
   // Customer sub-management
   async findAllCustomers(tenantId: string) {
-    return await (this.prisma as any).customer.findMany({
+    return await this.prisma.customer.findMany({
       where: { tenantId },
       orderBy: { name: 'asc' },
     });
@@ -108,7 +103,7 @@ export class LogisticsService {
     tenantId: string,
     data: { name: string; email?: string; country?: string; address?: string },
   ) {
-    return await (this.prisma as any).customer.create({
+    return await this.prisma.customer.create({
       data: {
         ...data,
         tenantId,

@@ -423,8 +423,11 @@ export default function LogisticsPage() {
                         <input 
                           type="number"
                           placeholder="Qty"
-                          value={item.quantity}
-                          onChange={(e) => updateQuantity(idx, parseInt(e.target.value))}
+                          value={item.quantity === 0 ? '' : item.quantity}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            updateQuantity(idx, val === '' ? 0 : parseInt(val));
+                          }}
                           className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-[10px] text-white font-black focus:outline-none"
                         />
                       </div>
