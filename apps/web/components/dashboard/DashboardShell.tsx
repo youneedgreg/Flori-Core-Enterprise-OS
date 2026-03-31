@@ -37,7 +37,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
 
   const handleSignOut = () => {
     document.cookie = 'access_token=; Max-Age=0; path=/';
-    router.push('/login');
+    router.push('/');
   };
 
   if (!user) return null;

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { LogOut } from 'lucide-react';
 import Stepper from './Stepper';
 import Step1FarmProfile from './Step1FarmProfile';
 import Step2Zones from './Step2Zones';
@@ -24,6 +25,11 @@ export default function WizardContainer({ token }: { token: string }) {
   const [loading, setLoading] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   const [createdZones, setCreatedZones] = useState<CreatedZone[]>([]);
+
+  const handleSignOut = () => {
+    document.cookie = 'access_token=; Max-Age=0; path=/';
+    router.push('/');
+  };
 
   const [farmProfile, setFarmProfile] = useState({
     name: '', location: '', gpsCoordinates: '', certifications: [] as string[], contactEmail: '', contactPhone: '', logoUrl: '',
@@ -128,6 +134,17 @@ export default function WizardContainer({ token }: { token: string }) {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Sign Out Button */}
+      <div className="absolute top-8 right-8 z-50">
+        <button 
+          onClick={handleSignOut}
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-slate-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all group"
+        >
+          <LogOut className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <span className="text-[10px] font-black uppercase tracking-widest">Sign Out</span>
+        </button>
+      </div>
+
       {/* Decorative Orbs */}
       <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />

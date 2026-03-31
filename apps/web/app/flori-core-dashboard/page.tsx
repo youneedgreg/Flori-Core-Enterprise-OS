@@ -176,7 +176,7 @@ export default function FloriCoreDashboard() {
       <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 text-white space-y-6">
         <div className="relative">
           <div className="w-16 h-16 bg-brand-green/20 rounded-2xl flex items-center justify-center animate-pulse">
-            <div className="w-8 h-8 border-[4px] border-brand-green rounded-sm rotate-45 animate-spin-slow" />
+            <div className="w-8 h-8 border-4 border-brand-green rounded-sm rotate-45 animate-spin-slow" />
           </div>
           <div className="absolute inset-0 bg-brand-green/20 blur-xl rounded-full" />
         </div>
@@ -230,7 +230,7 @@ export default function FloriCoreDashboard() {
           <button 
             onClick={() => {
               document.cookie = 'access_token=; Max-Age=0; path=/';
-              router.push('/login');
+              router.push('/');
             }}
             className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-500/10 text-slate-400 hover:text-red-400 rounded-2xl transition-all font-bold text-sm"
           >
@@ -450,7 +450,7 @@ export default function FloriCoreDashboard() {
 
       {/* --- Editor Modal --- */}
       {isEditorOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-black/60 animate-in fade-in transition-all">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-6 backdrop-blur-md bg-black/60 animate-in fade-in transition-all">
           <div className="glass w-full max-w-xl rounded-[2.5rem] p-10 border-white/10 shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-brand-green/10 rounded-full blur-3xl" />
             
