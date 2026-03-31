@@ -120,23 +120,46 @@ export default function WizardContainer({ token }: { token: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-brand-dark flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative Orbs */}
+      <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 bg-brand-green/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
+
+      <div className="w-full max-w-2xl relative z-10">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="text-3xl font-black tracking-tighter text-white inline-flex items-center gap-1">
-            <span className="text-emerald-500">Flori-</span>Core
+        <div className="flex flex-col items-center mb-12">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 bg-brand-green rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+              <div className="w-6 h-6 border-4 border-brand-dark rounded-sm rotate-45" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-3xl font-black tracking-tighter text-white leading-none">Flori-Core</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-green mt-1">Enterprise OS</span>
+            </div>
           </div>
-          <p className="text-slate-400 mt-1 text-sm">Let&apos;s set up your workspace</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Initialize Digital Infrastructure</p>
         </div>
 
         <Stepper currentStep={step} steps={STEPS} />
 
-        <div className="glass p-8 rounded-3xl border border-slate-800">
-          {step === 0 && <Step1FarmProfile data={farmProfile} onChange={setFarmProfile} onNext={handleNextStep1} />}
-          {step === 1 && <Step2Zones zones={zones} onChange={setZones} onNext={handleNextStep2} onBack={() => setStep(0)} />}
-          {step === 2 && <Step3Team members={members} roles={roles} onChange={setMembers} onNext={handleNextStep3} onBack={() => setStep(1)} />}
-          {step === 3 && <Step4IoT devices={devices} zones={createdZones} onChange={setDevices} onSubmit={handleSubmit} onBack={() => setStep(2)} loading={loading} />}
+        <div className="bg-brand-dark/40 backdrop-blur-3xl p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
+          {/* Subtle Inner Glow */}
+          <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-white/10 to-transparent" />
+          
+          <div className="relative z-10">
+            {step === 0 && <Step1FarmProfile data={farmProfile} onChange={setFarmProfile} onNext={handleNextStep1} />}
+            {step === 1 && <Step2Zones zones={zones} onChange={setZones} onNext={handleNextStep2} onBack={() => setStep(0)} />}
+            {step === 2 && <Step3Team members={members} roles={roles} onChange={setMembers} onNext={handleNextStep3} onBack={() => setStep(1)} />}
+            {step === 3 && <Step4IoT devices={devices} zones={createdZones} onChange={setDevices} onSubmit={handleSubmit} onBack={() => setStep(2)} loading={loading} />}
+          </div>
+        </div>
+
+        {/* System Status Footer */}
+        <div className="mt-8 flex justify-center">
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/10">
+            <div className="w-1.5 h-1.5 bg-brand-green rounded-full animate-pulse" />
+            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">System Readiness: Optimal</span>
+          </div>
         </div>
       </div>
     </div>
