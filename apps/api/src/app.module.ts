@@ -19,6 +19,7 @@ import { TeamModule } from './team/team.module';
 import { LogisticsModule } from './logistics/logistics.module';
 import { PayrollModule } from './payroll/payroll.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
+import { SuperAdminModule } from './super-admin/super-admin.module';
 
 @Module({
   imports: [
@@ -32,6 +33,9 @@ import { TelemetryModule } from './telemetry/telemetry.module';
     ZonesModule,
     TeamModule,
     LogisticsModule,
+    PayrollModule,
+    TelemetryModule,
+    SuperAdminModule,
   ],
   controllers: [AppController],
   providers: [
