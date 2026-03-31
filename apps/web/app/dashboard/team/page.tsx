@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -49,8 +50,8 @@ export default function TeamPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -60,6 +61,11 @@ export default function TeamPage() {
         fetch(`${API}/team`, { headers }),
         fetch(`${API}/team/roles`, { headers })
       ]);
+
+      if (membersRes.status === 401 || rolesRes.status === 401) {
+        logout();
+        return;
+      }
 
       if (membersRes.ok && rolesRes.ok) {
         setMembers(await membersRes.json());

@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation';
 import KPICard from '../../components/dashboard/KPICard';
 import NotificationFeed from '../../components/dashboard/NotificationFeed';
 import QuickActions from '../../components/dashboard/QuickActions';
-import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Search, Clock } from 'lucide-react';
-import Link from 'next/link';
+import { Users, Package, Search, Clock } from 'lucide-react';
+import { logout, decodeJWT, isTokenExpired } from '../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -42,19 +42,24 @@ export default function GoldAdminDashboard() {
     const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
     const token = tokenMatch?.[1];
 
-    if (!token) {
-      router.push('/login');
+    if (!token || isTokenExpired(token)) {
+      logout();
       return;
     }
 
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      const payload = decodeJWT(token);
+      if (!payload) throw new Error('Invalid token');
       setUser(payload);
       
       fetch(`${API}/dashboard/stats`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => {
+        if (res.status === 401) {
+          logout();
+          throw new Error('Session expired');
+        }
         if (!res.ok) throw new Error('Failed to load dashboard stats');
         return res.json();
       })
@@ -64,17 +69,19 @@ export default function GoldAdminDashboard() {
       })
       .catch(err => {
         console.error(err);
-        setLoading(false);
+        if (err.message !== 'Session expired') {
+          setLoading(false);
+        }
       });
-    } catch (e) {
-      router.push('/login');
+    } catch {
+      logout();
     }
   }, [router]);
 
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center p-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-brand-green border-b-2 border-brand-green"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-brand-green border-b-2"></div>
       </div>
     );
   }
@@ -140,14 +147,14 @@ export default function GoldAdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-             <div className="p-8 rounded-[2.5rem] bg-linear-to-br from-brand-green/5 to-transparent border border-white/5 hover:border-brand-green/30 transition-all cursor-pointer group hover:bg-white/[0.03]">
+             <div className="p-8 rounded-[2.5rem] bg-linear-to-br from-brand-green/5 to-transparent border border-white/5 hover:border-brand-green/30 transition-all cursor-pointer group hover:bg-white/3">
                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/5 group-hover:border-brand-green/20 transition-all">
                   <Package className="w-6 h-6 text-brand-green" />
                 </div>
                 <h4 className="text-white font-black text-xl mb-2 tracking-tight group-hover:text-brand-green transition-colors">Cold Chain Hub</h4>
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">Active telemetry from vehicle nodes and cold room storage sectors.</p>
              </div>
-             <div className="p-8 rounded-[2.5rem] bg-linear-to-br from-emerald-500/5 to-transparent border border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer group hover:bg-white/[0.03]">
+             <div className="p-8 rounded-[2.5rem] bg-linear-to-br from-emerald-500/5 to-transparent border border-white/5 hover:border-emerald-500/30 transition-all cursor-pointer group hover:bg-white/3">
                 <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-6 border border-white/5 group-hover:border-emerald-500/20 transition-all">
                   <Users className="w-6 h-6 text-emerald-400" />
                 </div>

@@ -14,6 +14,7 @@ import {
   Bell
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { logout, decodeJWT, isTokenExpired } from '../../../lib/auth';
 import Step1FarmProfile from '../../../components/onboarding/Step1FarmProfile';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -41,15 +42,27 @@ export default function SettingsPage() {
         const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
         const token = tokenMatch?.[1];
 
-        if (!token) return;
+        if (!token || isTokenExpired(token)) {
+          logout();
+          return;
+        }
 
         // Decode token
-        const payload = JSON.parse(atob(token.split('.')[1]));
+        const payload = decodeJWT(token);
+        if (!payload) {
+          logout();
+          return;
+        }
         setUser({ email: payload.email, role: payload.role, tenantId: payload.tenantId });
 
         const headers = { Authorization: `Bearer ${token}` };
         
         const response = await fetch(`${API}/onboarding/farm-profile`, { headers });
+        if (response.status === 401) {
+          logout();
+          return;
+        }
+
         if (response.ok) {
           const data = await response.json();
           if (data) {

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import TimelineView from '../../../components/audit-logs/TimelineView';
 import LogFilterBar from '../../../components/audit-logs/LogFilterBar';
 import { ShieldCheck, Loader2 } from 'lucide-react';
+import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -26,8 +27,8 @@ export default function AuditLogsPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -36,6 +37,11 @@ export default function AuditLogsPage() {
       const response = await fetch(`${API}/audit-logs?${params}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
+
+      if (response.status === 401) {
+        logout();
+        return;
+      }
 
       if (response.ok) {
         const data = await response.json();

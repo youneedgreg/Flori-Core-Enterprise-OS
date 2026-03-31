@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
+import { logout, isTokenExpired } from '../../lib/auth';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -18,12 +19,17 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
   const [user, setUser] = useState<{ email: string; role: string } | null>(null);
 
   useEffect(() => {
+    if (!token || isTokenExpired(token)) {
+      logout();
+      return;
+    }
+
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setUser({ email: payload.email, role: payload.role });
     } catch (err) {
       console.error('Layout init failed:', err);
-      router.push('/login');
+      logout();
     }
   }, [token, router]);
 
@@ -36,8 +42,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
   ];
 
   const handleSignOut = () => {
-    document.cookie = 'access_token=; Max-Age=0; path=/';
-    router.push('/');
+    logout();
   };
 
   if (!user) return null;

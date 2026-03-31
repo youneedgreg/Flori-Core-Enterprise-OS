@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { 
   Banknote, 
   CreditCard, 
@@ -17,6 +16,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -41,7 +41,6 @@ interface PayrollSummary {
 }
 
 export default function PayrollPage() {
-  const router = useRouter();
   const [records, setRecords] = useState<PayrollRecord[]>([]);
   const [summary, setSummary] = useState<PayrollSummary>({ totalPaid: 0, totalPending: 0, totalStaff: 0 });
   const [loading, setLoading] = useState(true);
@@ -53,8 +52,8 @@ export default function PayrollPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -64,6 +63,11 @@ export default function PayrollPage() {
         fetch(`${API}/payroll`, { headers }),
         fetch(`${API}/payroll/summary`, { headers })
       ]);
+
+      if (recordsRes.status === 401 || summaryRes.status === 401) {
+        logout();
+        return;
+      }
 
       if (recordsRes.ok && summaryRes.ok) {
         setRecords(await recordsRes.json());
@@ -75,7 +79,7 @@ export default function PayrollPage() {
     } finally {
       setLoading(false);
     }
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     fetchData();

@@ -16,6 +16,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -45,8 +46,8 @@ export default function ZonesPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -57,6 +58,11 @@ export default function ZonesPage() {
         fetch(`${API}/zones/stats`, { headers }),
         fetch(`${API}/tenants/settings`, { headers })
       ]);
+
+      if (zonesRes.status === 401 || statsRes.status === 401 || settingsRes.status === 401) {
+        logout();
+        return;
+      }
 
       if (zonesRes.ok && statsRes.ok) {
         setZones(await zonesRes.json());

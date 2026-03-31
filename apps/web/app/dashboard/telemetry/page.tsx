@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { logout, decodeJWT, isTokenExpired } from '../../../lib/auth';
 import { io, Socket } from 'socket.io-client';
 import { 
   XAxis, 
@@ -55,8 +56,8 @@ export default function TelemetryPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -64,6 +65,12 @@ export default function TelemetryPage() {
       
       // Fetch current status from API
       const res = await fetch(`${API}/telemetry/latest`, { headers });
+      
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+
       if (res.ok) {
         const latest: { deviceId: string; deviceName: string; type: string; zone: string; latestValue: number; unit: string }[] = await res.json();
         const initialStates: Record<string, DeviceState> = {};
@@ -85,8 +92,12 @@ export default function TelemetryPage() {
       // Initialize Socket
       const newSocket = io(API);
       
-      // Get tenant ID from token (simple decode for demo)
-      const payload = JSON.parse(atob(token.split('.')[1]));
+      // Get tenant ID from token
+      const payload = decodeJWT(token);
+      if (!payload) {
+        logout();
+        return;
+      }
       const tenantId = payload.tenantId;
 
       newSocket.emit('subscribe-to-telemetry', { tenantId });

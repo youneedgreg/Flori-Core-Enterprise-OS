@@ -17,6 +17,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -68,8 +69,8 @@ export default function LogisticsPage() {
       const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
       const token = tokenMatch?.[1];
 
-      if (!token) {
-        router.push('/login');
+      if (!token || isTokenExpired(token)) {
+        logout();
         return;
       }
 
@@ -79,6 +80,11 @@ export default function LogisticsPage() {
         fetch(`${API}/logistics/orders`, { headers }),
         fetch(`${API}/logistics/customers`, { headers })
       ]);
+
+      if (ordersRes.status === 401 || customersRes.status === 401) {
+        logout();
+        return;
+      }
 
       if (ordersRes.ok && customersRes.ok) {
         setOrders(await ordersRes.json());
