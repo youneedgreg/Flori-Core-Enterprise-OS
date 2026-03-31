@@ -85,6 +85,10 @@ export class AuthService {
       // We don't throw here to avoid failing registration if email fails
     }
 
+    const isOnboarded = !!(await this.prisma.farmProfile.findUnique({
+      where: { tenantId: result.tenant.id },
+    }));
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -92,6 +96,7 @@ export class AuthService {
         email: result.user.email,
         role: result.role.name,
       },
+      isOnboarded,
     };
   }
 
@@ -117,9 +122,14 @@ export class AuthService {
         tenantId: user.tenantId,
         role: roleName,
       };
+      const isOnboarded = !!(await this.prisma.farmProfile.findUnique({
+        where: { tenantId: user.tenantId },
+      }));
+
       return {
         access_token: this.jwtService.sign(payload),
         user: { id: user.id, email: user.email, role: roleName },
+        isOnboarded,
       };
     } catch (e) {
       console.error('[AUTH ERROR]', e);

@@ -46,7 +46,12 @@ export default function LoginPage() {
       }
 
       document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
-      window.location.href = '/onboarding';
+      
+      if (data.isOnboarded) {
+        window.location.href = '/dashboard';
+      } else {
+        window.location.href = '/onboarding';
+      }
     } catch (err) {
       console.error("Login Error:", err);
       if (err instanceof z.ZodError) {
