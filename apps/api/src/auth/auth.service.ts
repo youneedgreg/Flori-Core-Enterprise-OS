@@ -7,12 +7,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterTenantDto, LoginDto, DEFAULT_ROLES } from '@flori/shared';
+import { EmailService } from '../communications/email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
+    private emailService: EmailService,
   ) {}
 
   async registerTenant(dto: RegisterTenantDto) {
@@ -67,6 +69,22 @@ export class AuthService {
       tenantId: result.tenant.id,
       role: result.role.name,
     };
+
+    // --- Welcome Email Trigger ---
+    try {
+      await this.emailService.sendEmail({
+        to: adminEmail,
+        subject: `Welcome to Flori-Core, ${farmName}! 🌸`,
+        html: this.generateWelcomeEmailHtml(farmName),
+        tenantId: result.tenant.id,
+        entityType: 'USER',
+        entityId: result.user.id,
+      });
+    } catch (e) {
+      console.error('[AUTH] Welcome email failed (likely Resend config):', e);
+      // We don't throw here to avoid failing registration if email fails
+    }
+
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -114,5 +132,51 @@ export class AuthService {
       where: { tenantId },
       select: { id: true, name: true },
     });
+  }
+
+  private generateWelcomeEmailHtml(farmName: string): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+          <style>
+              body { font-family: 'Inter', system-ui, -apple-system, sans-serif; line-height: 1.6; color: #1a1a1a; margin: 0; padding: 0; background-color: #f8fafc; }
+              .container { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); border: 1px solid #e2e8f0; }
+              .header { background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); padding: 40px 20px; text-align: center; color: white; }
+              .header h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -0.025em; }
+              .content { padding: 40px; }
+              .welcome-text { font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 24px; }
+              .description { color: #475569; margin-bottom: 32px; font-size: 16px; }
+              .cta-container { text-align: center; margin-bottom: 32px; }
+              .button { display: inline-block; padding: 14px 32px; background: #8b5cf6; color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
+              .footer { padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; background: #f8fafc; }
+              .highlight { color: #ec4899; font-weight: bold; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Flori-Core OS</h1>
+              </div>
+              <div class="content">
+                  <div class="welcome-text">Welcome to the future of Floriculture, <span class="highlight">${farmName}</span>!</div>
+                  <div class="description">
+                      We're thrilled to have you on board. Your Enterprise OS is now ready, and you've taken the first step towards transforming your farm with precision production, IoT insights, and integrated financials.
+                  </div>
+                  <div class="cta-container">
+                      <a href="https://app.floricore.io" class="button">Go to Dashboard</a>
+                  </div>
+                  <div class="description">
+                      Need help getting started? Check out our <a href="#" style="color: #8b5cf6;">Onboarding Guide</a> or reply to this email for support.
+                  </div>
+              </div>
+              <div class="footer">
+                  © 2024 Flori-Core OS. Precision Agriculture for Modern Farms.<br>
+                  You received this email because you signed up for Flori-Core.
+              </div>
+          </div>
+      </body>
+      </html>
+    `;
   }
 }

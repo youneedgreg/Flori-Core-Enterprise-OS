@@ -435,6 +435,30 @@
 
 ---
 
+## Phase 10 — Module 7: Client Order & Payment Portal _(Weeks 41–44)_
+
+### 10.1 Client Storefront
+- [ ] Public/Private storefront for authenticated clients
+- [ ] Browse available flowers by variety, grade, and real-time ATP
+- [ ] Shopping cart & checkout flow
+
+### 10.2 Integrated Payments
+- [ ] Multi-channel payment gateway (Stripe, PayPal, M-Pesa Online)
+- [ ] Direct bank transfer (manual upload of proof of payment)
+- [ ] Instant receipt & invoice generation upon payment
+
+### 10.3 Order Tracking & Delivery
+- [ ] Live order status tracking (Confirmed → Packing → In Transit → Delivered)
+- [ ] Map view for active deliveries (integrated with Logistics module)
+- [ ] Delivery feedback & rating system
+
+### 10.4 Client Dashboard & History
+- [ ] Past orders & re-order functionality
+- [ ] Ledger view (Total Spent, Outstanding Balance)
+- [ ] Profile management & delivery address book
+
+---
+
 ## Testing & Verification
 
 ### Automated Tests
