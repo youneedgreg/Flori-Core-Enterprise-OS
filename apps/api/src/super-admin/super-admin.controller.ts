@@ -14,6 +14,11 @@ import { SuperAdminService } from './super-admin.service';
 export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}
 
+  @Get('metadata/models')
+  getModelsList() {
+    return this.superAdminService.getModelsList();
+  }
+
   @Get(':model')
   findAll(@Param('model') model: string, @Query() query: any) {
     return this.superAdminService.findAll(model, query);
