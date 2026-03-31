@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Cpu, MapPin, Activity, Trash2, Plus, ArrowLeft, Zap, Satellite, ChevronDown } from 'lucide-react';
 

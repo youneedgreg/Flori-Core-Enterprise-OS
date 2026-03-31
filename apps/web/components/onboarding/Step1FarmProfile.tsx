@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useRef } from 'react';
 import { Country, City } from 'country-state-city';
 import { ChevronDown, Building2, Mail, Phone, MapPin, Award, Upload } from 'lucide-react';

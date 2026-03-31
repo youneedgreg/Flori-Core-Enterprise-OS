@@ -46,7 +46,14 @@ export default function WizardContainer({ token }: { token: string }) {
         return r.json();
       })
       .then((data: Role[]) => setRoles(data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error('API Error:', err);
+        if (err instanceof TypeError && err.message === 'Load failed') {
+          toast.error('The backend API is not responding. Please ensure the server is running on port 3001.');
+        } else {
+          toast.error('Infrastructure sync failed. Please check your connection.');
+        }
+      });
   }, [headers, router]);
 
   const post = async (path: string, body: unknown) => {

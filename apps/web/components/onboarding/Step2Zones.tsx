@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Box, Trash2, Plus, ArrowLeft, ArrowRight, Ruler, Sprout } from 'lucide-react';
 

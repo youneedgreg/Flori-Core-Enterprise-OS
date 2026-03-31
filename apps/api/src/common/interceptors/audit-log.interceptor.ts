@@ -17,18 +17,19 @@ export class AuditLogInterceptor implements NestInterceptor {
     const { method, url, body, tenantId, user } = request;
 
     // Only log state-changing actions (POST, PATCH, DELETE)
-    // and skip the audit-logs endpoint itself to avoid infinite loops
+    // and skip sensitive or administrative endpoints
     if (
       !['POST', 'PATCH', 'DELETE'].includes(method) ||
-      url.includes('/audit-logs')
+      url.includes('/audit-logs') ||
+      url.includes('/auth/login') ||
+      url.includes('/auth/register')
     ) {
       return next.handle();
     }
 
-    // Capture the "before" state (if applicable, e.g. for PATCH or DELETE)
-    // For this simple version, we mainly log the "after" state from the response.
     return next.handle().pipe(
       tap((responseContent) => {
+        if (!tenantId) return; // Cannot log without a tenant context
         // Derive entityType from the URL (e.g., /onboarding/farm-profile -> FarmProfile)
         const parts = url.split('/').filter(Boolean);
         const entityType = parts[parts.length - 1]
