@@ -28,8 +28,14 @@ model Tenant {
   users          User[]
   zones          Zone[]
 
-  settings       Json?         @default("{}")
+  settings       Json?           @default("{}")
+  unitPreference UnitSystem      @default(METRIC)
   @@map("tenants")
+}
+
+enum UnitSystem {
+  METRIC
+  IMPERIAL
 }
 
 model Role {
@@ -231,9 +237,19 @@ model PayrollRecord {
   tenant      Tenant        @relation(fields: [tenantId], references: [id])
   user        User          @relation(fields: [userId], references: [id])
 
+  type        PayrollType   @default(FIXED)
+  hoursWorked Float?
+  hourlyRate  Float?
+  baseAmount  Float?
+
   @@index([tenantId])
   @@index([userId])
   @@map("payroll_records")
+}
+
+enum PayrollType {
+  FIXED
+  HOURLY
 }
 
 enum TenantStatus {

@@ -49,6 +49,12 @@ export default function TelemetryPage() {
   const [devices, setDevices] = useState<Record<string, DeviceState>>({});
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [unitSystem, setUnitSystem] = useState<'METRIC' | 'IMPERIAL'>('METRIC');
+
+  const convertValue = useCallback((val: number, type: string) => {
+    if (type !== 'TEMPERATURE' || unitSystem === 'METRIC') return { value: val, unit: type === 'TEMPERATURE' ? '°C' : '%' };
+    return { value: (val * 9/5) + 32, unit: '°F' };
+  }, [unitSystem]);
 
   // Initialize data and join socket rooms
   const init = useCallback(async () => {
@@ -158,6 +164,20 @@ export default function TelemetryPage() {
         </div>
 
         <div className="flex items-center gap-4">
+          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10">
+            <button 
+              onClick={() => setUnitSystem('METRIC')}
+              className={`px-4 py-2 rounded-lg text-[10px] font-black transition-all uppercase tracking-widest ${unitSystem === 'METRIC' ? 'bg-brand-green text-slate-950 shadow-lg shadow-brand-green/20' : 'text-slate-500 hover:text-white'}`}
+            >
+              Metric (°C)
+            </button>
+            <button 
+              onClick={() => setUnitSystem('IMPERIAL')}
+              className={`px-4 py-2 rounded-lg text-[10px] font-black transition-all uppercase tracking-widest ${unitSystem === 'IMPERIAL' ? 'bg-brand-green text-slate-950 shadow-lg shadow-brand-green/20' : 'text-slate-500 hover:text-white'}`}
+            >
+              Imperial (°F)
+            </button>
+          </div>
           <div className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
             socket?.connected ? 'bg-brand-green/10 text-brand-green border-brand-green/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
           }`}>
@@ -200,7 +220,8 @@ export default function TelemetryPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-4xl font-black text-white group-hover:text-brand-green transition-colors tracking-tighter">
-                    {device.currentValue.toFixed(1)}<span className="text-slate-500 text-xl ml-1 font-bold">{device.unit}</span>
+                    {convertValue(device.currentValue, device.type).value.toFixed(1)}
+                    <span className="text-slate-500 text-xl ml-1 font-bold">{convertValue(device.currentValue, device.type).unit}</span>
                   </p>
                   <div className="flex items-center justify-end gap-1 mt-1 text-[10px] font-black text-brand-green uppercase tracking-widest">
                     <TrendingUp className="w-3 h-3" />
@@ -212,7 +233,7 @@ export default function TelemetryPage() {
               {/* Main Insight Chart */}
               <div className="h-[240px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={device.history}>
+                  <AreaChart data={device.history.map(h => ({ ...h, value: convertValue(h.value, device.type).value }))}>
                     <defs>
                       <linearGradient id={`grad-${device.id}`} x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor={device.type === 'TEMPERATURE' ? '#3b82f6' : '#10b981'} stopOpacity={0.3}/>
@@ -239,6 +260,10 @@ export default function TelemetryPage() {
                         textTransform: 'uppercase',
                         letterSpacing: '0.1em'
                       }}
+                      formatter={(val: number | string | readonly (number | string)[] | undefined) => [
+                        Array.isArray(val) ? val.join(', ') : (typeof val === 'number' ? val.toFixed(2) : (val ?? '')), 
+                        convertValue(0, device.type).unit
+                      ]}
                     />
                     <Area 
                       type="monotone" 
@@ -264,7 +289,9 @@ export default function TelemetryPage() {
                  </div>
                  <div>
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">P95 Variance</p>
-                   <p className="text-[10px] font-black text-white uppercase tracking-wider">±0.2{device.unit}</p>
+                   <p className="text-[10px] font-black text-white uppercase tracking-wider">
+                     ±{unitSystem === 'METRIC' ? '0.2' : '0.4'}{convertValue(0, device.type).unit}
+                   </p>
                  </div>
                  <div className="text-right">
                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Last Sync</p>

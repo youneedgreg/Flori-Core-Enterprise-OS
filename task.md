@@ -90,6 +90,7 @@
 - [x] View list of all system users and information across tenants
 
 ### 1.26 Fix Login & Dev Infrastructure
+
 - [x] Restore official `nest start --watch` (Fix CLI commander bug)
 - [x] Resolve 500 Internal Server Error in Login (Dependency Injection fix)
 - [x] Verify onboarding flow persists correctly with fresh tokens
@@ -317,6 +318,7 @@
 ## Phase 6.5 — Tenant Customization & RBAC _(Week 26)_
 
 ### 6.5.1 Custom Role Definition
+
 - [ ] Create/Edit custom roles with specific dashboard module visibility
 - [ ] Assign custom roles during onboarding team invitation
 - [ ] Manage members and roles in a dedicated "Members & Roles" settings tab
@@ -398,6 +400,7 @@
 ## Phase 8.5 — Monetisation & Subscription Management _(Week 36.5)_
 
 ### 8.5.1 Billing Infrastructure
+
 - [ ] Stripe integration for recurring tenant subscriptions
 - [ ] Multi-tier pricing plans (Basic, Professional, Enterprise)
 - [ ] Free trial logic (14-day auto-expiry without card)
@@ -459,21 +462,25 @@
 ## Phase 10 — Module 7: Client Order & Payment Portal _(Weeks 41–44)_
 
 ### 10.1 Client Storefront
+
 - [ ] Public/Private storefront for authenticated clients
 - [ ] Browse available flowers by variety, grade, and real-time ATP
 - [ ] Shopping cart & checkout flow
 
 ### 10.2 Integrated Payments
+
 - [ ] Multi-channel payment gateway (Stripe, PayPal, M-Pesa Online)
 - [ ] Direct bank transfer (manual upload of proof of payment)
 - [ ] Instant receipt & invoice generation upon payment
 
 ### 10.3 Order Tracking & Delivery
+
 - [ ] Live order status tracking (Confirmed → Packing → In Transit → Delivered)
 - [ ] Map view for active deliveries (integrated with Logistics module)
 - [ ] Delivery feedback & rating system
 
 ### 10.4 Client Dashboard & History
+
 - [ ] Past orders & re-order functionality
 - [ ] Ledger view (Total Spent, Outstanding Balance)
 - [ ] Profile management & delivery address book
