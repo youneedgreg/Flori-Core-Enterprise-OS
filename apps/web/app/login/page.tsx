@@ -22,13 +22,6 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Mock login for developer access
-      if (email === 'admin@flori-core.com' && password === 'admin123') {
-        document.cookie = `access_token=superadmin_floricore_dev; path=/; max-age=3600; samesite=lax`;
-        window.location.href = '/flori-core-dashboard';
-        return;
-      }
-
       LoginSchema.parse({ email, password });
       
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
