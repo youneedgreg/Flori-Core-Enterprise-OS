@@ -114,17 +114,17 @@
 
 ### 2.1 Crop Lifecycle Management
 
-- [ ] `varieties` table: name, target stem length, bloom time, market grade
-- [ ] `crop_cycles` table: variety → greenhouse block → dates → actual harvest
-- [ ] Gantt-style timeline view per block
-- [ ] Harvest forecasting (projected stems/day by cycle stage)
-- [ ] Spray/fertiliser schedule linked to each crop cycle
+- [x] `varieties` table: name, target stem length, bloom time, market grade
+- [x] `crop_cycles` table: variety → greenhouse block → dates → actual harvest
+- [x] Gantt-style timeline view per block
+- [x] Harvest forecasting (projected stems/day by cycle stage)
+- [x] Spray/fertiliser schedule linked to each crop cycle
 
 ### 2.2 Greenhouse & Zone Management
 
-- [ ] Interactive farm map (SVG or Mapbox) showing all blocks
-- [ ] Per-block details: current variety, plant count, days-to-harvest, last watered
-- [ ] Bulk zone reassignment tool
+- [x] Interactive farm map (SVG or Mapbox) showing all blocks
+- [x] Per-block details: current variety, plant count, days-to-harvest, last watered
+- [x] Bulk zone reassignment tool
 
 ### 2.3 Smart Soil IoT Integration
 

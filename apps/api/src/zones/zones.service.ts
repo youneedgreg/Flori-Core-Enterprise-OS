@@ -18,6 +18,16 @@ export class ZonesService {
         _count: {
           select: { devices: true },
         },
+        cropCycles: {
+          where: {
+            status: { not: 'COMPLETED' },
+          },
+          include: {
+            variety: true,
+          },
+          orderBy: { startDate: 'desc' },
+          take: 1,
+        },
       },
       orderBy: { name: 'asc' },
     });
@@ -26,7 +36,19 @@ export class ZonesService {
   async findOne(tenantId: string, id: string) {
     const zone = await this.prisma.zone.findFirst({
       where: { id, tenantId },
-      include: { devices: true },
+      include: {
+        devices: true,
+        cropCycles: {
+          where: {
+            status: { not: 'COMPLETED' },
+          },
+          include: {
+            variety: true,
+          },
+          orderBy: { startDate: 'desc' },
+          take: 1,
+        },
+      },
     });
     if (!zone) throw new NotFoundException('Zone not found');
     return zone;
@@ -34,7 +56,13 @@ export class ZonesService {
 
   async create(
     tenantId: string,
-    data: { name: string; areaSqm?: number; cropVarieties?: string[] },
+    data: {
+      name: string;
+      areaSqm?: number;
+      cropVarieties?: string[];
+      plantCount?: number;
+      lastWatered?: Date;
+    },
   ) {
     return await this.prisma.zone.create({
       data: {
@@ -47,13 +75,35 @@ export class ZonesService {
   async update(
     tenantId: string,
     id: string,
-    data: { name?: string; areaSqm?: number; cropVarieties?: string[] },
+    data: {
+      name?: string;
+      areaSqm?: number;
+      cropVarieties?: string[];
+      plantCount?: number;
+      lastWatered?: Date;
+    },
   ) {
     // Ensure ownership before update
     await this.findOne(tenantId, id);
     return await this.prisma.zone.update({
       where: { id },
       data,
+    });
+  }
+
+  async bulkUpdateCropVarieties(
+    tenantId: string,
+    zoneIds: string[],
+    cropVarieties: string[],
+  ) {
+    return await this.prisma.zone.updateMany({
+      where: {
+        id: { in: zoneIds },
+        tenantId,
+      },
+      data: {
+        cropVarieties,
+      },
     });
   }
 

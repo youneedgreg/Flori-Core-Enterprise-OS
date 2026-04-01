@@ -147,6 +147,8 @@ model Zone {
   tenantId      String
   name          String
   areaSqm       Float?
+  plantCount    Float?
+  lastWatered   DateTime?
   cropVarieties String[]
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt

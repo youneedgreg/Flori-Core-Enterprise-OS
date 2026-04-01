@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -13,10 +14,20 @@ import {
   LayoutGrid,
   List as ListIcon,
   Archive,
-  CheckCircle
+  CheckCircle,
+  X,
+  Droplets,
+  Thermometer,
+  Layers,
+  Search,
+  CheckSquare,
+  Square,
+  ArrowRight
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { logout, isTokenExpired } from '../../../lib/auth';
+import ZoneMap from '../../../components/production/ZoneMap';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -24,9 +35,12 @@ interface Zone {
   id: string;
   name: string;
   areaSqm: number;
+  plantCount?: number;
+  lastWatered?: string;
   cropVarieties: string[];
   layout?: { x: number; y: number; w: number; h: number; color?: string };
   isArchived: boolean;
+  cropCycles?: any[];
   _count?: {
     devices: number;
   };
@@ -39,6 +53,12 @@ export default function ZonesPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'map'>('grid');
   const [stats, setStats] = useState({ activeZones: 0, totalArea: 0, uniqueCrops: 0 });
   const [isSavingDefault, setIsSavingDefault] = useState(false);
+  
+  // New States for 2.2
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const [isBulkMode, setIsBulkMode] = useState(false);
+  const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
 
   const fetchZones = useCallback(async () => {
     setLoading(true);
@@ -95,7 +115,7 @@ export default function ZonesPage() {
       const token = tokenMatch?.[1];
 
       const res = await fetch(`${API}/zones/${id}`, {
-        method: 'DELETE', // Backend now handles this as soft-delete
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -135,8 +155,49 @@ export default function ZonesPage() {
     }
   };
 
+  const handleBulkUpdate = async () => {
+    if (selectedZoneIds.length === 0) return;
+    const varieties = prompt('Enter new crop varieties (comma separated):');
+    if (!varieties) return;
+
+    setIsBulkUpdating(true);
+    try {
+      const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
+      const token = tokenMatch?.[1];
+
+      const res = await fetch(`${API}/zones/bulk-update`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ 
+          ids: selectedZoneIds, 
+          cropVarieties: varieties.split(',').map(v => v.trim()) 
+        })
+      });
+
+      if (res.ok) {
+        toast.success(`Bulk update successful for ${selectedZoneIds.length} zones`);
+        setSelectedZoneIds([]);
+        setIsBulkMode(false);
+        fetchZones();
+      }
+    } catch (e) {
+      toast.error('Bulk update failed');
+    } finally {
+      setIsBulkUpdating(false);
+    }
+  };
+
+  const toggleZoneSelection = (id: string) => {
+    setSelectedZoneIds((prev: string[]) => 
+      prev.includes(id) ? prev.filter((zid: string) => zid !== id) : [...prev, id]
+    );
+  };
+
   return (
-    <div className="max-w-7xl mx-auto space-y-12">
+    <div className="max-w-7xl mx-auto space-y-12 pb-20 relative">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-8">
         <div className="space-y-1">
@@ -144,16 +205,65 @@ export default function ZonesPage() {
             <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
               <Map className="w-5 h-5 text-emerald-500" />
             </div>
-            <h1 className="text-3xl font-black tracking-tight text-white uppercase">Farm Zones</h1>
+            <h1 className="text-3xl font-black tracking-tight text-white uppercase italic">Agronomy Sectors</h1>
           </div>
-          <p className="text-slate-500 font-medium tracking-tight">Manage your production sectors, sectors and crop varieties.</p>
+          <p className="text-slate-500 font-medium tracking-tight">Geospatial management of farm blocks and production zones.</p>
         </div>
 
-        <button className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-          <Plus className="w-5 h-5" />
-          Add Production Zone
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={() => setIsBulkMode(!isBulkMode)}
+            className={`flex items-center justify-center gap-2 px-6 py-4 rounded-2xl font-black text-sm transition-all border ${
+              isBulkMode 
+                ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' 
+                : 'bg-white/5 border-white/5 text-slate-400 hover:text-white'
+            }`}
+          >
+            {isBulkMode ? <X className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
+            {isBulkMode ? 'Cancel Selection' : 'Bulk Edit'}
+          </button>
+          <button className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+            <Plus className="w-5 h-5" />
+            Add Production Zone
+          </button>
+        </div>
       </header>
+
+      {/* Bulk Action Bar */}
+      <AnimatePresence>
+        {isBulkMode && selectedZoneIds.length > 0 && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex items-center gap-8 px-8 py-4 bg-slate-900 border border-white/10 rounded-full shadow-2xl backdrop-blur-3xl"
+          >
+            <div className="flex items-center gap-4 border-r border-white/10 pr-8">
+              <span className="text-sm font-black text-white">{selectedZoneIds.length} Zones Selected</span>
+              <button 
+                onClick={() => setSelectedZoneIds([])}
+                className="text-[10px] font-black text-slate-500 uppercase hover:text-white"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="flex gap-4">
+               <button 
+                 onClick={handleBulkUpdate}
+                 disabled={isBulkUpdating}
+                 className="flex items-center gap-2 px-6 py-2 bg-emerald-500 text-slate-950 rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-emerald-400 transition-all disabled:opacity-50"
+               >
+                  {isBulkUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit2 className="w-4 h-4" />}
+                  Update Crops
+               </button>
+               <button className="flex items-center gap-2 px-6 py-2 bg-white/5 text-white rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                  <Droplets className="w-4 h-4" />
+                  Request Watering
+               </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -180,7 +290,7 @@ export default function ZonesPage() {
             <Sprout className="w-6 h-6 text-amber-400" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Crop Varieties</p>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Unique Crops</p>
             <p className="text-2xl font-black text-white">{stats.uniqueCrops}</p>
           </div>
         </div>
@@ -194,19 +304,19 @@ export default function ZonesPage() {
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
              >
-               <LayoutGrid className="w-5 h-5" />
+                <LayoutGrid className="w-5 h-5" />
              </button>
              <button 
                 onClick={() => setViewMode('list')}
                 className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
              >
-               <ListIcon className="w-5 h-5" />
+                <ListIcon className="w-5 h-5" />
              </button>
              <button 
                 onClick={() => setViewMode('map')}
                 className={`p-2 rounded-lg transition-all ${viewMode === 'map' ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
              >
-               <Map className="w-5 h-5" />
+                <Map className="w-5 h-5" />
              </button>
            </div>
 
@@ -223,162 +333,286 @@ export default function ZonesPage() {
          {loading && (
            <div className="flex items-center gap-2 text-emerald-500 font-black text-[10px] animate-pulse tracking-widest">
              <Loader2 className="w-4 h-4 animate-spin" />
-             SYNCING PATCHES...
+             CALIBRATING SECTOR MESH...
            </div>
          )}
       </div>
 
-      {/* Tactical Map View */}
-      {viewMode === 'map' && (
-        <div className="relative bg-slate-950/50 backdrop-blur-3xl rounded-[3rem] border border-white/5 aspect-[21/9] overflow-hidden group shadow-2xl">
-          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-          <div className="absolute inset-0 pt-20 p-12">
-             <div className="grid grid-cols-12 grid-rows-6 gap-4 h-full">
-                {zones.map((zone, i) => {
-                  const layout = zone.layout || {
-                    x: (i % 4) * 3 + 1,
-                    y: Math.floor(i / 4) * 2 + 1,
-                    w: 3,
-                    h: 2,
-                    color: i % 2 === 0 ? 'emerald' : 'blue'
-                  };
-                  return (
-                    <div 
-                      key={zone.id}
-                      className={`relative bg-${layout.color || 'emerald'}-500/10 border border-${layout.color || 'emerald'}-500/30 rounded-3xl p-6 transition-all hover:scale-[1.02] hover:bg-${layout.color || 'emerald'}-500/20 group/sector cursor-pointer shadow-lg overflow-hidden`}
-                      style={{
-                        gridColumn: `${layout.x} / span ${layout.w}`,
-                        gridRow: `${layout.y} / span ${layout.h}`
-                      }}
-                    >
-                      <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-2 h-2 rounded-full bg-${layout.color || 'emerald'}-400 animate-pulse`} />
-                          <h4 className="font-black text-white uppercase text-xs tracking-widest">{zone.name}</h4>
-                        </div>
-                        <p className="text-[10px] font-black text-slate-500 tracking-tighter uppercase">{zone.areaSqm} SQM · {zone._count?.devices || 0} SENSORS</p>
-                      </div>
-                      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent h-1/2 -skew-y-12 animate-pulse pointer-events-none" />
-                    </div>
-                  );
-                })}
-                <div className="absolute bottom-8 right-8 flex gap-6 px-6 py-3 bg-black/40 backdrop-blur-xl rounded-2xl border border-white/5 z-20">
-                   <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">High Yield</span>
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 rounded-full bg-blue-500" />
-                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Growth Phase</span>
-                   </div>
-                </div>
-             </div>
-          </div>
-          <div className="absolute top-8 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full z-30 shadow-2xl backdrop-blur-xl">
-             <MapPin className="w-3 h-3 text-emerald-400" />
-             <span className="text-[9px] font-black text-emerald-400 uppercase tracking-[0.3em]">Precision Sector Satellite Active</span>
-          </div>
-        </div>
-      )}
+      {/* Main Content Area */}
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          {viewMode === 'map' && (
+            <motion.div 
+              key="map-view"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+               <ZoneMap 
+                zones={zones} 
+                onZoneClick={(z) => setSelectedZone(z)} 
+                selectedZoneId={selectedZone?.id}
+               />
+            </motion.div>
+          )}
 
-      {/* Grid View */}
-      {viewMode === 'grid' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {zones.map((zone) => (
-            <div key={zone.id} className="bg-white/5 backdrop-blur-3xl p-8 rounded-[2.5rem] border border-white/5 group hover:border-emerald-500/30 transition-all duration-500 shadow-xl relative overflow-hidden">
-              <div className="flex justify-between items-start mb-6">
-                <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight">{zone.name}</h3>
-                  <p className="text-slate-500 text-xs font-black flex items-center gap-1.5 grayscale group-hover:grayscale-0 transition-all tracking-tighter">
-                    <Maximize2 className="w-3.5 h-3.5" />
-                    {zone.areaSqm} SQM
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="p-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-500 hover:text-white transition-all border border-white/5">
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => handleArchive(zone.id, zone.name)}
-                    className="p-2.5 rounded-2xl bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-white transition-all border border-rose-500/10"
-                    title="Archive Zone"
-                  >
-                    <Archive className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-8">
-                {zone.cropVarieties.map((crop, i) => (
-                  <span key={i} className="px-3 py-1.5 bg-emerald-500/5 text-emerald-400 border border-emerald-500/10 rounded-full text-[10px] font-black uppercase tracking-wider">
-                    {crop}
-                  </span>
-                ))}
-              </div>
-              <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                      {zone._count?.devices || 0} Sensors Active
-                    </span>
-                 </div>
-                 <button className="text-[10px] font-black text-emerald-500 hover:text-emerald-400 uppercase tracking-widest transition-colors">
-                   Open Plot View
-                 </button>
-              </div>
-              <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full" />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* List View */}
-      {viewMode === 'list' && (
-        <div className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white/5 border-b border-white/5">
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Zone Area Name</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Surface Area</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Active Crops</th>
-                <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
+          {viewMode === 'grid' && (
+            <motion.div 
+              key="grid-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
               {zones.map((zone) => (
-                <tr key={zone.id} className="hover:bg-white/2 transition-colors group">
-                  <td className="px-8 py-6">
-                    <p className="text-lg font-black text-white tracking-tight">{zone.name}</p>
-                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">{zone._count?.devices || 0} attached IoT devices</p>
-                  </td>
-                  <td className="px-8 py-6 text-slate-300 font-mono font-black text-xs">{zone.areaSqm?.toLocaleString()} M²</td>
-                  <td className="px-8 py-6">
-                     <div className="flex gap-2">
-                       {zone.cropVarieties.slice(0, 3).map((crop, i) => (
-                         <span key={i} className="px-2.4 py-1 bg-white/5 text-slate-400 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-wider">
-                           {crop}
-                         </span>
-                       ))}
-                       {zone.cropVarieties.length > 3 && (
-                         <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">+{zone.cropVarieties.length - 3} MORE</span>
+                <div 
+                  key={zone.id} 
+                  onClick={() => isBulkMode ? toggleZoneSelection(zone.id) : setSelectedZone(zone)}
+                  className={`bg-white/5 backdrop-blur-3xl p-8 rounded-[2.5rem] border transition-all duration-500 shadow-xl relative overflow-hidden group cursor-pointer ${
+                    isBulkMode && selectedZoneIds.includes(zone.id) 
+                      ? 'border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20' 
+                      : 'border-white/5 hover:border-emerald-500/30'
+                  }`}
+                >
+                  {isBulkMode && (
+                    <div className="absolute top-8 right-8 z-20">
+                       {selectedZoneIds.includes(zone.id) ? (
+                         <CheckSquare className="w-6 h-6 text-emerald-500" />
+                       ) : (
+                         <Square className="w-6 h-6 text-slate-700" />
                        )}
+                    </div>
+                  )}
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="space-y-1">
+                      <h3 className="text-2xl font-black text-white group-hover:text-emerald-400 transition-colors uppercase tracking-tight italic">{zone.name}</h3>
+                      <p className="text-slate-500 text-xs font-black flex items-center gap-1.5 grayscale group-hover:grayscale-0 transition-all tracking-tighter">
+                        <Maximize2 className="w-3.5 h-3.5" />
+                        {zone.areaSqm} SQM · {zone.plantCount || 0} PLANTS
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-8">
+                    {zone.cropCycles?.[0]?.variety ? (
+                      <span className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        {zone.cropCycles[0].variety.name}
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1.5 bg-slate-800 text-slate-500 rounded-full text-[10px] font-black uppercase tracking-wider">
+                        Fallow
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between pt-6 border-t border-white/5">
+                     <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${zone.cropCycles?.[0] ? 'bg-emerald-500 animate-pulse' : 'bg-slate-700'}`} />
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                          {zone._count?.devices || 0} Sensors Active
+                        </span>
                      </div>
-                  </td>
-                  <td className="px-8 py-6 text-right space-x-3">
-                     <button className="text-slate-500 hover:text-white transition-colors">
-                       <Edit2 className="w-4 h-4" />
-                     </button>
-                     <button 
-                      onClick={() => handleArchive(zone.id, zone.name)}
-                      className="text-slate-500 hover:text-rose-500 transition-colors"
-                      title="Archive Zone"
-                     >
-                       <Archive className="w-4 h-4" />
-                     </button>
-                  </td>
-                </tr>
+                     <ArrowRight className="w-4 h-4 text-emerald-500 opacity-0 group-hover:opacity-100 transition-all transform group-hover:translate-x-1" />
+                  </div>
+                  <div className="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-emerald-500/5 blur-3xl rounded-full" />
+                </div>
               ))}
-            </tbody>
-          </table>
+            </motion.div>
+          )}
+
+          {viewMode === 'list' && (
+            <motion.div 
+              key="list-view"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl"
+            >
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-white/5 border-b border-white/5">
+                    {isBulkMode && <th className="pl-8 py-6 w-12"></th>}
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Sector Manifest</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Scale</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Current Crop</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {zones.map((zone) => (
+                    <tr 
+                      key={zone.id} 
+                      onClick={() => isBulkMode && toggleZoneSelection(zone.id)}
+                      className={`hover:bg-white/2 transition-colors group cursor-pointer ${
+                        isBulkMode && selectedZoneIds.includes(zone.id) ? 'bg-emerald-500/5' : ''
+                      }`}
+                    >
+                      {isBulkMode && (
+                        <td className="pl-8 py-6">
+                           {selectedZoneIds.includes(zone.id) ? (
+                             <CheckSquare className="w-4 h-4 text-emerald-500" />
+                           ) : (
+                             <Square className="w-4 h-4 text-slate-700" />
+                           )}
+                        </td>
+                      )}
+                      <td className="px-8 py-6" onClick={() => !isBulkMode && setSelectedZone(zone)}>
+                        <p className="text-lg font-black text-white tracking-tight italic uppercase">{zone.name}</p>
+                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">{zone._count?.devices || 0} IoT Nodes</p>
+                      </td>
+                      <td className="px-8 py-6 text-slate-300 font-mono font-black text-xs">{zone.areaSqm?.toLocaleString()} M²</td>
+                      <td className="px-8 py-6">
+                         {zone.cropCycles?.[0]?.variety ? (
+                           <span className="text-brand-green font-black text-[11px] uppercase italic">{zone.cropCycles[0].variety.name}</span>
+                         ) : (
+                           <span className="text-slate-600 font-black text-[11px] uppercase italic">Offline (Fallow)</span>
+                         )}
+                      </td>
+                      <td className="px-8 py-6 text-right space-x-3">
+                         <button className="text-slate-500 hover:text-white transition-colors">
+                           <Edit2 className="w-4 h-4" />
+                         </button>
+                         <button 
+                          onClick={(e) => { e.stopPropagation(); handleArchive(zone.id, zone.name); }}
+                          className="text-slate-500 hover:text-rose-500 transition-colors"
+                         >
+                           <Archive className="w-4 h-4" />
+                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Side Detail Panel */}
+        <AnimatePresence>
+          {selectedZone && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedZone(null)}
+                className="fixed inset-0 bg-brand-dark/40 backdrop-blur-sm z-[60]"
+              />
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 border-l border-white/10 z-[70] shadow-2xl p-10 overflow-y-auto"
+              >
+                <button 
+                  onClick={() => setSelectedZone(null)}
+                  className="absolute top-8 right-8 p-3 bg-white/5 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-all"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+
+                <div className="space-y-12">
+                   <header className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                          <MapPin className="w-5 h-5 text-emerald-500" />
+                        </div>
+                        <h2 className="text-3xl font-black text-white uppercase italic tracking-tighter">{selectedZone.name}</h2>
+                      </div>
+                      <div className="flex gap-4">
+                         <div className="bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Dimension</p>
+                            <p className="text-sm font-black text-white">{selectedZone.areaSqm} M²</p>
+                         </div>
+                         <div className="bg-white/5 px-4 py-2 rounded-xl border border-white/5">
+                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Telemetry Status</p>
+                            <div className="flex items-center gap-2">
+                               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                               <p className="text-sm font-black text-brand-green uppercase tracking-tighter">Live</p>
+                            </div>
+                         </div>
+                      </div>
+                   </header>
+
+                   <section className="space-y-6">
+                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Genetic Status</h4>
+                      <div className="bg-black/40 rounded-3xl p-8 border border-white/5 border-l-4 border-l-brand-green relative overflow-hidden">
+                         <div className="absolute top-0 right-0 -mr-6 -mt-6 p-10 opacity-5">
+                            <Sprout className="w-20 h-20 text-brand-green" />
+                         </div>
+                         {selectedZone.cropCycles?.[0] ? (
+                           <div className="space-y-6 relative z-10">
+                              <div>
+                                 <p className="text-[8px] font-black text-brand-green uppercase tracking-widest mb-1">Active Variety</p>
+                                 <p className="text-2xl font-black text-white uppercase italic">{selectedZone.cropCycles[0].variety.name}</p>
+                              </div>
+                              <div className="grid grid-cols-2 gap-6">
+                                 <div>
+                                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Plant Density</p>
+                                    <p className="text-lg font-black text-white tracking-tighter">{selectedZone.plantCount || 0} Stems</p>
+                                 </div>
+                                 <div>
+                                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Days to Harvest</p>
+                                    <p className="text-lg font-black text-amber-500 tracking-tighter">Est. 14 Days</p>
+                                 </div>
+                              </div>
+                           </div>
+                         ) : (
+                           <p className="text-sm font-black text-slate-500 uppercase italic tracking-widest">No Active Crop Cycle Found</p>
+                         )}
+                      </div>
+                   </section>
+
+                   <section className="space-y-6">
+                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Irrigation Health</h4>
+                      <div className="grid grid-cols-2 gap-4">
+                         <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                            <Droplets className="w-5 h-5 text-blue-400 mb-4" />
+                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Moisture</p>
+                            <p className="text-xl font-black text-white">64.8%</p>
+                         </div>
+                         <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+                            <Thermometer className="w-5 h-5 text-rose-400 mb-4" />
+                            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Last Irrigated</p>
+                            <p className="text-xs font-black text-white uppercase">{selectedZone.lastWatered ? new Date(selectedZone.lastWatered).toLocaleTimeString() : 'N/A'}</p>
+                         </div>
+                      </div>
+                   </section>
+
+                   <section className="space-y-6">
+                      <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Compliance & Safety</h4>
+                      <div className="bg-black/20 p-6 border border-white/5 rounded-3xl flex items-center justify-between">
+                         <div className="flex items-center gap-3">
+                            <CheckCircle className="w-5 h-5 text-brand-green" />
+                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest">PHI Status Cleared</p>
+                         </div>
+                         <button className="text-[9px] font-black text-slate-500 hover:text-white uppercase tracking-widest">View Logs</button>
+                      </div>
+                   </section>
+
+                   <div className="flex gap-4 pt-8">
+                      <button className="flex-1 py-4 bg-brand-green text-slate-950 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-brand-green/90 transition-all shadow-xl shadow-brand-green/20">
+                         Modify Cycle
+                      </button>
+                      <button className="flex-1 py-4 bg-white/5 text-white rounded-2xl font-black text-xs uppercase tracking-widest border border-white/5 hover:bg-white/10 transition-all">
+                         Manual Watering
+                      </button>
+                   </div>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+      </div>
+      
+      {/* Search Overlay Placeholder */}
+      {!loading && zones.length > 0 && (
+        <div className="fixed bottom-12 right-12 z-40 bg-slate-900 border border-white/10 p-4 rounded-3xl shadow-2xl backdrop-blur-3xl hidden md:flex items-center gap-4">
+           <Search className="w-5 h-5 text-slate-500" />
+           <input 
+             type="text" 
+             placeholder="JUMP TO SECTOR..." 
+             className="bg-transparent border-0 text-[10px] font-black uppercase tracking-widest text-white focus:ring-0 w-32"
+           />
         </div>
       )}
 
@@ -386,10 +620,10 @@ export default function ZonesPage() {
       {zones.length === 0 && !loading && (
         <div className="py-20 flex flex-col items-center justify-center bg-white/5 border border-dashed border-white/10 rounded-[2.5rem] text-slate-500">
            <Map className="w-16 h-16 mb-4 opacity-10" />
-           <p className="text-xl font-black text-white mb-2">No Active Zones</p>
-           <p className="text-sm mb-8 text-center max-w-xs leading-relaxed font-medium">Your farm structure is the digital foundation of Flori-Core. Add your first zone or check archived sectors.</p>
+           <p className="text-xl font-black text-white mb-2 uppercase italic tracking-tighter">No Active Sectors Detected</p>
+           <p className="text-sm mb-8 text-center max-w-xs leading-relaxed font-medium">Your farm structure is the digital foundation of Flori-Core Enterprise. Initialize your first production zone to begin telemetry tracking.</p>
            <button className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/10 transition-all font-black text-[10px] uppercase tracking-widest">
-             Initialize First Zone
+             Deploy First Sector
            </button>
         </div>
       )}

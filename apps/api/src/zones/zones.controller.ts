@@ -54,6 +54,18 @@ export class ZonesController {
     return this.zonesService.update(req.tenantId, id, data);
   }
 
+  @Post('bulk-update')
+  bulkUpdate(
+    @Req() req: AuthenticatedRequest,
+    @Body() data: { ids: string[]; cropVarieties: string[] },
+  ) {
+    return this.zonesService.bulkUpdateCropVarieties(
+      req.tenantId,
+      data.ids,
+      data.cropVarieties,
+    );
+  }
+
   @Delete(':id')
   remove(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.zonesService.remove(req.tenantId, id);
