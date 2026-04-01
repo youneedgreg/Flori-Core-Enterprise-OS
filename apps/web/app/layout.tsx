@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} scroll-smooth antialiased dark`}>
+    <html lang="en" className={`${inter.variable} scroll-smooth antialiased dark`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 font-sans selection:bg-emerald-500/30">
         {children}
         <Toaster position="top-right" richColors />

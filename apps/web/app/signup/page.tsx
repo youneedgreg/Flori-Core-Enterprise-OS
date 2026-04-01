@@ -88,7 +88,7 @@ export default function SignupPage() {
         <div className="bg-white/3 backdrop-blur-3xl p-10 md:p-12 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden group">
           
           {/* Subtle line decoration */}
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-brand-green/20 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-linear-to-r from-transparent via-brand-green/20 to-transparent" />
 
           <form onSubmit={handleSubmit} className="space-y-8">
             
@@ -173,6 +173,10 @@ export default function SignupPage() {
 
           {/* Bottom Link */}
           <div className="mt-12 flex flex-col items-center gap-6">
+            <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest text-center">
+              By initializing, you agree to our <br/>
+              <Link href="/terms" className="text-slate-400 hover:text-brand-green transition-colors">Terms of Service</Link> and <Link href="/privacy" className="text-slate-400 hover:text-brand-green transition-colors">Privacy Policy</Link>
+            </p>
             <div className="h-px w-12 bg-white/10" />
             <p className="text-sm text-slate-500 font-medium text-center">
               Already standardized on Flori-Core?{' '}

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Globe, Users, Briefcase, AtSign, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -38,9 +39,9 @@ export default function Footer() {
           <div className="lg:col-span-2 text-left">
             <h4 className="text-white font-bold mb-8 tracking-tight">Company</h4>
             <ul className="space-y-4 text-slate-400 text-sm font-light">
-              <li><a href="#" className="hover:text-brand-green transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-brand-green transition-colors">Terms of Service</a></li>
-              <li><a href="#contact" className="hover:text-brand-green transition-colors">Contact</a></li>
+              <li><Link href="/privacy" className="hover:text-brand-green transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-brand-green transition-colors">Terms of Service</Link></li>
+              <li><Link href="#contact" className="hover:text-brand-green transition-colors">Contact</Link></li>
             </ul>
           </div>
 
