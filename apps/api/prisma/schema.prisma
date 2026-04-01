@@ -30,6 +30,9 @@ model Tenant {
 
   settings       Json?           @default("{}")
   unitPreference UnitSystem      @default(METRIC)
+  varieties      Variety[]
+  cropCycles     CropCycle[]
+  cropSchedules  CropSchedule[]
   @@map("tenants")
 }
 
@@ -150,6 +153,7 @@ model Zone {
   isArchived    Boolean     @default(false)
   layout        Json?
   devices       IoTDevice[]
+  cropCycles    CropCycle[]
   tenant        Tenant      @relation(fields: [tenantId], references: [id])
 
   @@map("zones")
@@ -291,4 +295,75 @@ model Product {
 
   @@index([tenantId])
   @@map("products")
+}
+
+model Variety {
+  id                     String      @id @default(uuid())
+  tenantId               String
+  name                   String
+  targetStemLength       Float?      // in cm
+  targetStemCountPerSqm  Float?      // units per sqm
+  bloomTime              Int?        // days from planting
+  marketGrade            String?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  tenant                 Tenant      @relation(fields: [tenantId], references: [id])
+  cropCycles             CropCycle[]
+
+  @@map("varieties")
+}
+
+model CropCycle {
+  id                    String          @id @default(uuid())
+  tenantId              String
+  varietyId             String
+  zoneId                String?         // Greenhouse block
+  startDate             DateTime
+  projectedHarvestDate  DateTime?
+  actualHarvestDate    DateTime?
+  actualHarvestYield   Int?            // Stems
+  status                CropCycleStatus @default(PLANNED)
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  
+  variety               Variety         @relation(fields: [varietyId], references: [id])
+  zone                  Zone?           @relation(fields: [zoneId], references: [id])
+  tenant                Tenant          @relation(fields: [tenantId], references: [id])
+  schedules             CropSchedule[]
+
+  @@map("crop_cycles")
+}
+
+enum CropCycleStatus {
+  PLANNED
+  PLANTED
+  GROWING
+  HARVESTING
+  COMPLETED
+  CANCELLED
+}
+
+model CropSchedule {
+  id            String       @id @default(uuid())
+  tenantId      String
+  cropCycleId   String
+  type          ScheduleType
+  taskName      String
+  scheduledDate DateTime
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  cropCycle     CropCycle    @relation(fields: [cropCycleId], references: [id])
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+
+  @@map("crop_schedules")
+}
+
+enum ScheduleType {
+  SPRAY
+  FERTILIZER
+  PRUNING
+  OTHER
 }

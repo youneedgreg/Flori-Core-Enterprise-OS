@@ -9,6 +9,9 @@ import { OnboardingModule } from './onboarding/onboarding.module';
 
 import { DashboardModule } from './dashboard/dashboard.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { VarietiesModule } from './varieties/varieties.module';
+import { CropCyclesModule } from './crop-cycles/crop-cycles.module';
+import { CropSchedulesModule } from './crop-schedules/crop-schedules.module';
 
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
@@ -40,6 +43,9 @@ import { ProductsModule } from './products/products.module';
     SuperAdminModule,
     TenantsModule,
     ProductsModule,
+    VarietiesModule,
+    CropCyclesModule,
+    CropSchedulesModule,
   ],
   controllers: [AppController],
   providers: [
