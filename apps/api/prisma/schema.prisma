@@ -33,6 +33,8 @@ model Tenant {
   varieties      Variety[]
   cropCycles     CropCycle[]
   cropSchedules  CropSchedule[]
+  alerts         Alert[]
+  automationRules AutomationRule[]
   @@map("tenants")
 }
 
@@ -214,19 +216,56 @@ model Order {
 }
 
 model TelemetryReading {
-  id        String    @id @default(uuid())
-  tenantId  String
-  deviceId  String
-  value     Float
-  unit      String?
-  timestamp DateTime  @default(now())
-  device    IoTDevice @relation(fields: [deviceId], references: [id])
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  id         String   @default(uuid())
+  tenantId   String
+  deviceId   String
+  sensorType String   @default("MOISTURE") // MOISTURE, TEMP, EC, PH
+  value      Float
+  unit       String?
+  timestamp  DateTime @default(now())
+  device     IoTDevice @relation(fields: [deviceId], references: [id])
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
 
+  @@id([id, timestamp])
   @@index([tenantId])
   @@index([deviceId])
   @@index([timestamp])
   @@map("telemetry_readings")
+}
+
+model Alert {
+  id        String   @id @default(uuid())
+  tenantId  String
+  deviceId  String?
+  zoneId    String?
+  type      String   @default("THRESHOLD_BREACH")
+  severity  String   @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+  message   String
+  status    String   @default("OPEN") // OPEN, RESOLVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("alerts")
+}
+
+model AutomationRule {
+  id         String   @id @default(uuid())
+  tenantId   String
+  zoneId     String?
+  name       String
+  sensorType String
+  operator   String   @default("LT") // LT, GT, EQ
+  threshold  Float
+  action     String   @default("NOTIFY") // NOTIFY, IRRIGATE_ON
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@map("automation_rules")
 }
 
 model PayrollRecord {

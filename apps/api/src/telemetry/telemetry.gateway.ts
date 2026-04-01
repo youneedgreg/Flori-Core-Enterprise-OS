@@ -1,4 +1,4 @@
-import { Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Logger, OnModuleInit, forwardRef } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -27,6 +27,7 @@ export class TelemetryGateway
   private logger: Logger = new Logger('TelemetryGateway');
 
   constructor(
+    @Inject(forwardRef(() => TelemetryService))
     private readonly telemetryService: TelemetryService,
     private readonly prisma: PrismaService,
   ) {}
@@ -34,11 +35,11 @@ export class TelemetryGateway
   onModuleInit() {
     // Start simulation for cold rooms
     setInterval(() => {
-      this.simulateTelemetry();
+      void this.simulateTelemetry();
     }, 5000); // every 5 seconds
   }
 
-  afterInit(server: Server) {
+  afterInit() {
     this.logger.log('🚀 Telemetry WebSocket Gateway initialized');
   }
 
@@ -55,13 +56,13 @@ export class TelemetryGateway
     this.logger.log(
       `📊 Client ${client.id} subscribed to telemetry for tenant: ${data.tenantId}`,
     );
-    client.join(`telemetry-tenant-${data.tenantId}`);
+    void client.join(`telemetry-tenant-${data.tenantId}`);
   }
 
   private async simulateTelemetry() {
     try {
       // Find all temperature/moisture devices
-      const devices = await (this.prisma as any).ioTDevice.findMany();
+      const devices = await this.prisma.ioTDevice.findMany();
 
       for (const device of devices) {
         let value: number;

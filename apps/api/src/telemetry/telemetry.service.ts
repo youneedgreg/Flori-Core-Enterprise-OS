@@ -1,24 +1,78 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AlertsService } from '../alerts/alerts.service';
+import { AutomationRulesService } from '../automation-rules/automation-rules.service';
+import { TelemetryGateway } from './telemetry.gateway';
 
 @Injectable()
 export class TelemetryService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(TelemetryService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly alertsService: AlertsService,
+    private readonly automationRulesService: AutomationRulesService,
+    @Inject(forwardRef(() => TelemetryGateway))
+    private readonly telemetryGateway: TelemetryGateway,
+  ) {}
 
   async record(
     tenantId: string,
     deviceId: string,
     value: number,
     unit?: string,
+    sensorType = 'MOISTURE',
   ) {
-    return await (this.prisma as any).telemetryReading.create({
+    const reading = await (this.prisma as any).telemetryReading.create({
       data: {
         tenantId,
         deviceId,
         value,
         unit,
+        sensorType,
       },
     });
+
+    // Evaluate rules
+    const actions = await this.automationRulesService.evaluate(
+      tenantId,
+      deviceId,
+      sensorType,
+      value,
+    );
+
+    if (actions.length > 0) {
+      for (const action of actions) {
+        if (action === 'NOTIFY') {
+          await this.alertsService.create(tenantId, {
+            deviceId,
+            type: 'THRESHOLD_BREACH',
+            severity: value < 30 ? 'HIGH' : 'MEDIUM',
+            message: `${sensorType} alert: value ${value}${unit || ''} triggered automation.`,
+          });
+        }
+        // Add more action handlers (e.g. IRRIGATE_ON) here
+      }
+    }
+
+    // Push real-time update
+    if (this.telemetryGateway?.server) {
+      this.telemetryGateway.server
+        .to(`telemetry-tenant-${tenantId}`)
+        .emit('telemetry-update', {
+          deviceId,
+          sensorType,
+          value,
+          unit,
+          timestamp: reading.timestamp,
+        });
+    }
+
+    return reading;
   }
 
   async findHistory(tenantId: string, deviceId: string, limit = 50) {
@@ -30,7 +84,6 @@ export class TelemetryService {
   }
 
   async getLatestReadings(tenantId: string) {
-    // For each device in the tenant, get the most recent reading
     const devices = await (this.prisma as any).ioTDevice.findMany({
       where: { tenantId },
       include: {

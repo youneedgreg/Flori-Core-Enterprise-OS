@@ -49,10 +49,14 @@ First, install monorepo dependencies:
 pnpm install
 ```
 
-Start up your local PostgreSQL and Redis containers using Docker Compose:
+Start up your local PostgreSQL, Redis, and EMQX (MQTT) containers using Docker Compose:
 ```bash
-docker compose up -d db redis
+docker compose up -d db redis emqx
 ```
+
+You can access the EMQX dashboard at `http://localhost:18083` with the default credentials:
+- **Username**: `admin`
+- **Password**: `admin123`
 
 Synchronize your Prisma schema with the running database and generate the Prisma Client:
 ```bash

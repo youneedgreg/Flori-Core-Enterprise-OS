@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Logger } from '@nestjs/common';
 import {
   OnGatewayConnection,
@@ -21,7 +22,7 @@ export class NotificationsGateway
   @WebSocketServer() server: Server;
   private logger: Logger = new Logger('NotificationsGateway');
 
-  afterInit(server: Server) {
+  afterInit() {
     this.logger.log('🚀 WebSocket Gateway initialized');
 
     // Simulate periodic live alerts for the demo

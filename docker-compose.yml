@@ -48,5 +48,16 @@ services:
     ports:
       - "6379:6379"
 
+  emqx:
+    image: emqx/emqx:5.8.0
+    container_name: flori-core-mqtt
+    restart: always
+    ports:
+      - "1883:1883"     # MQTT
+      - "8083:8083"     # MQTT over WebSocket
+      - "18083:18083"   # Dashboard
+    environment:
+      - EMQX_DASHBOARD__ADMIN_PASSWORD=admin123
+
 volumes:
   postgres_data:

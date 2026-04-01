@@ -19,7 +19,7 @@
 - [x] `docker-compose.yml` with PostgreSQL + TimescaleDB
 - [x] Prisma schema skeleton with `tenant_id` on every model
 - [x] Update Prisma schema (`Product` model)
-- [/] Refactor and apply database migration pipeline (Prisma migrate + shadow DB)
+- [x] Refactor and apply database migration pipeline (Prisma migrate + shadow DB)
 - [x] AWS RDS config documented for production
 
 ### 0.3 Auth System
@@ -128,13 +128,13 @@
 
 ### 2.3 Smart Soil IoT Integration
 
-- [ ] MQTT broker (EMQX) topic structure: `farm/{tenant_id}/zone/{zone_id}/sensor`
-- [ ] Sensor types: soil moisture, temperature, EC level, pH
-- [ ] TimescaleDB storage (1-minute resolution)
-- [ ] Real-time dashboard (Socket.io push)
-- [ ] Relay control: irrigation valve & fertigation pump commands
-- [ ] Alert engine: threshold breach → push notification + email to supervisor
-- [ ] Rule builder UI: conditional auto-irrigation rules
+- [x] MQTT broker (EMQX) topic structure: `farm/{tenant_id}/zone/{zone_id}/sensor`
+- [x] Sensor types: soil moisture, temperature, EC level, pH
+- [/] TimescaleDB storage (1-minute resolution)
+- [x] Real-time dashboard (Socket.io push)
+- [x] Relay control: irrigation valve & fertigation pump commands
+- [x] Alert engine: threshold breach → push notification + email to supervisor
+- [/] Rule builder UI: conditional auto-irrigation rules
 
 ### 2.4 Field Labour & Performance Tracking
 
