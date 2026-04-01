@@ -10,7 +10,10 @@ import {
 import { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
-  tenantId: string;
+  user: {
+    tenantId: string;
+    sub: string;
+  };
 }
 
 @UseGuards(JwtAuthGuard)
@@ -20,7 +23,7 @@ export class OnboardingController {
 
   @Get('farm-profile')
   getFarmProfile(@Req() req: AuthenticatedRequest) {
-    return this.onboardingService.getFarmProfile(req.tenantId);
+    return this.onboardingService.getFarmProfile(req.user.tenantId);
   }
 
   @Post('farm-profile')
@@ -28,12 +31,12 @@ export class OnboardingController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: FarmProfileDto,
   ) {
-    return this.onboardingService.upsertFarmProfile(req.tenantId, dto);
+    return this.onboardingService.upsertFarmProfile(req.user.tenantId, dto);
   }
 
   @Post('zones')
   saveZones(@Req() req: AuthenticatedRequest, @Body() zones: ZoneDto[]) {
-    return this.onboardingService.setZones(req.tenantId, zones);
+    return this.onboardingService.setZones(req.user.tenantId, zones);
   }
 
   @Post('invite-team')
@@ -41,7 +44,7 @@ export class OnboardingController {
     @Req() req: AuthenticatedRequest,
     @Body() invites: InviteTeamMemberDto[],
   ) {
-    return this.onboardingService.inviteTeamMembers(req.tenantId, invites);
+    return this.onboardingService.inviteTeamMembers(req.user.tenantId, invites);
   }
 
   @Post('iot-devices')
@@ -49,6 +52,6 @@ export class OnboardingController {
     @Req() req: AuthenticatedRequest,
     @Body() devices: IoTDeviceDto[],
   ) {
-    return this.onboardingService.registerIotDevices(req.tenantId, devices);
+    return this.onboardingService.registerIotDevices(req.user.tenantId, devices);
   }
 }

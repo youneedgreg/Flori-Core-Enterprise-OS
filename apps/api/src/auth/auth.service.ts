@@ -126,6 +126,10 @@ export class AuthService {
         where: { tenantId: user.tenantId },
       }));
 
+      console.log(
+        `[AUTH] Login success: user=${user.email}, tenantId=${user.tenantId}, isOnboarded=${isOnboarded}`,
+      );
+
       return {
         access_token: this.jwtService.sign(payload),
         user: { id: user.id, email: user.email, role: roleName },
