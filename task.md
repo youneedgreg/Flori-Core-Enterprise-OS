@@ -130,11 +130,11 @@
 
 - [x] MQTT broker (EMQX) topic structure: `farm/{tenant_id}/zone/{zone_id}/sensor`
 - [x] Sensor types: soil moisture, temperature, EC level, pH
-- [/] TimescaleDB storage (1-minute resolution)
+- [x] TimescaleDB storage (1-minute resolution)
 - [x] Real-time dashboard (Socket.io push)
 - [x] Relay control: irrigation valve & fertigation pump commands
 - [x] Alert engine: threshold breach → push notification + email to supervisor
-- [/] Rule builder UI: conditional auto-irrigation rules
+- [x] Rule builder UI: conditional auto-irrigation rules
 
 ### 2.4 Field Labour & Performance Tracking
 

@@ -83,6 +83,30 @@ export class TelemetryService {
     });
   }
 
+  async findHistoryBucketed(
+    tenantId: string,
+    deviceId: string,
+    sensorType: string,
+    bucketInterval = '1 minute',
+  ) {
+    // TimescaleDB specific raw query for bucketing
+    return await this.prisma.$queryRawUnsafe(`
+      SELECT 
+        time_bucket('${bucketInterval}', timestamp) AS bucket,
+        avg(value) AS avg_value,
+        max(value) AS max_value,
+        min(value) AS min_value
+      FROM telemetry_readings
+      WHERE "tenantId" = '${tenantId}'
+        AND "deviceId" = '${deviceId}'
+        AND "sensorType" = '${sensorType}'
+        AND timestamp > now() - INTERVAL '24 hours'
+      GROUP BY bucket
+      ORDER BY bucket DESC
+      LIMIT 100;
+    `);
+  }
+
   async getLatestReadings(tenantId: string) {
     const devices = await (this.prisma as any).ioTDevice.findMany({
       where: { tenantId },

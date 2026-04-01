@@ -10,16 +10,14 @@ import {
   Plus, 
   Bell, 
   Settings2, 
-  ArrowUpRight, 
   AlertTriangle,
-  Play,
   Pause,
   Filter,
   RefreshCw
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
+import { motion } from 'framer-motion';
 import io from 'socket.io-client';
+import RuleBuilderModal from '@/components/production/RuleBuilderModal';
 import { 
   LineChart, 
   Line, 
@@ -48,6 +46,7 @@ export default function IotDashboard() {
   const [rules, setRules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [socket, setSocket] = useState<any>(null);
+  const [isRuleModalOpen, setIsRuleModalOpen] = useState(false);
 
   const fetchInitialData = useCallback(async () => {
     try {
@@ -71,6 +70,19 @@ export default function IotDashboard() {
     }
   }, []);
 
+  const refreshRules = useCallback(async () => {
+    try {
+      const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
+      const token = tokenMatch?.[1];
+      const res = await fetch(`${API}/automation-rules`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) setRules(await res.json());
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   useEffect(() => {
     fetchInitialData();
     
@@ -78,8 +90,6 @@ export default function IotDashboard() {
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
-      const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
-      const token = tokenMatch?.[1];
       // In a real app we'd decode token for tenantId
       newSocket.emit('subscribe-to-telemetry', { tenantId: 'default-tenant' });
     });
@@ -272,12 +282,21 @@ export default function IotDashboard() {
               ))}
            </div>
 
-           <button className="w-full mt-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2">
+           <button 
+             onClick={() => setIsRuleModalOpen(true)}
+             className="w-full mt-8 py-4 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black text-white uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-2"
+           >
               <Plus className="w-4 h-4" />
               Define New Automation
            </button>
         </div>
       </div>
+
+      <RuleBuilderModal 
+        isOpen={isRuleModalOpen} 
+        onClose={() => setIsRuleModalOpen(false)} 
+        onRuleCreated={refreshRules} 
+      />
 
       {/* Active Alerts Feed */}
       <div className="bg-brand-dark/40 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-8">
