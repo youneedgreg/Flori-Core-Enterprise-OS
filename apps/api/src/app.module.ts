@@ -25,6 +25,7 @@ import { TelemetryModule } from './telemetry/telemetry.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { AutomationRulesModule } from './automation-rules/automation-rules.module';
 import { MqttModule } from './mqtt/mqtt.module';
+import { LabourModule } from './labour/labour.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { ProductsModule } from './products/products.module';
@@ -46,6 +47,7 @@ import { ProductsModule } from './products/products.module';
     AlertsModule,
     AutomationRulesModule,
     MqttModule,
+    LabourModule,
     SuperAdminModule,
     TenantsModule,
     ProductsModule,

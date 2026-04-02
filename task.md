@@ -136,13 +136,13 @@
 - [x] Alert engine: threshold breach → push notification + email to supervisor
 - [x] Rule builder UI: conditional auto-irrigation rules
 
-### 2.4 Field Labour & Performance Tracking
+### 2.4 Field Labour & Performance Tracking [COMPLETED]
 
-- [ ] Daily work-log: employee → zone → task type → hours
-- [ ] Mobile-first (PWA) logging interface for supervisors
-- [ ] Productivity metrics: stems cut per worker per day
-- [ ] Direct feed into payroll module (hours × rate)
-- [ ] GPS tagging of log entries (optional)
+- [x] Daily work-log: employee → zone → task type → hours
+- [x] Mobile-first (PWA) logging interface for supervisors
+- [x] Productivity metrics: stems cut per worker per day
+- [x] Direct feed into payroll module (hours × rate)
+- [x] GPS tagging of log entries (optional)
 
 ### 2.5 Spray & Chemical Compliance Log
 

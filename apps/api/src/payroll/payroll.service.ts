@@ -4,10 +4,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { LabourService } from '../labour/labour.service';
 
 @Injectable()
 export class PayrollService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly labourService: LabourService,
+  ) {}
 
   async findAll(tenantId: string) {
     return await (this.prisma as any).payrollRecord.findMany({
@@ -86,10 +90,37 @@ export class PayrollService {
       .filter((r: any) => r.status === 'PENDING')
       .reduce((acc: number, r: any) => acc + r.amount, 0);
 
+    const totalStaff = new Set(records.map((r: any) => r.userId)).size;
+
     return {
       totalPaid,
       totalPending,
-      totalStaff: new Set(records.map((r: any) => r.userId)).size,
+      totalStaff,
     };
+  }
+
+  async createFromLabourLogs(
+    tenantId: string,
+    userId: string,
+    period: string,
+    hourlyRate: number,
+    startDate: Date,
+    endDate: Date,
+  ) {
+    const hours = await this.labourService.getHoursForPayroll(
+      tenantId,
+      userId,
+      startDate,
+      endDate,
+    );
+
+    return this.create(tenantId, {
+      userId,
+      period,
+      type: 'HOURLY',
+      hoursWorked: hours,
+      hourlyRate,
+      currency: 'KES',
+    });
   }
 }
