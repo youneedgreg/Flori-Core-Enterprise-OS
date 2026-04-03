@@ -59,7 +59,7 @@ export class PackHouseService {
       throw new NotFoundException('Batch not found');
     }
 
-    if (batch.status === 'QC_COMPLETED' || batch.status === 'REJECTED' || batch.status === 'INVENTORY_ADDED') {
+    if (batch.status === 'GRADED' || batch.status === 'REJECTED' || batch.status === 'IN_COLD_STORAGE') {
       throw new BadRequestException('Batch already processed');
     }
 
@@ -79,7 +79,7 @@ export class PackHouseService {
         },
       });
 
-      const newStatus = assignedGrade === 'REJECT' ? 'REJECTED' : 'QC_COMPLETED';
+      const newStatus = assignedGrade === 'REJECT' ? 'REJECTED' : 'GRADED';
 
       await tx.flowerBatch.update({
         where: { id: batchId },
@@ -109,7 +109,7 @@ export class PackHouseService {
 
         await tx.flowerBatch.update({
           where: { id: batchId },
-          data: { status: 'INVENTORY_ADDED' },
+          data: { status: 'GRADED' },
         });
       }
 

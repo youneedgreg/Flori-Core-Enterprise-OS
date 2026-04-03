@@ -153,7 +153,7 @@
 
 ---
 
-## Phase 3 — Module 2: Pack House & Cold Chain _(Weeks 10–13)_
+## Phase 3 — Module 2: Pack House & Cold Chain _(Days 10–13)_
 
 ### 3.1 Flower Intake & QC Grading
 
@@ -165,12 +165,12 @@
 
 ### 3.2 Cold Room Telemetry
 
-- [ ] Sensors: temperature ± 0.5°C, humidity (%) per cold room
-- [ ] TimescaleDB storage (5-minute resolution)
-- [ ] Live dashboard with alert bands
-- [ ] `cold_room_events` table: check-in, check-out, batch-id, quantity, user, timestamp
-- [ ] FIFO enforcement on pick lists
-- [ ] Alert on temperature breach → SMS + push to QC lead
+- [x] Sensors: temperature ± 0.5°C, humidity (%) per cold room
+- [x] TimescaleDB storage (5-minute resolution)
+- [x] Live dashboard with alert bands
+- [x] `cold_room_events` table: check-in, check-out, batch-id, quantity, user, timestamp
+- [x] FIFO enforcement on pick lists
+- [x] Alert on temperature breach → SMS + push to QC lead
 
 ### 3.3 Bunch & Box Packing
 

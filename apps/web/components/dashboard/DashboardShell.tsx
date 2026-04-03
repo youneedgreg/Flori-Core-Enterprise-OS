@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes, Sprout } from 'lucide-react';
+import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes, Sprout, Wind } from 'lucide-react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
 import { logout, decodeJWT, isTokenExpired } from '../../lib/auth';
@@ -42,6 +42,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     { icon: Map, label: 'Farm Zones', href: '/dashboard/zones' },
     { icon: Sprout, label: 'Production', href: '/dashboard/production' },
     { icon: Package, label: 'Pack House', href: '/dashboard/pack-house' },
+    { icon: Wind, label: 'Cold Room', href: '/dashboard/cold-room' },
     { icon: Users, label: 'Team', href: '/dashboard/team' },
     { icon: Package, label: 'Logistics', href: '/dashboard/logistics' },
     { icon: Boxes, label: 'Inventory', href: '/dashboard/inventory' },
