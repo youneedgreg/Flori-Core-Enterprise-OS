@@ -157,11 +157,11 @@
 
 ### 3.1 Flower Intake & QC Grading
 
-- [ ] QR/barcode scan on intake (links to crop cycle)
-- [ ] QC form: stem length, bloom stage, head diameter, defects checklist
-- [ ] Auto-grade assignment: A, B, C, Reject
-- [ ] Rejected batch workflow (reason logging + routing)
-- [ ] Real-time inventory update on grade confirmation
+- [x] QR/barcode scan on intake (links to crop cycle)
+- [x] QC form: stem length, bloom stage, head diameter, defects checklist
+- [x] Auto-grade assignment: A, B, C, Reject
+- [x] Rejected batch workflow (reason logging + routing)
+- [x] Real-time inventory update on grade confirmation
 
 ### 3.2 Cold Room Telemetry
 

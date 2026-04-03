@@ -41,6 +41,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Map, label: 'Farm Zones', href: '/dashboard/zones' },
     { icon: Sprout, label: 'Production', href: '/dashboard/production' },
+    { icon: Package, label: 'Pack House', href: '/dashboard/pack-house' },
     { icon: Users, label: 'Team', href: '/dashboard/team' },
     { icon: Package, label: 'Logistics', href: '/dashboard/logistics' },
     { icon: Boxes, label: 'Inventory', href: '/dashboard/inventory' },

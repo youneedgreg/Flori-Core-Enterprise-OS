@@ -37,6 +37,10 @@ model Tenant {
   automationRules AutomationRule[]
   labourLogs     LabourLog[]
   sprayLogs      SprayLog[]
+  
+  flowerBatches  FlowerBatch[]
+  qcLogs         QCLog[]
+  flowerInventory FlowerInventory[]
   @@map("tenants")
 }
 
@@ -379,6 +383,8 @@ model Variety {
   updatedAt              DateTime    @updatedAt
   tenant                 Tenant      @relation(fields: [tenantId], references: [id])
   cropCycles             CropCycle[]
+  flowerBatches          FlowerBatch[]
+  flowerInventory        FlowerInventory[]
 
   @@map("varieties")
 }
@@ -400,6 +406,7 @@ model CropCycle {
   zone                  Zone?           @relation(fields: [zoneId], references: [id])
   tenant                Tenant          @relation(fields: [tenantId], references: [id])
   schedules             CropSchedule[]
+  flowerBatches         FlowerBatch[]
 
   @@map("crop_cycles")
 }
@@ -463,4 +470,76 @@ model SprayLog {
   @@index([zoneId])
   @@index([appliedAt])
   @@map("spray_logs")
+}
+
+model FlowerBatch {
+  id               String       @id @default(uuid())
+  tenantId         String
+  cropCycleId      String
+  varietyId        String
+  batchNumber      String       @unique // FLR-YYYYMMDD-XXX
+  quantityIntake   Int
+  status           BatchStatus  @default(INTAKE)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  tenant           Tenant       @relation(fields: [tenantId], references: [id])
+  cropCycle        CropCycle    @relation(fields: [cropCycleId], references: [id])
+  variety          Variety      @relation(fields: [varietyId], references: [id])
+  qcLogs           QCLog[]
+
+  @@index([tenantId])
+  @@index([batchNumber])
+  @@map("flower_batches")
+}
+
+enum BatchStatus {
+  INTAKE
+  QC_PENDING
+  QC_COMPLETED
+  REJECTED
+  INVENTORY_ADDED
+}
+
+model QCLog {
+  id             String    @id @default(uuid())
+  tenantId       String
+  batchId        String
+  inspectorId    String?   // User who did the QC
+  stemLength     Float
+  bloomStage     String
+  headDiameter   Float
+  defects        Json      // Array of strings or object
+  assignedGrade  QCGrade
+  notes          String?   // For rejection reasons or extra info
+  createdAt      DateTime  @default(now())
+
+  tenant         Tenant      @relation(fields: [tenantId], references: [id])
+  batch          FlowerBatch @relation(fields: [batchId], references: [id])
+
+  @@index([tenantId])
+  @@index([batchId])
+  @@map("qc_logs")
+}
+
+model FlowerInventory {
+  id        String   @id @default(uuid())
+  tenantId  String
+  varietyId String
+  grade     QCGrade
+  quantity  Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  variety   Variety  @relation(fields: [varietyId], references: [id])
+
+  @@unique([tenantId, varietyId, grade])
+  @@map("flower_inventory")
+}
+
+enum QCGrade {
+  A
+  B
+  C
+  REJECT
 }

@@ -30,6 +30,7 @@ import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { ProductsModule } from './products/products.module';
 import { SprayLogsModule } from './spray-logs/spray-logs.module';
+import { PackHouseModule } from './pack-house/pack-house.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { SprayLogsModule } from './spray-logs/spray-logs.module';
     CropCyclesModule,
     CropSchedulesModule,
     SprayLogsModule,
+    PackHouseModule,
   ],
   controllers: [AppController],
   providers: [
