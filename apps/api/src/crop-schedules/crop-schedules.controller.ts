@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CropSchedulesService } from './crop-schedules.service';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   tenantId: string;

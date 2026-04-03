@@ -6,7 +6,6 @@ import {
   Sprout, 
   Plus, 
   Loader2, 
-  Calendar, 
   BarChart3, 
   Layers, 
   Search,
@@ -100,7 +99,7 @@ export default function ProductionPage() {
       if (cRes.ok) setCycles(await cRes.json());
       if (fRes.ok) setForecast(await fRes.json());
       if (sRes.ok) setSchedules(await sRes.json());
-    } catch (e) {
+    } catch {
       toast.error('Failed to load production data');
     } finally {
       setLoading(false);
@@ -137,7 +136,14 @@ export default function ProductionPage() {
           <p className="text-slate-500 font-medium tracking-tight">Lifecycle monitoring from planting to cold room intake.</p>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap items-center gap-4">
+          <button 
+            onClick={() => window.location.href = '/dashboard/production/spray-logs'}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-2xl font-black text-sm transition-all border border-rose-500/20"
+          >
+             <Droplets className="w-5 h-5 text-rose-500" />
+             Spray Logs
+          </button>
           <button className="flex items-center justify-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-sm transition-all border border-white/5">
              <Plus className="w-5 h-5" />
              New Variety
@@ -403,6 +409,11 @@ export default function ProductionPage() {
                             {cycle.status}
                           </span>
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">{cycle.zone?.name || 'GENERIC PLOT'}</span>
+                        </div>
+                        {/* PHI Warning Placeholder - Would normally check fetch data */}
+                        <div className="flex items-center gap-2 mt-2">
+                           <AlertCircle className="w-3 h-3 text-rose-500 hidden" />
+                           <span className="text-[8px] font-black text-rose-500 uppercase hidden">PHI ACTIVE</span>
                         </div>
                         <h3 className="text-xl font-black text-white uppercase tracking-tight group-hover:text-brand-green transition-colors">{cycle.variety.name}</h3>
                       </div>

@@ -1,7 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { DashboardService } from './dashboard.service';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   tenantId?: string;

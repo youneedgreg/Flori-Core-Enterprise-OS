@@ -7,7 +7,7 @@ import {
   InviteTeamMemberDto,
   IoTDeviceDto,
 } from './dto/onboarding.dto';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -52,6 +52,9 @@ export class OnboardingController {
     @Req() req: AuthenticatedRequest,
     @Body() devices: IoTDeviceDto[],
   ) {
-    return this.onboardingService.registerIotDevices(req.user.tenantId, devices);
+    return this.onboardingService.registerIotDevices(
+      req.user.tenantId,
+      devices,
+    );
   }
 }

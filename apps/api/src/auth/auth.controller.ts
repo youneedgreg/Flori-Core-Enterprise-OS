@@ -2,7 +2,7 @@ import { Controller, Post, Body, Get, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { RegisterTenantDto, LoginDto } from '@flori/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   tenantId: string;

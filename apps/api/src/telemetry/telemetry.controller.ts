@@ -2,7 +2,7 @@
 import { Controller, Get, Param, Query, UseGuards, Req } from '@nestjs/common';
 import { TelemetryService } from './telemetry.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   tenantId: string;

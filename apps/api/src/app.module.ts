@@ -29,6 +29,7 @@ import { LabourModule } from './labour/labour.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantsModule } from './tenants/tenants.module';
 import { ProductsModule } from './products/products.module';
+import { SprayLogsModule } from './spray-logs/spray-logs.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { ProductsModule } from './products/products.module';
     VarietiesModule,
     CropCyclesModule,
     CropSchedulesModule,
+    SprayLogsModule,
   ],
   controllers: [AppController],
   providers: [

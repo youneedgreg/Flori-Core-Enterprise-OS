@@ -144,12 +144,12 @@
 - [x] Direct feed into payroll module (hours × rate)
 - [x] GPS tagging of log entries (optional)
 
-### 2.5 Spray & Chemical Compliance Log
+### 2.5 Spray & Chemical Compliance Log [COMPLETED]
 
-- [ ] Log: chemical name, EPA reg no., quantity, zone, applicator, date
-- [ ] PHI countdown per zone
-- [ ] Auto-block harvest if PHI not cleared
-- [ ] Export to GlobalG.A.P. audit format
+- [x] Log: chemical name, EPA reg no., quantity, zone, applicator, date
+- [x] PHI countdown per zone
+- [x] Auto-block harvest if PHI not cleared
+- [x] Export to GlobalG.A.P. audit format
 
 ---
 

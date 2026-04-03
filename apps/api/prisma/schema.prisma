@@ -36,6 +36,7 @@ model Tenant {
   alerts         Alert[]
   automationRules AutomationRule[]
   labourLogs     LabourLog[]
+  sprayLogs      SprayLog[]
   @@map("tenants")
 }
 
@@ -73,6 +74,9 @@ model User {
   labourLogs     LabourLog[]
   role           Role            @relation(fields: [roleId], references: [id])
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
+
+  sprayLogs      SprayLog[]      @relation("SprayApplicator")
+  overridenSprays SprayLog[]     @relation("SprayOverrider")
 
   @@map("users")
 }
@@ -161,6 +165,7 @@ model Zone {
   devices       IoTDevice[]
   cropCycles    CropCycle[]
   labourLogs    LabourLog[]
+  sprayLogs     SprayLog[]
   tenant        Tenant      @relation(fields: [tenantId], references: [id])
 
   @@map("zones")
@@ -431,4 +436,31 @@ enum ScheduleType {
   FERTILIZER
   PRUNING
   OTHER
+}
+
+model SprayLog {
+  id               String   @id @default(uuid())
+  tenantId         String
+  zoneId           String
+  chemicalName     String
+  epaRegNo         String
+  quantity         Float
+  unit             String   // L, Kg, ml, g
+  phiDays          Int      @default(0)
+  applicatorId     String
+  appliedAt        DateTime @default(now())
+  harvestAllowedAt DateTime
+  notes            String?
+  overrideReason   String?
+  overriddenById   String?
+
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  zone             Zone     @relation(fields: [zoneId], references: [id])
+  applicator       User     @relation("SprayApplicator", fields: [applicatorId], references: [id])
+  overriddenBy     User?    @relation("SprayOverrider", fields: [overriddenById], references: [id])
+
+  @@index([tenantId])
+  @@index([zoneId])
+  @@index([appliedAt])
+  @@map("spray_logs")
 }
