@@ -174,10 +174,10 @@
 
 ### 3.3 Bunch & Box Packing
 
-- [ ] Packing station: scan batch → select bunch size → auto-calculate stems/box
-- [ ] QR code label generation (PDF via S3)
-- [ ] QR code encodes: batch ID, variety, grade, pack date, box count, destination
-- [ ] Unique `box_id` tracking throughout logistics chain
+- [x] Packing station: scan batch → select bunch size → auto-calculate stems/box
+- [x] QR code label generation (PDF via S3)
+- [x] QR code encodes: batch ID, variety, grade, pack date, box count, destination
+- [x] Unique `box_id` tracking throughout logistics chain
 
 ### 3.4 Inventory (Finished Goods)
 

@@ -32,6 +32,7 @@ import { ProductsModule } from './products/products.module';
 import { SprayLogsModule } from './spray-logs/spray-logs.module';
 import { PackHouseModule } from './pack-house/pack-house.module';
 import { ColdRoomModule } from './cold-room/cold-room.module';
+import { PackingModule } from './packing/packing.module';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { ColdRoomModule } from './cold-room/cold-room.module';
     SprayLogsModule,
     PackHouseModule,
     ColdRoomModule,
+    PackingModule,
   ],
   controllers: [AppController],
   providers: [

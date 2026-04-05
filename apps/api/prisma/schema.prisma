@@ -42,6 +42,8 @@ model Tenant {
   qcLogs         QCLog[]
   flowerInventory FlowerInventory[]
   coldRoomEvents ColdRoomEvent[]
+  packedBoxes    PackedBox[]
+
   @@map("tenants")
 }
 
@@ -403,6 +405,8 @@ model Variety {
   cropCycles             CropCycle[]
   flowerBatches          FlowerBatch[]
   flowerInventory        FlowerInventory[]
+  packedBoxes            PackedBox[]
+
 
   @@map("varieties")
 }
@@ -506,6 +510,8 @@ model FlowerBatch {
   variety          Variety      @relation(fields: [varietyId], references: [id])
   qcLogs           QCLog[]
   coldRoomEvents   ColdRoomEvent[]
+  packedBoxes      PackedBox[]
+
 
   @@index([tenantId])
   @@index([batchNumber])
@@ -587,3 +593,36 @@ enum ColdRoomEventType {
   CHECK_IN
   CHECK_OUT
 }
+
+model PackedBox {
+  id              String      @id @default(uuid())
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  batchId         String?
+  batch           FlowerBatch? @relation(fields: [batchId], references: [id])
+  varietyId       String
+  variety         Variety     @relation(fields: [varietyId], references: [id])
+  grade           QCGrade
+  boxId           String      @unique
+  bunchSize       Int
+  bunchesPerBox   Int
+  totalStems      Int
+  packDate        DateTime    @default(now())
+  destination     String?
+  status          BoxStatus   @default(PACKED)
+  labelUrl        String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([boxId])
+  @@map("packed_boxes")
+}
+
+enum BoxStatus {
+  PACKED
+  IN_COLD_STORAGE
+  SHIPPED
+  DELIVERED
+}
+
