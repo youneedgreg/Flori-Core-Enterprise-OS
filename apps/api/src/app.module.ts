@@ -33,6 +33,7 @@ import { SprayLogsModule } from './spray-logs/spray-logs.module';
 import { PackHouseModule } from './pack-house/pack-house.module';
 import { ColdRoomModule } from './cold-room/cold-room.module';
 import { PackingModule } from './packing/packing.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { PackingModule } from './packing/packing.module';
     PackHouseModule,
     ColdRoomModule,
     PackingModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [

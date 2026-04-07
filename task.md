@@ -181,9 +181,9 @@
 
 ### 3.4 Inventory (Finished Goods)
 
-- [ ] Real-time Available-to-Promise (ATP) by variety/grade/box count
-- [ ] Sales module ATP check before confirming order
-- [ ] Wastage tracking: reasons + cost impact
+- [x] Real-time Available-to-Promise (ATP) by variety/grade/box count
+- [x] Sales module ATP check before confirming order
+- [x] Wastage tracking: reasons + cost impact
 
 ---
 

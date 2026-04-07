@@ -7,10 +7,14 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class LogisticsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly inventoryService: InventoryService,
+  ) {}
 
   async findAll(tenantId: string) {
     return await this.prisma.order.findMany({
@@ -49,6 +53,33 @@ export class LogisticsService {
       where: { id: data.customerId, tenantId },
     });
     if (!customer) throw new BadRequestException('Invalid customer reference');
+
+    // ATP Check for Finished Goods (Packed Boxes)
+    const atp = await this.inventoryService.getFinishedGoodsATP(tenantId);
+    const itemArray = Array.isArray(data.items) ? data.items : [data.items];
+
+    for (const item of itemArray) {
+      if (
+        item.varietyId &&
+        item.grade &&
+        item.bunchSize &&
+        item.bunchesPerBox
+      ) {
+        const matchingATP = atp.find(
+          (a) =>
+            a.varietyId === item.varietyId &&
+            a.grade === item.grade &&
+            a.bunchSize === item.bunchSize &&
+            a.bunchesPerBox === item.bunchesPerBox,
+        );
+
+        if (!matchingATP || matchingATP.atp < item.quantity) {
+          throw new BadRequestException(
+            `Insufficient ATP for ${matchingATP?.varietyName || 'selected variety'}. Available: ${matchingATP?.atp || 0}, Requested: ${item.quantity}`,
+          );
+        }
+      }
+    }
 
     return await this.prisma.order.create({
       data: {
