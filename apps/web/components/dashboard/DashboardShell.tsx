@@ -124,12 +124,12 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar bg-brand-dark relative lg:pt-0 pt-16">
+      <main className="flex-1 min-w-0 overflow-y-auto custom-scrollbar bg-brand-dark relative lg:pt-0 pt-16">
         {/* Global Page Glows */}
         <div className="fixed top-0 right-0 -z-10 w-[800px] h-[800px] bg-brand-green/5 blur-[120px] rounded-full pointer-events-none opacity-50" />
         <div className="fixed bottom-0 left-0 -z-10 w-[600px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full pointer-events-none opacity-30" />
 
-        <div className="p-8 lg:p-12">
+        <div className="p-8 lg:p-12 w-full">
           {children}
         </div>
       </main>

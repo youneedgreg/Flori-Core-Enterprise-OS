@@ -43,6 +43,7 @@ model Tenant {
   flowerInventory FlowerInventory[]
   coldRoomEvents ColdRoomEvent[]
   packedBoxes    PackedBox[]
+  wastageLogs    WastageLog[]
 
   @@map("tenants")
 }
@@ -406,6 +407,7 @@ model Variety {
   flowerBatches          FlowerBatch[]
   flowerInventory        FlowerInventory[]
   packedBoxes            PackedBox[]
+  wastageLogs            WastageLog[]
 
 
   @@map("varieties")
@@ -624,5 +626,35 @@ enum BoxStatus {
   IN_COLD_STORAGE
   SHIPPED
   DELIVERED
+}
+
+model WastageLog {
+  id            String        @id @default(uuid())
+  tenantId      String
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  varietyId     String
+  variety       Variety       @relation(fields: [varietyId], references: [id])
+  grade         QCGrade
+  quantity      Int           // stems wasted
+  reason        WastageReason
+  costPerStem   Float?
+  costImpact    Float?        // quantity × costPerStem
+  notes         String?
+  recordedById  String?
+  createdAt     DateTime      @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("wastage_logs")
+}
+
+enum WastageReason {
+  TEMPERATURE_DAMAGE
+  DISEASE
+  PEST_DAMAGE
+  PHYSICAL_DAMAGE
+  EXPIRED
+  GRADING_REJECT
+  OTHER
 }
 
