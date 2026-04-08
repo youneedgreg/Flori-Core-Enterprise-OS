@@ -70,7 +70,11 @@ export class ProcurementController {
   @Post('purchase-requests')
   createManualPr(@Req() req: AuthenticatedRequest, @Body() body: any) {
     const userId = req.user?.id as string;
-    return this.procurement.createManualPurchaseRequest(req.tenantId, userId, body);
+    return this.procurement.createManualPurchaseRequest(
+      req.tenantId,
+      userId,
+      body,
+    );
   }
 
   @Post('purchase-requests/:id/approve')
@@ -96,7 +100,12 @@ export class ProcurementController {
     @Body() body: any,
   ) {
     const userId = req.user?.id as string;
-    return this.procurement.rejectPurchaseRequest(req.tenantId, id, userId, body);
+    return this.procurement.rejectPurchaseRequest(
+      req.tenantId,
+      id,
+      userId,
+      body,
+    );
   }
 
   // ── Purchase Orders ────────────────────────────────────────────────────────
@@ -116,6 +125,62 @@ export class ProcurementController {
     @Body('status') status: PurchaseOrderStatus,
   ) {
     return this.procurement.updatePoStatus(req.tenantId, id, status);
+  }
+
+  // ── RFQs ────────────────────────────────────────────────────────────────────
+
+  @Get('rfqs')
+  getRFQs(@Req() req: AuthenticatedRequest) {
+    return this.procurement.getRFQs(req.tenantId);
+  }
+
+  @Post('rfqs')
+  createRFQ(@Req() req: AuthenticatedRequest, @Body() body: any) {
+    return this.procurement.createRFQ(req.tenantId, body);
+  }
+
+  @Post('rfqs/:id/responses/:vendorId')
+  submitRFQResponse(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('vendorId') vendorId: string,
+    @Body() body: any,
+  ) {
+    return this.procurement.submitRFQResponse(req.tenantId, id, vendorId, body);
+  }
+
+  @Post('rfqs/:id/responses/:responseId/accept')
+  acceptRFQResponse(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('responseId') responseId: string,
+  ) {
+    const userId = req.user?.id as string;
+    return this.procurement.acceptRFQResponse(
+      req.tenantId,
+      id,
+      responseId,
+      userId,
+    );
+  }
+
+  // ── Vendor Analytics ────────────────────────────────────────────────────────
+
+  @Get('vendors/:id/performance')
+  getVendorPerformance(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.procurement.getVendorPerformance(req.tenantId, id);
+  }
+
+  @Get('vendors/:id/pricing-trend')
+  getVendorPricingTrend(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Query('itemId') itemId: string,
+  ) {
+    return this.procurement.getVendorPricingTrend(req.tenantId, id, itemId);
   }
 
   // ── Manual scan trigger (for testing / on-demand) ──────────────────────────

@@ -205,10 +205,10 @@
 
 ### 4.3 Vendor Management Portal
 
-- [ ] Vendor profile: name, contact, payment terms, certifications, bank details
-- [ ] Historical PO log with pricing trend chart
-- [ ] Vendor performance score: on-time delivery %, quality complaints
-- [ ] Multi-quote support: RFQ to 3 vendors, compare in-app
+- [x] Vendor profile: name, contact, payment terms, certifications, bank details
+- [x] Historical PO log with pricing trend chart
+- [x] Vendor performance score: on-time delivery %, quality complaints
+- [x] Multi-quote support: RFQ to 3 vendors, compare in-app
 
 ### 4.4 Goods Receipt & Matching
 

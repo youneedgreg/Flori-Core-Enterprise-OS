@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
@@ -21,6 +22,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logout, isTokenExpired } from '../../../lib/auth';
+import { VendorDetailModal } from '../../../components/procurement/VendorDetailModal';
+import { RFQPortal } from '../../../components/procurement/RFQPortal';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -37,6 +40,10 @@ interface Vendor {
   taxPin?: string;
   notes?: string;
   isActive: boolean;
+  website?: string;
+  certifications?: string[];
+  storeItems: any[];
+  bankDetails: any;
   _count?: { purchaseOrders: number; storeItems: number };
 }
 
@@ -123,6 +130,8 @@ export default function ProcurementPage() {
   const [showApproveModal, setShowApproveModal] = useState<PurchaseRequest | null>(null);
   const [showRejectModal, setShowRejectModal] = useState<PurchaseRequest | null>(null);
   const [expandedPo, setExpandedPo] = useState<string | null>(null);
+  const [showRFQPortal, setShowRFQPortal] = useState(false);
+  const [selectedVendorForDetail, setSelectedVendorForDetail] = useState<Vendor | null>(null);
 
   // Forms
   const [vendorForm, setVendorForm] = useState({
@@ -341,6 +350,12 @@ export default function ProcurementPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all"
           >
             <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
+          <button
+            onClick={() => setShowRFQPortal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all shadow-lg"
+          >
+            <Send className="w-4 h-4" /> Strategic RFQ Portal
           </button>
         </div>
       </header>
@@ -629,6 +644,13 @@ export default function ProcurementPage() {
                       )}
                     </div>
                   </div>
+
+                  <button
+                    onClick={() => setSelectedVendorForDetail(v)}
+                    className="w-full mb-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    Strategic Profile View
+                  </button>
 
                   <div className="space-y-1.5">
                     <p className="text-[10px] font-black text-slate-400 uppercase">{v.email}</p>
@@ -932,6 +954,27 @@ export default function ProcurementPage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ── Strategic Component Modals ────────────────────────────────────────── */}
+      
+      {showRFQPortal && (
+        <RFQPortal 
+          api={API} 
+          headers={getAuthHeader()!} 
+          vendors={vendors}
+          onClose={() => setShowRFQPortal(false)}
+          onRefresh={fetchAll}
+        />
+      )}
+
+      {selectedVendorForDetail && (
+        <VendorDetailModal
+          vendor={selectedVendorForDetail}
+          onClose={() => setSelectedVendorForDetail(null)}
+          api={API}
+          headers={getAuthHeader()!}
+        />
       )}
     </div>
   );

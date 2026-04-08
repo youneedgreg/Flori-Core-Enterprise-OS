@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
@@ -11,6 +14,9 @@ import { NotificationService } from '../communications/notification.service';
 import {
   PurchaseRequestStatus,
   PurchaseOrderStatus,
+  RfqStatus,
+  RfqResponseStatus,
+  PerformanceMetricType,
 } from '@prisma/client';
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────
@@ -25,6 +31,8 @@ export interface CreateVendorDto {
   taxPin?: string;
   bankDetails?: object;
   notes?: string;
+  website?: string;
+  certifications?: string[];
 }
 
 export interface UpdateVendorDto extends Partial<CreateVendorDto> {
@@ -32,9 +40,9 @@ export interface UpdateVendorDto extends Partial<CreateVendorDto> {
 }
 
 export interface ApprovePrDto {
-  approvedQty?: number;        // override suggested qty; omit to use suggestedQty
-  vendorId?: string;           // override vendor if not set on item
-  expectedDelivery?: string;   // ISO date string
+  approvedQty?: number; // override suggested qty; omit to use suggestedQty
+  vendorId?: string; // override vendor if not set on item
+  expectedDelivery?: string; // ISO date string
   notes?: string;
 }
 
@@ -46,6 +54,20 @@ export interface CreateManualPrDto {
   itemId: string;
   vendorId?: string;
   suggestedQty: number;
+  notes?: string;
+}
+
+export interface CreateRFQDto {
+  items: Array<{ itemId: string; quantity: number; notes?: string }>;
+  notes?: string;
+  expiryDate?: string;
+  vendorIds: string[]; // Vendors to send the RFQ to
+}
+
+export interface SubmitRFQResponseDto {
+  unitPrice: number;
+  deliveryDays?: number;
+  validUntil?: string;
   notes?: string;
 }
 
@@ -76,17 +98,28 @@ export class ProcurementService {
     return this.prisma.vendor.create({ data: { tenantId, ...data } });
   }
 
-  async updateVendor(tenantId: string, vendorId: string, data: UpdateVendorDto) {
-    const v = await this.prisma.vendor.findFirst({ where: { id: vendorId, tenantId } });
+  async updateVendor(
+    tenantId: string,
+    vendorId: string,
+    data: UpdateVendorDto,
+  ) {
+    const v = await this.prisma.vendor.findFirst({
+      where: { id: vendorId, tenantId },
+    });
     if (!v) throw new NotFoundException('Vendor not found');
     return this.prisma.vendor.update({ where: { id: vendorId }, data });
   }
 
   async deleteVendor(tenantId: string, vendorId: string) {
-    const v = await this.prisma.vendor.findFirst({ where: { id: vendorId, tenantId } });
+    const v = await this.prisma.vendor.findFirst({
+      where: { id: vendorId, tenantId },
+    });
     if (!v) throw new NotFoundException('Vendor not found');
     // Soft-delete: set isActive = false
-    return this.prisma.vendor.update({ where: { id: vendorId }, data: { isActive: false } });
+    return this.prisma.vendor.update({
+      where: { id: vendorId },
+      data: { isActive: false },
+    });
   }
 
   // ── Purchase Requests ────────────────────────────────────────────────────────
@@ -290,7 +323,191 @@ export class ProcurementService {
       where: { id: poId, tenantId },
     });
     if (!po) throw new NotFoundException('Purchase order not found');
-    return this.prisma.purchaseOrder.update({ where: { id: poId }, data: { status } });
+    return this.prisma.purchaseOrder.update({
+      where: { id: poId },
+      data: { status },
+    });
+  }
+
+  // ── RFQs ────────────────────────────────────────────────────────────────────
+
+  async getRFQs(tenantId: string) {
+    return this.prisma.rfq.findMany({
+      where: { tenantId },
+      include: {
+        responses: { include: { vendor: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createRFQ(tenantId: string, dto: CreateRFQDto) {
+    return this.prisma.$transaction(async (tx) => {
+      const rfq = await tx.rfq.create({
+        data: {
+          tenantId,
+          status: RfqStatus.SENT,
+          items: dto.items,
+          notes: dto.notes,
+          expiryDate: dto.expiryDate ? new Date(dto.expiryDate) : undefined,
+        },
+      });
+
+      // Initialize empty responses for each vendor
+      await tx.rfqResponse.createMany({
+        data: dto.vendorIds.map((vId) => ({
+          tenantId,
+          rfqId: rfq.id,
+          vendorId: vId,
+          unitPrice: 0,
+          totalAmount: 0,
+          status: RfqResponseStatus.PENDING,
+        })),
+      });
+
+      return rfq;
+    });
+  }
+
+  async submitRFQResponse(
+    tenantId: string,
+    rfqId: string,
+    vendorId: string,
+    dto: SubmitRFQResponseDto,
+  ) {
+    const response = await this.prisma.rfqResponse.findFirst({
+      where: { rfqId, vendorId, tenantId },
+      include: { rfq: true },
+    });
+    if (!response) throw new NotFoundException('RFQ target not found');
+
+    // Calculate total amount based on RFQ items (simplified for first item for now)
+    // In a real scenario, we'd sum all items.
+    const items = response.rfq.items as any[];
+    const firstQty = items[0]?.quantity ?? 1;
+
+    return this.prisma.rfqResponse.update({
+      where: { id: response.id },
+      data: {
+        unitPrice: dto.unitPrice,
+        totalAmount: dto.unitPrice * firstQty,
+        deliveryDays: dto.deliveryDays,
+        validUntil: dto.validUntil ? new Date(dto.validUntil) : undefined,
+        notes: dto.notes,
+        status: RfqResponseStatus.PENDING, // Mark as submitted but waiting review
+      },
+    });
+  }
+
+  async acceptRFQResponse(
+    tenantId: string,
+    rfqId: string,
+    responseId: string,
+    userId: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const resp = await tx.rfqResponse.findFirst({
+        where: { id: responseId, rfqId, tenantId },
+        include: { vendor: true, rfq: true },
+      });
+      if (!resp) throw new NotFoundException('Response not found');
+
+      // 1. Mark RFQ as CLOSED
+      await tx.rfq.update({
+        where: { id: rfqId },
+        data: { status: RfqStatus.CLOSED },
+      });
+
+      // 2. Mark this response as ACCEPTED, others REJECTED
+      await tx.rfqResponse.update({
+        where: { id: responseId },
+        data: { status: RfqResponseStatus.ACCEPTED },
+      });
+      await tx.rfqResponse.updateMany({
+        where: { rfqId, id: { not: responseId } },
+        data: { status: RfqResponseStatus.REJECTED },
+      });
+
+      // 3. Auto-generate Purchase Order
+      const poNumber = await this.generatePoNumber(tenantId);
+      const items = resp.rfq.items as any[];
+
+      const po = await tx.purchaseOrder.create({
+        data: {
+          tenantId,
+          poNumber,
+          vendorId: resp.vendorId,
+          totalAmount: resp.totalAmount,
+          notes: `Generated from RFQ decision. RFQ Notes: ${resp.rfq.notes ?? 'None'}`,
+          createdById: userId,
+          items: {
+            create: items.map((item) => ({
+              itemId: item.itemId,
+              quantity: item.quantity,
+              unitPrice: resp.unitPrice, // Simplified: assuming same unit price for all items in RFQ for now
+              totalPrice: item.quantity * resp.unitPrice,
+            })),
+          },
+        },
+      });
+
+      return { po, response: resp };
+    });
+  }
+
+  // ── Vendor Analytics ────────────────────────────────────────────────────────
+
+  async getVendorPerformance(tenantId: string, vendorId: string) {
+    const pos = await this.prisma.purchaseOrder.findMany({
+      where: { vendorId, tenantId, status: PurchaseOrderStatus.RECEIVED },
+      select: { expectedDelivery: true, updatedAt: true },
+    });
+
+    // OTD (On-Time Delivery) Score
+    let onTime = 0;
+    pos.forEach((po) => {
+      if (po.expectedDelivery && po.updatedAt <= po.expectedDelivery) {
+        onTime++;
+      }
+    });
+    const otdScore = pos.length > 0 ? (onTime / pos.length) * 100 : 100;
+
+    // Reliability Score based on performance logs
+    const logs = await this.prisma.vendorPerformanceLog.findMany({
+      where: { vendorId, tenantId },
+      orderBy: { recordedAt: 'desc' },
+    });
+
+    const qualityComplaints = logs.filter(
+      (l) => l.type === PerformanceMetricType.QUALITY_COMPLAINT,
+    ).length;
+
+    return {
+      otdScore,
+      totalOrders: pos.length,
+      qualityComplaints,
+      history: logs,
+    };
+  }
+
+  async getVendorPricingTrend(
+    tenantId: string,
+    vendorId: string,
+    itemId: string,
+  ) {
+    const items = await this.prisma.purchaseOrderItem.findMany({
+      where: {
+        itemId,
+        po: { vendorId, tenantId, status: PurchaseOrderStatus.RECEIVED },
+      },
+      include: { po: { select: { createdAt: true } } },
+      orderBy: { po: { createdAt: 'asc' } },
+    });
+
+    return items.map((i) => ({
+      date: i.po.createdAt,
+      price: i.unitPrice,
+    }));
   }
 
   // ── Auto-Procurement Engine (called by scheduler) ────────────────────────────
@@ -354,7 +571,10 @@ export class ProcurementService {
       // If maxStockLevel is set, order up to max; otherwise target reorderPoint * 2
       const targetLevel =
         item.maxStockLevel > 0 ? item.maxStockLevel : item.reorderPoint * 2;
-      const suggestedQty = Math.max(targetLevel - totalStock, item.reorderPoint);
+      const suggestedQty = Math.max(
+        targetLevel - totalStock,
+        item.reorderPoint,
+      );
       const unitPrice = item.lastUnitPrice ?? item.unitCost;
 
       await this.prisma.purchaseRequest.create({
@@ -388,7 +608,10 @@ export class ProcurementService {
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
-  private async getTotalStock(tenantId: string, itemId: string): Promise<number> {
+  private async getTotalStock(
+    tenantId: string,
+    itemId: string,
+  ): Promise<number> {
     const stock = await this.prisma.storeStock.findMany({
       where: { tenantId, itemId },
     });

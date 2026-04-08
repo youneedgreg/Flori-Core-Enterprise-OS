@@ -51,6 +51,9 @@ model Tenant {
   vendors        Vendor[]
   purchaseRequests PurchaseRequest[]
   purchaseOrders   PurchaseOrder[]
+  rfqs             Rfq[]
+  rfqResponses     RfqResponse[]
+  vendorPerformanceLogs VendorPerformanceLog[]
 
   @@map("tenants")
 }
@@ -782,6 +785,11 @@ model Vendor {
   storeItems     StoreItem[]        // items where this is the preferred vendor
   purchaseRequests PurchaseRequest[]
   purchaseOrders PurchaseOrder[]
+  rfqResponses   RfqResponse[]
+  performanceLogs VendorPerformanceLog[]
+
+  website        String?
+  certifications String[]  @default([])
 
   @@index([tenantId])
   @@map("vendors")
@@ -877,5 +885,83 @@ model PurchaseOrderItem {
 
   @@index([poId])
   @@map("purchase_order_items")
+}
+
+// ─── RFQs & Performance ──────────────────────────────────────────────────────
+
+enum RfqStatus {
+  DRAFT
+  SENT
+  CLOSED
+  CANCELLED
+}
+
+model Rfq {
+  id           String      @id @default(uuid())
+  tenantId     String
+  status       RfqStatus   @default(DRAFT)
+  items        Json        // [{ itemId: string, quantity: number, notes: string }]
+  notes        String?
+  expiryDate   DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  tenant       Tenant      @relation(fields: [tenantId], references: [id])
+  responses    RfqResponse[]
+
+  @@index([tenantId])
+  @@map("rfqs")
+}
+
+enum RfqResponseStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model RfqResponse {
+  id              String            @id @default(uuid())
+  rfqId           String
+  vendorId        String
+  tenantId        String
+  unitPrice       Float
+  totalAmount     Float
+  currency        String            @default("USD")
+  deliveryDays    Int?              // Lead time in days
+  validUntil      DateTime?
+  notes           String?
+  status          RfqResponseStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  rfq             Rfq               @relation(fields: [rfqId], references: [id])
+  vendor          Vendor            @relation(fields: [vendorId], references: [id])
+  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@index([rfqId])
+  @@index([vendorId])
+  @@map("rfq_responses")
+}
+
+enum PerformanceMetricType {
+  ON_TIME_DELIVERY
+  QUALITY_COMPLAINT
+  PRICE_CONSISTENCY
+  GENERAL
+}
+
+model VendorPerformanceLog {
+  id          String                @id @default(uuid())
+  tenantId    String
+  vendorId    String
+  type        PerformanceMetricType @default(GENERAL)
+  score       Float                 // 0.0 to 1.0 or specific value
+  referenceId String?               // e.g. PO id or GRN id
+  notes       String?
+  recordedAt  DateTime              @default(now())
+  tenant      Tenant                @relation(fields: [tenantId], references: [id])
+  vendor      Vendor                @relation(fields: [vendorId], references: [id])
+
+  @@index([tenantId])
+  @@index([vendorId])
+  @@map("vendor_performance_logs")
 }
 
