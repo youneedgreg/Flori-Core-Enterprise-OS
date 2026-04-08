@@ -108,8 +108,10 @@ export default function StoresPage() {
 
   const [itemForm, setItemForm] = useState({
     name: '', sku: '', category: 'OTHER', unit: 'units',
-    description: '', minStockLevel: 0, reorderPoint: 0, unitCost: 0,
+    description: '', minStockLevel: 0, reorderPoint: 0, maxStockLevel: 0, unitCost: 0,
+    preferredVendorId: '',
   });
+  const [vendors, setVendors] = useState<{ id: string; name: string }[]>([]);
   const [movementForm, setMovementForm] = useState({
     itemId: '', zoneId: '', type: 'GRN', quantity: 0, reference: '', notes: '', toZoneId: '',
   });
@@ -152,16 +154,23 @@ export default function StoresPage() {
     }
   }, []);
 
+  const fetchVendors = useCallback(async () => {
+    const headers = getAuthHeader();
+    if (!headers) return;
+    const res = await fetch(`${API}/procurement/vendors`, { headers });
+    if (res.ok) setVendors(await res.json());
+  }, []);
+
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchItems(), fetchZones(), fetchMovements(), fetchCurrency()]);
+      await Promise.all([fetchItems(), fetchZones(), fetchMovements(), fetchCurrency(), fetchVendors()]);
     } catch {
       toast.error('Failed to load store data');
     } finally {
       setLoading(false);
     }
-  }, [fetchItems, fetchZones, fetchMovements, fetchCurrency]);
+  }, [fetchItems, fetchZones, fetchMovements, fetchCurrency, fetchVendors]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -179,7 +188,7 @@ export default function StoresPage() {
       if (res.ok) {
         toast.success(`"${itemForm.name}" added to catalogue`);
         setShowItemModal(false);
-        setItemForm({ name: '', sku: '', category: 'OTHER', unit: 'units', description: '', minStockLevel: 0, reorderPoint: 0, unitCost: 0 });
+        setItemForm({ name: '', sku: '', category: 'OTHER', unit: 'units', description: '', minStockLevel: 0, reorderPoint: 0, maxStockLevel: 0, unitCost: 0, preferredVendorId: '' });
         fetchItems();
       } else {
         const err = await res.json();
@@ -483,9 +492,20 @@ export default function StoresPage() {
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Reorder Point</label>
                   <input type="number" min="0" value={itemForm.reorderPoint} onChange={(e) => setItemForm({ ...itemForm, reorderPoint: parseFloat(e.target.value) || 0 })} className={inputCls} />
                 </div>
-                <div className="space-y-2 col-span-2">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Max Stock Level <span className="normal-case text-slate-600">(0 = auto 2×)</span></label>
+                  <input type="number" min="0" value={itemForm.maxStockLevel} onChange={(e) => setItemForm({ ...itemForm, maxStockLevel: parseFloat(e.target.value) || 0 })} className={inputCls} />
+                </div>
+                <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Unit Cost ({currency})</label>
                   <input type="number" min="0" step="0.01" value={itemForm.unitCost} onChange={(e) => setItemForm({ ...itemForm, unitCost: parseFloat(e.target.value) || 0 })} className={inputCls} />
+                </div>
+                <div className="space-y-2 col-span-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Preferred Vendor</label>
+                  <select value={itemForm.preferredVendorId} onChange={(e) => setItemForm({ ...itemForm, preferredVendorId: e.target.value })} className={inputCls}>
+                    <option value="">None</option>
+                    {vendors.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
+                  </select>
                 </div>
               </div>
               <div className="flex gap-4 pt-2">

@@ -187,7 +187,7 @@
 
 ---
 
-## Phase 4 — Module 3: Stores, Procurement & Vendor Management _(Weeks 14–16)_
+## Phase 4 — Module 3: Stores, Procurement & Vendor Management _(Days 14–16)_
 
 ### 4.1 Inventory Intelligence
 
@@ -198,10 +198,10 @@
 
 ### 4.2 Auto-Procurement Engine
 
-- [ ] BullMQ scheduled job (hourly): scan items below threshold
-- [ ] Auto-generate `purchase_requests` with recommended quantity + last price
-- [ ] Gold Admin in-app + email notification for approval
-- [ ] On approval → create `purchase_orders`, email to vendor
+- [x] BullMQ scheduled job (hourly): scan items below threshold
+- [x] Auto-generate `purchase_requests` with recommended quantity + last price
+- [x] Gold Admin in-app + email notification for approval
+- [x] On approval → create `purchase_orders`, email to vendor
 
 ### 4.3 Vendor Management Portal
 
@@ -218,7 +218,7 @@
 
 ---
 
-## Phase 5 — Module 4: Global Sales, Logistics & Compliance _(Weeks 17–21)_
+## Phase 5 — Module 4: Global Sales, Logistics & Compliance _(Days 17–21)_
 
 ### 5.1 CRM & Contact Management
 

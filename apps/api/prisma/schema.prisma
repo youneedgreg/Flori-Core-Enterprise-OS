@@ -48,6 +48,9 @@ model Tenant {
   storeItems     StoreItem[]
   storeStock     StoreStock[]
   storeMovements StoreMovement[]
+  vendors        Vendor[]
+  purchaseRequests PurchaseRequest[]
+  purchaseOrders   PurchaseOrder[]
 
   @@map("tenants")
 }
@@ -693,21 +696,27 @@ enum StoreMovementType {
 }
 
 model StoreItem {
-  id            String            @id @default(uuid())
-  tenantId      String
-  name          String
-  sku           String
-  category      StoreItemCategory @default(OTHER)
-  unit          String            @default("units") // kg, litres, pcs, boxes …
-  description   String?
-  minStockLevel Float             @default(0)
-  reorderPoint  Float             @default(0)
-  unitCost      Float             @default(0)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  tenant        Tenant            @relation(fields: [tenantId], references: [id])
-  stock         StoreStock[]
-  movements     StoreMovement[]
+  id                 String            @id @default(uuid())
+  tenantId           String
+  name               String
+  sku                String
+  category           StoreItemCategory @default(OTHER)
+  unit               String            @default("units") // kg, litres, pcs, boxes …
+  description        String?
+  minStockLevel      Float             @default(0)
+  reorderPoint       Float             @default(0)
+  maxStockLevel      Float             @default(0)  // 0 = not set; engine uses reorderPoint*2 fallback
+  unitCost           Float             @default(0)
+  lastUnitPrice      Float?            // updated on each GRN
+  preferredVendorId  String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  tenant             Tenant            @relation(fields: [tenantId], references: [id])
+  preferredVendor    Vendor?           @relation(fields: [preferredVendorId], references: [id])
+  stock              StoreStock[]
+  movements          StoreMovement[]
+  purchaseRequests   PurchaseRequest[]
+  purchaseOrderItems PurchaseOrderItem[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -750,5 +759,123 @@ model StoreMovement {
   @@index([itemId])
   @@index([createdAt])
   @@map("store_movements")
+}
+
+// ─── Vendors ──────────────────────────────────────────────────────────────────
+
+model Vendor {
+  id             String    @id @default(uuid())
+  tenantId       String
+  name           String
+  contactPerson  String?
+  email          String
+  phone          String?
+  address        String?
+  paymentTerms   String?   // e.g. "Net 30", "COD"
+  taxPin         String?
+  bankDetails    Json?     // { bankName, accountNo, branch, swiftCode }
+  notes          String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  storeItems     StoreItem[]        // items where this is the preferred vendor
+  purchaseRequests PurchaseRequest[]
+  purchaseOrders PurchaseOrder[]
+
+  @@index([tenantId])
+  @@map("vendors")
+}
+
+// ─── Purchase Requests ────────────────────────────────────────────────────────
+
+enum PurchaseRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONVERTED   // Converted to a PurchaseOrder
+}
+
+model PurchaseRequest {
+  id             String                @id @default(uuid())
+  tenantId       String
+  status         PurchaseRequestStatus @default(PENDING)
+  generatedBy    String                // "AUTO" or userId of requester
+  itemId         String
+  vendorId       String?
+  currentStock   Float                 // stock at time of generation
+  reorderPoint   Float                 // snapshot of item's reorderPoint
+  suggestedQty   Float                 // engine-calculated recommended quantity
+  approvedQty    Float?                // Gold Admin may adjust before approving
+  lastUnitPrice  Float?                // snapshot of item's lastUnitPrice / unitCost
+  estimatedTotal Float?                // suggestedQty × lastUnitPrice
+  notes          String?               // auto-generated note or admin comment
+  rejectionReason String?
+  approvedById   String?
+  approvedAt     DateTime?
+  rejectedById   String?
+  rejectedAt     DateTime?
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  tenant         Tenant                @relation(fields: [tenantId], references: [id])
+  item           StoreItem             @relation(fields: [itemId], references: [id])
+  vendor         Vendor?               @relation(fields: [vendorId], references: [id])
+  purchaseOrder  PurchaseOrder?
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("purchase_requests")
+}
+
+// ─── Purchase Orders ──────────────────────────────────────────────────────────
+
+enum PurchaseOrderStatus {
+  DRAFT
+  SENT           // Emailed to vendor
+  ACKNOWLEDGED   // Vendor confirmed receipt
+  PARTIALLY_RECEIVED
+  RECEIVED
+  CANCELLED
+}
+
+model PurchaseOrder {
+  id                String              @id @default(uuid())
+  tenantId          String
+  poNumber          String              @unique  // e.g. PO-2026-00001
+  status            PurchaseOrderStatus @default(DRAFT)
+  vendorId          String
+  purchaseRequestId String?             @unique
+  expectedDelivery  DateTime?
+  totalAmount       Float               @default(0)
+  notes             String?
+  vendorEmailSentAt DateTime?
+  createdById       String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  vendor            Vendor              @relation(fields: [vendorId], references: [id])
+  purchaseRequest   PurchaseRequest?    @relation(fields: [purchaseRequestId], references: [id])
+  items             PurchaseOrderItem[]
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderItem {
+  id         String        @id @default(uuid())
+  poId       String
+  itemId     String
+  quantity   Float
+  unitPrice  Float
+  totalPrice Float
+  notes      String?
+  po         PurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  item       StoreItem     @relation(fields: [itemId], references: [id])
+
+  @@index([poId])
+  @@map("purchase_order_items")
 }
 
