@@ -191,10 +191,10 @@
 
 ### 4.1 Inventory Intelligence
 
-- [ ] `items` catalogue: fertilisers, pesticides, seeds, packaging, PPE, spare parts
-- [ ] Stock levels per store/warehouse location
-- [ ] Minimum stock threshold per item (configurable)
-- [ ] Movement log: GRN, issue to zone, return, write-off
+- [x] `items` catalogue: fertilisers, pesticides, seeds, packaging, PPE, spare parts
+- [x] Stock levels per store/warehouse location
+- [x] Minimum stock threshold per item (configurable)
+- [x] Movement log: GRN, issue to zone, return, write-off
 
 ### 4.2 Auto-Procurement Engine
 

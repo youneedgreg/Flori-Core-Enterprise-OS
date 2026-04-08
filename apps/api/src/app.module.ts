@@ -34,6 +34,7 @@ import { PackHouseModule } from './pack-house/pack-house.module';
 import { ColdRoomModule } from './cold-room/cold-room.module';
 import { PackingModule } from './packing/packing.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { StoresModule } from './stores/stores.module';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { InventoryModule } from './inventory/inventory.module';
     ColdRoomModule,
     PackingModule,
     InventoryModule,
+    StoresModule,
   ],
   controllers: [AppController],
   providers: [

@@ -45,6 +45,10 @@ model Tenant {
   packedBoxes    PackedBox[]
   wastageLogs    WastageLog[]
 
+  storeItems     StoreItem[]
+  storeStock     StoreStock[]
+  storeMovements StoreMovement[]
+
   @@map("tenants")
 }
 
@@ -143,18 +147,19 @@ model Notification {
 }
 
 model FarmProfile {
-  id             String   @id @default(uuid())
-  tenantId       String   @unique
-  name           String
-  location       String?
-  gpsCoordinates String?
-  certifications String[]
-  logoUrl        String?
-  contactEmail   String?
-  contactPhone   String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  id              String   @id @default(uuid())
+  tenantId        String   @unique
+  name            String
+  location        String?
+  gpsCoordinates  String?
+  certifications  String[]
+  logoUrl         String?
+  contactEmail    String?
+  contactPhone    String?
+  defaultCurrency String   @default("KES")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
 
   @@map("farm_profiles")
 }
@@ -179,12 +184,14 @@ model Zone {
   minHumidity   Float?      @default(0)
   maxHumidity   Float?      @default(100)
 
-  devices       IoTDevice[]
-  cropCycles    CropCycle[]
-  labourLogs    LabourLog[]
-  sprayLogs     SprayLog[]
-  coldEvents    ColdRoomEvent[]
-  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  devices        IoTDevice[]
+  cropCycles     CropCycle[]
+  labourLogs     LabourLog[]
+  sprayLogs      SprayLog[]
+  coldEvents     ColdRoomEvent[]
+  storeStock     StoreStock[]
+  storeMovements StoreMovement[]
+  tenant         Tenant      @relation(fields: [tenantId], references: [id])
 
   @@map("zones")
 }
@@ -194,6 +201,8 @@ enum ZoneType {
   COLD_ROOM
   PACKING_AREA
   OFFICE
+  WAREHOUSE
+  STORE
 }
 
 model IoTDevice {
@@ -662,5 +671,84 @@ enum WastageReason {
   EXPIRED
   GRADING_REJECT
   OTHER
+}
+
+// ─── Stores & Procurement ──────────────────────────────────────────────────────
+
+enum StoreItemCategory {
+  FERTILISER
+  PESTICIDE
+  SEED
+  PACKAGING
+  PPE
+  SPARE_PART
+  OTHER
+}
+
+enum StoreMovementType {
+  GRN        // Goods Received Note (stock in)
+  ISSUE      // Issued to a zone / activity
+  RETURN     // Returned from zone
+  WRITE_OFF  // Written off (damaged, expired, lost)
+}
+
+model StoreItem {
+  id            String            @id @default(uuid())
+  tenantId      String
+  name          String
+  sku           String
+  category      StoreItemCategory @default(OTHER)
+  unit          String            @default("units") // kg, litres, pcs, boxes …
+  description   String?
+  minStockLevel Float             @default(0)
+  reorderPoint  Float             @default(0)
+  unitCost      Float             @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  tenant        Tenant            @relation(fields: [tenantId], references: [id])
+  stock         StoreStock[]
+  movements     StoreMovement[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId])
+  @@map("store_items")
+}
+
+model StoreStock {
+  id        String    @id @default(uuid())
+  tenantId  String
+  itemId    String
+  zoneId    String
+  quantity  Float     @default(0)
+  updatedAt DateTime  @updatedAt
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  item      StoreItem @relation(fields: [itemId], references: [id])
+  zone      Zone      @relation(fields: [zoneId], references: [id])
+
+  @@unique([tenantId, itemId, zoneId])
+  @@index([tenantId])
+  @@map("store_stock")
+}
+
+model StoreMovement {
+  id          String            @id @default(uuid())
+  tenantId    String
+  itemId      String
+  zoneId      String            // Source / owning zone
+  type        StoreMovementType
+  quantity    Float
+  reference   String?           // PO number, GRN ref, etc.
+  toZoneId    String?           // Destination zone for ISSUE movements
+  notes       String?
+  createdById String?
+  createdAt   DateTime          @default(now())
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+  item        StoreItem         @relation(fields: [itemId], references: [id])
+  zone        Zone              @relation(fields: [zoneId], references: [id])
+
+  @@index([tenantId])
+  @@index([itemId])
+  @@index([createdAt])
+  @@map("store_movements")
 }
 
