@@ -54,6 +54,8 @@ model Tenant {
   rfqs             Rfq[]
   rfqResponses     RfqResponse[]
   vendorPerformanceLogs VendorPerformanceLog[]
+  goodsReceivedNotes    GoodsReceivedNote[]
+  financialJournals     FinancialJournal[]
 
   @@map("tenants")
 }
@@ -720,6 +722,7 @@ model StoreItem {
   movements          StoreMovement[]
   purchaseRequests   PurchaseRequest[]
   purchaseOrderItems PurchaseOrderItem[]
+  grnItems           GrnItem[]
 
   @@unique([tenantId, sku])
   @@index([tenantId])
@@ -787,6 +790,7 @@ model Vendor {
   purchaseOrders PurchaseOrder[]
   rfqResponses   RfqResponse[]
   performanceLogs VendorPerformanceLog[]
+  goodsReceivedNotes GoodsReceivedNote[]
 
   website        String?
   certifications String[]  @default([])
@@ -865,11 +869,88 @@ model PurchaseOrder {
   vendor            Vendor              @relation(fields: [vendorId], references: [id])
   purchaseRequest   PurchaseRequest?    @relation(fields: [purchaseRequestId], references: [id])
   items             PurchaseOrderItem[]
+  goodsReceivedNotes GoodsReceivedNote[]
 
   @@index([tenantId])
   @@index([status])
   @@index([createdAt])
   @@map("purchase_orders")
+}
+
+enum GrnStatus {
+  PENDING
+  RECONCILED
+  DISCREPANCY
+}
+
+model GoodsReceivedNote {
+  id              String      @id @default(uuid())
+  tenantId        String
+  poId            String
+  grnNumber       String      @unique // e.g. GRN-2026-00001
+  status          GrnStatus   @default(PENDING)
+  vendorId        String
+  receivedDate    DateTime    @default(now())
+  receivedById    String
+  notes           String?
+  discrepancyNotes String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  purchaseOrder   PurchaseOrder @relation(fields: [poId], references: [id])
+  vendor          Vendor      @relation(fields: [vendorId], references: [id])
+  items           GrnItem[]
+
+  @@index([tenantId])
+  @@index([poId])
+  @@map("goods_received_notes")
+}
+
+model GrnItem {
+  id               String            @id @default(uuid())
+  grnId            String
+  itemId           String
+  quantityReceived Float
+  unitPriceReceived Float
+  totalPriceReceived Float
+  poItemId         String?           // Link to specific PO line item
+  notes            String?
+  grn              GoodsReceivedNote @relation(fields: [grnId], references: [id], onDelete: Cascade)
+  item             StoreItem         @relation(fields: [itemId], references: [id])
+
+  @@index([grnId])
+  @@map("grn_items")
+}
+
+// ─── Financials (Integrated Ledger) ──────────────────────────────────────────
+
+model FinancialJournal {
+  id          String         @id @default(uuid())
+  tenantId    String
+  reference   String?        // e.g. "GRN-0001", "INV-0001"
+  description String
+  date        DateTime       @default(now())
+  userId      String?        // User who recorded the entry
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  tenant      Tenant         @relation(fields: [tenantId], references: [id])
+  entries     JournalEntry[]
+
+  @@index([tenantId])
+  @@map("financial_journals")
+}
+
+model JournalEntry {
+  id          String           @id @default(uuid())
+  journalId   String
+  accountCode String           // e.g. "11000" (Inventory), "21000" (AP Liability)
+  debit       Float            @default(0)
+  credit      Float            @default(0)
+  journal     FinancialJournal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+
+  @@index([journalId])
+  @@map("journal_entries")
 }
 
 model PurchaseOrderItem {

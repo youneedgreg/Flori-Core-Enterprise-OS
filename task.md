@@ -210,11 +210,17 @@
 - [x] Vendor performance score: on-time delivery %, quality complaints
 - [x] Multi-quote support: RFQ to 3 vendors, compare in-app
 
-### 4.4 Goods Receipt & Matching
+### 4.4 Goods Receipt & Matching [DONE]
 
-- [ ] GRN: scan PO → receive items → quantity/price match vs PO
-- [ ] Discrepancy flagging → auto-alert to accountant
-- [ ] GRN triggers: inventory update + AP liability entry in financials
+- [x] Database Schema: Add `GoodsReceivedNote`, `GrnItem`, `FinancialJournal`, `JournalEntry`
+- [x] Backend: Create `FinancialsService` for ledger entries
+- [x] Backend: Update `ProcurementService` with `receiveGoods` logic
+- [x] Backend: Implement matching logic with 1% tolerance
+- [x] Backend: Implement discrepancy alerts for accountant and gold admin
+- [x] Backend: Trigger inventory and liability updates on GRN completion
+- [x] Frontend: Install `html5-qrcode` and camera scanning logic
+- [x] Frontend: Implement `GoodsReceiptModal` with scanner and form
+- [x] Frontend: Integrate "Receive Goods" button into Procurement UI
 
 ---
 

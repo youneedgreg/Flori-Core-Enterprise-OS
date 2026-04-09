@@ -19,11 +19,13 @@ import {
   FileText,
   Edit3,
   Zap,
+  Package,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { logout, isTokenExpired } from '../../../lib/auth';
 import { VendorDetailModal } from '../../../components/procurement/VendorDetailModal';
 import { RFQPortal } from '../../../components/procurement/RFQPortal';
+import { GoodsReceiptModal } from '../../../components/procurement/GoodsReceiptModal';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -131,6 +133,7 @@ export default function ProcurementPage() {
   const [showRejectModal, setShowRejectModal] = useState<PurchaseRequest | null>(null);
   const [expandedPo, setExpandedPo] = useState<string | null>(null);
   const [showRFQPortal, setShowRFQPortal] = useState(false);
+  const [showGrnModal, setShowGrnModal] = useState(false);
   const [selectedVendorForDetail, setSelectedVendorForDetail] = useState<Vendor | null>(null);
 
   // Forms
@@ -350,6 +353,12 @@ export default function ProcurementPage() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-300 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all"
           >
             <RefreshCw className="w-4 h-4" /> Refresh
+          </button>
+          <button
+            onClick={() => setShowGrnModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500 hover:text-slate-950 transition-all shadow-lg"
+          >
+            <Package className="w-4 h-4" /> Receive Goods (GRN)
           </button>
           <button
             onClick={() => setShowRFQPortal(true)}
@@ -582,6 +591,17 @@ export default function ProcurementPage() {
                     </tbody>
                   </table>
                   {po.notes && <p className="mt-3 text-[10px] font-black text-slate-600 uppercase italic">{po.notes}</p>}
+                  
+                  {po.status !== 'RECEIVED' && po.status !== 'CANCELLED' && (
+                    <div className="mt-6 pt-6 border-t border-white/5 flex justify-end">
+                      <button 
+                        onClick={() => setShowGrnModal(true)}
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-slate-950 transition-all"
+                      >
+                        <Package className="w-4 h-4" /> Process GRN for this PO
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -965,6 +985,15 @@ export default function ProcurementPage() {
           vendors={vendors}
           onClose={() => setShowRFQPortal(false)}
           onRefresh={fetchAll}
+        />
+      )}
+
+      {showGrnModal && (
+        <GoodsReceiptModal
+          onClose={() => setShowGrnModal(false)}
+          onSuccess={() => { setShowGrnModal(false); void fetchAll(); }}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
         />
       )}
 

@@ -36,6 +36,7 @@ import { PackingModule } from './packing/packing.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { StoresModule } from './stores/stores.module';
 import { ProcurementModule } from './procurement/procurement.module';
+import { FinancialsModule } from './financials/financials.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { ProcurementModule } from './procurement/procurement.module';
     InventoryModule,
     StoresModule,
     ProcurementModule,
+    FinancialsModule,
   ],
   controllers: [AppController],
   providers: [

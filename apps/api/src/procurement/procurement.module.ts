@@ -7,15 +7,24 @@ import { ProcurementController } from './procurement.controller';
 import { ProcurementScheduler } from './procurement.scheduler';
 import { NotificationService } from '../communications/notification.service';
 import { NotificationsGateway } from '../communications/notifications.gateway';
+import { FinancialsModule } from '../financials/financials.module';
+import { StoresModule } from '../stores/stores.module';
 
 @Module({
   imports: [
     ScheduleModule.forRoot(),
     PrismaModule,
     CommunicationsModule,
+    FinancialsModule,
+    StoresModule,
   ],
   controllers: [ProcurementController],
-  providers: [ProcurementService, ProcurementScheduler, NotificationService, NotificationsGateway],
+  providers: [
+    ProcurementService,
+    ProcurementScheduler,
+    NotificationService,
+    NotificationsGateway,
+  ],
   exports: [ProcurementService],
 })
 export class ProcurementModule {}

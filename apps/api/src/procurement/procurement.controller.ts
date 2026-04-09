@@ -127,6 +127,16 @@ export class ProcurementController {
     return this.procurement.updatePoStatus(req.tenantId, id, status);
   }
 
+  @Post('purchase-orders/:id/receive')
+  receiveGoods(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const userId = req.user?.id as string;
+    return this.procurement.receiveGoods(req.tenantId, userId, id, body);
+  }
+
   // ── RFQs ────────────────────────────────────────────────────────────────────
 
   @Get('rfqs')

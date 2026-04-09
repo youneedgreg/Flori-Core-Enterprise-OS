@@ -17,7 +17,11 @@ import {
   RfqStatus,
   RfqResponseStatus,
   PerformanceMetricType,
+  GrnStatus,
+  StoreMovementType,
 } from '@prisma/client';
+import { FinancialsService } from '../financials/financials.service';
+import { StoresService } from '../stores/stores.service';
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 
@@ -71,6 +75,20 @@ export interface SubmitRFQResponseDto {
   notes?: string;
 }
 
+export interface ReceiveGoodsItemDto {
+  itemId: string;
+  poItemId?: string;
+  quantityReceived: number;
+  unitPriceReceived: number;
+  notes?: string;
+}
+
+export interface ReceiveGoodsDto {
+  receivedDate?: string; // ISO date
+  notes?: string;
+  items: ReceiveGoodsItemDto[];
+}
+
 // ── Service ───────────────────────────────────────────────────────────────────
 
 @Injectable()
@@ -80,6 +98,8 @@ export class ProcurementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notificationService: NotificationService,
+    private readonly financialsService: FinancialsService,
+    private readonly storesService: StoresService,
   ) {}
 
   // ── Vendors ─────────────────────────────────────────────────────────────────
@@ -648,6 +668,205 @@ export class ProcurementService {
       } catch (err) {
         this.logger.warn(`Could not notify admin ${admin.id}:`, err);
       }
+    }
+  }
+
+  // ── Goods Receipt (GRN) ──────────────────────────────────────────────────────
+
+  async receiveGoods(
+    tenantId: string,
+    userId: string,
+    poId: string,
+    dto: ReceiveGoodsDto,
+  ) {
+    const po = await this.prisma.purchaseOrder.findFirst({
+      where: { id: poId, tenantId },
+      include: { items: { include: { item: true } }, vendor: true },
+    });
+    if (!po) throw new NotFoundException('Purchase order not found');
+
+    const grnNumber = await this.generateGrnNumber(tenantId);
+    let hasDiscrepancy = false;
+    const discrepancyNotes: string[] = [];
+
+    // Match received items vs PO items
+    for (const receivedItem of dto.items) {
+      const poItem = po.items.find(
+        (pi) =>
+          pi.itemId === receivedItem.itemId || pi.id === receivedItem.poItemId,
+      );
+
+      if (!poItem) {
+        hasDiscrepancy = true;
+        discrepancyNotes.push(`Item ${receivedItem.itemId} not found in PO`);
+        continue;
+      }
+
+      // 1% tolerance logic
+      const qtyDiff = Math.abs(receivedItem.quantityReceived - poItem.quantity);
+      const priceDiff = Math.abs(
+        receivedItem.unitPriceReceived - poItem.unitPrice,
+      );
+
+      const qtyTolerance = poItem.quantity * 0.01;
+      const priceTolerance = poItem.unitPrice * 0.01;
+
+      if (qtyDiff > qtyTolerance) {
+        hasDiscrepancy = true;
+        discrepancyNotes.push(
+          `Quantity mismatch for ${poItem.item.name}: expected ${poItem.quantity}, received ${receivedItem.quantityReceived}`,
+        );
+      }
+
+      if (priceDiff > priceTolerance) {
+        hasDiscrepancy = true;
+        discrepancyNotes.push(
+          `Price mismatch for ${poItem.item.name}: expected ${poItem.unitPrice}, received ${receivedItem.unitPriceReceived}`,
+        );
+      }
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create GRN
+      const grn = await tx.goodsReceivedNote.create({
+        data: {
+          tenantId,
+          poId,
+          grnNumber,
+          vendorId: po.vendorId,
+          receivedById: userId,
+          receivedDate: dto.receivedDate
+            ? new Date(dto.receivedDate)
+            : new Date(),
+          status: hasDiscrepancy ? GrnStatus.DISCREPANCY : GrnStatus.RECONCILED,
+          notes: dto.notes,
+          discrepancyNotes: hasDiscrepancy ? discrepancyNotes.join('; ') : null,
+          items: {
+            create: dto.items.map((item) => ({
+              itemId: item.itemId,
+              quantityReceived: item.quantityReceived,
+              unitPriceReceived: item.unitPriceReceived,
+              totalPriceReceived:
+                item.quantityReceived * item.unitPriceReceived,
+              poItemId: item.poItemId,
+              notes: item.notes,
+            })),
+          },
+        },
+      });
+
+      // 2. If no major discrepancy (or even if there is, we might update stock/liability depending on business rules)
+      // For this implementation, we proceed with stock and liability if RECONCILED.
+      // If DISCREPANCY, we still update stock/liability but flag it for review.
+
+      const totalAmountReceived = dto.items.reduce(
+        (sum, i) => sum + i.quantityReceived * i.unitPriceReceived,
+        0,
+      );
+
+      // Update Stock
+      for (const item of dto.items) {
+        await this.storesService.recordMovement(
+          tenantId,
+          {
+            itemId: item.itemId,
+            zoneId: (await this.getWarehouseZoneId(tenantId)) || '', // Fallback or logic to find store zone
+            type: StoreMovementType.GRN,
+            quantity: item.quantityReceived,
+            reference: grnNumber,
+            notes: `Received via ${grnNumber}`,
+          },
+          userId,
+        );
+
+        // Update last unit price on StoreItem
+        await tx.storeItem.update({
+          where: { id: item.itemId },
+          data: { lastUnitPrice: item.unitPriceReceived },
+        });
+      }
+
+      // Record Liability in Ledger
+      await this.financialsService.createJournal(tenantId, {
+        reference: grnNumber,
+        description: `Goods Receipt from ${po.vendor.name} (PO: ${po.poNumber})`,
+        userId,
+        entries: [
+          {
+            accountCode: '11000', // Inventory Account
+            debit: totalAmountReceived,
+            credit: 0,
+          },
+          {
+            accountCode: '21000', // Accounts Payable Liability
+            debit: 0,
+            credit: totalAmountReceived,
+          },
+        ],
+      });
+
+      // 3. Update PO Status
+      await tx.purchaseOrder.update({
+        where: { id: poId },
+        data: {
+          status: hasDiscrepancy
+            ? PurchaseOrderStatus.PARTIALLY_RECEIVED
+            : PurchaseOrderStatus.RECEIVED,
+        },
+      });
+
+      // 4. Alert Accountant and Gold Admin if discrepancy
+      if (hasDiscrepancy) {
+        await this.notifyAccountantAndAdmin(
+          tenantId,
+          grnNumber,
+          discrepancyNotes,
+        );
+      }
+
+      return grn;
+    });
+  }
+
+  private async generateGrnNumber(tenantId: string): Promise<string> {
+    const year = new Date().getFullYear();
+    const count = await this.prisma.goodsReceivedNote.count({
+      where: { tenantId },
+    });
+    const seq = String(count + 1).padStart(5, '0');
+    return `GRN-${year}-${seq}`;
+  }
+
+  private async getWarehouseZoneId(tenantId: string): Promise<string | null> {
+    const zone = await this.prisma.zone.findFirst({
+      where: { tenantId, type: 'WAREHOUSE' },
+    });
+    return zone?.id || null;
+  }
+
+  private async notifyAccountantAndAdmin(
+    tenantId: string,
+    grnNumber: string,
+    discrepancies: string[],
+  ) {
+    const message = `Discrepancy in ${grnNumber}: ${discrepancies.slice(0, 2).join(', ')}${discrepancies.length > 2 ? '...' : ''}`;
+
+    // Find users with accountant or gold_admin roles
+    const users = await this.prisma.user.findMany({
+      where: {
+        tenantId,
+        role: { name: { in: ['accountant', 'gold_admin'] } },
+      },
+      select: { id: true },
+    });
+
+    for (const user of users) {
+      await this.notificationService.createNotification({
+        tenantId,
+        userId: user.id,
+        title: 'GRN Discrepancy Flagged',
+        message,
+      });
     }
   }
 
