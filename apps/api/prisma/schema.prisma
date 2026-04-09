@@ -325,23 +325,34 @@ model Lead {
 }
 
 model Order {
-  id           String      @id @default(uuid())
-  tenantId     String
-  type         OrderType   @default(EXPORT)
-  status       OrderStatus @default(PENDING)
-  customerId   String
-  items        Json
-  totalAmount  Float
-  currency     String      @default("USD")
-  shipmentDate DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  customer     Customer    @relation(fields: [customerId], references: [id])
-  tenant       Tenant      @relation(fields: [tenantId], references: [id])
-  packedBoxes  PackedBox[]
+  id                 String             @id @default(uuid())
+  tenantId           String
+  type               OrderType          @default(SPOT_ORDER)
+  status             OrderStatus        @default(DRAFT)
+  orderNumber        String?
+  customerId         String
+  items              Json
+  totalAmount        Float
+  currency           String             @default("USD")
+  deliveryDate       DateTime?
+  shipmentDate       DateTime?
+  notes              String?
+  isTemplate         Boolean            @default(false)
+  parentTemplateId   String?
+  templateFrequency  TemplateFrequency?
+  nextGenerationDate DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  customer        Customer    @relation(fields: [customerId], references: [id])
+  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  packedBoxes     PackedBox[]
+  template        Order?      @relation("OrderTemplates", fields: [parentTemplateId], references: [id])
+  generatedOrders Order[]     @relation("OrderTemplates")
 
   @@index([tenantId])
   @@index([status])
+  @@index([isTemplate])
   @@map("orders")
 }
 
@@ -455,16 +466,24 @@ enum TenantStatus {
 }
 
 enum OrderStatus {
-  PENDING
-  PACKING
-  SHIPPED
+  DRAFT
+  CONFIRMED
+  IN_PICKING
+  DISPATCHED
   DELIVERED
-  CANCELLED
+  INVOICED
 }
 
 enum OrderType {
-  EXPORT
-  LOCAL
+  STANDING_ORDER
+  SPOT_ORDER
+  EXPORT_CONTRACT
+}
+
+enum TemplateFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
 }
 
 enum PayrollStatus {

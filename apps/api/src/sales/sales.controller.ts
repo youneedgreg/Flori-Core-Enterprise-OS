@@ -6,15 +6,17 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Body,
   Param,
+  Query,
   UseGuards,
   Request as Req,
 } from '@nestjs/common';
 import type { Request as ExpressRequest } from 'express';
 import * as salesService_1 from './sales.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { LeadStatus } from '@prisma/client';
+import { LeadStatus, OrderStatus } from '@prisma/client';
 
 @Controller('sales')
 @UseGuards(JwtAuthGuard)
@@ -93,5 +95,57 @@ export class SalesController {
   ) {
     const tenantId = req.user.tenantId;
     return this.salesService.getCrmTimeline(tenantId, id);
+  }
+
+  // ── Orders ─────────────────────────────────────────────────────────────────
+
+  @Get('orders/templates')
+  async getOrderTemplates(@Req() req: ExpressRequest) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.getOrderTemplates(tenantId);
+  }
+
+  @Post('orders/templates/:id/generate')
+  async generateOrderFromTemplate(
+    @Req() req: ExpressRequest,
+    @Param('id') id: string,
+  ) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.generateOrderFromTemplate(tenantId, id);
+  }
+
+  @Get('orders')
+  async getOrders(
+    @Req() req: ExpressRequest,
+    @Query('status') status?: OrderStatus,
+    @Query('type') type?: salesService_1.GetOrdersFilterDto['type'],
+  ) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.getOrders(tenantId, { status, type });
+  }
+
+  @Post('orders')
+  async createOrder(
+    @Req() req: ExpressRequest,
+    @Body() dto: salesService_1.CreateOrderDto,
+  ) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.createOrder(tenantId, dto);
+  }
+
+  @Get('orders/:id')
+  async getOrder(@Req() req: ExpressRequest, @Param('id') id: string) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.getOrder(tenantId, id);
+  }
+
+  @Patch('orders/:id/status')
+  async updateOrderStatus(
+    @Req() req: ExpressRequest,
+    @Param('id') id: string,
+    @Body('status') status: OrderStatus,
+  ) {
+    const tenantId = req.user.tenantId;
+    return this.salesService.updateOrderStatus(tenantId, id, status);
   }
 }

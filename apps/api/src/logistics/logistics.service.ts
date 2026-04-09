@@ -40,7 +40,7 @@ export class LogisticsService {
   async create(
     tenantId: string,
     data: {
-      type: 'EXPORT' | 'LOCAL';
+      type: 'STANDING_ORDER' | 'SPOT_ORDER' | 'EXPORT_CONTRACT';
       customerId: string;
       items: any;
       totalAmount: number;
@@ -85,7 +85,7 @@ export class LogisticsService {
       data: {
         ...data,
         tenantId,
-        status: 'PENDING',
+        status: 'DRAFT',
         shipmentDate: data.shipmentDate ? new Date(data.shipmentDate) : null,
       },
     });
@@ -94,7 +94,7 @@ export class LogisticsService {
   async updateStatus(
     tenantId: string,
     id: string,
-    status: 'PENDING' | 'PACKING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED',
+    status: 'DRAFT' | 'CONFIRMED' | 'IN_PICKING' | 'DISPATCHED' | 'DELIVERED' | 'INVOICED',
   ) {
     const order = await this.findOne(tenantId, id);
     const updatedOrder = await this.prisma.order.update({

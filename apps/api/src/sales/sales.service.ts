@@ -2,9 +2,22 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { LeadStatus, CustomerType, CustomerSegment } from '@prisma/client';
+import { InventoryService } from '../inventory/inventory.service';
+import {
+  LeadStatus,
+  CustomerType,
+  CustomerSegment,
+  OrderType,
+  OrderStatus,
+  TemplateFrequency,
+} from '@prisma/client';
 
 export interface CreateCustomerDto {
   name: string;
@@ -38,11 +51,41 @@ export interface CreateContactLogDto {
   date?: string;
 }
 
+export interface OrderItemDto {
+  varietyId: string;
+  varietyName: string;
+  grade: string;
+  bunchSize: number;
+  bunchesPerBox: number;
+  quantity: number;
+}
+
+export interface CreateOrderDto {
+  customerId: string;
+  type: OrderType;
+  items: OrderItemDto[];
+  totalAmount: number;
+  currency?: string;
+  deliveryDate?: string;
+  notes?: string;
+  isTemplate?: boolean;
+  templateFrequency?: TemplateFrequency;
+}
+
+export interface GetOrdersFilterDto {
+  status?: OrderStatus;
+  type?: OrderType;
+  isTemplate?: boolean;
+}
+
 @Injectable()
 export class SalesService {
   private readonly logger = new Logger(SalesService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly inventoryService: InventoryService,
+  ) {}
 
   // ── Customers ──────────────────────────────────────────────────────────────
 
@@ -197,5 +240,171 @@ export class SalesService {
     ];
 
     return timeline.sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+
+  // ── Orders ─────────────────────────────────────────────────────────────────
+
+  private async generateOrderNumber(tenantId: string): Promise<string> {
+    const year = new Date().getFullYear();
+    const count = await this.prisma.order.count({
+      where: { tenantId, isTemplate: false, orderNumber: { not: null } },
+    });
+    return `ORD-${year}-${String(count + 1).padStart(5, '0')}`;
+  }
+
+  async createOrder(tenantId: string, dto: CreateOrderDto) {
+    const customer = await this.prisma.customer.findFirst({
+      where: { id: dto.customerId, tenantId },
+    });
+    if (!customer) throw new BadRequestException('Invalid customer reference');
+
+    return this.prisma.order.create({
+      data: {
+        tenantId,
+        customerId: dto.customerId,
+        type: dto.type,
+        items: dto.items as any,
+        totalAmount: dto.totalAmount,
+        currency: dto.currency ?? 'USD',
+        deliveryDate: dto.deliveryDate ? new Date(dto.deliveryDate) : null,
+        notes: dto.notes,
+        isTemplate: dto.isTemplate ?? false,
+        templateFrequency: dto.templateFrequency,
+        status: OrderStatus.DRAFT,
+        orderNumber: null,
+      },
+      include: { customer: { select: { name: true, country: true } } },
+    });
+  }
+
+  async getOrders(tenantId: string, filters?: GetOrdersFilterDto) {
+    return this.prisma.order.findMany({
+      where: {
+        tenantId,
+        isTemplate: filters?.isTemplate ?? false,
+        ...(filters?.status && { status: filters.status }),
+        ...(filters?.type && { type: filters.type }),
+      },
+      include: {
+        customer: { select: { name: true, country: true, email: true } },
+        _count: { select: { packedBoxes: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async getOrder(tenantId: string, id: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, tenantId },
+      include: {
+        customer: true,
+        packedBoxes: {
+          select: { boxId: true, status: true, varietyId: true, grade: true },
+        },
+        generatedOrders: {
+          select: {
+            id: true,
+            orderNumber: true,
+            status: true,
+            createdAt: true,
+          },
+        },
+        template: { select: { id: true, orderNumber: true } },
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  private readonly ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
+    [OrderStatus.DRAFT]: [OrderStatus.CONFIRMED],
+    [OrderStatus.CONFIRMED]: [OrderStatus.IN_PICKING],
+    [OrderStatus.IN_PICKING]: [OrderStatus.DISPATCHED],
+    [OrderStatus.DISPATCHED]: [OrderStatus.DELIVERED],
+    [OrderStatus.DELIVERED]: [OrderStatus.INVOICED],
+    [OrderStatus.INVOICED]: [],
+  };
+
+  async updateOrderStatus(
+    tenantId: string,
+    id: string,
+    newStatus: OrderStatus,
+  ) {
+    const order = await this.prisma.order.findFirst({
+      where: { id, tenantId },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+
+    const allowed = this.ALLOWED_TRANSITIONS[order.status];
+    if (!allowed.includes(newStatus)) {
+      throw new BadRequestException(
+        `Invalid status transition from ${order.status} to ${newStatus}`,
+      );
+    }
+
+    if (newStatus === OrderStatus.CONFIRMED) {
+      const atp = await this.inventoryService.getFinishedGoodsATP(tenantId);
+      const items = (order.items as unknown as OrderItemDto[]) || [];
+
+      for (const item of items) {
+        const match = atp.find(
+          (a) =>
+            a.varietyId === item.varietyId &&
+            a.grade === item.grade &&
+            a.bunchSize === item.bunchSize &&
+            a.bunchesPerBox === item.bunchesPerBox,
+        );
+        if (!match || match.atp < item.quantity) {
+          throw new BadRequestException(
+            `Insufficient ATP for ${match?.varietyName ?? item.varietyName} Grade ${item.grade}: Available ${match?.atp ?? 0} boxes, requested ${item.quantity}`,
+          );
+        }
+      }
+
+      const orderNumber = await this.generateOrderNumber(tenantId);
+      return this.prisma.order.update({
+        where: { id },
+        data: { status: newStatus, orderNumber },
+        include: { customer: { select: { name: true } } },
+      });
+    }
+
+    return this.prisma.order.update({
+      where: { id },
+      data: { status: newStatus },
+      include: { customer: { select: { name: true } } },
+    });
+  }
+
+  getOrderTemplates(tenantId: string) {
+    return this.prisma.order.findMany({
+      where: { tenantId, isTemplate: true },
+      include: { customer: { select: { name: true, country: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async generateOrderFromTemplate(tenantId: string, templateId: string) {
+    const template = await this.prisma.order.findFirst({
+      where: { id: templateId, tenantId, isTemplate: true },
+    });
+    if (!template) throw new NotFoundException('Order template not found');
+
+    return this.prisma.order.create({
+      data: {
+        tenantId,
+        customerId: template.customerId,
+        type: template.type,
+        items: template.items as any,
+        totalAmount: template.totalAmount,
+        currency: template.currency,
+        notes: template.notes,
+        isTemplate: false,
+        parentTemplateId: template.id,
+        status: OrderStatus.DRAFT,
+        orderNumber: null,
+      },
+      include: { customer: { select: { name: true, country: true } } },
+    });
   }
 }

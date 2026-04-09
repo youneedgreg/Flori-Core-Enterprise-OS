@@ -240,13 +240,13 @@
 
 ---
 
-### 5.2 Order Management Engine
+### 5.2 Order Management Engine [DONE]
 
-- [ ] Order creation: customer → varieties → grade → quantity → delivery date
-- [ ] ATP check before confirming order
-- [ ] Order types: standing order, spot order, export contract
-- [ ] Order lifecycle: Draft → Confirmed → In Picking → Dispatched → Delivered → Invoiced
-- [ ] Auto-generation of standing orders from contract template
+- [x] Order creation: customer → varieties → grade → quantity → delivery date
+- [x] ATP check before confirming order
+- [x] Order types: standing order, spot order, export contract
+- [x] Order lifecycle: Draft → Confirmed → In Picking → Dispatched → Delivered → Invoiced
+- [x] Auto-generation of standing orders from contract template
 
 ### 5.3 Export Documentation Vault
 

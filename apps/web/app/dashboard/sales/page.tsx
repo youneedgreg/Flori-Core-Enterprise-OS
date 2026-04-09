@@ -1,27 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   TrendingUp, Plus, CheckCircle2,
-  Building2, UserPlus, Kanban as KanbanIcon, List
+  Building2, UserPlus, ShoppingBag
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 // Components
 import { LeadsPipeline } from '../../../components/sales/LeadsPipeline';
 import { CustomerList } from '../../../components/sales/CustomerList';
+import { OrdersBoard } from '../../../components/sales/OrdersBoard';
 import { decodeJWT, logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
 export default function SalesPage() {
-  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CUSTOMERS'>('PIPELINE');
+  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CUSTOMERS' | 'ORDERS'>('PIPELINE');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     activeLeads: 0,
     totalCustomers: 0,
     pipelineValue: 0,
-    conversionRate: '0%'
+    conversionRate: '0%',
+    activeOrders: 0,
   });
 
   const getAuthHeader = () => {
@@ -41,19 +42,22 @@ export default function SalesPage() {
     const headers = getAuthHeader();
     if (!headers) return;
     try {
-      const [leadsRes, custRes] = await Promise.all([
+      const [leadsRes, custRes, ordersRes] = await Promise.all([
         fetch(`${API}/sales/leads`, { headers }),
-        fetch(`${API}/sales/customers`, { headers })
+        fetch(`${API}/sales/customers`, { headers }),
+        fetch(`${API}/sales/orders?status=CONFIRMED`, { headers }),
       ]);
       const leads = await leadsRes.json();
       const customers = await custRes.json();
+      const orders = await ordersRes.json();
 
       setStats({
         activeLeads: leads.length,
         totalCustomers: customers.length,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pipelineValue: leads.reduce((acc: number, l: any) => acc + (l.value || 0), 0),
-        conversionRate: '12%' // Placeholder for now
+        conversionRate: '12%', // Placeholder for now
+        activeOrders: Array.isArray(orders) ? orders.length : 0,
       });
     } catch (err) {
       console.error('Failed to fetch stats', err);
@@ -82,28 +86,35 @@ export default function SalesPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setActiveTab(activeTab === 'PIPELINE' ? 'CUSTOMERS' : 'PIPELINE')}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest hover:bg-white/10 transition-all shadow-xl"
-          >
-            {activeTab === 'PIPELINE' ? <List className="w-4 h-4" /> : <KanbanIcon className="w-4 h-4" />}
-            Switch to {activeTab === 'PIPELINE' ? 'Customer List' : 'Pipeline View'}
-          </button>
-          <button 
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
-          >
-            <Plus className="w-4 h-4" /> New {activeTab === 'PIPELINE' ? 'Lead' : 'Customer'}
-          </button>
+          {(['PIPELINE', 'CUSTOMERS', 'ORDERS'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                activeTab === tab
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  : 'bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {tab === 'PIPELINE' ? 'Pipeline' : tab === 'CUSTOMERS' ? 'Customers' : 'Orders'}
+            </button>
+          ))}
+          {activeTab !== 'ORDERS' && (
+            <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+              <Plus className="w-4 h-4" /> New {activeTab === 'PIPELINE' ? 'Lead' : 'Customer'}
+            </button>
+          )}
         </div>
       </header>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         {[
           { label: 'Active Leads', value: stats.activeLeads, icon: UserPlus, color: 'text-cyan-400' },
           { label: 'Total Customers', value: stats.totalCustomers, icon: Building2, color: 'text-emerald-400' },
           { label: 'Pipeline Value', value: `USD ${(stats.pipelineValue / 1000).toFixed(1)}k`, icon: TrendingUp, color: 'text-amber-400' },
           { label: 'Conversion Rate', value: stats.conversionRate, icon: CheckCircle2, color: 'text-indigo-400' },
+          { label: 'Active Orders', value: stats.activeOrders, icon: ShoppingBag, color: 'text-violet-400' },
         ].map((stat, i) => (
           <div key={i} className="bg-slate-900/40 backdrop-blur-xl border border-white/5 p-8 rounded-[2.5rem] relative overflow-hidden group hover:border-white/10 transition-all">
             <div className={`absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform ${stat.color}`}>
@@ -117,10 +128,14 @@ export default function SalesPage() {
 
       {/* Main Content Area */}
       <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] overflow-hidden min-h-[600px] flex flex-col">
-        {activeTab === 'PIPELINE' ? (
+        {activeTab === 'PIPELINE' && (
           <LeadsPipeline apiBase={API} getAuthHeader={getAuthHeader} onRefresh={fetchStats} />
-        ) : (
+        )}
+        {activeTab === 'CUSTOMERS' && (
           <CustomerList apiBase={API} getAuthHeader={getAuthHeader} />
+        )}
+        {activeTab === 'ORDERS' && (
+          <OrdersBoard apiBase={API} getAuthHeader={getAuthHeader} onRefresh={fetchStats} />
         )}
       </div>
     </div>

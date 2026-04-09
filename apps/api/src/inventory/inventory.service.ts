@@ -89,7 +89,7 @@ export class InventoryService {
     const pendingOrders = await this.prisma.order.findMany({
       where: {
         tenantId,
-        status: { in: ['PENDING', 'PACKING'] },
+        status: { in: ['CONFIRMED', 'IN_PICKING'] },
       },
     });
 
