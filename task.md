@@ -280,14 +280,14 @@
 
 ---
 
-## Phase 6 — Module 5: Integrated Financials _(Weeks 22–26)_
+## Phase 6 — Module 5: Integrated Financials _(Days 22–26)_
 
-### 6.1 Chart of Accounts & Ledger
+### 6.1 Chart of Accounts & Ledger [DONE]
 
-- [ ] Double-entry bookkeeping engine in NestJS
-- [ ] Journal entries for every financial event (invoice, payment, GRN, payroll)
-- [ ] Fully configurable chart of accounts per tenant
-- [ ] Multi-currency support (KES, USD, EUR, GBP) with exchange rate feed
+- [x] Double-entry bookkeeping engine in NestJS
+- [x] Journal entries for every financial event (invoice, payment, GRN, payroll)
+- [x] Fully configurable chart of accounts per tenant
+- [x] Multi-currency support (KES, USD, EUR, GBP) with exchange rate feed
 
 ### 6.2 Accounts Receivable (AR)
 

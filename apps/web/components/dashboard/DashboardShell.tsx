@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes, Sprout, Wind, ShoppingCart, ClipboardList, TrendingUp, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes, Sprout, Wind, ShoppingCart, ClipboardList, TrendingUp, ShieldCheck, Landmark } from 'lucide-react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
 import { logout, decodeJWT, isTokenExpired } from '../../lib/auth';
@@ -50,6 +50,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     { icon: ClipboardList, label: 'Procurement', href: '/dashboard/procurement' },
     { icon: TrendingUp, label: 'Sales & CRM', href: '/dashboard/sales' },
     { icon: ShieldCheck, label: 'Compliance', href: '/dashboard/compliance' },
+    { icon: Landmark, label: 'Financials', href: '/dashboard/financials' },
     { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
   ];
 

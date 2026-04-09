@@ -32,6 +32,7 @@ model Tenant {
 
   settings        Json?            @default("{}")
   unitPreference  UnitSystem       @default(METRIC)
+  baseCurrency    String           @default("USD")
   varieties       Variety[]
   cropCycles      CropCycle[]
   cropSchedules   CropSchedule[]
@@ -58,13 +59,25 @@ model Tenant {
   vendorPerformanceLogs VendorPerformanceLog[]
   goodsReceivedNotes    GoodsReceivedNote[]
   financialJournals     FinancialJournal[]
+  accounts              Account[]
+  exchangeRates         ExchangeRate[]
   exportDocuments       ExportDocument[]
   certifications        Certification[]
 
-  vehicles              Vehicle[]
-  deliveryRoutes        DeliveryRoute[]
-  deliveryStops         DeliveryStop[]
-  invoices              Invoice[]
+  vehicles       Vehicle[]
+  deliveryRoutes DeliveryRoute[]
+  deliveryStops  DeliveryStop[]
+  invoices       Invoice[]
+
+  soilTests             SoilTest[]
+  landPrepLogs          LandPrepLog[]
+  cropBudgets           CropBudget[]
+  plantingRecords       PlantingRecord[]
+  irrigationLogs        IrrigationLog[]
+  scoutingReports       ScoutingReport[]
+  cropPerformanceLogs   CropPerformanceLog[]
+  preHarvestQualityLogs PreHarvestQualityLog[]
+  harvestRecords        HarvestRecord[]
 
   @@map("tenants")
 }
@@ -110,6 +123,13 @@ model User {
   overridenSprays SprayLog[]      @relation("SprayOverrider")
   coldRoomEvents  ColdRoomEvent[]
   deliveryRoutes  DeliveryRoute[]
+
+  landPrepLogs          LandPrepLog[]
+  irrigationLogs        IrrigationLog[]
+  scoutingReports       ScoutingReport[]       @relation("ScoutingInspector")
+  cropPerformanceLogs   CropPerformanceLog[]
+  preHarvestQualityLogs PreHarvestQualityLog[]
+  harvestRecords        HarvestRecord[]
 
   @@map("users")
 }
@@ -212,6 +232,11 @@ model Zone {
   storeStock     StoreStock[]
   storeMovements StoreMovement[]
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
+
+  soilTests       SoilTest[]
+  landPrepLogs    LandPrepLog[]
+  irrigationLogs  IrrigationLog[]
+  scoutingReports ScoutingReport[]
 
   @@map("zones")
 }
@@ -558,6 +583,13 @@ model CropCycle {
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
   schedules     CropSchedule[]
   flowerBatches FlowerBatch[]
+
+  cropBudget            CropBudget?
+  plantingRecord        PlantingRecord?
+  scoutingReports       ScoutingReport[]
+  cropPerformanceLogs   CropPerformanceLog[]
+  preHarvestQualityLogs PreHarvestQualityLog[]
+  harvestRecords        HarvestRecord[]
 
   @@map("crop_cycles")
 }
@@ -1048,13 +1080,57 @@ model FinancialJournal {
   @@map("financial_journals")
 }
 
+enum AccountType {
+  ASSET
+  LIABILITY
+  EQUITY
+  REVENUE
+  EXPENSE
+}
+
+model Account {
+  id       String      @id @default(uuid())
+  tenantId String
+  code     String // e.g. "11000", "21000"
+  name     String
+  type     AccountType
+  currency String?
+  isActive Boolean     @default(true)
+  tenant   Tenant      @relation(fields: [tenantId], references: [id])
+
+  journalEntries JournalEntry[]
+
+  @@unique([tenantId, code])
+  @@map("accounts")
+}
+
+model ExchangeRate {
+  id            String   @id @default(uuid())
+  tenantId      String
+  fromCurrency  String
+  toCurrency    String
+  rate          Float
+  effectiveDate DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, fromCurrency, toCurrency])
+  @@map("exchange_rates")
+}
+
 model JournalEntry {
-  id          String           @id @default(uuid())
-  journalId   String
-  accountCode String // e.g. "11000" (Inventory), "21000" (AP Liability)
-  debit       Float            @default(0)
-  credit      Float            @default(0)
-  journal     FinancialJournal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  id           String  @id @default(uuid())
+  journalId    String
+  accountId    String? // Relation to chart of accounts
+  accountCode  String // e.g. "11000" (Inventory)
+  debit        Float   @default(0)
+  credit       Float   @default(0)
+  exchangeRate Float?  @default(1.0)
+  baseDebit    Float?
+  baseCredit   Float?
+
+  journal FinancialJournal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  account Account?         @relation(fields: [accountId], references: [id])
 
   @@index([journalId])
   @@map("journal_entries")
@@ -1194,20 +1270,20 @@ enum CertificationType {
 }
 
 model Certification {
-  id             String            @id @default(uuid())
-  tenantId       String
-  type           CertificationType
-  customName     String? // used when type=OTHER
-  issuedBy       String?
-  certNumber     String?
-  issueDate      DateTime?
-  expiryDate     DateTime?
-  fileUrl        String? // S3 URL to cert scan/PDF
-  status         String            @default("ACTIVE") // ACTIVE, EXPIRING_SOON, EXPIRED, PENDING
-  remindersSent  Int               @default(0) // track how many reminders sent
-  notes          String?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  id            String            @id @default(uuid())
+  tenantId      String
+  type          CertificationType
+  customName    String? // used when type=OTHER
+  issuedBy      String?
+  certNumber    String?
+  issueDate     DateTime?
+  expiryDate    DateTime?
+  fileUrl       String? // S3 URL to cert scan/PDF
+  status        String            @default("ACTIVE") // ACTIVE, EXPIRING_SOON, EXPIRED, PENDING
+  remindersSent Int               @default(0) // track how many reminders sent
+  notes         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
@@ -1224,7 +1300,7 @@ model Vehicle {
   plateNumber    String
   makeModel      String?
   type           String          @default("VAN") // TRUCK, VAN, BIKE
-  capacity       Float?          // Volume or kg
+  capacity       Float? // Volume or kg
   refrigerated   Boolean         @default(true)
   status         String          @default("ACTIVE") // ACTIVE, MAINTENANCE
   createdAt      DateTime        @default(now())
@@ -1307,4 +1383,192 @@ model Invoice {
 
   @@index([tenantId])
   @@map("invoices")
+}
+
+// ─── Farm Operations & Agricultural Stages ─────────────────────────────────────
+
+model SoilTest {
+  id         String   @id @default(uuid())
+  tenantId   String
+  zoneId     String?
+  testDate   DateTime
+  pHLevel    Float?
+  ecLevel    Float? // Salinity
+  nitrogen   Float?
+  phosphorus Float?
+  potassium  Float?
+  soilType   String?
+  structure  String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  zone       Zone?    @relation(fields: [zoneId], references: [id])
+
+  @@index([tenantId])
+  @@map("soil_tests")
+}
+
+model LandPrepLog {
+  id             String   @id @default(uuid())
+  tenantId       String
+  zoneId         String
+  activityType   String // PLOWING, HARROWING, BED_FORMATION, AMENDMENT
+  date           DateTime
+  details        String? // bed size, spacing, etc.
+  amendmentsUsed String? // lime, compost, manure details
+  performedById  String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  zone           Zone     @relation(fields: [zoneId], references: [id])
+  performedBy    User?    @relation(fields: [performedById], references: [id])
+
+  @@index([tenantId])
+  @@map("land_prep_logs")
+}
+
+model CropBudget {
+  id                     String    @id @default(uuid())
+  tenantId               String
+  cropCycleId            String    @unique
+  laborWorkersReq        Int?
+  estimatedLaborCost     Float?
+  estimatedInputCost     Float?
+  estimatedUtilitiesCost Float?
+  totalBudget            Float?
+  notes                  String?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  tenant                 Tenant    @relation(fields: [tenantId], references: [id])
+  cropCycle              CropCycle @relation(fields: [cropCycleId], references: [id])
+
+  @@index([tenantId])
+  @@map("crop_budgets")
+}
+
+model PlantingRecord {
+  id          String    @id @default(uuid())
+  tenantId    String
+  cropCycleId String    @unique
+  date        DateTime
+  supplier    String?
+  lotNumber   String?
+  spacing     String? // e.g. "20cm x 20cm"
+  density     Float? // plants per sqm
+  totalPlants Int
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  cropCycle   CropCycle @relation(fields: [cropCycleId], references: [id])
+
+  @@index([tenantId])
+  @@map("planting_records")
+}
+
+model IrrigationLog {
+  id              String   @id @default(uuid())
+  tenantId        String
+  zoneId          String
+  date            DateTime
+  durationMinutes Int?
+  volumeLiters    Float?
+  method          String // DRIP, SPRINKLER, MANUAL
+  fertigationUsed Boolean  @default(false)
+  fertilizerType  String?
+  npkLevels       String? // e.g. "20-20-20"
+  applicationRate Float?
+  performedById   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  zone            Zone     @relation(fields: [zoneId], references: [id])
+  performedBy     User?    @relation(fields: [performedById], references: [id])
+
+  @@index([tenantId])
+  @@map("irrigation_logs")
+}
+
+model ScoutingReport {
+  id              String     @id @default(uuid())
+  tenantId        String
+  zoneId          String
+  cropCycleId     String?
+  date            DateTime
+  pestDiseaseName String?
+  severity        String // LOW, MEDIUM, HIGH
+  observations    String
+  actionTaken     String?
+  inspectorId     String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  tenant          Tenant     @relation(fields: [tenantId], references: [id])
+  zone            Zone       @relation(fields: [zoneId], references: [id])
+  cropCycle       CropCycle? @relation(fields: [cropCycleId], references: [id])
+  inspector       User       @relation("ScoutingInspector", fields: [inspectorId], references: [id])
+
+  @@index([tenantId])
+  @@map("scouting_reports")
+}
+
+model CropPerformanceLog {
+  id           String    @id @default(uuid())
+  tenantId     String
+  cropCycleId  String
+  date         DateTime
+  growthRate   String? // SLOW, NORMAL, FAST
+  healthScore  Int? // 1 to 10
+  budFormation Boolean   @default(false)
+  observations String?
+  recordedById String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  cropCycle    CropCycle @relation(fields: [cropCycleId], references: [id])
+  recordedBy   User      @relation(fields: [recordedById], references: [id])
+
+  @@index([tenantId])
+  @@map("crop_performance_logs")
+}
+
+model PreHarvestQualityLog {
+  id           String    @id @default(uuid())
+  tenantId     String
+  cropCycleId  String
+  date         DateTime
+  budStage     String? // PEA_SIZE, SHOWING_COLOR, OPENING
+  budSizeMm    Float?
+  stemLengthCm Float?
+  stemStrength String? // WEAK, MEDIUM, STRONG
+  colorDev     String?
+  inspectorId  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  cropCycle    CropCycle @relation(fields: [cropCycleId], references: [id])
+  inspector    User      @relation(fields: [inspectorId], references: [id])
+
+  @@index([tenantId])
+  @@map("pre_harvest_quality_logs")
+}
+
+model HarvestRecord {
+  id            String    @id @default(uuid())
+  tenantId      String
+  cropCycleId   String
+  date          DateTime
+  quantityStems Int // or total stems
+  weightKg      Float?
+  rejectedStems Int?
+  notes         String?
+  supervisorId  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  cropCycle     CropCycle @relation(fields: [cropCycleId], references: [id])
+  supervisor    User      @relation(fields: [supervisorId], references: [id])
+
+  @@index([tenantId])
+  @@map("harvest_records")
 }

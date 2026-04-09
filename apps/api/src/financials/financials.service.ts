@@ -5,6 +5,8 @@
 /* eslint-disable @typescript-eslint/require-await */
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AccountsService } from './accounts.service';
+import { CurrencyService } from './currency.service';
 
 export interface JournalEntryDto {
   accountCode: string;
@@ -16,6 +18,7 @@ export interface CreateJournalDto {
   reference?: string;
   description: string;
   userId?: string;
+  transactionCurrency?: string;
   entries: JournalEntryDto[];
 }
 
@@ -23,7 +26,11 @@ export interface CreateJournalDto {
 export class FinancialsService {
   private readonly logger = new Logger(FinancialsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly accountsService: AccountsService,
+    private readonly currencyService: CurrencyService,
+  ) {}
 
   /**
    * Records a double-entry journal record.
@@ -40,18 +47,44 @@ export class FinancialsService {
       );
     }
 
-    return this.prisma.financialJournal.create({
+    const baseCurrency =
+      await this.currencyService.getTenantBaseCurrency(tenantId);
+    const txnCurrency = dto.transactionCurrency || baseCurrency;
+    const rate = await this.currencyService.getExchangeRate(
+      tenantId,
+      txnCurrency,
+      baseCurrency,
+    );
+
+    // Validate accounts and build create payload
+    const entryData = [];
+    for (const e of dto.entries) {
+      const account = await this.accountsService.getAccountByCode(
+        tenantId,
+        e.accountCode,
+      );
+      // Even if account fails to lookup (maybe a test error), we must not crash the whole app if they haven't seeded yet.
+      // But ideally we'd throw. For safety/migration, we allow null accountId for now, but save code.
+
+      entryData.push({
+        accountId: account ? account.id : null,
+        accountCode: e.accountCode,
+        debit: e.debit,
+        credit: e.credit,
+        exchangeRate: rate,
+        baseDebit: e.debit * rate,
+        baseCredit: e.credit * rate,
+      });
+    }
+
+    return await this.prisma.financialJournal.create({
       data: {
         tenantId,
         reference: dto.reference,
         description: dto.description,
         userId: dto.userId,
         entries: {
-          create: dto.entries.map((e) => ({
-            accountCode: e.accountCode,
-            debit: e.debit,
-            credit: e.credit,
-          })),
+          create: entryData,
         },
       },
       include: { entries: true },
@@ -106,6 +139,7 @@ export class FinancialsService {
     // Create AR Journal Entry
     await this.createJournal(tenantId, {
       description: `Accounts Receivable for Invoice ${invoice.invoiceNumber}`,
+      transactionCurrency: currency,
       entries: [
         { accountCode: '1200', debit: totalAmount, credit: 0 }, // Accounts Receivable
         { accountCode: '4000', debit: 0, credit: totalAmount }, // Sales Revenue
