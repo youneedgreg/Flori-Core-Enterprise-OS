@@ -240,15 +240,6 @@
 
 ---
 
-## Phase 5 — Module 4: Global Sales, Logistics & Compliance _(Days 17–21)_
-
-### 5.1 CRM & Contact Management
-
-- [ ] Customer profiles: retailers, exporters, auction houses, direct buyers
-- [ ] Contact history: all emails/calls/notes linked to customer
-- [ ] Customer segmentation: local retail, export, spot market
-- [ ] Lead pipeline: Kanban board (Prospect → Negotiation → Contract → Active)
-
 ### 5.2 Order Management Engine
 
 - [ ] Order creation: customer → varieties → grade → quantity → delivery date
