@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
@@ -63,5 +64,54 @@ export class FinancialsService {
       include: { entries: true },
       orderBy: { date: 'desc' },
     });
+  }
+
+  /**
+   * Generates a draft invoice when an order is completed/delivered.
+   */
+  async generateInvoice(
+    tenantId: string,
+    orderId: string,
+    totalAmount: number,
+    currency: string,
+  ) {
+    const existing = await (this.prisma as any).invoice.findUnique({
+      where: { orderId },
+    });
+
+    if (existing) {
+      this.logger.warn(`Invoice already exists for order ${orderId}`);
+      return existing;
+    }
+
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30); // Net 30 default
+
+    const invoice = await (this.prisma as any).invoice.create({
+      data: {
+        tenantId,
+        orderId,
+        invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+        totalAmount,
+        currency,
+        dueDate,
+        status: 'DRAFT',
+      },
+    });
+
+    this.logger.log(
+      `Generated invoice ${invoice.invoiceNumber} for order ${orderId}`,
+    );
+
+    // Create AR Journal Entry
+    await this.createJournal(tenantId, {
+      description: `Accounts Receivable for Invoice ${invoice.invoiceNumber}`,
+      entries: [
+        { accountCode: '1200', debit: totalAmount, credit: 0 }, // Accounts Receivable
+        { accountCode: '4000', debit: 0, credit: totalAmount }, // Sales Revenue
+      ],
+    });
+
+    return invoice;
   }
 }

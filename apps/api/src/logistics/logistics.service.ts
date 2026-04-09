@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -8,12 +9,16 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InventoryService } from '../inventory/inventory.service';
+import { StorageService } from '../packing/storage.service';
+import { FinancialsService } from '../financials/financials.service';
 
 @Injectable()
 export class LogisticsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly inventoryService: InventoryService,
+    private readonly storage: StorageService,
+    private readonly financials: FinancialsService,
   ) {}
 
   async findAll(tenantId: string) {
@@ -94,7 +99,13 @@ export class LogisticsService {
   async updateStatus(
     tenantId: string,
     id: string,
-    status: 'DRAFT' | 'CONFIRMED' | 'IN_PICKING' | 'DISPATCHED' | 'DELIVERED' | 'INVOICED',
+    status:
+      | 'DRAFT'
+      | 'CONFIRMED'
+      | 'IN_PICKING'
+      | 'DISPATCHED'
+      | 'DELIVERED'
+      | 'INVOICED',
   ) {
     const order = await this.findOne(tenantId, id);
     const updatedOrder = await this.prisma.order.update({
@@ -143,5 +154,152 @@ export class LogisticsService {
         tenantId,
       },
     });
+  }
+
+  // ── Fleet & Vehicles ────────────────────────────────────────────────────────
+
+  async getVehicles(tenantId: string) {
+    return await (this.prisma as any).vehicle.findMany({
+      where: { tenantId },
+    });
+  }
+
+  async createVehicle(tenantId: string, data: any) {
+    return await (this.prisma as any).vehicle.create({
+      data: { ...data, tenantId },
+    });
+  }
+
+  // ── Routes & Stops ──────────────────────────────────────────────────────────
+
+  async getRoutes(tenantId: string, driverId?: string) {
+    const where: any = { tenantId };
+    if (driverId) where.driverId = driverId;
+
+    return await (this.prisma as any).deliveryRoute.findMany({
+      where,
+      include: {
+        driver: { select: { email: true } },
+        vehicle: true,
+        deliveryStops: {
+          include: {
+            order: {
+              include: { customer: true },
+            },
+          },
+          orderBy: { sequenceIndex: 'asc' },
+        },
+      },
+      orderBy: { date: 'desc' },
+    });
+  }
+
+  async createRoute(
+    tenantId: string,
+    driverId: string,
+    vehicleId: string,
+    date: string,
+    stopOrderIds: string[],
+  ) {
+    // 1. Create Route
+    const route = await (this.prisma as any).deliveryRoute.create({
+      data: {
+        tenantId,
+        driverId,
+        vehicleId,
+        date: new Date(date),
+        status: 'PENDING',
+        deliveryStops: {
+          create: stopOrderIds.map((orderId, i) => ({
+            tenantId,
+            orderId,
+            sequenceIndex: i,
+            status: 'PENDING',
+          })),
+        },
+      },
+      include: { deliveryStops: true },
+    });
+
+    // 2. Set all associated orders to IN_TRANSIT / DISPATCHED
+    for (const orderId of stopOrderIds) {
+      await this.prisma.order.update({
+        where: { id: orderId },
+        data: { status: 'DISPATCHED' },
+      });
+    }
+
+    return route;
+  }
+
+  // ── Proof of Delivery (PoD) ──────────────────────────────────────────────────
+
+  async submitPoD(
+    tenantId: string,
+    stopId: string,
+    signatureBuffer: Buffer,
+    photoBuffer: Buffer | undefined,
+    tempAtDelivery?: string,
+  ) {
+    const stop = await (this.prisma as any).deliveryStop.findUnique({
+      where: { id: stopId },
+      include: { order: true },
+    });
+
+    if (!stop || stop.tenantId !== tenantId) {
+      throw new NotFoundException('Delivery stop not found');
+    }
+
+    // Upload files to S3 via StorageService
+    const sigFilename = `pod/${tenantId}/${stopId}_sig_${Date.now()}.png`;
+    const sigUrl = await this.storage.uploadFile(
+      sigFilename,
+      signatureBuffer,
+      'image/png',
+    );
+
+    let photoUrl = null;
+    if (photoBuffer) {
+      const photoFilename = `pod/${tenantId}/${stopId}_pic_${Date.now()}.jpg`;
+      photoUrl = await this.storage.uploadFile(
+        photoFilename,
+        photoBuffer,
+        'image/jpeg',
+      );
+    }
+
+    // Mark Stop as Delivered
+    const updatedStop = await (this.prisma as any).deliveryStop.update({
+      where: { id: stopId },
+      data: {
+        status: 'DELIVERED',
+        actualArrival: new Date(),
+        podSignatureUrl: sigUrl,
+        podPhotoUrl: photoUrl,
+        vehicleTempAtDelivery: tempAtDelivery
+          ? parseFloat(tempAtDelivery)
+          : null,
+      },
+    });
+
+    // Mark Order as Delivered
+    await this.updateStatus(tenantId, stop.orderId, 'DELIVERED');
+
+    // Auto-Generate Invoice
+    try {
+      await this.financials.generateInvoice(
+        tenantId,
+        stop.orderId,
+        stop.order.totalAmount,
+        stop.order.currency,
+      );
+    } catch (e) {
+      console.error(
+        `Failed to auto-generate invoice for order ${stop.orderId}`,
+        e,
+      );
+    }
+
+    return updatedStop;
   }
 }

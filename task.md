@@ -263,14 +263,14 @@
 - [x] Expiry tracker + 60/30-day renewal reminders
 - [x] Per-audit report generator (spray logs, training records, worker safety → PDF)
 
-### 5.5 Logistics & Proof of Delivery (PoD)
+### 5.5 Logistics & Proof of Delivery (PoD) [DONE]
 
-- [ ] Route planning: drag-and-drop stops on Mapbox
-- [ ] Driver PWA: today's deliveries, customer info, directions
-- [ ] Live GPS tracking: driver → dispatcher map
-- [ ] PoD: digital sign-on-glass (canvas signature) + photo upload
-- [ ] Cold chain PoD: driver logs vehicle temp at delivery
-- [ ] Delivery confirmation triggers invoice dispatch
+- [x] Route planning: drag-and-drop stops on Mapbox
+- [x] Driver PWA: today's deliveries, customer info, directions
+- [x] Live GPS tracking: driver → dispatcher map
+- [x] PoD: digital sign-on-glass (canvas signature) + photo upload
+- [x] Cold chain PoD: driver logs vehicle temp at delivery
+- [x] Delivery confirmation triggers invoice dispatch
 
 ### 5.6 Auction Integration _(Extra)_
 

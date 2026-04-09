@@ -61,6 +61,11 @@ model Tenant {
   exportDocuments       ExportDocument[]
   certifications        Certification[]
 
+  vehicles              Vehicle[]
+  deliveryRoutes        DeliveryRoute[]
+  deliveryStops         DeliveryStop[]
+  invoices              Invoice[]
+
   @@map("tenants")
 }
 
@@ -104,6 +109,7 @@ model User {
   sprayLogs       SprayLog[]      @relation("SprayApplicator")
   overridenSprays SprayLog[]      @relation("SprayOverrider")
   coldRoomEvents  ColdRoomEvent[]
+  deliveryRoutes  DeliveryRoute[]
 
   @@map("users")
 }
@@ -352,6 +358,8 @@ model Order {
   template        Order?           @relation("OrderTemplates", fields: [parentTemplateId], references: [id])
   generatedOrders Order[]          @relation("OrderTemplates")
   exportDocuments ExportDocument[]
+  deliveryStop    DeliveryStop?
+  invoice         Invoice?
 
   @@index([tenantId])
   @@index([status])
@@ -1206,4 +1214,97 @@ model Certification {
   @@index([tenantId])
   @@index([expiryDate])
   @@map("certifications")
+}
+
+// ─── Logistics & Proof of Delivery ─────────────────────────────────────────────
+
+model Vehicle {
+  id             String          @id @default(uuid())
+  tenantId       String
+  plateNumber    String
+  makeModel      String?
+  type           String          @default("VAN") // TRUCK, VAN, BIKE
+  capacity       Float?          // Volume or kg
+  refrigerated   Boolean         @default(true)
+  status         String          @default("ACTIVE") // ACTIVE, MAINTENANCE
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deliveryRoutes DeliveryRoute[]
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([plateNumber, tenantId])
+  @@index([tenantId])
+  @@map("vehicles")
+}
+
+model DeliveryRoute {
+  id            String         @id @default(uuid())
+  tenantId      String
+  driverId      String
+  vehicleId     String
+  status        String         @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  date          DateTime
+  startMileage  Float?
+  endMileage    Float?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deliveryStops DeliveryStop[]
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  driver  User    @relation(fields: [driverId], references: [id])
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@index([tenantId])
+  @@index([driverId])
+  @@index([date])
+  @@map("delivery_routes")
+}
+
+model DeliveryStop {
+  id                    String    @id @default(uuid())
+  tenantId              String
+  routeId               String
+  orderId               String    @unique
+  sequenceIndex         Int       @default(0)
+  status                String    @default("PENDING") // PENDING, DELIVERED, FAILED
+  expectedArrival       DateTime?
+  actualArrival         DateTime?
+  podSignatureUrl       String?
+  podPhotoUrl           String?
+  vehicleTempAtDelivery Float?
+  notes                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id])
+  route  DeliveryRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  order  Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([routeId])
+  @@map("delivery_stops")
+}
+
+// ─── Financials & Invoicing ───────────────────────────────────────────────────
+
+model Invoice {
+  id            String    @id @default(uuid())
+  tenantId      String
+  orderId       String    @unique
+  invoiceNumber String?
+  status        String    @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
+  totalAmount   Float
+  currency      String    @default("USD")
+  issuedAt      DateTime  @default(now())
+  dueDate       DateTime?
+  pdfUrl        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id])
+
+  @@index([tenantId])
+  @@map("invoices")
 }
