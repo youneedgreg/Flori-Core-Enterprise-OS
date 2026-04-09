@@ -297,11 +297,11 @@
 - [x] Credit limit enforcement per customer
 - [x] Aging report: 0–30, 31–60, 61–90, 90+ days
 
-### 6.3 Accounts Payable (AP)
+### 6.3 Accounts Payable (AP) [DONE]
 
-- [ ] Vendor invoice entry linked to GRN (3-way match: PO → GRN → Invoice)
-- [ ] Payment scheduling and approval workflow
-- [ ] Bank payment export (SWIFT MT101 / local bank format)
+- [x] Vendor invoice entry linked to GRN (3-way match: PO → GRN → Invoice)
+- [x] Payment scheduling and approval workflow
+- [x] Bank payment export (SWIFT MT101 / local bank format)
 
 ### 6.4 Payroll Engine
 
@@ -312,12 +312,12 @@
 - [ ] Payroll journal auto-posted to ledger
 - [ ] M-Pesa bulk disbursement API integration
 
-### 6.5 Budgeting & Cost Centres
+### 6.5 Budgeting & Cost Centres [DONE]
 
-- [ ] Budget creation by department/cost centre
-- [ ] Monthly actual vs budget variance report
-- [ ] Departmental P&L (Production, Pack House, Logistics, Admin)
-- [ ] Profitability per variety / per order
+- [x] Budget creation by department/cost centre
+- [x] Monthly actual vs budget variance report
+- [x] Departmental P&L (Production, Pack House, Logistics, Admin)
+- [x] Profitability per variety / per order
 
 ### 6.6 Financial Reporting
 

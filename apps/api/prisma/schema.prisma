@@ -68,6 +68,9 @@ model Tenant {
   deliveryRoutes DeliveryRoute[]
   deliveryStops  DeliveryStop[]
   invoices       Invoice[]
+  vendorInvoices VendorInvoice[]
+  costCentres    CostCentre[]
+  budgets        Budget[]
 
   soilTests             SoilTest[]
   landPrepLogs          LandPrepLog[]
@@ -930,6 +933,7 @@ model Vendor {
   rfqResponses       RfqResponse[]
   performanceLogs    VendorPerformanceLog[]
   goodsReceivedNotes GoodsReceivedNote[]
+  vendorInvoices     VendorInvoice[]
 
   website        String?
   certifications String[] @default([])
@@ -1009,6 +1013,7 @@ model PurchaseOrder {
   purchaseRequest    PurchaseRequest?    @relation(fields: [purchaseRequestId], references: [id])
   items              PurchaseOrderItem[]
   goodsReceivedNotes GoodsReceivedNote[]
+  vendorInvoices     VendorInvoice[]
 
   @@index([tenantId])
   @@index([status])
@@ -1040,10 +1045,63 @@ model GoodsReceivedNote {
   purchaseOrder PurchaseOrder @relation(fields: [poId], references: [id])
   vendor        Vendor        @relation(fields: [vendorId], references: [id])
   items         GrnItem[]
+  vendorInvoices VendorInvoice[]
 
   @@index([tenantId])
   @@index([poId])
   @@map("goods_received_notes")
+}
+
+model VendorInvoice {
+  id              String    @id @default(uuid())
+  tenantId        String
+  vendorId        String
+  poId            String?   // linked PO
+  grnId           String?   // linked GRN (for 3-way match)
+  invoiceNumber   String    // Vendor's invoice reference
+  status          String    @default("PENDING") // PENDING, APPROVED, SCHEDULED, PAID, REJECTED
+  totalAmount     Float
+  paidAmount      Float     @default(0)
+  currency        String    @default("USD")
+  invoiceDate     DateTime
+  dueDate         DateTime?
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectionReason String?
+  scheduledPayAt  DateTime? // Planned payment date
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenant    Tenant             @relation(fields: [tenantId], references: [id])
+  vendor    Vendor             @relation(fields: [vendorId], references: [id])
+  po        PurchaseOrder?     @relation(fields: [poId], references: [id])
+  grn       GoodsReceivedNote? @relation(fields: [grnId], references: [id])
+  payments  VendorPayment[]
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@map("vendor_invoices")
+}
+
+model VendorPayment {
+  id              String   @id @default(uuid())
+  tenantId        String
+  vendorInvoiceId String
+  amount          Float
+  currency        String   @default("USD")
+  method          String   @default("BANK_TRANSFER")
+  reference       String?  // bank reference, cheque number
+  paidAt          DateTime @default(now())
+  exportedAt      DateTime? // when bank file was generated
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  vendorInvoice VendorInvoice @relation(fields: [vendorInvoiceId], references: [id], onDelete: Cascade)
+
+  @@index([vendorInvoiceId])
+  @@map("vendor_payments")
 }
 
 model GrnItem {
@@ -1389,6 +1447,71 @@ model Invoice {
   @@index([tenantId])
   @@index([tenantId, status])
   @@map("invoices")
+}
+
+// ─── Budgeting & Cost Centres ─────────────────────────────────────────────────
+
+enum CostCentreType {
+  PRODUCTION
+  PACK_HOUSE
+  LOGISTICS
+  ADMIN
+  SALES
+  OTHER
+}
+
+model CostCentre {
+  id          String         @id @default(uuid())
+  tenantId    String
+  name        String
+  type        CostCentreType
+  description String?
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  tenant  Tenant       @relation(fields: [tenantId], references: [id])
+  budgets Budget[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("cost_centres")
+}
+
+model Budget {
+  id           String     @id @default(uuid())
+  tenantId     String
+  costCentreId String
+  name         String
+  year         Int
+  month        Int? // null = annual budget; 1-12 = monthly
+  currency     String     @default("USD")
+  status       String     @default("DRAFT") // DRAFT, APPROVED, LOCKED
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  tenant     Tenant       @relation(fields: [tenantId], references: [id])
+  costCentre CostCentre   @relation(fields: [costCentreId], references: [id])
+  lines      BudgetLine[]
+
+  @@index([tenantId])
+  @@index([tenantId, year, month])
+  @@map("budgets")
+}
+
+model BudgetLine {
+  id          String  @id @default(uuid())
+  budgetId    String
+  accountCode String  // e.g. "5000" COGS, "5100" Payroll
+  description String
+  budgetedAmt Float
+  notes       String?
+
+  budget Budget @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  @@index([budgetId])
+  @@map("budget_lines")
 }
 
 model InvoicePayment {
