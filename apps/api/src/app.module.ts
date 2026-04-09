@@ -40,6 +40,15 @@ import { FinancialsModule } from './financials/financials.module';
 import { SalesModule } from './sales/sales.module';
 import { ExportDocsModule } from './export-docs/export-docs.module';
 import { ComplianceModule } from './compliance/compliance.module';
+import { SoilTestsModule } from './farm-operations/soil-tests/soil-tests.module';
+import { LandPrepModule } from './farm-operations/land-prep/land-prep.module';
+import { CropBudgetsModule } from './farm-operations/crop-budgets/crop-budgets.module';
+import { PlantingRecordsModule } from './farm-operations/planting-records/planting-records.module';
+import { IrrigationLogsModule } from './farm-operations/irrigation-logs/irrigation-logs.module';
+import { ScoutingReportsModule } from './farm-operations/scouting-reports/scouting-reports.module';
+import { CropPerformanceModule } from './farm-operations/crop-performance/crop-performance.module';
+import { PreHarvestModule } from './farm-operations/pre-harvest/pre-harvest.module';
+import { HarvestRecordsModule } from './farm-operations/harvest-records/harvest-records.module';
 
 @Module({
   imports: [
@@ -76,6 +85,15 @@ import { ComplianceModule } from './compliance/compliance.module';
     SalesModule,
     ExportDocsModule,
     ComplianceModule,
+    SoilTestsModule,
+    LandPrepModule,
+    CropBudgetsModule,
+    PlantingRecordsModule,
+    IrrigationLogsModule,
+    ScoutingReportsModule,
+    CropPerformanceModule,
+    PreHarvestModule,
+    HarvestRecordsModule,
   ],
   controllers: [AppController],
   providers: [
