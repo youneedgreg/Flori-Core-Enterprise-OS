@@ -224,6 +224,22 @@
 
 ---
 
+## Phase 5 — Module 4: Global Sales, Logistics & Compliance [IN PROGRESS]
+
+### 5.1 CRM & Contact Management [DONE]
+
+- [x] Database Schema: Add `CustomerType`, `CustomerSegment`, `LeadStatus` enums
+- [x] Database Schema: Expand `Customer` with specific fields (commission, credit limit)
+- [x] Database Schema: Add `Lead` and `ContactLog` models
+- [x] Backend: Create `SalesModule` with `SalesService` and `SalesController`
+- [x] Backend: Implement Lead-to-Customer conversion logic
+- [x] Backend: Integrate CRM timeline with `CommunicationsModule`
+- [x] Frontend: Implement `SalesPage` with Tabs (Pipeline, Customers)
+- [x] Frontend: Create `LeadsBoard` (Kanban) component
+- [x] Frontend: Create `CustomerDetailModal` with interaction timeline
+
+---
+
 ## Phase 5 — Module 4: Global Sales, Logistics & Compliance _(Days 17–21)_
 
 ### 5.1 CRM & Contact Management

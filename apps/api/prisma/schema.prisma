@@ -17,6 +17,8 @@ model Tenant {
   auditLogs      AuditLog[]
   communications Communication[]
   customers      Customer[]
+  leads          Lead[]
+  contactLogs    ContactLog[]
   farmProfile    FarmProfile?
   iotDevices     IoTDevice[]
   notifications  Notification[]
@@ -94,6 +96,8 @@ model User {
   labourLogs     LabourLog[]
   role           Role            @relation(fields: [roleId], references: [id])
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  contactLogs    ContactLog[]
+  leads          Lead[]
 
   sprayLogs      SprayLog[]      @relation("SprayApplicator")
   overridenSprays SprayLog[]     @relation("SprayOverrider")
@@ -230,19 +234,94 @@ model IoTDevice {
   @@map("iot_devices")
 }
 
+enum CustomerType {
+  RETAILER
+  EXPORTER
+  AUCTION_HOUSE
+  DIRECT_BUYER
+}
+
+enum CustomerSegment {
+  LOCAL_RETAIL
+  EXPORT
+  SPOT_MARKET
+}
+
 model Customer {
-  id        String   @id @default(uuid())
-  tenantId  String
-  name      String
-  email     String?
-  address   String?
-  country   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  tenant    Tenant   @relation(fields: [tenantId], references: [id])
-  orders    Order[]
+  id              String           @id @default(uuid())
+  tenantId        String
+  name            String
+  email           String?
+  phone           String?
+  contactPerson   String?
+  address         String?
+  country         String?
+  type            CustomerType     @default(DIRECT_BUYER)
+  segment         CustomerSegment  @default(LOCAL_RETAIL)
+  notes           String?
+  commissionRate  Float?           // For auction houses
+  creditLimit     Float?           // For retailers/direct buyers
+  paymentTerms    String?
+  
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
+  orders          Order[]
+  contactLogs     ContactLog[]
+  leads           Lead[]
 
   @@map("customers")
+}
+
+model ContactLog {
+  id          String   @id @default(uuid())
+  tenantId    String
+  customerId  String
+  userId      String   // Sales Rep / Contact person
+  type        String   // EMAIL, CALL, MEETING, NOTE
+  subject     String?
+  notes       String
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  
+  customer    Customer @relation(fields: [customerId], references: [id])
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([tenantId])
+  @@index([customerId])
+  @@map("contact_logs")
+}
+
+enum LeadStatus {
+  PROSPECT
+  NEGOTIATION
+  CONTRACT
+  ACTIVE
+  LOST
+}
+
+model Lead {
+  id          String     @id @default(uuid())
+  tenantId    String
+  customerId  String?    // Optional link if converted
+  name        String     // Company / Lead Name
+  email       String?
+  phone       String?
+  status      LeadStatus @default(PROSPECT)
+  value       Float?     // Deal size
+  assignedToId String?
+  notes       String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  tenant      Tenant     @relation(fields: [tenantId], references: [id])
+  assignedTo  User?      @relation(fields: [assignedToId], references: [id])
+
+  @@index([tenantId])
+  @@map("leads")
 }
 
 model Order {
