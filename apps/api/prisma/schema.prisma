@@ -1365,24 +1365,48 @@ model DeliveryStop {
 // ─── Financials & Invoicing ───────────────────────────────────────────────────
 
 model Invoice {
-  id            String    @id @default(uuid())
-  tenantId      String
-  orderId       String    @unique
-  invoiceNumber String?
-  status        String    @default("DRAFT") // DRAFT, SENT, PAID, OVERDUE, CANCELLED
-  totalAmount   Float
-  currency      String    @default("USD")
-  issuedAt      DateTime  @default(now())
-  dueDate       DateTime?
-  pdfUrl        String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  tenantId        String
+  orderId         String    @unique
+  invoiceNumber   String?
+  status          String    @default("DRAFT") // DRAFT, SENT, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED
+  totalAmount     Float
+  paidAmount      Float     @default(0)
+  currency        String    @default("USD")
+  issuedAt        DateTime  @default(now())
+  dueDate         DateTime?
+  sentAt          DateTime?
+  pdfUrl          String?
+  remindersSent   Int       @default(0)
+  lastReminderAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  order  Order  @relation(fields: [orderId], references: [id])
+  tenant   Tenant           @relation(fields: [tenantId], references: [id])
+  order    Order            @relation(fields: [orderId], references: [id])
+  payments InvoicePayment[]
 
   @@index([tenantId])
+  @@index([tenantId, status])
   @@map("invoices")
+}
+
+model InvoicePayment {
+  id          String   @id @default(uuid())
+  tenantId    String
+  invoiceId   String
+  amount      Float
+  currency    String   @default("USD")
+  method      String   @default("BANK_TRANSFER") // BANK_TRANSFER, MPESA, CASH, CARD
+  reference   String?  // payment reference / cheque number
+  paidAt      DateTime @default(now())
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_payments")
 }
 
 // ─── Farm Operations & Agricultural Stages ─────────────────────────────────────

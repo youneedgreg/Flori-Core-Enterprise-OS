@@ -289,13 +289,13 @@
 - [x] Fully configurable chart of accounts per tenant
 - [x] Multi-currency support (KES, USD, EUR, GBP) with exchange rate feed
 
-### 6.2 Accounts Receivable (AR)
+### 6.2 Accounts Receivable (AR) [DONE]
 
-- [ ] Auto-generate invoice on delivery confirmation
-- [ ] Invoice statuses: Draft → Sent → Partially Paid → Paid → Overdue
-- [ ] Automated payment reminders: Day 0, Day 7, Day 14, Day 30 (escalate)
-- [ ] Credit limit enforcement per customer
-- [ ] Aging report: 0–30, 31–60, 61–90, 90+ days
+- [x] Auto-generate invoice on delivery confirmation
+- [x] Invoice statuses: Draft → Sent → Partially Paid → Paid → Overdue
+- [x] Automated payment reminders: Day 0, Day 7, Day 14, Day 30 (escalate)
+- [x] Credit limit enforcement per customer
+- [x] Aging report: 0–30, 31–60, 61–90, 90+ days
 
 ### 6.3 Accounts Payable (AP)
 
