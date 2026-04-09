@@ -63,6 +63,7 @@ model Tenant {
   exchangeRates         ExchangeRate[]
   exportDocuments       ExportDocument[]
   certifications        Certification[]
+  taxRates              TaxRate[]
 
   vehicles       Vehicle[]
   deliveryRoutes DeliveryRoute[]
@@ -1064,6 +1065,9 @@ model VendorInvoice {
   invoiceNumber   String    // Vendor's invoice reference
   status          String    @default("PENDING") // PENDING, APPROVED, SCHEDULED, PAID, REJECTED
   totalAmount     Float
+  vatAmount       Float     @default(0)
+  whtAmount       Float     @default(0)
+  taxRateId       String?
   paidAmount      Float     @default(0)
   currency        String    @default("USD")
   invoiceDate     DateTime
@@ -1081,6 +1085,7 @@ model VendorInvoice {
   vendor    Vendor             @relation(fields: [vendorId], references: [id])
   po        PurchaseOrder?     @relation(fields: [poId], references: [id])
   grn       GoodsReceivedNote? @relation(fields: [grnId], references: [id])
+  taxRate   TaxRate?           @relation(fields: [taxRateId], references: [id])
   payments  VendorPayment[]
 
   @@index([tenantId])
@@ -1175,8 +1180,34 @@ model ExchangeRate {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
-  @@index([tenantId, fromCurrency, toCurrency])
+  @@index([vendorId])
   @@map("exchange_rates")
+}
+
+enum TaxType {
+  VAT
+  WHT
+  EXCISE
+  OTHER
+}
+
+model TaxRate {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String   // e.g. "VAT 16%", "WHT 5%"
+  rate      Float    // e.g. 16.0
+  type      TaxType  @default(VAT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  invoices       Invoice[]
+  vendorInvoices VendorInvoice[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("tax_rates")
 }
 
 model JournalEntry {
@@ -1432,6 +1463,9 @@ model Invoice {
   invoiceNumber   String?
   status          String    @default("DRAFT") // DRAFT, SENT, PARTIALLY_PAID, PAID, OVERDUE, CANCELLED
   totalAmount     Float
+  vatAmount       Float     @default(0)
+  whtAmount       Float     @default(0)
+  taxRateId       String?
   paidAmount      Float     @default(0)
   currency        String    @default("USD")
   issuedAt        DateTime  @default(now())
@@ -1445,6 +1479,7 @@ model Invoice {
 
   tenant   Tenant           @relation(fields: [tenantId], references: [id])
   order    Order            @relation(fields: [orderId], references: [id])
+  taxRate  TaxRate?         @relation(fields: [taxRateId], references: [id])
   payments InvoicePayment[]
 
   @@index([tenantId])

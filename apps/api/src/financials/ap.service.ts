@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
@@ -61,6 +62,7 @@ export class APService {
       invoiceDate: string;
       dueDate?: string;
       notes?: string;
+      taxRateId?: string;
     },
   ) {
     // 3-way match validation — if PO and GRN are provided, verify they link
@@ -75,6 +77,18 @@ export class APService {
       }
     }
 
+    let vatAmount = 0;
+    if (data.taxRateId) {
+      const taxRate = await (this.prisma as any).taxRate.findUnique({
+        where: { id: data.taxRateId, tenantId },
+      });
+      if (taxRate) {
+        // Calculate VAT (assuming totalAmount includes VAT)
+        const baseAmount = data.totalAmount / (1 + taxRate.rate / 100);
+        vatAmount = data.totalAmount - baseAmount;
+      }
+    }
+
     const invoice = await (this.prisma as any).vendorInvoice.create({
       data: {
         tenantId,
@@ -83,12 +97,37 @@ export class APService {
         grnId: data.grnId ?? null,
         invoiceNumber: data.invoiceNumber,
         totalAmount: data.totalAmount,
+        vatAmount,
+        taxRateId: data.taxRateId,
         currency: data.currency ?? 'USD',
         invoiceDate: new Date(data.invoiceDate),
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         notes: data.notes,
       },
     });
+
+    // Post initial liability: debit Expense (Inventory/COGS), credit AP
+    const expenseAmount = data.totalAmount - vatAmount;
+    const entries = [
+      { accountCode: '5000', debit: expenseAmount, credit: 0 }, // COGS / Expense
+      { accountCode: '2000', debit: 0, credit: data.totalAmount }, // Accounts Payable
+    ];
+
+    if (vatAmount > 0) {
+      entries.push({ accountCode: '2100', debit: vatAmount, credit: 0 }); // Input VAT (Asset/Receivable from Tax office)
+      // Note: For AP, VAT is usually a debit to a tax asset account (Input VAT), reducing net tax payable.
+    }
+
+    try {
+      await this.financials.createJournal(tenantId, {
+        reference: invoice.invoiceNumber,
+        description: `Purchase Liability: ${invoice.invoiceNumber}`,
+        transactionCurrency: invoice.currency,
+        entries,
+      });
+    } catch (e) {
+      this.logger.error(`Failed to post AP liability journal for ${invoice.invoiceNumber}`, e);
+    }
 
     this.logger.log(
       `Created vendor invoice ${data.invoiceNumber} (${data.totalAmount}) for vendor ${data.vendorId}`,

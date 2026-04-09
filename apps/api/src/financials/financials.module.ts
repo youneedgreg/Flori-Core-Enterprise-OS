@@ -6,11 +6,14 @@ import { ARService } from './ar.service';
 import { APService } from './ap.service';
 import { BudgetingService } from './budgeting.service';
 import { PayrollService } from './payroll.service';
+import { TaxService } from './tax.service';
+import { ReportingService } from './reporting.service';
 import { FinancialsController } from './financials.controller';
 import { ARController } from './ar.controller';
 import { APController } from './ap.controller';
 import { BudgetingController } from './budgeting.controller';
 import { PayrollController } from './payroll.controller';
+import { ReportingController } from './reporting.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -21,6 +24,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     APController,
     BudgetingController,
     PayrollController,
+    ReportingController,
   ],
   providers: [
     FinancialsService,
@@ -30,6 +34,8 @@ import { PrismaModule } from '../prisma/prisma.module';
     APService,
     BudgetingService,
     PayrollService,
+    TaxService,
+    ReportingService,
   ],
   exports: [
     FinancialsService,
@@ -39,6 +45,8 @@ import { PrismaModule } from '../prisma/prisma.module';
     APService,
     BudgetingService,
     PayrollService,
+    TaxService,
+    ReportingService,
   ],
 })
 export class FinancialsModule {}

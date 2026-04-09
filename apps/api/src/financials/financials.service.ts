@@ -107,6 +107,7 @@ export class FinancialsService {
     orderId: string,
     totalAmount: number,
     currency: string,
+    taxRateId?: string,
   ) {
     const existing = await (this.prisma as any).invoice.findUnique({
       where: { orderId },
@@ -115,6 +116,19 @@ export class FinancialsService {
     if (existing) {
       this.logger.warn(`Invoice already exists for order ${orderId}`);
       return existing;
+    }
+
+    let vatAmount = 0;
+    if (taxRateId) {
+      const taxRate = await (this.prisma as any).taxRate.findUnique({
+        where: { id: taxRateId, tenantId },
+      });
+      if (taxRate) {
+        // Calculate VAT (assuming totalAmount includes VAT)
+        // Base = Total / (1 + Rate/100)
+        const baseAmount = totalAmount / (1 + taxRate.rate / 100);
+        vatAmount = totalAmount - baseAmount;
+      }
     }
 
     const dueDate = new Date();
@@ -126,6 +140,8 @@ export class FinancialsService {
         orderId,
         invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
         totalAmount,
+        vatAmount,
+        taxRateId,
         currency,
         dueDate,
         status: 'DRAFT',
@@ -136,14 +152,21 @@ export class FinancialsService {
       `Generated invoice ${invoice.invoiceNumber} for order ${orderId}`,
     );
 
-    // Create AR Journal Entry
+    // Create AR Journal Entry with Tax Split
+    const revenueAmount = totalAmount - vatAmount;
+    const entries = [
+      { accountCode: '1200', debit: totalAmount, credit: 0 }, // Accounts Receivable
+      { accountCode: '4000', debit: 0, credit: revenueAmount }, // Sales Revenue
+    ];
+
+    if (vatAmount > 0) {
+      entries.push({ accountCode: '2100', debit: 0, credit: vatAmount }); // Sales Tax Payable
+    }
+
     await this.createJournal(tenantId, {
       description: `Accounts Receivable for Invoice ${invoice.invoiceNumber}`,
       transactionCurrency: currency,
-      entries: [
-        { accountCode: '1200', debit: totalAmount, credit: 0 }, // Accounts Receivable
-        { accountCode: '4000', debit: 0, credit: totalAmount }, // Sales Revenue
-      ],
+      entries,
     });
 
     return invoice;

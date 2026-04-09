@@ -322,10 +322,10 @@
 
 ### 6.6 Financial Reporting
 
-- [ ] Live P&L statement, Balance Sheet, Cash Flow statement
-- [ ] Tax reports: VAT return, WHT summary
-- [ ] Export to Excel / PDF
-- [ ] Apache Superset BI dashboard integration
+- [x] Live P&L statement, Balance Sheet, Cash Flow statement
+- [x] Tax reports: VAT return, WHT summary
+- [x] Export to Excel / PDF
+- [x] Apache Superset BI dashboard integration
 
 ---
 
