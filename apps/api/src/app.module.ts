@@ -39,6 +39,7 @@ import { ProcurementModule } from './procurement/procurement.module';
 import { FinancialsModule } from './financials/financials.module';
 import { SalesModule } from './sales/sales.module';
 import { ExportDocsModule } from './export-docs/export-docs.module';
+import { ComplianceModule } from './compliance/compliance.module';
 
 @Module({
   imports: [
@@ -74,6 +75,7 @@ import { ExportDocsModule } from './export-docs/export-docs.module';
     FinancialsModule,
     SalesModule,
     ExportDocsModule,
+    ComplianceModule,
   ],
   controllers: [AppController],
   providers: [

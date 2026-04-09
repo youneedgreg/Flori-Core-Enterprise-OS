@@ -59,6 +59,7 @@ model Tenant {
   goodsReceivedNotes    GoodsReceivedNote[]
   financialJournals     FinancialJournal[]
   exportDocuments       ExportDocument[]
+  certifications        Certification[]
 
   @@map("tenants")
 }
@@ -1171,4 +1172,38 @@ model ExportDocument {
   @@index([tenantId])
   @@index([orderId])
   @@map("export_documents")
+}
+
+// ─── Compliance & Certification Repository ─────────────────────────────────────
+
+enum CertificationType {
+  GLOBAL_GAP
+  FAIRTRADE
+  KFC_SILVER
+  MPS
+  RAINFOREST_ALLIANCE
+  OTHER
+}
+
+model Certification {
+  id             String            @id @default(uuid())
+  tenantId       String
+  type           CertificationType
+  customName     String? // used when type=OTHER
+  issuedBy       String?
+  certNumber     String?
+  issueDate      DateTime?
+  expiryDate     DateTime?
+  fileUrl        String? // S3 URL to cert scan/PDF
+  status         String            @default("ACTIVE") // ACTIVE, EXPIRING_SOON, EXPIRED, PENDING
+  remindersSent  Int               @default(0) // track how many reminders sent
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([expiryDate])
+  @@map("certifications")
 }

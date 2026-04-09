@@ -257,11 +257,11 @@
 - [x] Docs stored in S3, version-controlled, audit-accessible
 - [x] Auto-email docs to freight forwarder/buyer with order context
 
-### 5.4 Compliance & Certification Repository
+### 5.4 Compliance & Certification Repository [DONE]
 
-- [ ] Upload + manage: GlobalG.A.P., Fairtrade, KFC Silver, MPS, Rainforest Alliance
-- [ ] Expiry tracker + 60/30-day renewal reminders
-- [ ] Per-audit report generator (spray logs, training records, worker safety → PDF)
+- [x] Upload + manage: GlobalG.A.P., Fairtrade, KFC Silver, MPS, Rainforest Alliance
+- [x] Expiry tracker + 60/30-day renewal reminders
+- [x] Per-audit report generator (spray logs, training records, worker safety → PDF)
 
 ### 5.5 Logistics & Proof of Delivery (PoD)
 
