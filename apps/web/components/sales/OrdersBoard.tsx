@@ -2,9 +2,10 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Plus, Layers, RefreshCw } from 'lucide-react';
+import { Plus, Layers, RefreshCw, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { CreateOrderModal } from './CreateOrderModal';
+import { ExportDocsModal } from './ExportDocsModal';
 import { logout, isTokenExpired } from '../../lib/auth';
 
 interface OrderItem {
@@ -71,6 +72,7 @@ export function OrdersBoard({ apiBase, getAuthHeader, onRefresh }: OrdersBoardPr
   const [showTemplates, setShowTemplates] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [advancing, setAdvancing] = useState<string | null>(null);
+  const [docsOrder, setDocsOrder] = useState<Order | null>(null);
 
   const fetchOrders = useCallback(async () => {
     const headers = getAuthHeader();
@@ -281,24 +283,35 @@ export function OrdersBoard({ apiBase, getAuthHeader, onRefresh }: OrdersBoardPr
 
                   {/* Actions */}
                   <td className="px-6 py-4 text-right">
-                    {order.isTemplate ? (
-                      <button
-                        onClick={() => generateFromTemplate(order.id)}
-                        className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-all"
-                      >
-                        Generate Order
-                      </button>
-                    ) : NEXT_STATUS[order.status] ? (
-                      <button
-                        disabled={advancing === order.id}
-                        onClick={() => advanceStatus(order)}
-                        className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all disabled:opacity-40"
-                      >
-                        {advancing === order.id ? '...' : NEXT_STATUS[order.status].label}
-                      </button>
-                    ) : (
-                      <span className="text-[10px] text-slate-600 uppercase tracking-widest font-black">Closed</span>
-                    )}
+                    <div className="flex items-center justify-end gap-2">
+                      {!order.isTemplate && (
+                        <button
+                          onClick={() => setDocsOrder(order)}
+                          title="Export Documents"
+                          className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-all"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {order.isTemplate ? (
+                        <button
+                          onClick={() => generateFromTemplate(order.id)}
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-violet-500/10 text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 transition-all"
+                        >
+                          Generate Order
+                        </button>
+                      ) : NEXT_STATUS[order.status] ? (
+                        <button
+                          disabled={advancing === order.id}
+                          onClick={() => advanceStatus(order)}
+                          className="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all disabled:opacity-40"
+                        >
+                          {advancing === order.id ? '...' : NEXT_STATUS[order.status].label}
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-slate-600 uppercase tracking-widest font-black">Closed</span>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -318,6 +331,15 @@ export function OrdersBoard({ apiBase, getAuthHeader, onRefresh }: OrdersBoardPr
             fetchOrders();
             onRefresh?.();
           }}
+        />
+      )}
+
+      {docsOrder && (
+        <ExportDocsModal
+          order={docsOrder}
+          apiBase={apiBase}
+          getAuthHeader={getAuthHeader}
+          onClose={() => setDocsOrder(null)}
         />
       )}
     </div>

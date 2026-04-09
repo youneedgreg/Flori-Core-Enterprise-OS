@@ -21,6 +21,7 @@ export class EmailService {
     entityType?: string;
     entityId?: string;
     threadId?: string;
+    attachments?: Array<{ filename: string; content?: Buffer; path?: string }>;
   }) {
     const response = await this.resend.emails.send({
       from:
@@ -28,6 +29,7 @@ export class EmailService {
       to: [data.to],
       subject: data.subject,
       html: data.html,
+      attachments: data.attachments,
     });
 
     if (response.error) {

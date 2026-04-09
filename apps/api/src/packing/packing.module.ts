@@ -9,6 +9,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [PackingController],
   providers: [PackingService, LabelService, StorageService],
-  exports: [PackingService],
+  exports: [PackingService, StorageService],
 })
 export class PackingModule {}

@@ -250,12 +250,12 @@
 
 ### 5.3 Export Documentation Vault
 
-- [ ] Phytosanitary Certificate: auto-filled from order + spray log
-- [ ] Export Permit: regulatory API link or structured manual upload
-- [ ] Customs Invoice / Packing List from box manifest
-- [ ] Certificate of Origin template with auto-fill
-- [ ] Docs stored in S3, version-controlled, audit-accessible
-- [ ] Auto-email docs to freight forwarder/buyer with order context
+- [x] Phytosanitary Certificate: auto-filled from order + spray log
+- [x] Export Permit: regulatory API link or structured manual upload
+- [x] Customs Invoice / Packing List from box manifest
+- [x] Certificate of Origin template with auto-fill
+- [x] Docs stored in S3, version-controlled, audit-accessible
+- [x] Auto-email docs to freight forwarder/buyer with order context
 
 ### 5.4 Compliance & Certification Repository
 

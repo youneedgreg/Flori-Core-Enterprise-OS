@@ -30,34 +30,35 @@ model Tenant {
   users          User[]
   zones          Zone[]
 
-  settings       Json?           @default("{}")
-  unitPreference UnitSystem      @default(METRIC)
-  varieties      Variety[]
-  cropCycles     CropCycle[]
-  cropSchedules  CropSchedule[]
-  alerts         Alert[]
+  settings        Json?            @default("{}")
+  unitPreference  UnitSystem       @default(METRIC)
+  varieties       Variety[]
+  cropCycles      CropCycle[]
+  cropSchedules   CropSchedule[]
+  alerts          Alert[]
   automationRules AutomationRule[]
-  labourLogs     LabourLog[]
-  sprayLogs      SprayLog[]
-  
-  flowerBatches  FlowerBatch[]
-  qcLogs         QCLog[]
-  flowerInventory FlowerInventory[]
-  coldRoomEvents ColdRoomEvent[]
-  packedBoxes    PackedBox[]
-  wastageLogs    WastageLog[]
+  labourLogs      LabourLog[]
+  sprayLogs       SprayLog[]
 
-  storeItems     StoreItem[]
-  storeStock     StoreStock[]
-  storeMovements StoreMovement[]
-  vendors        Vendor[]
-  purchaseRequests PurchaseRequest[]
-  purchaseOrders   PurchaseOrder[]
-  rfqs             Rfq[]
-  rfqResponses     RfqResponse[]
+  flowerBatches   FlowerBatch[]
+  qcLogs          QCLog[]
+  flowerInventory FlowerInventory[]
+  coldRoomEvents  ColdRoomEvent[]
+  packedBoxes     PackedBox[]
+  wastageLogs     WastageLog[]
+
+  storeItems            StoreItem[]
+  storeStock            StoreStock[]
+  storeMovements        StoreMovement[]
+  vendors               Vendor[]
+  purchaseRequests      PurchaseRequest[]
+  purchaseOrders        PurchaseOrder[]
+  rfqs                  Rfq[]
+  rfqResponses          RfqResponse[]
   vendorPerformanceLogs VendorPerformanceLog[]
   goodsReceivedNotes    GoodsReceivedNote[]
   financialJournals     FinancialJournal[]
+  exportDocuments       ExportDocument[]
 
   @@map("tenants")
 }
@@ -99,8 +100,8 @@ model User {
   contactLogs    ContactLog[]
   leads          Lead[]
 
-  sprayLogs      SprayLog[]      @relation("SprayApplicator")
-  overridenSprays SprayLog[]     @relation("SprayOverrider")
+  sprayLogs       SprayLog[]      @relation("SprayApplicator")
+  overridenSprays SprayLog[]      @relation("SprayOverrider")
   coldRoomEvents  ColdRoomEvent[]
 
   @@map("users")
@@ -177,24 +178,24 @@ model FarmProfile {
 }
 
 model Zone {
-  id            String      @id @default(uuid())
+  id            String    @id @default(uuid())
   tenantId      String
   name          String
-  type          ZoneType    @default(GREENHOUSE)
+  type          ZoneType  @default(GREENHOUSE)
   areaSqm       Float?
   plantCount    Float?
   lastWatered   DateTime?
   cropVarieties String[]
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  isArchived    Boolean     @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  isArchived    Boolean   @default(false)
   layout        Json?
 
   // Alert Thresholds
-  minTemp       Float?      @default(0)
-  maxTemp       Float?      @default(40)
-  minHumidity   Float?      @default(0)
-  maxHumidity   Float?      @default(100)
+  minTemp     Float? @default(0)
+  maxTemp     Float? @default(40)
+  minHumidity Float? @default(0)
+  maxHumidity Float? @default(100)
 
   devices        IoTDevice[]
   cropCycles     CropCycle[]
@@ -203,7 +204,7 @@ model Zone {
   coldEvents     ColdRoomEvent[]
   storeStock     StoreStock[]
   storeMovements StoreMovement[]
-  tenant         Tenant      @relation(fields: [tenantId], references: [id])
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
 
   @@map("zones")
 }
@@ -248,46 +249,46 @@ enum CustomerSegment {
 }
 
 model Customer {
-  id              String           @id @default(uuid())
-  tenantId        String
-  name            String
-  email           String?
-  phone           String?
-  contactPerson   String?
-  address         String?
-  country         String?
-  type            CustomerType     @default(DIRECT_BUYER)
-  segment         CustomerSegment  @default(LOCAL_RETAIL)
-  notes           String?
-  commissionRate  Float?           // For auction houses
-  creditLimit     Float?           // For retailers/direct buyers
-  paymentTerms    String?
-  
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  
-  tenant          Tenant           @relation(fields: [tenantId], references: [id])
-  orders          Order[]
-  contactLogs     ContactLog[]
-  leads           Lead[]
+  id             String          @id @default(uuid())
+  tenantId       String
+  name           String
+  email          String?
+  phone          String?
+  contactPerson  String?
+  address        String?
+  country        String?
+  type           CustomerType    @default(DIRECT_BUYER)
+  segment        CustomerSegment @default(LOCAL_RETAIL)
+  notes          String?
+  commissionRate Float? // For auction houses
+  creditLimit    Float? // For retailers/direct buyers
+  paymentTerms   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  orders      Order[]
+  contactLogs ContactLog[]
+  leads       Lead[]
 
   @@map("customers")
 }
 
 model ContactLog {
-  id          String   @id @default(uuid())
-  tenantId    String
-  customerId  String
-  userId      String   // Sales Rep / Contact person
-  type        String   // EMAIL, CALL, MEETING, NOTE
-  subject     String?
-  notes       String
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  
-  customer    Customer @relation(fields: [customerId], references: [id])
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
+  id         String   @id @default(uuid())
+  tenantId   String
+  customerId String
+  userId     String // Sales Rep / Contact person
+  type       String // EMAIL, CALL, MEETING, NOTE
+  subject    String?
+  notes      String
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  customer Customer @relation(fields: [customerId], references: [id])
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@index([tenantId])
   @@index([customerId])
@@ -303,22 +304,22 @@ enum LeadStatus {
 }
 
 model Lead {
-  id          String     @id @default(uuid())
-  tenantId    String
-  customerId  String?    // Optional link if converted
-  name        String     // Company / Lead Name
-  email       String?
-  phone       String?
-  status      LeadStatus @default(PROSPECT)
-  value       Float?     // Deal size
+  id           String     @id @default(uuid())
+  tenantId     String
+  customerId   String? // Optional link if converted
+  name         String // Company / Lead Name
+  email        String?
+  phone        String?
+  status       LeadStatus @default(PROSPECT)
+  value        Float? // Deal size
   assignedToId String?
-  notes       String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  customer    Customer?  @relation(fields: [customerId], references: [id])
-  tenant      Tenant     @relation(fields: [tenantId], references: [id])
-  assignedTo  User?      @relation(fields: [assignedToId], references: [id])
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  tenant     Tenant    @relation(fields: [tenantId], references: [id])
+  assignedTo User?     @relation(fields: [assignedToId], references: [id])
 
   @@index([tenantId])
   @@map("leads")
@@ -344,11 +345,12 @@ model Order {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  customer        Customer    @relation(fields: [customerId], references: [id])
-  tenant          Tenant      @relation(fields: [tenantId], references: [id])
+  customer        Customer         @relation(fields: [customerId], references: [id])
+  tenant          Tenant           @relation(fields: [tenantId], references: [id])
   packedBoxes     PackedBox[]
-  template        Order?      @relation("OrderTemplates", fields: [parentTemplateId], references: [id])
-  generatedOrders Order[]     @relation("OrderTemplates")
+  template        Order?           @relation("OrderTemplates", fields: [parentTemplateId], references: [id])
+  generatedOrders Order[]          @relation("OrderTemplates")
+  exportDocuments ExportDocument[]
 
   @@index([tenantId])
   @@index([status])
@@ -357,13 +359,13 @@ model Order {
 }
 
 model TelemetryReading {
-  id         String   @default(uuid())
+  id         String    @default(uuid())
   tenantId   String
   deviceId   String
-  sensorType String   @default("MOISTURE") // MOISTURE, TEMP, EC, PH
+  sensorType String    @default("MOISTURE") // MOISTURE, TEMP, EC, PH
   value      Float
   unit       String?
-  timestamp  DateTime @default(now())
+  timestamp  DateTime  @default(now())
   device     IoTDevice @relation(fields: [deviceId], references: [id])
   tenant     Tenant    @relation(fields: [tenantId], references: [id])
 
@@ -412,17 +414,17 @@ model AutomationRule {
 model LabourLog {
   id          String   @id @default(uuid())
   tenantId    String
-  userId      String   // Employee (System User)
+  userId      String // Employee (System User)
   zoneId      String
-  taskType    String   // HARVEST, SPRAY, PRUNE, etc.
+  taskType    String // HARVEST, SPRAY, PRUNE, etc.
   hours       Float
-  stemsCut    Int?     // For productivity metrics
+  stemsCut    Int? // For productivity metrics
   timestamp   DateTime @default(now())
-  gpsLocation Json?    // { lat: number, lng: number }
-  
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
-  user        User     @relation(fields: [userId], references: [id])
-  zone        Zone     @relation(fields: [zoneId], references: [id])
+  gpsLocation Json? // { lat: number, lng: number }
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+  zone   Zone   @relation(fields: [zoneId], references: [id])
 
   @@index([tenantId])
   @@index([userId])
@@ -444,7 +446,7 @@ model PayrollRecord {
   tenant      Tenant        @relation(fields: [tenantId], references: [id])
   user        User          @relation(fields: [userId], references: [id])
 
-  type        PayrollType   @default(FIXED)
+  type        PayrollType @default(FIXED)
   hoursWorked Float?
   hourlyRate  Float?
   baseAmount  Float?
@@ -493,61 +495,60 @@ enum PayrollStatus {
 }
 
 model Product {
-  id          String   @id @default(uuid())
-  tenantId    String
-  name        String
-  sku         String   @unique
-  stock       Int      @default(0)
-  unitPrice   Float
-  currency    String   @default("USD")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String
+  sku       String   @unique
+  stock     Int      @default(0)
+  unitPrice Float
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@map("products")
 }
 
 model Variety {
-  id                     String      @id @default(uuid())
-  tenantId               String
-  name                   String
-  targetStemLength       Float?      // in cm
-  targetStemCountPerSqm  Float?      // units per sqm
-  bloomTime              Int?        // days from planting
-  marketGrade            String?
-  defaultCostPerStem     Float?
-  createdAt              DateTime    @default(now())
-  updatedAt              DateTime    @updatedAt
-  tenant                 Tenant      @relation(fields: [tenantId], references: [id])
-  cropCycles             CropCycle[]
-  flowerBatches          FlowerBatch[]
-  flowerInventory        FlowerInventory[]
-  packedBoxes            PackedBox[]
-  wastageLogs            WastageLog[]
-
+  id                    String            @id @default(uuid())
+  tenantId              String
+  name                  String
+  targetStemLength      Float? // in cm
+  targetStemCountPerSqm Float? // units per sqm
+  bloomTime             Int? // days from planting
+  marketGrade           String?
+  defaultCostPerStem    Float?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  tenant                Tenant            @relation(fields: [tenantId], references: [id])
+  cropCycles            CropCycle[]
+  flowerBatches         FlowerBatch[]
+  flowerInventory       FlowerInventory[]
+  packedBoxes           PackedBox[]
+  wastageLogs           WastageLog[]
 
   @@map("varieties")
 }
 
 model CropCycle {
-  id                    String          @id @default(uuid())
-  tenantId              String
-  varietyId             String
-  zoneId                String?         // Greenhouse block
-  startDate             DateTime
-  projectedHarvestDate  DateTime?
+  id                   String          @id @default(uuid())
+  tenantId             String
+  varietyId            String
+  zoneId               String? // Greenhouse block
+  startDate            DateTime
+  projectedHarvestDate DateTime?
   actualHarvestDate    DateTime?
-  actualHarvestYield   Int?            // Stems
-  status                CropCycleStatus @default(PLANNED)
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
-  
-  variety               Variety         @relation(fields: [varietyId], references: [id])
-  zone                  Zone?           @relation(fields: [zoneId], references: [id])
-  tenant                Tenant          @relation(fields: [tenantId], references: [id])
-  schedules             CropSchedule[]
-  flowerBatches         FlowerBatch[]
+  actualHarvestYield   Int? // Stems
+  status               CropCycleStatus @default(PLANNED)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  variety       Variety        @relation(fields: [varietyId], references: [id])
+  zone          Zone?          @relation(fields: [zoneId], references: [id])
+  tenant        Tenant         @relation(fields: [tenantId], references: [id])
+  schedules     CropSchedule[]
+  flowerBatches FlowerBatch[]
 
   @@map("crop_cycles")
 }
@@ -573,8 +574,8 @@ model CropSchedule {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  cropCycle     CropCycle    @relation(fields: [cropCycleId], references: [id])
-  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  cropCycle CropCycle @relation(fields: [cropCycleId], references: [id])
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("crop_schedules")
 }
@@ -593,7 +594,7 @@ model SprayLog {
   chemicalName     String
   epaRegNo         String
   quantity         Float
-  unit             String   // L, Kg, ml, g
+  unit             String // L, Kg, ml, g
   phiDays          Int      @default(0)
   applicatorId     String
   appliedAt        DateTime @default(now())
@@ -602,10 +603,10 @@ model SprayLog {
   overrideReason   String?
   overriddenById   String?
 
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
-  zone             Zone     @relation(fields: [zoneId], references: [id])
-  applicator       User     @relation("SprayApplicator", fields: [applicatorId], references: [id])
-  overriddenBy     User?    @relation("SprayOverrider", fields: [overriddenById], references: [id])
+  tenant       Tenant @relation(fields: [tenantId], references: [id])
+  zone         Zone   @relation(fields: [zoneId], references: [id])
+  applicator   User   @relation("SprayApplicator", fields: [applicatorId], references: [id])
+  overriddenBy User?  @relation("SprayOverrider", fields: [overriddenById], references: [id])
 
   @@index([tenantId])
   @@index([zoneId])
@@ -614,23 +615,22 @@ model SprayLog {
 }
 
 model FlowerBatch {
-  id               String       @id @default(uuid())
-  tenantId         String
-  cropCycleId      String
-  varietyId        String
-  batchNumber      String       @unique // FLR-YYYYMMDD-XXX
-  quantityIntake   Int
-  status           BatchStatus  @default(QC_PENDING)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id             String      @id @default(uuid())
+  tenantId       String
+  cropCycleId    String
+  varietyId      String
+  batchNumber    String      @unique // FLR-YYYYMMDD-XXX
+  quantityIntake Int
+  status         BatchStatus @default(QC_PENDING)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  tenant           Tenant       @relation(fields: [tenantId], references: [id])
-  cropCycle        CropCycle    @relation(fields: [cropCycleId], references: [id])
-  variety          Variety      @relation(fields: [varietyId], references: [id])
-  qcLogs           QCLog[]
-  coldRoomEvents   ColdRoomEvent[]
-  packedBoxes      PackedBox[]
-
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  cropCycle      CropCycle       @relation(fields: [cropCycleId], references: [id])
+  variety        Variety         @relation(fields: [varietyId], references: [id])
+  qcLogs         QCLog[]
+  coldRoomEvents ColdRoomEvent[]
+  packedBoxes    PackedBox[]
 
   @@index([tenantId])
   @@index([batchNumber])
@@ -646,20 +646,20 @@ enum BatchStatus {
 }
 
 model QCLog {
-  id             String    @id @default(uuid())
-  tenantId       String
-  batchId        String
-  inspectorId    String?   // User who did the QC
-  stemLength     Float
-  bloomStage     String
-  headDiameter   Float
-  defects        Json      // Array of strings or object
-  assignedGrade  QCGrade
-  notes          String?   // For rejection reasons or extra info
-  createdAt      DateTime  @default(now())
+  id            String   @id @default(uuid())
+  tenantId      String
+  batchId       String
+  inspectorId   String? // User who did the QC
+  stemLength    Float
+  bloomStage    String
+  headDiameter  Float
+  defects       Json // Array of strings or object
+  assignedGrade QCGrade
+  notes         String? // For rejection reasons or extra info
+  createdAt     DateTime @default(now())
 
-  tenant         Tenant      @relation(fields: [tenantId], references: [id])
-  batch          FlowerBatch @relation(fields: [batchId], references: [id])
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+  batch  FlowerBatch @relation(fields: [batchId], references: [id])
 
   @@index([tenantId])
   @@index([batchId])
@@ -714,26 +714,26 @@ enum ColdRoomEventType {
 }
 
 model PackedBox {
-  id              String      @id @default(uuid())
-  tenantId        String
-  tenant          Tenant      @relation(fields: [tenantId], references: [id])
-  batchId         String?
-  batch           FlowerBatch? @relation(fields: [batchId], references: [id])
-  varietyId       String
-  variety         Variety     @relation(fields: [varietyId], references: [id])
-  grade           QCGrade
-  boxId           String      @unique
-  bunchSize       Int
-  bunchesPerBox   Int
-  totalStems      Int
-  packDate        DateTime    @default(now())
-  destination     String?
-  status          BoxStatus   @default(PACKED)
-  labelUrl        String?
-  orderId         String?
-  order           Order?      @relation(fields: [orderId], references: [id])
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id            String       @id @default(uuid())
+  tenantId      String
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  batchId       String?
+  batch         FlowerBatch? @relation(fields: [batchId], references: [id])
+  varietyId     String
+  variety       Variety      @relation(fields: [varietyId], references: [id])
+  grade         QCGrade
+  boxId         String       @unique
+  bunchSize     Int
+  bunchesPerBox Int
+  totalStems    Int
+  packDate      DateTime     @default(now())
+  destination   String?
+  status        BoxStatus    @default(PACKED)
+  labelUrl      String?
+  orderId       String?
+  order         Order?       @relation(fields: [orderId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@index([tenantId])
   @@index([boxId])
@@ -750,19 +750,19 @@ enum BoxStatus {
 }
 
 model WastageLog {
-  id            String        @id @default(uuid())
-  tenantId      String
-  tenant        Tenant        @relation(fields: [tenantId], references: [id])
-  varietyId     String
-  variety       Variety       @relation(fields: [varietyId], references: [id])
-  grade         QCGrade
-  quantity      Int           // stems wasted
-  reason        WastageReason
-  costPerStem   Float?
-  costImpact    Float?        // quantity × costPerStem
-  notes         String?
-  recordedById  String?
-  createdAt     DateTime      @default(now())
+  id           String        @id @default(uuid())
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id])
+  varietyId    String
+  variety      Variety       @relation(fields: [varietyId], references: [id])
+  grade        QCGrade
+  quantity     Int // stems wasted
+  reason       WastageReason
+  costPerStem  Float?
+  costImpact   Float? // quantity × costPerStem
+  notes        String?
+  recordedById String?
+  createdAt    DateTime      @default(now())
 
   @@index([tenantId])
   @@index([createdAt])
@@ -792,30 +792,30 @@ enum StoreItemCategory {
 }
 
 enum StoreMovementType {
-  GRN        // Goods Received Note (stock in)
-  ISSUE      // Issued to a zone / activity
-  RETURN     // Returned from zone
-  WRITE_OFF  // Written off (damaged, expired, lost)
+  GRN // Goods Received Note (stock in)
+  ISSUE // Issued to a zone / activity
+  RETURN // Returned from zone
+  WRITE_OFF // Written off (damaged, expired, lost)
 }
 
 model StoreItem {
-  id                 String            @id @default(uuid())
+  id                 String              @id @default(uuid())
   tenantId           String
   name               String
   sku                String
-  category           StoreItemCategory @default(OTHER)
-  unit               String            @default("units") // kg, litres, pcs, boxes …
+  category           StoreItemCategory   @default(OTHER)
+  unit               String              @default("units") // kg, litres, pcs, boxes …
   description        String?
-  minStockLevel      Float             @default(0)
-  reorderPoint       Float             @default(0)
-  maxStockLevel      Float             @default(0)  // 0 = not set; engine uses reorderPoint*2 fallback
-  unitCost           Float             @default(0)
-  lastUnitPrice      Float?            // updated on each GRN
+  minStockLevel      Float               @default(0)
+  reorderPoint       Float               @default(0)
+  maxStockLevel      Float               @default(0) // 0 = not set; engine uses reorderPoint*2 fallback
+  unitCost           Float               @default(0)
+  lastUnitPrice      Float? // updated on each GRN
   preferredVendorId  String?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
-  tenant             Tenant            @relation(fields: [tenantId], references: [id])
-  preferredVendor    Vendor?           @relation(fields: [preferredVendorId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  preferredVendor    Vendor?             @relation(fields: [preferredVendorId], references: [id])
   stock              StoreStock[]
   movements          StoreMovement[]
   purchaseRequests   PurchaseRequest[]
@@ -847,11 +847,11 @@ model StoreMovement {
   id          String            @id @default(uuid())
   tenantId    String
   itemId      String
-  zoneId      String            // Source / owning zone
+  zoneId      String // Source / owning zone
   type        StoreMovementType
   quantity    Float
-  reference   String?           // PO number, GRN ref, etc.
-  toZoneId    String?           // Destination zone for ISSUE movements
+  reference   String? // PO number, GRN ref, etc.
+  toZoneId    String? // Destination zone for ISSUE movements
   notes       String?
   createdById String?
   createdAt   DateTime          @default(now())
@@ -868,30 +868,30 @@ model StoreMovement {
 // ─── Vendors ──────────────────────────────────────────────────────────────────
 
 model Vendor {
-  id             String    @id @default(uuid())
-  tenantId       String
-  name           String
-  contactPerson  String?
-  email          String
-  phone          String?
-  address        String?
-  paymentTerms   String?   // e.g. "Net 30", "COD"
-  taxPin         String?
-  bankDetails    Json?     // { bankName, accountNo, branch, swiftCode }
-  notes          String?
-  isActive       Boolean   @default(true)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
-  storeItems     StoreItem[]        // items where this is the preferred vendor
-  purchaseRequests PurchaseRequest[]
-  purchaseOrders PurchaseOrder[]
-  rfqResponses   RfqResponse[]
-  performanceLogs VendorPerformanceLog[]
+  id                 String                 @id @default(uuid())
+  tenantId           String
+  name               String
+  contactPerson      String?
+  email              String
+  phone              String?
+  address            String?
+  paymentTerms       String? // e.g. "Net 30", "COD"
+  taxPin             String?
+  bankDetails        Json? // { bankName, accountNo, branch, swiftCode }
+  notes              String?
+  isActive           Boolean                @default(true)
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  tenant             Tenant                 @relation(fields: [tenantId], references: [id])
+  storeItems         StoreItem[] // items where this is the preferred vendor
+  purchaseRequests   PurchaseRequest[]
+  purchaseOrders     PurchaseOrder[]
+  rfqResponses       RfqResponse[]
+  performanceLogs    VendorPerformanceLog[]
   goodsReceivedNotes GoodsReceivedNote[]
 
   website        String?
-  certifications String[]  @default([])
+  certifications String[] @default([])
 
   @@index([tenantId])
   @@map("vendors")
@@ -903,34 +903,34 @@ enum PurchaseRequestStatus {
   PENDING
   APPROVED
   REJECTED
-  CONVERTED   // Converted to a PurchaseOrder
+  CONVERTED // Converted to a PurchaseOrder
 }
 
 model PurchaseRequest {
-  id             String                @id @default(uuid())
-  tenantId       String
-  status         PurchaseRequestStatus @default(PENDING)
-  generatedBy    String                // "AUTO" or userId of requester
-  itemId         String
-  vendorId       String?
-  currentStock   Float                 // stock at time of generation
-  reorderPoint   Float                 // snapshot of item's reorderPoint
-  suggestedQty   Float                 // engine-calculated recommended quantity
-  approvedQty    Float?                // Gold Admin may adjust before approving
-  lastUnitPrice  Float?                // snapshot of item's lastUnitPrice / unitCost
-  estimatedTotal Float?                // suggestedQty × lastUnitPrice
-  notes          String?               // auto-generated note or admin comment
+  id              String                @id @default(uuid())
+  tenantId        String
+  status          PurchaseRequestStatus @default(PENDING)
+  generatedBy     String // "AUTO" or userId of requester
+  itemId          String
+  vendorId        String?
+  currentStock    Float // stock at time of generation
+  reorderPoint    Float // snapshot of item's reorderPoint
+  suggestedQty    Float // engine-calculated recommended quantity
+  approvedQty     Float? // Gold Admin may adjust before approving
+  lastUnitPrice   Float? // snapshot of item's lastUnitPrice / unitCost
+  estimatedTotal  Float? // suggestedQty × lastUnitPrice
+  notes           String? // auto-generated note or admin comment
   rejectionReason String?
-  approvedById   String?
-  approvedAt     DateTime?
-  rejectedById   String?
-  rejectedAt     DateTime?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  tenant         Tenant                @relation(fields: [tenantId], references: [id])
-  item           StoreItem             @relation(fields: [itemId], references: [id])
-  vendor         Vendor?               @relation(fields: [vendorId], references: [id])
-  purchaseOrder  PurchaseOrder?
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectedAt      DateTime?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  tenant          Tenant                @relation(fields: [tenantId], references: [id])
+  item            StoreItem             @relation(fields: [itemId], references: [id])
+  vendor          Vendor?               @relation(fields: [vendorId], references: [id])
+  purchaseOrder   PurchaseOrder?
 
   @@index([tenantId])
   @@index([status])
@@ -942,31 +942,31 @@ model PurchaseRequest {
 
 enum PurchaseOrderStatus {
   DRAFT
-  SENT           // Emailed to vendor
-  ACKNOWLEDGED   // Vendor confirmed receipt
+  SENT // Emailed to vendor
+  ACKNOWLEDGED // Vendor confirmed receipt
   PARTIALLY_RECEIVED
   RECEIVED
   CANCELLED
 }
 
 model PurchaseOrder {
-  id                String              @id @default(uuid())
-  tenantId          String
-  poNumber          String              @unique  // e.g. PO-2026-00001
-  status            PurchaseOrderStatus @default(DRAFT)
-  vendorId          String
-  purchaseRequestId String?             @unique
-  expectedDelivery  DateTime?
-  totalAmount       Float               @default(0)
-  notes             String?
-  vendorEmailSentAt DateTime?
-  createdById       String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  tenant            Tenant              @relation(fields: [tenantId], references: [id])
-  vendor            Vendor              @relation(fields: [vendorId], references: [id])
-  purchaseRequest   PurchaseRequest?    @relation(fields: [purchaseRequestId], references: [id])
-  items             PurchaseOrderItem[]
+  id                 String              @id @default(uuid())
+  tenantId           String
+  poNumber           String              @unique // e.g. PO-2026-00001
+  status             PurchaseOrderStatus @default(DRAFT)
+  vendorId           String
+  purchaseRequestId  String?             @unique
+  expectedDelivery   DateTime?
+  totalAmount        Float               @default(0)
+  notes              String?
+  vendorEmailSentAt  DateTime?
+  createdById        String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  vendor             Vendor              @relation(fields: [vendorId], references: [id])
+  purchaseRequest    PurchaseRequest?    @relation(fields: [purchaseRequestId], references: [id])
+  items              PurchaseOrderItem[]
   goodsReceivedNotes GoodsReceivedNote[]
 
   @@index([tenantId])
@@ -982,23 +982,23 @@ enum GrnStatus {
 }
 
 model GoodsReceivedNote {
-  id              String      @id @default(uuid())
-  tenantId        String
-  poId            String
-  grnNumber       String      @unique // e.g. GRN-2026-00001
-  status          GrnStatus   @default(PENDING)
-  vendorId        String
-  receivedDate    DateTime    @default(now())
-  receivedById    String
-  notes           String?
+  id               String    @id @default(uuid())
+  tenantId         String
+  poId             String
+  grnNumber        String    @unique // e.g. GRN-2026-00001
+  status           GrnStatus @default(PENDING)
+  vendorId         String
+  receivedDate     DateTime  @default(now())
+  receivedById     String
+  notes            String?
   discrepancyNotes String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-  
-  tenant          Tenant      @relation(fields: [tenantId], references: [id])
-  purchaseOrder   PurchaseOrder @relation(fields: [poId], references: [id])
-  vendor          Vendor      @relation(fields: [vendorId], references: [id])
-  items           GrnItem[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tenant        Tenant        @relation(fields: [tenantId], references: [id])
+  purchaseOrder PurchaseOrder @relation(fields: [poId], references: [id])
+  vendor        Vendor        @relation(fields: [vendorId], references: [id])
+  items         GrnItem[]
 
   @@index([tenantId])
   @@index([poId])
@@ -1006,16 +1006,16 @@ model GoodsReceivedNote {
 }
 
 model GrnItem {
-  id               String            @id @default(uuid())
-  grnId            String
-  itemId           String
-  quantityReceived Float
-  unitPriceReceived Float
+  id                 String            @id @default(uuid())
+  grnId              String
+  itemId             String
+  quantityReceived   Float
+  unitPriceReceived  Float
   totalPriceReceived Float
-  poItemId         String?           // Link to specific PO line item
-  notes            String?
-  grn              GoodsReceivedNote @relation(fields: [grnId], references: [id], onDelete: Cascade)
-  item             StoreItem         @relation(fields: [itemId], references: [id])
+  poItemId           String? // Link to specific PO line item
+  notes              String?
+  grn                GoodsReceivedNote @relation(fields: [grnId], references: [id], onDelete: Cascade)
+  item               StoreItem         @relation(fields: [itemId], references: [id])
 
   @@index([grnId])
   @@map("grn_items")
@@ -1026,10 +1026,10 @@ model GrnItem {
 model FinancialJournal {
   id          String         @id @default(uuid())
   tenantId    String
-  reference   String?        // e.g. "GRN-0001", "INV-0001"
+  reference   String? // e.g. "GRN-0001", "INV-0001"
   description String
   date        DateTime       @default(now())
-  userId      String?        // User who recorded the entry
+  userId      String? // User who recorded the entry
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   tenant      Tenant         @relation(fields: [tenantId], references: [id])
@@ -1042,7 +1042,7 @@ model FinancialJournal {
 model JournalEntry {
   id          String           @id @default(uuid())
   journalId   String
-  accountCode String           // e.g. "11000" (Inventory), "21000" (AP Liability)
+  accountCode String // e.g. "11000" (Inventory), "21000" (AP Liability)
   debit       Float            @default(0)
   credit      Float            @default(0)
   journal     FinancialJournal @relation(fields: [journalId], references: [id], onDelete: Cascade)
@@ -1076,16 +1076,16 @@ enum RfqStatus {
 }
 
 model Rfq {
-  id           String      @id @default(uuid())
-  tenantId     String
-  status       RfqStatus   @default(DRAFT)
-  items        Json        // [{ itemId: string, quantity: number, notes: string }]
-  notes        String?
-  expiryDate   DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-  tenant       Tenant      @relation(fields: [tenantId], references: [id])
-  responses    RfqResponse[]
+  id         String        @id @default(uuid())
+  tenantId   String
+  status     RfqStatus     @default(DRAFT)
+  items      Json // [{ itemId: string, quantity: number, notes: string }]
+  notes      String?
+  expiryDate DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  tenant     Tenant        @relation(fields: [tenantId], references: [id])
+  responses  RfqResponse[]
 
   @@index([tenantId])
   @@map("rfqs")
@@ -1098,22 +1098,22 @@ enum RfqResponseStatus {
 }
 
 model RfqResponse {
-  id              String            @id @default(uuid())
-  rfqId           String
-  vendorId        String
-  tenantId        String
-  unitPrice       Float
-  totalAmount     Float
-  currency        String            @default("USD")
-  deliveryDays    Int?              // Lead time in days
-  validUntil      DateTime?
-  notes           String?
-  status          RfqResponseStatus @default(PENDING)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  rfq             Rfq               @relation(fields: [rfqId], references: [id])
-  vendor          Vendor            @relation(fields: [vendorId], references: [id])
-  tenant          Tenant            @relation(fields: [tenantId], references: [id])
+  id           String            @id @default(uuid())
+  rfqId        String
+  vendorId     String
+  tenantId     String
+  unitPrice    Float
+  totalAmount  Float
+  currency     String            @default("USD")
+  deliveryDays Int? // Lead time in days
+  validUntil   DateTime?
+  notes        String?
+  status       RfqResponseStatus @default(PENDING)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  rfq          Rfq               @relation(fields: [rfqId], references: [id])
+  vendor       Vendor            @relation(fields: [vendorId], references: [id])
+  tenant       Tenant            @relation(fields: [tenantId], references: [id])
 
   @@index([rfqId])
   @@index([vendorId])
@@ -1132,8 +1132,8 @@ model VendorPerformanceLog {
   tenantId    String
   vendorId    String
   type        PerformanceMetricType @default(GENERAL)
-  score       Float                 // 0.0 to 1.0 or specific value
-  referenceId String?               // e.g. PO id or GRN id
+  score       Float // 0.0 to 1.0 or specific value
+  referenceId String? // e.g. PO id or GRN id
   notes       String?
   recordedAt  DateTime              @default(now())
   tenant      Tenant                @relation(fields: [tenantId], references: [id])
@@ -1144,3 +1144,31 @@ model VendorPerformanceLog {
   @@map("vendor_performance_logs")
 }
 
+// ─── Export Documentation Vault ────────────────────────────────────────────────
+
+enum ExportDocType {
+  PHYTOSANITARY
+  EXPORT_PERMIT
+  CUSTOMS_INVOICE
+  CERTIFICATE_OF_ORIGIN
+}
+
+model ExportDocument {
+  id             String        @id @default(uuid())
+  tenantId       String
+  orderId        String
+  type           ExportDocType
+  documentNumber String?
+  fileUrl        String
+  status         String        @default("GENERATED")
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([orderId])
+  @@map("export_documents")
+}
