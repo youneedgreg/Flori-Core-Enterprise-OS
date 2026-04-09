@@ -71,6 +71,9 @@ model Tenant {
   vendorInvoices VendorInvoice[]
   costCentres    CostCentre[]
   budgets        Budget[]
+  employees      Employee[]
+  payrollRuns    PayrollRun[]
+  payslips       Payslip[]
 
   soilTests             SoilTest[]
   landPrepLogs          LandPrepLog[]
@@ -1513,6 +1516,116 @@ model BudgetLine {
   @@index([budgetId])
   @@map("budget_lines")
 }
+
+// ─── Payroll Engine ───────────────────────────────────────────────────────────
+
+enum EmploymentType {
+  PERMANENT
+  CONTRACT
+  CASUAL
+}
+
+model Employee {
+  id               String         @id @default(uuid())
+  tenantId         String
+  userId           String?        @unique // Links to app User if they have login
+  employeeNumber   String
+  firstName        String
+  lastName         String
+  email            String?
+  phone            String?
+  nationalId       String?
+  taxPin           String?        // KRA PIN for PAYE
+  nhifNumber       String?
+  nssfNumber       String?
+  bankName         String?
+  bankBranch       String?
+  accountNumber    String?
+  mpesaPhone       String?        // For M-Pesa disbursement
+  department       String?        // e.g. PRODUCTION, PACK_HOUSE
+  jobTitle         String?
+  employmentType   EmploymentType @default(PERMANENT)
+  basicSalary      Float          @default(0)
+  isActive         Boolean        @default(true)
+  joinedAt         DateTime       @default(now())
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  tenant   Tenant     @relation(fields: [tenantId], references: [id])
+  payslips Payslip[]
+
+  @@unique([tenantId, employeeNumber])
+  @@index([tenantId])
+  @@map("employees")
+}
+
+enum PayrollRunStatus {
+  DRAFT
+  PROCESSING
+  APPROVED
+  DISBURSED
+  CANCELLED
+}
+
+model PayrollRun {
+  id          String           @id @default(uuid())
+  tenantId    String
+  runNumber   String
+  period      String           // e.g. "2026-04"
+  year        Int
+  month       Int              // 1–12
+  status      PayrollRunStatus @default(DRAFT)
+  totalGross  Float            @default(0)
+  totalNet    Float            @default(0)
+  totalDeductions Float        @default(0)
+  notes       String?
+  approvedById String?
+  approvedAt  DateTime?
+  disbursedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  payslips Payslip[]
+
+  @@unique([tenantId, period])
+  @@index([tenantId])
+  @@map("payroll_runs")
+}
+
+model Payslip {
+  id               String    @id @default(uuid())
+  tenantId         String
+  payrollRunId     String
+  employeeId       String
+  basicSalary      Float     @default(0)
+  overtime         Float     @default(0)    // hours × rate
+  allowances       Float     @default(0)    // housing, transport, etc.
+  grossPay         Float     @default(0)
+  // Statutory deductions (Kenya) — TODO: implement bracket engine
+  paye             Float     @default(0)    // PAYE tax
+  nhif             Float     @default(0)    // NHIF contribution
+  nssf             Float     @default(0)    // NSSF contribution
+  otherDeductions  Float     @default(0)    // loans, advance deductions
+  totalDeductions  Float     @default(0)
+  netPay           Float     @default(0)
+  // Payment tracking
+  paymentMethod    String    @default("BANK_TRANSFER") // BANK_TRANSFER, MPESA
+  paymentReference String?   // bank ref or M-Pesa transaction code
+  paidAt           DateTime?
+  pdfUrl           String?   // link to generated payslip PDF
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  payrollRun PayrollRun @relation(fields: [payrollRunId], references: [id], onDelete: Cascade)
+  employee   Employee   @relation(fields: [employeeId], references: [id])
+
+  @@index([payrollRunId])
+  @@index([employeeId])
+  @@map("payslips")
+}
+
 
 model InvoicePayment {
   id          String   @id @default(uuid())

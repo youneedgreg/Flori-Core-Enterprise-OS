@@ -303,14 +303,15 @@
 - [x] Payment scheduling and approval workflow
 - [x] Bank payment export (SWIFT MT101 / local bank format)
 
-### 6.4 Payroll Engine
+### 6.4 Payroll Engine [SKELETON DONE]
 
-- [ ] Pull hours from production labour logs + HR attendance
-- [ ] Pay components: basic, overtime, allowances, deductions
-- [ ] Statutory deductions (Kenya): NHIF, NSSF, PAYE tax bracket engine
+- [/] Pull hours from production labour logs + HR attendance (Skeleton integrated)
+- [x] Pay components: basic, overtime, allowances, deductions (Data structures ready)
+- [x] Payroll journal auto-posted to ledger (Wired to FinancialsService)
+- [ ] Implement Kenya Statutory Deductions (NHIF, NSSF, PAYE tax bracket engine)
 - [ ] Payslip PDF generation + email to employee
-- [ ] Payroll journal auto-posted to ledger
-- [ ] M-Pesa bulk disbursement API integration
+- [ ] M-Pesa bulk disbursement API integration (Safaricom B2C)
+- [ ] Link actual production labour logs hourly rates to payslip computation
 
 ### 6.5 Budgeting & Cost Centres [DONE]
 

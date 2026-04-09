@@ -5,10 +5,12 @@ import { CurrencyService } from './currency.service';
 import { ARService } from './ar.service';
 import { APService } from './ap.service';
 import { BudgetingService } from './budgeting.service';
+import { PayrollService } from './payroll.service';
 import { FinancialsController } from './financials.controller';
 import { ARController } from './ar.controller';
 import { APController } from './ap.controller';
 import { BudgetingController } from './budgeting.controller';
+import { PayrollController } from './payroll.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
@@ -18,6 +20,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ARController,
     APController,
     BudgetingController,
+    PayrollController,
   ],
   providers: [
     FinancialsService,
@@ -26,6 +29,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ARService,
     APService,
     BudgetingService,
+    PayrollService,
   ],
   exports: [
     FinancialsService,
@@ -34,6 +38,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     ARService,
     APService,
     BudgetingService,
+    PayrollService,
   ],
 })
 export class FinancialsModule {}
