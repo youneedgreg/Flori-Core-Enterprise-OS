@@ -1583,15 +1583,86 @@ model Employee {
   basicSalary      Float          @default(0)
   isActive         Boolean        @default(true)
   joinedAt         DateTime       @default(now())
+  
+  // Digital File Enhancements
+  contractUrl       String?       // S3 URL to contract PDF
+  workPermitId      String?
+  workPermitExpiry  DateTime?
+  healthCertExpiry  DateTime?
+  
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  tenant   Tenant     @relation(fields: [tenantId], references: [id])
-  payslips Payslip[]
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  payslips          Payslip[]
+  documents         EmployeeDocument[]
+  emergencyContacts EmergencyContact[]
+  employmentHistory EmploymentHistory[]
 
   @@unique([tenantId, employeeNumber])
   @@index([tenantId])
   @@map("employees")
+}
+
+model EmployeeDocument {
+  id             String             @id @default(uuid())
+  employeeId     String
+  type           EmployeeDocType
+  documentNumber String?
+  fileUrl        String             // S3 URL
+  expiryDate     DateTime?
+  status         String             @default("ACTIVE") // ACTIVE, EXPIRED, PENDING
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  
+  employee       Employee           @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("employee_documents")
+}
+
+enum EmployeeDocType {
+  WORK_PERMIT
+  HEALTH_CERTIFICATE
+  NSSF_CARD
+  NHIF_CARD
+  KRA_PIN_CERT
+  NATIONAL_ID_SCAN
+  OTHER
+}
+
+model EmergencyContact {
+  id           String   @id @default(uuid())
+  employeeId   String
+  name         String
+  relationship String
+  phone        String
+  email        String?
+  isPrimary    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("emergency_contacts")
+}
+
+model EmploymentHistory {
+  id               String    @id @default(uuid())
+  employeeId       String
+  companyName      String
+  jobTitle         String
+  startDate        DateTime
+  endDate          DateTime?
+  responsibilities String?   // Text/Markdown
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  employee         Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@map("employment_history")
 }
 
 enum PayrollRunStatus {

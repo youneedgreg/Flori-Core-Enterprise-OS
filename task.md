@@ -329,7 +329,7 @@
 
 ---
 
-## Phase 6.5 — Tenant Customization & RBAC _(Week 26)_
+## Phase 6.5 — Tenant Customization & RBAC _(Day 26)_
 
 ### 6.5.1 Custom Role Definition
 
@@ -365,14 +365,6 @@
 - [ ] Performance appraisal: 360° review form (self, peer, supervisor)
 - [ ] KPI scoring linked to farm productivity data
 - [ ] Training calendar with department-wide scheduling
-
-### 7.4 Recruitment _(Extra)_
-
-- [ ] Job posting tool (posts to landing site careers page)
-- [ ] Application tracking: Applied → Shortlisted → Interview → Offer → Onboarded
-- [ ] Onboarding checklist: equipment issued, accounts created, induction complete
-
----
 
 ## Phase 8 — Advanced Features & Intelligence _(Weeks 31–36)_
 

@@ -49,6 +49,7 @@ import { ScoutingReportsModule } from './farm-operations/scouting-reports/scouti
 import { CropPerformanceModule } from './farm-operations/crop-performance/crop-performance.module';
 import { PreHarvestModule } from './farm-operations/pre-harvest/pre-harvest.module';
 import { HarvestRecordsModule } from './farm-operations/harvest-records/harvest-records.module';
+import { HRModule } from './hr/hr.module';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { HarvestRecordsModule } from './farm-operations/harvest-records/harvest-
     CropPerformanceModule,
     PreHarvestModule,
     HarvestRecordsModule,
+    HRModule,
   ],
   controllers: [AppController],
   providers: [

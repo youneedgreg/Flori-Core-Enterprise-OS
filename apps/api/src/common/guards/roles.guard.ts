@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from '../decorators/roles.decorator';
@@ -19,6 +21,8 @@ export class RolesGuard implements CanActivate {
       return false;
     }
 
-    return requiredRoles.includes(user.role) || user.role === 'gold_admin';
+    const roleName = typeof user.role === 'object' ? user.role.name : user.role;
+
+    return requiredRoles.includes(roleName) || roleName === 'gold_admin';
   }
 }

@@ -4,8 +4,16 @@ import type { RegisterTenantDto, LoginDto } from '@flori/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import type { Request } from 'express';
 
-interface AuthenticatedRequest extends Request {
+export interface AuthenticatedRequest extends Request {
   tenantId: string;
+  user: {
+    id: string;
+    email: string;
+    tenantId: string;
+    role: {
+      name: string;
+    };
+  };
 }
 
 @Controller('auth')
