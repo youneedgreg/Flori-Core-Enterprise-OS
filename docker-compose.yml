@@ -59,5 +59,20 @@ services:
     environment:
       - EMQX_DASHBOARD__ADMIN_PASSWORD=admin123
 
+  superset:
+    image: apache/superset:4.0.0
+    container_name: flori-core-superset
+    platform: linux/amd64
+    restart: always
+    ports:
+      - "8088:8088"
+    environment:
+      - SUPERSET_SECRET_KEY=flori_superset_secret_key_998877
+    depends_on:
+      - db
+    volumes:
+      - superset_data:/app/superset_home
+
 volumes:
   postgres_data:
+  superset_data:

@@ -1180,7 +1180,7 @@ model ExchangeRate {
 
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
-  @@index([vendorId])
+  @@index([tenantId])
   @@map("exchange_rates")
 }
 
