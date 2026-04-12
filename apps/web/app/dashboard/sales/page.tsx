@@ -10,6 +10,8 @@ import {
 import { LeadsPipeline } from '../../../components/sales/LeadsPipeline';
 import { CustomerList } from '../../../components/sales/CustomerList';
 import { OrdersBoard } from '../../../components/sales/OrdersBoard';
+import { CreateCustomerModal } from '../../../components/sales/CreateCustomerModal';
+import { CreateLeadModal } from '../../../components/sales/CreateLeadModal';
 import { decodeJWT, logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -17,6 +19,9 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 export default function SalesPage() {
   const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CUSTOMERS' | 'ORDERS'>('PIPELINE');
   const [loading, setLoading] = useState(true);
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [showLeadModal, setShowLeadModal] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState({
     activeLeads: 0,
     totalCustomers: 0,
@@ -36,7 +41,7 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [refreshKey]);
 
   async function fetchStats() {
     const headers = getAuthHeader();
@@ -65,6 +70,10 @@ export default function SalesPage() {
       setLoading(false);
     }
   }
+
+  const handleSuccess = () => {
+    setRefreshKey(prev => prev + 1);
+  };
 
   return (
     <div className="space-y-10 pb-20">
@@ -100,7 +109,10 @@ export default function SalesPage() {
             </button>
           ))}
           {activeTab !== 'ORDERS' && (
-            <button className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+            <button 
+              onClick={() => activeTab === 'PIPELINE' ? setShowLeadModal(true) : setShowCustomerModal(true)}
+              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+            >
               <Plus className="w-4 h-4" /> New {activeTab === 'PIPELINE' ? 'Lead' : 'Customer'}
             </button>
           )}
@@ -129,15 +141,31 @@ export default function SalesPage() {
       {/* Main Content Area */}
       <div className="bg-slate-900/40 backdrop-blur-xl border border-white/5 rounded-[3rem] overflow-hidden min-h-[600px] flex flex-col">
         {activeTab === 'PIPELINE' && (
-          <LeadsPipeline apiBase={API} getAuthHeader={getAuthHeader} onRefresh={fetchStats} />
+          <LeadsPipeline key={`pipeline-${refreshKey}`} apiBase={API} getAuthHeader={getAuthHeader} onRefresh={handleSuccess} />
         )}
         {activeTab === 'CUSTOMERS' && (
-          <CustomerList apiBase={API} getAuthHeader={getAuthHeader} />
+          <CustomerList key={`customers-${refreshKey}`} apiBase={API} getAuthHeader={getAuthHeader} />
         )}
         {activeTab === 'ORDERS' && (
-          <OrdersBoard apiBase={API} getAuthHeader={getAuthHeader} onRefresh={fetchStats} />
+          <OrdersBoard apiBase={API} getAuthHeader={getAuthHeader} onRefresh={handleSuccess} />
         )}
       </div>
+
+      <CreateCustomerModal 
+        isOpen={showCustomerModal}
+        onClose={() => setShowCustomerModal(false)}
+        apiBase={API}
+        getAuthHeader={getAuthHeader}
+        onSuccess={handleSuccess}
+      />
+
+      <CreateLeadModal 
+        isOpen={showLeadModal}
+        onClose={() => setShowLeadModal(false)}
+        apiBase={API}
+        getAuthHeader={getAuthHeader}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 }

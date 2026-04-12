@@ -3,9 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Truck, MapPin, Navigation, User, Check, PlayCircle, Globe, BadgeDollarSign, Calendar} from 'lucide-react';
 import { toast } from 'sonner';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import Map, { NavigationControl } from 'react-map-gl';
+import Map, { NavigationControl } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { logout, isTokenExpired } from '../../../lib/auth';
 
