@@ -86,13 +86,20 @@ export default function GoldAdminDashboard() {
     );
   }
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-12">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl font-black tracking-tight text-white">
-            Good morning, <span className="text-brand-green">{user.email.split('@')[0]}</span>
+            {getGreeting()}, <span className="text-brand-green">{user.email.split('@')[0]}</span>
           </h1>
           <p className="text-slate-500 font-medium tracking-tight">Here&apos;s what&apos;s happening at your farm today.</p>
         </div>
