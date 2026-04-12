@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Sprout, Plus, Loader2, Droplets, FlaskConical,
   Shovel, Leaf, Microscope, TrendingUp, Eye, Scissors,
@@ -56,55 +57,93 @@ function EmptyState({ icon: Icon, message }: { icon: any; message: string }) {
 }
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-slate-900 border border-white/10 rounded-3xl p-8 w-full max-w-xl shadow-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-black text-white uppercase tracking-tight">{title}</h3>
-          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 overflow-hidden">
+      {/* Premium Backdrop */}
+      <div 
+        className="absolute inset-0 bg-brand-dark/60 backdrop-blur-xl animate-in fade-in duration-500" 
+        onClick={onClose} 
+      />
+      
+      {/* Modal Container */}
+      <div className="relative bg-brand-dark/80 border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300">
+        {/* Glow Effect */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+        
+        {/* Header */}
+        <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/2">
+          <div>
+            <h3 className="text-xl font-black text-white uppercase italic tracking-tight">{title}</h3>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Operation Entry Portal</p>
+          </div>
+          <button onClick={onClose} className="p-3 rounded-2xl bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 transition-all border border-white/5">
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+          {children}
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function FormField({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
+  return (
+    <div className="space-y-2 group">
+      <div className="flex justify-between items-center px-1">
+        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-focus-within:text-emerald-400 transition-colors">
+          {label}
+        </label>
+        {error && <span className="text-[9px] font-black text-rose-500 uppercase">{error}</span>}
+      </div>
+      <div className="relative">
         {children}
       </div>
     </div>
   );
 }
 
-function FormField({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/40 transition-all";
-const selectCls = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40 transition-all";
+const inputCls = "w-full bg-white/[0.03] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/40 transition-all hover:bg-white/[0.05]";
+const selectCls = "w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500/40 transition-all hover:bg-white/[0.05] appearance-none cursor-pointer";
 
 function SubmitBtn({ loading, label = 'Save Record' }: { loading: boolean; label?: string }) {
   return (
     <button
       type="submit"
       disabled={loading}
-      className="w-full flex items-center justify-center gap-2 py-4 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-sm rounded-2xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.25)] mt-4"
+      className="group relative w-full flex items-center justify-center gap-3 py-5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-sm rounded-2xl transition-all shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] mt-6 overflow-hidden"
     >
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-      {label}
+      <span className="uppercase tracking-widest">{label}</span>
     </button>
   );
 }
 
 function UserSelect({ name, required, users, label }: { name: string; required?: boolean; users: any[]; label?: string }) {
   return (
-    <select name={name} required={required} className={selectCls}>
-      <option value="">{label ?? 'Select Team Member'}</option>
-      {users.map((u) => (
-        <option key={u.id} value={u.id}>{u.email} ({u.role?.name ?? 'Member'})</option>
-      ))}
-    </select>
+    <div className="relative">
+      <select name={name} required={required} className={selectCls}>
+        <option value="" className="bg-slate-900 text-slate-500">{label ?? 'Select Team Member'}</option>
+        {users.map((u) => (
+          <option key={u.id} value={u.id} className="bg-slate-900 text-white">
+            {u.email?.split('@')[0]} ({u.role?.name ?? 'Member'})
+          </option>
+        ))}
+      </select>
+      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+        <User className="w-4 h-4" />
+      </div>
+    </div>
   );
 }
 
@@ -196,24 +235,29 @@ function SoilTestsTab({ zones }: { zones: any[] }) {
 
       {showForm && (
         <Modal title="Log Soil Test" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={submit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Test Date *">
                 <input type="date" name="testDate" required className={inputCls} defaultValue={new Date().toISOString().slice(0, 10)} />
               </FormField>
               <FormField label="Zone">
-                <select name="zoneId" className={selectCls}>
-                  <option value="">All Farm</option>
-                  {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="zoneId" className={selectCls}>
+                    <option value="">All Farm</option>
+                    {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField label="pH Level"><input type="number" name="pHLevel" step="0.1" placeholder="6.5" className={inputCls} /></FormField>
               <FormField label="EC (dS/m)"><input type="number" name="ecLevel" step="0.01" placeholder="1.2" className={inputCls} /></FormField>
               <FormField label="Soil Type"><input type="text" name="soilType" placeholder="Loam" className={inputCls} /></FormField>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField label="Nitrogen (mg/kg)"><input type="number" name="nitrogen" step="0.1" className={inputCls} /></FormField>
               <FormField label="Phosphorus (mg/kg)"><input type="number" name="phosphorus" step="0.1" className={inputCls} /></FormField>
               <FormField label="Potassium (mg/kg)"><input type="number" name="potassium" step="0.1" className={inputCls} /></FormField>
@@ -309,28 +353,43 @@ function LandPrepTab({ zones, users }: { zones: any[]; users: any[] }) {
 
       {showForm && (
         <Modal title="Log Land Prep Activity" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={submit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Activity Type *">
-                <select name="activityType" required className={selectCls}>
-                  <option value="PLOWING">Plowing</option>
-                  <option value="HARROWING">Harrowing</option>
-                  <option value="BED_FORMATION">Bed Formation</option>
-                  <option value="AMENDMENT">Soil Amendment</option>
-                </select>
+                <div className="relative">
+                  <select name="activityType" required className={selectCls}>
+                    <option value="PLOWING" className="bg-slate-900">Plowing</option>
+                    <option value="HARROWING" className="bg-slate-900">Harrowing</option>
+                    <option value="BED_FORMATION" className="bg-slate-900">Bed Formation</option>
+                    <option value="AMENDMENT" className="bg-slate-900">Soil Amendment</option>
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Shovel className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Zone *">
-                <select name="zoneId" required className={selectCls}>
-                  <option value="">Select Zone</option>
-                  {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="zoneId" required className={selectCls}>
+                    <option value="" className="bg-slate-900">Select Zone</option>
+                    {zones.map((z) => <option key={z.id} value={z.id} className="bg-slate-900">{z.name}</option>)}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
             </div>
             <FormField label="Date *">
-              <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
+              <div className="relative">
+                <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Calendar className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
             <FormField label="Details (bed size, spacing, etc.)">
-              <textarea name="details" rows={2} placeholder="Beds raised 20cm, 1.2m wide, 0.5m walkways..." className={inputCls} />
+              <textarea name="details" rows={3} placeholder="Beds raised 20cm, 1.2m wide, 0.5m walkways..." className={inputCls} />
             </FormField>
             <FormField label="Amendments Used">
               <input type="text" name="amendmentsUsed" placeholder="3t/ha compost + 500kg/ha lime" className={inputCls} />
@@ -441,14 +500,19 @@ function CropBudgetsTab({ cycles }: { cycles: any[] }) {
 
       {showForm && (
         <Modal title="Create / Update Crop Budget" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="space-y-6">
             <FormField label="Crop Cycle *">
-              <select name="cropCycleId" required className={selectCls}>
-                <option value="">Select Crop Cycle</option>
-                {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'} ({new Date(c.startDate).toLocaleDateString()})</option>)}
-              </select>
+              <div className="relative">
+                <select name="cropCycleId" required className={selectCls}>
+                  <option value="">Select Crop Cycle</option>
+                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'} ({new Date(c.startDate).toLocaleDateString()})</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Sprout className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Workers Required">
                 <input type="number" name="laborWorkersReq" placeholder="12" className={inputCls} />
               </FormField>
@@ -463,10 +527,15 @@ function CropBudgetsTab({ cycles }: { cycles: any[] }) {
               </FormField>
             </div>
             <FormField label="Total Budget ($)">
-              <input type="number" name="totalBudget" step="0.01" placeholder="14200" className={inputCls} />
+              <div className="relative">
+                <input type="number" name="totalBudget" step="0.01" placeholder="14200" className={inputCls} />
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-emerald-500/50">
+                  <DollarSign className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
             <FormField label="Notes">
-              <textarea name="notes" rows={2} placeholder="Budget assumptions or procurement notes..." className={inputCls} />
+              <textarea name="notes" rows={3} placeholder="Budget assumptions or procurement notes..." className={inputCls} />
             </FormField>
             <SubmitBtn loading={saving} />
           </form>
@@ -558,14 +627,19 @@ function PlantingRecordsTab({ cycles }: { cycles: any[] }) {
 
       {showForm && (
         <Modal title="Add Planting Record" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="space-y-6">
             <FormField label="Crop Cycle *">
-              <select name="cropCycleId" required className={selectCls}>
-                <option value="">Select Crop Cycle</option>
-                {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'} ({new Date(c.startDate).toLocaleDateString()})</option>)}
-              </select>
+              <div className="relative">
+                <select name="cropCycleId" required className={selectCls}>
+                  <option value="">Select Crop Cycle</option>
+                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'} ({new Date(c.startDate).toLocaleDateString()})</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Sprout className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Planting Date *">
                 <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
               </FormField>
@@ -573,7 +647,7 @@ function PlantingRecordsTab({ cycles }: { cycles: any[] }) {
                 <input type="number" name="totalPlants" required placeholder="5000" min={1} className={inputCls} />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Density (plants/m²)">
                 <input type="number" name="density" step="0.1" placeholder="6.5" className={inputCls} />
               </FormField>
@@ -581,7 +655,7 @@ function PlantingRecordsTab({ cycles }: { cycles: any[] }) {
                 <input type="text" name="spacing" placeholder="20cm x 20cm" className={inputCls} />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Supplier">
                 <input type="text" name="supplier" placeholder="Floriculture Kenya Ltd" className={inputCls} />
               </FormField>
@@ -589,7 +663,7 @@ function PlantingRecordsTab({ cycles }: { cycles: any[] }) {
                 <input type="text" name="lotNumber" placeholder="LOT-2026-001" className={inputCls} />
               </FormField>
             </div>
-            <FormField label="Notes"><textarea name="notes" rows={2} className={inputCls} placeholder="Any additional observations..." /></FormField>
+            <FormField label="Notes"><textarea name="notes" rows={3} className={inputCls} placeholder="Any additional observations..." /></FormField>
             <SubmitBtn loading={saving} />
           </form>
         </Modal>
@@ -704,25 +778,35 @@ function IrrigationTab({ zones, users }: { zones: any[]; users: any[] }) {
 
       {showForm && (
         <Modal title="Log Irrigation / Fertigation Event" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={submit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Zone *">
-                <select name="zoneId" required className={selectCls}>
-                  <option value="">Select Zone</option>
-                  {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="zoneId" required className={selectCls}>
+                    <option value="">Select Zone</option>
+                    {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Date *">
                 <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
               </FormField>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField label="Method *">
-                <select name="method" required className={selectCls}>
-                  <option value="DRIP">Drip</option>
-                  <option value="SPRINKLER">Sprinkler</option>
-                  <option value="MANUAL">Manual</option>
-                </select>
+                <div className="relative">
+                  <select name="method" required className={selectCls}>
+                    <option value="DRIP">Drip</option>
+                    <option value="SPRINKLER">Sprinkler</option>
+                    <option value="MANUAL">Manual</option>
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Droplets className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Duration (min)">
                 <input type="number" name="durationMinutes" placeholder="45" className={inputCls} />
@@ -734,18 +818,20 @@ function IrrigationTab({ zones, users }: { zones: any[]; users: any[] }) {
             <FormField label="Performed By">
               <UserSelect name="performedById" users={users} label="Select Staff Member (optional)" />
             </FormField>
-            <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
+            <div className="flex items-center gap-4 bg-white/5 p-6 rounded-[2rem] border border-white/10 group hover:border-emerald-500/20 transition-all cursor-pointer" onClick={() => setIsFertigation(!isFertigation)}>
               <button
                 type="button"
-                onClick={() => setIsFertigation(!isFertigation)}
-                className={`relative w-10 h-5 rounded-full transition-all ${isFertigation ? 'bg-emerald-500' : 'bg-white/10'}`}
+                className={`relative w-12 h-6 rounded-full transition-all ${isFertigation ? 'bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.4)]' : 'bg-white/10'}`}
               >
-                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${isFertigation ? 'left-5' : 'left-0.5'}`} />
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${isFertigation ? 'left-7' : 'left-1'}`} />
               </button>
-              <span className="text-sm font-black text-white">Fertigation (fertilizer added to water)</span>
+              <div>
+                <span className="block text-sm font-black text-white">Fertigation Mode</span>
+                <span className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mt-0.5">fertilizer added to water cycle</span>
+              </div>
             </div>
             {isFertigation && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in slide-in-from-top-4 duration-300">
                 <FormField label="Fertilizer Type">
                   <input type="text" name="fertilizerType" placeholder="NPK 20-20-20" className={inputCls} />
                 </FormField>
@@ -849,39 +935,59 @@ function ScoutingTab({ zones, cycles, users }: { zones: any[]; cycles: any[]; us
 
       {showForm && (
         <Modal title="File Scouting Report" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form onSubmit={submit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Zone *">
-                <select name="zoneId" required className={selectCls}>
-                  <option value="">Select Zone</option>
-                  {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="zoneId" required className={selectCls}>
+                    <option value="">Select Zone</option>
+                    {zones.map((z) => <option key={z.id} value={z.id}>{z.name}</option>)}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Crop Cycle (optional)">
-                <select name="cropCycleId" className={selectCls}>
-                  <option value="">Not Specified</option>
-                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
-                </select>
+                <div className="relative">
+                  <select name="cropCycleId" className={selectCls}>
+                    <option value="">Not Specified</option>
+                    {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Leaf className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Date *">
-                <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
+                <div className="relative">
+                  <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Calendar className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Inspector *">
                 <UserSelect name="inspectorId" required users={users} label="Select Inspector" />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Pest / Disease Name">
                 <input type="text" name="pestDiseaseName" placeholder="Gray Mold (Botrytis)" className={inputCls} />
               </FormField>
               <FormField label="Severity *">
-                <select name="severity" required className={selectCls}>
-                  <option value="LOW">Low</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="HIGH">High</option>
-                </select>
+                <div className="relative">
+                  <select name="severity" required className={selectCls}>
+                    <option value="LOW">Low</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HIGH">High</option>
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <AlertTriangle className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
             </div>
             <FormField label="Observations *">
@@ -995,14 +1101,19 @@ function CropPerformanceTab({ cycles, users }: { cycles: any[]; users: any[] }) 
 
       {showForm && (
         <Modal title="Log Crop Performance" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="space-y-6">
             <FormField label="Crop Cycle *">
-              <select name="cropCycleId" required className={selectCls}>
-                <option value="">Select Crop Cycle</option>
-                {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
-              </select>
+              <div className="relative">
+                <select name="cropCycleId" required className={selectCls}>
+                  <option value="">Select Crop Cycle</option>
+                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Leaf className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Date *">
                 <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
               </FormField>
@@ -1010,22 +1121,27 @@ function CropPerformanceTab({ cycles, users }: { cycles: any[]; users: any[] }) 
                 <UserSelect name="recordedById" required users={users} label="Select Staff Member" />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Growth Rate">
-                <select name="growthRate" className={selectCls}>
-                  <option value="">Not Recorded</option>
-                  <option value="SLOW">Slow</option>
-                  <option value="NORMAL">Normal</option>
-                  <option value="FAST">Fast</option>
-                </select>
+                <div className="relative">
+                  <select name="growthRate" className={selectCls}>
+                    <option value="">Not Recorded</option>
+                    <option value="SLOW">Slow</option>
+                    <option value="NORMAL">Normal</option>
+                    <option value="FAST">Fast</option>
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Health Score (1—10)">
                 <input type="number" name="healthScore" min={1} max={10} placeholder="8" className={inputCls} />
               </FormField>
             </div>
-            <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/10">
-              <input type="checkbox" id="budFormation" name="budFormation" className="rounded accent-emerald-500 w-4 h-4" />
-              <label htmlFor="budFormation" className="text-sm font-black text-white cursor-pointer">Bud Formation Observed</label>
+            <div className="flex items-center gap-4 bg-white/5 p-6 rounded-[2rem] border border-white/10 hover:border-emerald-500/20 transition-all cursor-pointer">
+              <input type="checkbox" id="budFormation" name="budFormation" className="rounded-lg accent-emerald-500 w-5 h-5 cursor-pointer" />
+              <label htmlFor="budFormation" className="text-sm font-black text-white cursor-pointer select-none">Bud Formation Observed</label>
             </div>
             <FormField label="Observations">
               <textarea name="observations" rows={3} placeholder="Describe this week's growth progress..." className={inputCls} />
@@ -1124,14 +1240,19 @@ function PreHarvestTab({ cycles, users }: { cycles: any[]; users: any[] }) {
 
       {showForm && (
         <Modal title="Log Pre-Harvest Quality Check" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="space-y-6">
             <FormField label="Crop Cycle *">
-              <select name="cropCycleId" required className={selectCls}>
-                <option value="">Select Crop Cycle</option>
-                {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
-              </select>
+              <div className="relative">
+                <select name="cropCycleId" required className={selectCls}>
+                  <option value="">Select Crop Cycle</option>
+                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Leaf className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Date *">
                 <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
               </FormField>
@@ -1139,14 +1260,19 @@ function PreHarvestTab({ cycles, users }: { cycles: any[]; users: any[] }) {
                 <UserSelect name="inspectorId" required users={users} label="Select Inspector" />
               </FormField>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField label="Bud Stage">
-                <select name="budStage" className={selectCls}>
-                  <option value="">—</option>
-                  <option value="PEA_SIZE">Pea Size</option>
-                  <option value="SHOWING_COLOR">Showing Color</option>
-                  <option value="OPENING">Opening</option>
-                </select>
+                <div className="relative">
+                  <select name="budStage" className={selectCls}>
+                    <option value="">—</option>
+                    <option value="PEA_SIZE">Pea Size</option>
+                    <option value="SHOWING_COLOR">Showing Color</option>
+                    <option value="OPENING">Opening</option>
+                  </select>
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                    <Eye className="w-4 h-4" />
+                  </div>
+                </div>
               </FormField>
               <FormField label="Bud Size (mm)">
                 <input type="number" name="budSizeMm" step="0.1" placeholder="25" className={inputCls} />
@@ -1155,7 +1281,7 @@ function PreHarvestTab({ cycles, users }: { cycles: any[]; users: any[] }) {
                 <input type="number" name="stemLengthCm" step="0.5" placeholder="65" className={inputCls} />
               </FormField>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Stem Strength">
                 <select name="stemStrength" className={selectCls}>
                   <option value="">—</option>
@@ -1272,14 +1398,19 @@ function HarvestRecordsTab({ cycles, users }: { cycles: any[]; users: any[] }) {
 
       {showForm && (
         <Modal title="Log Harvest Record" onClose={() => setShowForm(false)}>
-          <form onSubmit={submit} className="space-y-4">
+          <form onSubmit={submit} className="space-y-6">
             <FormField label="Crop Cycle *">
-              <select name="cropCycleId" required className={selectCls}>
-                <option value="">Select Crop Cycle</option>
-                {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
-              </select>
+              <div className="relative">
+                <select name="cropCycleId" required className={selectCls}>
+                  <option value="">Select Crop Cycle</option>
+                  {cycles.map((c) => <option key={c.id} value={c.id}>{c.variety?.name} — {c.zone?.name ?? '?'}</option>)}
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                  <Leaf className="w-4 h-4" />
+                </div>
+              </div>
             </FormField>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Harvest Date *">
                 <input type="date" name="date" required defaultValue={new Date().toISOString().slice(0, 10)} className={inputCls} />
               </FormField>
@@ -1287,7 +1418,7 @@ function HarvestRecordsTab({ cycles, users }: { cycles: any[]; users: any[] }) {
                 <UserSelect name="supervisorId" required users={users} label="Select Supervisor" />
               </FormField>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <FormField label="Stems Cut *">
                 <input type="number" name="quantityStems" required placeholder="2500" min={1} className={inputCls} />
               </FormField>
@@ -1298,7 +1429,7 @@ function HarvestRecordsTab({ cycles, users }: { cycles: any[]; users: any[] }) {
                 <input type="number" name="rejectedStems" placeholder="45" className={inputCls} />
               </FormField>
             </div>
-            <FormField label="Notes"><textarea name="notes" rows={2} placeholder="Any harvest observations..." className={inputCls} /></FormField>
+            <FormField label="Notes"><textarea name="notes" rows={3} placeholder="Any harvest observations..." className={inputCls} /></FormField>
             <SubmitBtn loading={saving} />
           </form>
         </Modal>
