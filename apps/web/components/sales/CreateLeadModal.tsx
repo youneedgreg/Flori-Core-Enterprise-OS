@@ -2,8 +2,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, UserPlus, Mail, Phone, TrendingUp, FileText, Loader2, User } from 'lucide-react';
+import { UserPlus, Mail, Phone, TrendingUp, FileText, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { PremiumModal, FormField, inputCls, selectCls, SubmitBtn } from './SalesUI';
 
 interface Member {
   id: string;
@@ -88,151 +89,102 @@ export function CreateLeadModal({ isOpen, onClose, apiBase, getAuthHeader, onSuc
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-6 backdrop-blur-2xl bg-black/60">
-      <div 
-        className="bg-slate-900 border border-white/10 w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-[3rem] shadow-2xl flex flex-col animate-in fade-in zoom-in duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="p-10 border-b border-white/5 flex items-center justify-between shrink-0 bg-gradient-to-r from-slate-900 to-slate-800">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-indigo-500/10 rounded-xl">
-                <UserPlus className="w-5 h-5 text-indigo-400" />
+    <PremiumModal
+      title="Initiate New Prospect"
+      subtitle="Lead Acquisition Portal"
+      onClose={onClose}
+      accentColor="indigo"
+    >
+      <form id="create-lead-form" onSubmit={handleSubmit} className="space-y-8">
+        
+        <div className="space-y-6">
+            <FormField label="Prospective Client / Lead Name *" accentColor="indigo">
+              <div className="relative group">
+                <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
+                <input 
+                  required
+                  placeholder="e.g. Acme Retail Group"
+                  className={`${inputCls('indigo')} pl-12`}
+                  value={formData.name}
+                  onChange={e => setFormData({...formData, name: e.target.value})}
+                />
               </div>
-              <span className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em]">Lead Acquisition</span>
+            </FormField>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Email" accentColor="indigo">
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
+                  <input 
+                    type="email"
+                    placeholder="prospect@email.com"
+                    className={`${inputCls('indigo')} pl-12`}
+                    value={formData.email}
+                    onChange={e => setFormData({...formData, email: e.target.value})}
+                  />
+                </div>
+              </FormField>
+              <FormField label="Phone" accentColor="indigo">
+                <div className="relative group">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
+                  <input 
+                    placeholder="+1..."
+                    className={`${inputCls('indigo')} pl-12`}
+                    value={formData.phone}
+                    onChange={e => setFormData({...formData, phone: e.target.value})}
+                  />
+                </div>
+              </FormField>
             </div>
-            <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">
-              Initiate New <span className="text-indigo-400">Prospect</span>
-            </h2>
-          </div>
-          <button 
-            onClick={onClose}
-            className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-slate-500 hover:text-white hover:bg-white/10 transition-all group"
-          >
-            <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
-          </button>
-        </div>
 
-        {/* Form Body */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-10 bg-slate-900/50">
-          <form id="create-lead-form" onSubmit={handleSubmit} className="space-y-8">
-            
-            <div className="space-y-6">
-               <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Prospective Client / Lead Name *</label>
-                  <div className="relative group">
-                    <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
-                    <input 
-                      required
-                      placeholder="e.g. Acme Retail Group"
-                      className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-white placeholder:text-slate-700 outline-none focus:border-indigo-500/50 transition-all"
-                      value={formData.name}
-                      onChange={e => setFormData({...formData, name: e.target.value})}
-                    />
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField label="Est. Deal Value (USD)" accentColor="indigo">
+                <div className="relative group">
+                  <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                  <input 
+                    type="number"
+                    placeholder="0.00"
+                    className={`${inputCls('indigo')} pl-12`}
+                    value={formData.value}
+                    onChange={e => setFormData({...formData, value: e.target.value})}
+                  />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                    <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        type="email"
-                        placeholder="prospect@email.com"
-                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-white placeholder:text-slate-700 outline-none focus:border-indigo-500/50 transition-all"
-                        value={formData.email}
-                        onChange={e => setFormData({...formData, email: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone</label>
-                    <div className="relative group">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
-                      <input 
-                        placeholder="+1..."
-                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-bold text-white placeholder:text-slate-700 outline-none focus:border-indigo-500/50 transition-all"
-                        value={formData.phone}
-                        onChange={e => setFormData({...formData, phone: e.target.value})}
-                      />
-                    </div>
-                  </div>
+              </FormField>
+              <FormField label="Assign To" accentColor="indigo">
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                  <select 
+                    disabled={fetchingMembers}
+                    className={`${selectCls('indigo')} pl-12`}
+                    value={formData.assignedToId}
+                    onChange={e => setFormData({...formData, assignedToId: e.target.value})}
+                  >
+                    <option value="" className="bg-slate-950">Unassigned</option>
+                    {members.map(m => (
+                      <option key={m.id} value={m.id} className="bg-slate-950">{m.email}</option>
+                    ))}
+                  </select>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Est. Deal Value (USD)</label>
-                    <div className="relative group">
-                      <TrendingUp className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-                      <input 
-                        type="number"
-                        placeholder="0.00"
-                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-white placeholder:text-slate-700 outline-none focus:border-indigo-500/50 transition-all"
-                        value={formData.value}
-                        onChange={e => setFormData({...formData, value: e.target.value})}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Assign To</label>
-                    <div className="relative group">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-                      <select 
-                        disabled={fetchingMembers}
-                        className="w-full bg-slate-950/50 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-black text-white outline-none focus:border-indigo-500/50 transition-all appearance-none"
-                        value={formData.assignedToId}
-                        onChange={e => setFormData({...formData, assignedToId: e.target.value})}
-                      >
-                        <option value="">Unassigned</option>
-                        {members.map(m => (
-                          <option key={m.id} value={m.id}>{m.email}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Initial Discovery Notes</label>
-                  <div className="relative group">
-                    <FileText className="absolute left-4 top-4 w-4 h-4 text-slate-600" />
-                    <textarea 
-                      rows={4}
-                      placeholder="Enter discovery call notes or LinkedIn source context..."
-                      className="w-full bg-slate-950/50 border border-white/10 rounded-[2rem] pl-12 pr-8 py-6 text-sm font-medium text-white placeholder:text-slate-700 outline-none focus:border-indigo-500/50 transition-all resize-none"
-                      value={formData.notes}
-                      onChange={e => setFormData({...formData, notes: e.target.value})}
-                    />
-                  </div>
-                </div>
+              </FormField>
             </div>
-          </form>
+
+            <FormField label="Initial Discovery Notes" accentColor="indigo">
+              <div className="relative group">
+                <FileText className="absolute left-4 top-4 w-4 h-4 text-slate-600" />
+                <textarea 
+                  rows={4}
+                  placeholder="Enter discovery call notes or LinkedIn source context..."
+                  className={`${inputCls('indigo')} pl-12 pr-8 py-6 rounded-[2rem] resize-none`}
+                  value={formData.notes}
+                  onChange={e => setFormData({...formData, notes: e.target.value})}
+                />
+              </div>
+            </FormField>
         </div>
 
-        {/* Footer */}
-        <div className="p-10 border-t border-white/5 flex items-center justify-between shrink-0 bg-slate-950/50 backdrop-blur-xl">
-           <button 
-             onClick={onClose}
-             className="px-8 py-4 rounded-2xl bg-white/5 text-slate-400 text-xs font-black uppercase tracking-widest hover:text-white hover:bg-white/10 transition-all"
-           >
-             Dismiss
-           </button>
-           <button 
-             form="create-lead-form"
-             type="submit"
-             disabled={loading}
-             className="px-10 py-4 bg-indigo-500 text-slate-950 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] transition-all flex items-center gap-3 disabled:opacity-50 disabled:scale-100"
-           >
-             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-             Register Prospect
-           </button>
-        </div>
-      </div>
-    </div>
+        <SubmitBtn loading={loading} label="Register Prospect" accentColor="indigo" />
+      </form>
+    </PremiumModal>
   );
 }

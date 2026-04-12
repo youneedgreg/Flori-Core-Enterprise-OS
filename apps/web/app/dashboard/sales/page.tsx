@@ -12,6 +12,7 @@ import { CustomerList } from '../../../components/sales/CustomerList';
 import { OrdersBoard } from '../../../components/sales/OrdersBoard';
 import { CreateCustomerModal } from '../../../components/sales/CreateCustomerModal';
 import { CreateLeadModal } from '../../../components/sales/CreateLeadModal';
+import { CreateOrderModal } from '../../../components/sales/CreateOrderModal';
 import { decodeJWT, logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -21,6 +22,7 @@ export default function SalesPage() {
   const [loading, setLoading] = useState(true);
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [showLeadModal, setShowLeadModal] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [stats, setStats] = useState({
     activeLeads: 0,
@@ -108,14 +110,16 @@ export default function SalesPage() {
               {tab === 'PIPELINE' ? 'Pipeline' : tab === 'CUSTOMERS' ? 'Customers' : 'Orders'}
             </button>
           ))}
-          {activeTab !== 'ORDERS' && (
-            <button 
-              onClick={() => activeTab === 'PIPELINE' ? setShowLeadModal(true) : setShowCustomerModal(true)}
-              className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
-            >
-              <Plus className="w-4 h-4" /> New {activeTab === 'PIPELINE' ? 'Lead' : 'Customer'}
-            </button>
-          )}
+          <button 
+            onClick={() => {
+              if (activeTab === 'PIPELINE') setShowLeadModal(true);
+              else if (activeTab === 'CUSTOMERS') setShowCustomerModal(true);
+              else setShowOrderModal(true);
+            }}
+            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+          >
+            <Plus className="w-4 h-4" /> New {activeTab === 'PIPELINE' ? 'Lead' : activeTab === 'CUSTOMERS' ? 'Customer' : 'Order'}
+          </button>
         </div>
       </header>
 
@@ -151,21 +155,34 @@ export default function SalesPage() {
         )}
       </div>
 
-      <CreateCustomerModal 
-        isOpen={showCustomerModal}
-        onClose={() => setShowCustomerModal(false)}
-        apiBase={API}
-        getAuthHeader={getAuthHeader}
-        onSuccess={handleSuccess}
-      />
-
-      <CreateLeadModal 
-        isOpen={showLeadModal}
-        onClose={() => setShowLeadModal(false)}
-        apiBase={API}
-        getAuthHeader={getAuthHeader}
-        onSuccess={handleSuccess}
-      />
+      {showCustomerModal && (
+        <CreateCustomerModal 
+          isOpen={showCustomerModal}
+          onClose={() => setShowCustomerModal(false)}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
+          onSuccess={handleSuccess}
+        />
+      )}
+      {showLeadModal && (
+        <CreateLeadModal 
+          isOpen={showLeadModal}
+          onClose={() => setShowLeadModal(false)}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
+          onSuccess={handleSuccess}
+        />
+      )}
+      {showOrderModal && (
+        <CreateOrderModal 
+          isOpen={showOrderModal}
+          onClose={() => setShowOrderModal(false)}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
+          onSuccess={handleSuccess}
+        />
+      )}
     </div>
   );
 }
+
