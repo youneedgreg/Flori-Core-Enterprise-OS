@@ -56,15 +56,42 @@ export class OnboardingService {
       const tempPassword = crypto.randomBytes(10).toString('hex');
       const passwordHash = await bcrypt.hash(tempPassword, 10);
 
-      const user = await this.prisma.user.upsert({
-        where: { email: invite.email },
-        update: { roleId: invite.roleId, tenantId },
-        create: {
-          email: invite.email,
-          passwordHash,
-          roleId: invite.roleId,
-          tenantId,
-        },
+      const result = await this.prisma.$transaction(async (tx) => {
+        const user = await tx.user.upsert({
+          where: { email: invite.email },
+          update: { roleId: invite.roleId, tenantId },
+          create: {
+            email: invite.email,
+            passwordHash,
+            roleId: invite.roleId,
+            tenantId,
+          },
+        });
+
+        // Create or update employee record
+        const employeeNumber = `EMP-${Math.floor(Math.random() * 9000) + 1000}`; // Simple generator
+
+        await tx.employee.upsert({
+          where: { userId: user.id },
+          update: {
+            firstName: invite.firstName,
+            lastName: invite.lastName,
+            jobTitle: invite.jobTitle,
+            email: invite.email,
+            tenantId,
+          },
+          create: {
+            userId: user.id,
+            employeeNumber,
+            firstName: invite.firstName,
+            lastName: invite.lastName,
+            jobTitle: invite.jobTitle,
+            email: invite.email,
+            tenantId,
+          },
+        });
+
+        return { email: invite.email, userId: user.id };
       });
 
       // Send the actual invite email via Resend
@@ -89,10 +116,10 @@ export class OnboardingService {
         `,
         tenantId,
         entityType: 'UserInvite',
-        entityId: user.id,
+        entityId: result.userId,
       });
 
-      results.push({ email: invite.email, userId: user.id });
+      results.push(result);
     }
     return results;
   }

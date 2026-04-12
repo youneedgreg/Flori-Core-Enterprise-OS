@@ -14,7 +14,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 const STEPS = ['Farm Profile', 'Zones', 'Team', 'IoT Devices'];
 
 interface Zone { name: string; areaSqm: string; cropVarieties: string }
-interface Member { email: string; roleId: string }
+interface Member { email: string; roleId: string; firstName: string; lastName: string; jobTitle: string }
 interface Device { type: string; macAddress: string; mqttTopic: string; zoneId: string }
 interface Role { id: string; name: string }
 interface CreatedZone { id: string; name: string }

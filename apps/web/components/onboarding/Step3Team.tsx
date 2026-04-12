@@ -3,7 +3,7 @@
 import React from 'react';
 import { Mail, Shield, Trash2, Plus, ArrowLeft, ArrowRight, UserPlus, ChevronDown } from 'lucide-react';
 
-interface Member { email: string; roleId: string }
+interface Member { email: string; roleId: string; firstName: string; lastName: string; jobTitle: string }
 interface Role { id: string; name: string }
 interface Props {
   members: Member[];
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default function Step3Team({ members, roles, onChange, onNext, onBack }: Props) {
-  const addMember = () => onChange([...members, { email: '', roleId: roles[0]?.id ?? '' }]);
+  const addMember = () => onChange([...members, { email: '', roleId: roles[0]?.id ?? '', firstName: '', lastName: '', jobTitle: '' }]);
   const removeMember = (i: number) => onChange(members.filter((_, idx) => idx !== i));
   const updateMember = (i: number, field: keyof Member, value: string) => {
     const updated = [...members];
@@ -29,42 +29,85 @@ export default function Step3Team({ members, roles, onChange, onNext, onBack }: 
         <p className="text-slate-500 font-medium">Authorize team members and assign administrative clearance levels.</p>
       </div>
 
-      <div className="space-y-3 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-6 max-h-[480px] overflow-y-auto pr-2 custom-scrollbar">
         {members.map((member, i) => (
-          <div key={i} className="flex items-center gap-3 group animate-in fade-in slide-in-from-right-4 duration-300">
-            <div className="relative flex-1 group/input">
-              <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-brand-green transition-colors" />
-              <input
-                type="email"
-                required
-                placeholder="Operator Email Address *"
-                value={member.email}
-                onChange={(e) => updateMember(i, 'email', e.target.value)}
-                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold placeholder:text-slate-700 transition-all"
-              />
-            </div>
-            
-            <div className="relative group/input w-48">
-              <Shield className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-brand-green transition-colors z-10" />
-              <select
-                value={member.roleId}
-                onChange={(e) => updateMember(i, 'roleId', e.target.value)}
-                className="w-full pl-14 pr-10 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold appearance-none cursor-pointer transition-all"
-              >
-                {roles.map((role) => (
-                  <option key={role.id} value={role.id} className="bg-brand-dark">{role.name.replace('_', ' ')}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
-            </div>
-
+          <div key={i} className="p-6 rounded-[2rem] bg-white/5 border border-white/10 space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 relative group">
             <button
               type="button"
               onClick={() => removeMember(i)}
-              className="p-4 rounded-2xl bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 transition-all"
+              className="absolute top-4 right-4 p-2 rounded-xl bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-500/20"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </button>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">First Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Jane"
+                  value={member.firstName}
+                  onChange={(e) => updateMember(i, 'firstName', e.target.value)}
+                  className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold placeholder:text-slate-700 transition-all"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Last Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Doe"
+                  value={member.lastName}
+                  onChange={(e) => updateMember(i, 'lastName', e.target.value)}
+                  className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold placeholder:text-slate-700 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email Address *</label>
+              <div className="relative group/input">
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-brand-green transition-colors" />
+                <input
+                  type="email"
+                  required
+                  placeholder="operator@farm.com"
+                  value={member.email}
+                  onChange={(e) => updateMember(i, 'email', e.target.value)}
+                  className="w-full pl-14 pr-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold placeholder:text-slate-700 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Clearance Level *</label>
+                <div className="relative group/input">
+                  <Shield className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-brand-green transition-colors z-10" />
+                  <select
+                    value={member.roleId}
+                    onChange={(e) => updateMember(i, 'roleId', e.target.value)}
+                    className="w-full pl-14 pr-10 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold appearance-none cursor-pointer transition-all"
+                  >
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id} className="bg-brand-dark">{role.name.replace('_', ' ')}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 pointer-events-none" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Job Title</label>
+                <input
+                  type="text"
+                  placeholder="Greenhouse Mgr"
+                  value={member.jobTitle}
+                  onChange={(e) => updateMember(i, 'jobTitle', e.target.value)}
+                  className="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:ring-2 focus:ring-brand-green/20 outline-none text-white font-bold placeholder:text-slate-700 transition-all"
+                />
+              </div>
+            </div>
           </div>
         ))}
 

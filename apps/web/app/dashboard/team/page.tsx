@@ -67,7 +67,13 @@ export default function TeamPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteData, setInviteData] = useState({ email: '', roleId: '' });
+  const [inviteData, setInviteData] = useState({ 
+    email: '', 
+    roleId: '',
+    firstName: '',
+    lastName: '',
+    jobTitle: ''
+  });
   const [isInviting, setIsInviting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [expiringCount, setExpiringCount] = useState(0);
@@ -127,6 +133,38 @@ export default function TeamPage() {
       }
     } catch (e) {
       toast.error('Failed to load employee profile');
+    }
+  };
+
+  const handleOnboard = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsInviting(true);
+    try {
+      const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
+      const token = tokenMatch?.[1];
+      
+      const res = await fetch(`${API}/onboarding/invite-team`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify([inviteData])
+      });
+
+      if (res.ok) {
+        toast.success('Member onboarded and invitation sent');
+        setShowInviteModal(false);
+        setInviteData({ email: '', roleId: '', firstName: '', lastName: '', jobTitle: '' });
+        fetchData();
+      } else {
+        const err = await res.json();
+        throw new Error(err.message || 'Onboarding failed');
+      }
+    } catch (e: any) {
+      toast.error(e.message);
+    } finally {
+      setIsInviting(false);
     }
   };
 
@@ -569,25 +607,82 @@ export default function TeamPage() {
               Onboard Member
             </h2>
             
-            <form onSubmit={(e) => { e.preventDefault(); /* Mock onboarding logic */ setShowInviteModal(false); fetchData(); }} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-                  <input type="email" required placeholder="teammate@example.com" className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" />
+            <form onSubmit={handleOnboard} className="space-y-6">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">First Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={inviteData.firstName}
+                    onChange={(e) => setInviteData({...inviteData, firstName: e.target.value})}
+                    placeholder="Jane" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Last Name</label>
+                  <input 
+                    type="text" 
+                    required 
+                    value={inviteData.lastName}
+                    onChange={(e) => setInviteData({...inviteData, lastName: e.target.value})}
+                    placeholder="Doe" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
+                  />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Assigned Role</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white appearance-none uppercase font-black tracking-wider cursor-pointer">
-                  {roles.map((role) => <option key={role.id} value={role.id}>{role.name.replace('_', ' ')}</option>)}
-                </select>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+                  <input 
+                    type="email" 
+                    required 
+                    value={inviteData.email}
+                    onChange={(e) => setInviteData({...inviteData, email: e.target.value})}
+                    placeholder="teammate@example.com" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Assigned Role</label>
+                  <select 
+                    required
+                    value={inviteData.roleId}
+                    onChange={(e) => setInviteData({...inviteData, roleId: e.target.value})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white appearance-none uppercase font-black tracking-wider cursor-pointer"
+                  >
+                    <option value="">Select Role</option>
+                    {roles.map((role) => <option key={role.id} value={role.id}>{role.name.replace('_', ' ')}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Job Title</label>
+                  <input 
+                    type="text" 
+                    value={inviteData.jobTitle}
+                    onChange={(e) => setInviteData({...inviteData, jobTitle: e.target.value})}
+                    placeholder="Operations Lead" 
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
+                  />
+                </div>
               </div>
 
               <div className="flex gap-4 pt-6">
                 <button type="button" onClick={() => setShowInviteModal(false)} className="flex-1 py-4 bg-white/5 text-white rounded-2xl font-black text-sm border border-white/10">Cancel</button>
-                <button type="submit" className="flex-1 py-4 bg-brand-green text-slate-950 rounded-2xl font-black text-sm shadow-xl">Start Onboarding</button>
+                <button 
+                  type="submit" 
+                  disabled={isInviting}
+                  className="flex-1 py-4 bg-brand-green text-slate-950 rounded-2xl font-black text-sm shadow-xl flex items-center justify-center gap-2"
+                >
+                  {isInviting ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                  Start Onboarding
+                </button>
               </div>
             </form>
           </div>

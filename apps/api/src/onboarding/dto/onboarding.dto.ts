@@ -55,6 +55,16 @@ export class InviteTeamMemberDto {
 
   @IsUUID()
   roleId!: string;
+
+  @IsString()
+  firstName!: string;
+
+  @IsString()
+  lastName!: string;
+
+  @IsOptional()
+  @IsString()
+  jobTitle?: string;
 }
 
 export class IoTDeviceDto {
