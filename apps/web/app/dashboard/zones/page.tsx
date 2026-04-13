@@ -28,6 +28,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { logout, isTokenExpired } from '../../../lib/auth';
 import ZoneMap from '../../../components/production/ZoneMap';
+import CreateZoneModal from '../../../components/production/CreateZoneModal';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -59,6 +60,7 @@ export default function ZonesPage() {
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [selectedZoneIds, setSelectedZoneIds] = useState<string[]>([]);
   const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const fetchZones = useCallback(async () => {
     setLoading(true);
@@ -222,12 +224,25 @@ export default function ZonesPage() {
             {isBulkMode ? <X className="w-5 h-5" /> : <Layers className="w-5 h-5" />}
             {isBulkMode ? 'Cancel Selection' : 'Bulk Edit'}
           </button>
-          <button className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <button 
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+          >
             <Plus className="w-5 h-5" />
             Add Production Zone
           </button>
         </div>
       </header>
+
+      {/* Production Zone Creation Modal */}
+      {isCreateModalOpen && (
+        <CreateZoneModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          apiBase={API}
+          onSuccess={fetchZones}
+        />
+      )}
 
       {/* Bulk Action Bar */}
       <AnimatePresence>
@@ -622,7 +637,10 @@ export default function ZonesPage() {
            <Map className="w-16 h-16 mb-4 opacity-10" />
            <p className="text-xl font-black text-white mb-2 uppercase italic tracking-tighter">No Active Sectors Detected</p>
            <p className="text-sm mb-8 text-center max-w-xs leading-relaxed font-medium">Your farm structure is the digital foundation of Flori-Core Enterprise. Initialize your first production zone to begin telemetry tracking.</p>
-           <button className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/10 transition-all font-black text-[10px] uppercase tracking-widest">
+           <button 
+             onClick={() => setIsCreateModalOpen(true)}
+             className="px-10 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/10 transition-all font-black text-[10px] uppercase tracking-widest"
+           >
              Deploy First Sector
            </button>
         </div>
