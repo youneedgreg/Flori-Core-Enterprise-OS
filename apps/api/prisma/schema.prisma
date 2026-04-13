@@ -76,6 +76,10 @@ model Tenant {
   payrollRuns    PayrollRun[]
   payslips       Payslip[]
 
+  leaveRequests     LeaveRequest[]
+  shifts            Shift[]
+  shiftAssignments  ShiftAssignment[]
+
   soilTests             SoilTest[]
   landPrepLogs          LandPrepLog[]
   cropBudgets           CropBudget[]
@@ -1598,6 +1602,7 @@ model Employee {
   workPermitId      String?
   workPermitExpiry  DateTime?
   healthCertExpiry  DateTime?
+  biometricId       String?        @unique
   
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -1607,6 +1612,9 @@ model Employee {
   documents         EmployeeDocument[]
   emergencyContacts EmergencyContact[]
   employmentHistory EmploymentHistory[]
+  attendanceLogs    AttendanceLog[]
+  leaveRequests     LeaveRequest[]
+  shiftAssignments  ShiftAssignment[]
 
   @@unique([tenantId, employeeNumber])
   @@index([tenantId])
@@ -1655,6 +1663,97 @@ model EmergencyContact {
 
   @@index([employeeId])
   @@map("emergency_contacts")
+}
+
+enum LeaveType {
+  ANNUAL
+  SICK
+  MATERNITY
+  PATERNITY
+  UNPAID
+  OTHER
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model LeaveRequest {
+  id           String      @id @default(uuid())
+  tenantId     String
+  employeeId   String
+  type         LeaveType
+  startDate    DateTime
+  endDate      DateTime
+  status       LeaveStatus @default(PENDING)
+  reason       String?
+  approvedById String?     // ID of HR manager who approved
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([employeeId])
+  @@index([tenantId])
+  @@map("leave_requests")
+}
+
+model Shift {
+  id        String   @id @default(uuid())
+  tenantId  String
+  name      String   // e.g. "Morning Shift"
+  startTime String   // e.g. "08:00"
+  endTime   String   // e.g. "17:00"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignments ShiftAssignment[]
+  tenant      Tenant            @relation(fields: [tenantId], references: [id])
+
+  @@map("shifts")
+}
+
+model ShiftAssignment {
+  id         String   @id @default(uuid())
+  tenantId   String
+  employeeId String
+  shiftId    String
+  date       DateTime
+  createdAt  DateTime @default(now())
+
+  employee Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  shift    Shift    @relation(fields: [shiftId], references: [id])
+  tenant   Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([employeeId])
+  @@index([shiftId])
+  @@map("shift_assignments")
+}
+
+enum AttendanceType {
+  CHECK_IN
+  CHECK_OUT
+}
+
+model AttendanceLog {
+  id         String         @id @default(uuid())
+  tenantId   String
+  employeeId String
+  type       AttendanceType
+  timestamp  DateTime       @default(now())
+  source     String?        // e.g. "BIOMETRIC_DEVICE_01"
+  metadata   Json?          // For storing device IP, battery status, etc.
+
+  employee   Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@index([employeeId])
+  @@index([tenantId])
+  @@index([timestamp])
+  @@map("attendance_logs")
 }
 
 model EmploymentHistory {

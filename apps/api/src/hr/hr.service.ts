@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -6,7 +7,14 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../packing/storage.service';
 import { NotificationService } from '../communications/notification.service';
-import { EmployeeDocType } from '@prisma/client';
+import { EmployeeDocType, LeaveStatus, LeaveType } from '@prisma/client';
+
+export interface LeaveRequestInput {
+  type: LeaveType;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+}
 
 @Injectable()
 export class HRService {
@@ -34,6 +42,10 @@ export class HRService {
       include: {
         documents: true,
         emergencyContacts: true,
+        attendanceLogs: {
+          orderBy: { timestamp: 'desc' },
+          take: 50,
+        },
         employmentHistory: { orderBy: { startDate: 'desc' } },
       },
     });
@@ -200,5 +212,168 @@ export class HRService {
     }
 
     return expiringDocs.length;
+  }
+
+  async syncAttendanceLogs(tenantId: string, logs: any[]) {
+    const results = { imported: 0, failed: 0, errors: [] as string[] };
+
+    for (const log of logs) {
+      try {
+        // Find employee by biometricId
+        const employee = await this.prisma.employee.findFirst({
+          where: { biometricId: log.biometricId, tenantId },
+          select: { id: true },
+        });
+
+        if (!employee) {
+          results.failed++;
+          results.errors.push(
+            `Employee with Biometric ID ${log.biometricId} not found`,
+          );
+          continue;
+        }
+
+        await this.prisma.attendanceLog.create({
+          data: {
+            tenantId,
+            employeeId: employee.id,
+            type: log.type, // CHECK_IN or CHECK_OUT
+            timestamp: new Date(log.timestamp),
+            source: log.source || 'EXTERNAL_SYNC',
+            metadata: log.metadata || {},
+          },
+        });
+
+        results.imported++;
+      } catch (e: any) {
+        results.failed++;
+        results.errors.push(
+          `Failed to import log for ${log.biometricId}: ${e.message}`,
+        );
+      }
+    }
+
+    return results;
+  }
+
+  // ─── Leave Management ───────────────────────────────────────────────────────
+
+  async applyForLeave(
+    tenantId: string,
+    employeeId: string,
+    data: LeaveRequestInput,
+  ) {
+    return this.prisma.leaveRequest.create({
+      data: {
+        ...data,
+        employeeId,
+        tenantId,
+        startDate: new Date(data.startDate),
+        endDate: new Date(data.endDate),
+      },
+    });
+  }
+
+  async getLeaveRequests(tenantId: string, employeeId?: string) {
+    return this.prisma.leaveRequest.findMany({
+      where: {
+        tenantId,
+        ...(employeeId ? { employeeId } : {}),
+      },
+      include: {
+        employee: {
+          select: { firstName: true, lastName: true, employeeNumber: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateLeaveStatus(
+    tenantId: string,
+    requestId: string,
+    status: LeaveStatus,
+    adminId: string,
+  ) {
+    const request = await this.prisma.leaveRequest.update({
+      where: { id: requestId, tenantId },
+      data: { status, approvedById: adminId },
+    });
+
+    // If approved, potentially update employee status or trigger notifications
+    if (status === LeaveStatus.APPROVED) {
+      // Logic for when leave begins could be handled by a cron or manually
+      // For now, we just approve it.
+    }
+
+    return request;
+  }
+
+  // ─── Shift Scheduling ───────────────────────────────────────────────────────
+
+  async createShift(tenantId: string, data: any) {
+    return this.prisma.shift.create({
+      data: { ...data, tenantId },
+    });
+  }
+
+  async getShifts(tenantId: string) {
+    return this.prisma.shift.findMany({
+      where: { tenantId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async assignShift(
+    tenantId: string,
+    employeeId: string,
+    shiftId: string,
+    date: string,
+  ) {
+    return this.prisma.shiftAssignment.create({
+      data: {
+        tenantId,
+        employeeId,
+        shiftId,
+        date: new Date(date),
+      },
+    });
+  }
+
+  async getShiftAssignments(
+    tenantId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    return this.prisma.shiftAssignment.findMany({
+      where: {
+        tenantId,
+        ...(startDate && endDate
+          ? {
+              date: {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+              },
+            }
+          : {}),
+      },
+      include: {
+        employee: {
+          select: {
+            firstName: true,
+            lastName: true,
+            employeeNumber: true,
+            jobTitle: true,
+          },
+        },
+        shift: true,
+      },
+    });
+  }
+
+  async deleteShiftAssignment(tenantId: string, assignmentId: string) {
+    return this.prisma.shiftAssignment.delete({
+      where: { id: assignmentId, tenantId },
+    });
   }
 }
