@@ -65,6 +65,10 @@ export class InviteTeamMemberDto {
   @IsOptional()
   @IsString()
   jobTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  employmentType?: string;
 }
 
 export class IoTDeviceDto {

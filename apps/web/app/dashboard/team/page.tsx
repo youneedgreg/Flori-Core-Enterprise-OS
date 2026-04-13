@@ -47,6 +47,8 @@ interface Employee {
   contractUrl: string | null;
   workPermitExpiry: string | null;
   healthCertExpiry: string | null;
+  employmentType: 'PERMANENT' | 'CONTRACT' | 'CASUAL';
+  status: 'ACTIVE' | 'INACTIVE' | 'TERMINATED' | 'SUSPENDED' | 'ON_LEAVE';
   isActive: boolean;
   joinedAt: string;
   documents: any[];
@@ -72,7 +74,8 @@ export default function TeamPage() {
     roleId: '',
     firstName: '',
     lastName: '',
-    jobTitle: ''
+    jobTitle: '',
+    employmentType: 'PERMANENT'
   });
   const [isInviting, setIsInviting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -155,7 +158,7 @@ export default function TeamPage() {
       if (res.ok) {
         toast.success('Member onboarded and invitation sent');
         setShowInviteModal(false);
-        setInviteData({ email: '', roleId: '', firstName: '', lastName: '', jobTitle: '' });
+        setInviteData({ email: '', roleId: '', firstName: '', lastName: '', jobTitle: '', employmentType: 'PERMANENT' });
         fetchData();
       } else {
         const err = await res.json();
@@ -229,6 +232,34 @@ export default function TeamPage() {
     } catch (e) {
       toast.error('Could not upload document');
     }
+  };
+
+  const handleAddEmergencyContact = () => {
+    if (!selectedEmployee) return;
+    const newContact = { 
+      name: '', 
+      relationship: '', 
+      phone: '', 
+      email: '', 
+      isPrimary: selectedEmployee.emergencyContacts.length === 0 
+    };
+    setSelectedEmployee({
+      ...selectedEmployee,
+      emergencyContacts: [...selectedEmployee.emergencyContacts, newContact]
+    });
+  };
+
+  const handleUpdateEmergencyContact = (index: number, field: string, value: any) => {
+    if (!selectedEmployee) return;
+    const contacts = [...selectedEmployee.emergencyContacts];
+    contacts[index] = { ...contacts[index], [field]: value };
+    setSelectedEmployee({ ...selectedEmployee, emergencyContacts: contacts });
+  };
+
+  const handleRemoveEmergencyContact = (index: number) => {
+    if (!selectedEmployee) return;
+    const contacts = selectedEmployee.emergencyContacts.filter((_, i) => i !== index);
+    setSelectedEmployee({ ...selectedEmployee, emergencyContacts: contacts });
   };
 
   return (
@@ -331,6 +362,9 @@ export default function TeamPage() {
                     <Badge variant="secondary" className="text-[9px] font-black bg-blue-500/10 text-blue-400 border-blue-500/20">
                       NSSF {emp.nssfNumber ? '✓' : '✗'}
                     </Badge>
+                    <Badge variant="outline" className={`text-[9px] font-black ${emp.status === 'ACTIVE' ? 'border-emerald-500/50 text-emerald-500' : 'border-rose-500/50 text-rose-500'}`}>
+                      {emp.status}
+                    </Badge>
                   </div>
                 </td>
                 <td className="px-8 py-6 text-right">
@@ -356,7 +390,10 @@ export default function TeamPage() {
                 </div>
                 <div>
                   <h2 className="text-3xl font-black text-white">{selectedEmployee.firstName} {selectedEmployee.lastName}</h2>
-                  <p className="text-slate-500 font-black text-xs uppercase tracking-[0.2em] mt-1">{selectedEmployee.jobTitle} • {selectedEmployee.employeeNumber}</p>
+                  <p className="text-slate-500 font-black text-xs uppercase tracking-[0.2em] mt-1">
+                    {selectedEmployee.jobTitle} • {selectedEmployee.employeeNumber}
+                    {selectedEmployee.email && <span className="text-brand-green ml-2"> • {selectedEmployee.email}</span>}
+                  </p>
                 </div>
               </div>
               <button onClick={() => setShowProfileModal(false)} className="text-slate-500 hover:text-white transition-colors">
@@ -415,7 +452,7 @@ export default function TeamPage() {
                         <Contact2 className="w-4 h-4" /> Contact & Bank
                       </h3>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">NHIF Number</label>
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">SHA Number</label>
                         <input 
                           value={selectedEmployee.nhifNumber || ''}
                           onChange={(e) => setSelectedEmployee({...selectedEmployee, nhifNumber: e.target.value})}
@@ -423,9 +460,18 @@ export default function TeamPage() {
                         />
                       </div>
                       <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Work Email</label>
+                        <input 
+                          value={selectedEmployee.email || ''}
+                          onChange={(e) => setSelectedEmployee({...selectedEmployee, email: e.target.value})}
+                          className="w-full bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:outline-none focus:border-brand-green/30"
+                        />
+                      </div>
+                      <div className="space-y-1">
                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">M-Pesa Phone</label>
                         <input 
-                          defaultValue={selectedEmployee.phone || ''}
+                          value={selectedEmployee.phone || ''}
+                          onChange={(e) => setSelectedEmployee({...selectedEmployee, phone: e.target.value})}
                           className="w-full bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-sm font-bold text-white focus:outline-none focus:border-brand-green/30"
                         />
                       </div>
@@ -456,10 +502,43 @@ export default function TeamPage() {
                         {selectedEmployee.workPermitExpiry ? new Date(selectedEmployee.workPermitExpiry).toLocaleDateString() : 'NOT FILED'}
                       </p>
                     </div>
-                    <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Status</p>
-                      <p className="text-lg font-black text-brand-green uppercase tracking-widest">PERMANENT</p>
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-3">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Employment Basis</p>
+                      <select 
+                        value={selectedEmployee.employmentType}
+                        onChange={(e) => setSelectedEmployee({...selectedEmployee, employmentType: e.target.value as any})}
+                        className="w-full bg-brand-dark/50 border border-white/10 rounded-xl px-3 py-2 text-sm font-black text-brand-green uppercase focus:outline-none focus:border-brand-green/50 appearance-none cursor-pointer"
+                      >
+                        <option value="PERMANENT">PERMANENT</option>
+                        <option value="CONTRACT">CONTRACT</option>
+                        <option value="CASUAL">CASUAL</option>
+                      </select>
                     </div>
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/5 space-y-3">
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Operational Status</p>
+                      <select 
+                        value={selectedEmployee.status}
+                        onChange={(e) => setSelectedEmployee({...selectedEmployee, status: e.target.value as any})}
+                        className="w-full bg-brand-dark/50 border border-white/10 rounded-xl px-3 py-2 text-sm font-black text-brand-green uppercase focus:outline-none focus:border-brand-green/50 appearance-none cursor-pointer"
+                      >
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="TERMINATED">TERMINATED</option>
+                        <option value="SUSPENDED">SUSPENDED</option>
+                        <option value="ON_LEAVE">ON LEAVE</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end pt-4">
+                    <button 
+                      onClick={handleUpdateProfile}
+                      disabled={isUpdating}
+                      className="px-8 py-4 bg-brand-green/10 border border-brand-green/30 text-brand-green rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-green hover:text-brand-dark transition-all flex items-center gap-2"
+                    >
+                      {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      Update Employment Info
+                    </button>
                   </div>
 
                   <div className="space-y-6">
@@ -550,29 +629,84 @@ export default function TeamPage() {
                 </TabsContent>
 
                 <TabsContent value="emergency" className="animate-in fade-in duration-300">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {selectedEmployee.emergencyContacts.length > 0 ? selectedEmployee.emergencyContacts.map((contact, i) => (
-                      <div key={i} className="bg-white/5 p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-6">
-                           <Badge variant="outline" className="text-brand-green border-brand-green/20 font-black uppercase text-[9px]">{contact.relationship}</Badge>
-                        </div>
-                        <div className="flex gap-6 items-center">
-                          <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center group-hover:bg-brand-green transition-all duration-500">
-                            <Phone className="w-6 h-6 text-slate-400 group-hover:text-brand-dark" />
+                  <div className="space-y-8">
+                    <div className="flex justify-between items-center">
+                       <h3 className="text-xs font-black text-brand-green uppercase tracking-widest flex items-center gap-2">
+                         <Phone className="w-4 h-4" /> Personnel Emergency contacts
+                       </h3>
+                       <button 
+                        type="button"
+                        onClick={handleAddEmergencyContact}
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black text-white uppercase tracking-widest transition-all flex items-center gap-2"
+                       >
+                         <UserPlus className="w-4 h-4" /> Add Contact
+                       </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      {selectedEmployee.emergencyContacts.length > 0 ? selectedEmployee.emergencyContacts.map((contact, i) => (
+                        <div key={i} className="bg-white/5 p-8 rounded-[2rem] border border-white/10 relative overflow-hidden group space-y-6">
+                          <button 
+                            type="button"
+                            onClick={() => handleRemoveEmergencyContact(i)}
+                            className="absolute top-6 right-6 p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-lg transition-all z-10"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+
+                          <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                              <input 
+                                value={contact.name}
+                                onChange={(e) => handleUpdateEmergencyContact(i, 'name', e.target.value)}
+                                placeholder="Contact Name"
+                                className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-brand-green/30"
+                              />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Relationship</label>
+                                <input 
+                                  value={contact.relationship}
+                                  onChange={(e) => handleUpdateEmergencyContact(i, 'relationship', e.target.value)}
+                                  placeholder="e.g. Spouse"
+                                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-brand-green/30"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[9px] font-black text-slate-500 uppercase tracking-widest ml-1">Phone Number</label>
+                                <input 
+                                  value={contact.phone}
+                                  onChange={(e) => handleUpdateEmergencyContact(i, 'phone', e.target.value)}
+                                  placeholder="+254..."
+                                  className="w-full bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-sm font-bold text-white focus:outline-none focus:border-brand-green/30"
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                             <h4 className="text-lg font-black text-white">{contact.name}</h4>
-                             <p className="text-brand-green font-bold text-sm mt-1">{contact.phone}</p>
-                             {contact.email && <p className="text-slate-500 font-bold text-xs mt-0.5">{contact.email}</p>}
-                          </div>
+                          
+                          {/* Interactive glow effect */}
+                          <div className="absolute inset-0 bg-gradient-to-tr from-brand-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         </div>
-                        {/* Interactive glow effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-brand-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      </div>
-                    )) : (
-                      <div className="md:col-span-2 p-12 text-center bg-white/2 rounded-[2rem] border border-dashed border-white/10">
-                        <Contact2 className="w-12 h-12 text-slate-700 mx-auto mb-4" />
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">No emergency contacts filed for this member.</p>
+                      )) : (
+                        <div className="md:col-span-2 p-12 text-center bg-white/2 rounded-[2rem] border border-dashed border-white/10">
+                          <Contact2 className="w-12 h-12 text-slate-700 mx-auto mb-4" />
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">No emergency contacts filed for this member.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedEmployee.emergencyContacts.length > 0 && (
+                      <div className="pt-4">
+                         <button 
+                          onClick={handleUpdateProfile}
+                          disabled={isUpdating}
+                          className="w-full py-5 bg-brand-green/10 border border-brand-green/30 text-brand-green rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-brand-green hover:text-brand-dark transition-all flex justify-center items-center gap-3"
+                         >
+                           {isUpdating ? <Loader2 className="w-5 h-5 animate-spin" /> : <CheckCircle2 className="w-5 h-5" />}
+                           Update emergency File
+                         </button>
                       </div>
                     )}
                   </div>
@@ -662,15 +796,29 @@ export default function TeamPage() {
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Job Title</label>
-                  <input 
-                    type="text" 
-                    value={inviteData.jobTitle}
-                    onChange={(e) => setInviteData({...inviteData, jobTitle: e.target.value})}
-                    placeholder="Operations Lead" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
-                  />
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Employment Basis</label>
+                  <select 
+                    required
+                    value={inviteData.employmentType}
+                    onChange={(e) => setInviteData({...inviteData, employmentType: e.target.value as any})}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white appearance-none uppercase font-black tracking-wider cursor-pointer"
+                  >
+                    <option value="PERMANENT">PERMANENT</option>
+                    <option value="CONTRACT">CONTRACT</option>
+                    <option value="CASUAL">CASUAL</option>
+                  </select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest pl-1">Job Title</label>
+                <input 
+                  type="text" 
+                  value={inviteData.jobTitle}
+                  onChange={(e) => setInviteData({...inviteData, jobTitle: e.target.value})}
+                  placeholder="Operations Lead" 
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:border-brand-green/30 text-white font-bold" 
+                />
               </div>
 
               <div className="flex gap-4 pt-6">

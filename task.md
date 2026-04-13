@@ -344,10 +344,10 @@
 
 ### 7.1 Employee Digital File
 
-- [ ] Profile: name, national ID, KRA PIN, NSSF no., NHIF no., emergency contacts
-- [ ] Employment history + contract storage (S3, PDF)
-- [ ] Role & access assignment linked to RBAC
-- [ ] Document expiry alerts: work permits, health certificates
+- [x] Profile: name, national ID, KRA PIN, NSSF no., NHIF no., emergency contacts
+- [x] Employment history + contract storage (S3, PDF)
+- [x] Role & access assignment linked to RBAC
+- [x] Document expiry alerts: work permits, health certificates
 
 ### 7.2 Attendance & Leave Management
 

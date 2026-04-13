@@ -1560,6 +1560,14 @@ enum EmploymentType {
   CASUAL
 }
 
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+  SUSPENDED
+  ON_LEAVE
+}
+
 model Employee {
   id               String         @id @default(uuid())
   tenantId         String
@@ -1580,6 +1588,7 @@ model Employee {
   department       String?        // e.g. PRODUCTION, PACK_HOUSE
   jobTitle         String?
   employmentType   EmploymentType @default(PERMANENT)
+  status           EmployeeStatus @default(ACTIVE)
   basicSalary      Float          @default(0)
   isActive         Boolean        @default(true)
   joinedAt         DateTime       @default(now())
