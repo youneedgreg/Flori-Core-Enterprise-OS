@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes, Sprout, Wind, ShoppingCart, ClipboardList, TrendingUp, ShieldCheck, Landmark, Leaf } from 'lucide-react';
 import Link from 'next/link';
 import { Toaster } from 'sonner';
-import { logout, decodeJWT, isTokenExpired } from '../../lib/auth';
+import { logout, decodeJWT, isTokenExpired, refreshToken } from '../../lib/auth';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -19,23 +19,39 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
   const [user, setUser] = useState<{ email: string; role: string } | null>(null);
 
   useEffect(() => {
-    if (!token || isTokenExpired(token)) {
-      logout();
-      return;
-    }
-
-    try {
-      const payload = decodeJWT(token);
-      if (!payload) {
-        logout();
-        return;
+    const initAuth = async () => {
+      if (!token || isTokenExpired(token)) {
+        try {
+          const success = await refreshToken();
+          if (success) {
+            window.location.reload();
+            return;
+          } else {
+            logout();
+            return;
+          }
+        } catch (err) {
+          console.error('Auth refresh failed:', err);
+          logout();
+          return;
+        }
       }
-      setUser({ email: payload.email, role: payload.role });
-    } catch (err) {
-      console.error('Layout init failed:', err);
-      logout();
-    }
-  }, [token, router]);
+
+      try {
+        const payload = decodeJWT(token);
+        if (!payload) {
+          logout();
+          return;
+        }
+        setUser({ email: payload.email, role: payload.role });
+      } catch (err) {
+        console.error('Layout init failed:', err);
+        logout();
+      }
+    };
+
+    initAuth();
+  }, [token]);
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },

@@ -16,6 +16,7 @@ function isTokenExpired(token: string): boolean {
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('access_token')?.value;
+  const refreshToken = request.cookies.get('refresh_token')?.value;
   const { pathname } = request.nextUrl;
 
   // Paths that should not be accessible if the user is already authenticated
@@ -28,10 +29,17 @@ export function middleware(request: NextRequest) {
     const expired = isTokenExpired(token);
     
     if (expired) {
-      // If token is expired, clear it and redirect to login if we're on a dashboard route
+      // If access token is expired, but we have a refresh token, allow to proceed.
+      // The DashboardShell (client-side) will handle the actual refresh.
+      if (refreshToken) {
+        return NextResponse.next();
+      }
+
+      // If token is expired and no refresh token, clear it and redirect to login if we're on a dashboard route
       if (isDashboardRoute) {
         const response = NextResponse.redirect(new URL('/login', request.url));
         response.cookies.delete('access_token');
+        response.cookies.delete('refresh_token');
         return response;
       }
     } else if (authPaths.includes(pathname)) {
@@ -39,6 +47,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
   } else if (isDashboardRoute) {
+    // If no token, check if we have a refresh token
+    if (refreshToken) {
+      return NextResponse.next();
+    }
     // If no token and trying to access dashboard, redirect to login
     return NextResponse.redirect(new URL('/login', request.url));
   }

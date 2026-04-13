@@ -9,10 +9,11 @@ export default async function DashboardLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get('access_token')?.value;
+  const refreshToken = cookieStore.get('refresh_token')?.value;
 
-  if (!token) {
+  if (!token && !refreshToken) {
     redirect('/login');
   }
 
-  return <DashboardShell token={token}>{children}</DashboardShell>;
+  return <DashboardShell token={token || ''}>{children}</DashboardShell>;
 }

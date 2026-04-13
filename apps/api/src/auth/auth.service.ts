@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Injectable,
   UnauthorizedException,
@@ -89,8 +92,17 @@ export class AuthService {
       where: { tenantId: result.tenant.id },
     }));
 
+    const access_token = this.jwtService.sign(payload);
+    const refresh_token = this.jwtService.sign(payload, {
+      secret:
+        process.env.JWT_REFRESH_SECRET ||
+        'even_more_secret_flori_core_refresh_key',
+      expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN as any) || '7d',
+    });
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token,
+      refresh_token,
       user: {
         id: result.user.id,
         email: result.user.email,
@@ -130,14 +142,56 @@ export class AuthService {
         `[AUTH] Login success: user=${user.email}, tenantId=${user.tenantId}, isOnboarded=${isOnboarded}`,
       );
 
+      const access_token = this.jwtService.sign(payload);
+      const refresh_token = this.jwtService.sign(payload, {
+        secret:
+          process.env.JWT_REFRESH_SECRET ||
+          'even_more_secret_flori_core_refresh_key',
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN as any) || '7d',
+      });
+
       return {
-        access_token: this.jwtService.sign(payload),
+        access_token,
+        refresh_token,
         user: { id: user.id, email: user.email, role: roleName },
         isOnboarded,
       };
     } catch (e) {
       console.error('[AUTH ERROR]', e);
       throw e;
+    }
+  }
+
+  refreshTokens(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify(refreshToken, {
+        secret:
+          process.env.JWT_REFRESH_SECRET ||
+          'even_more_secret_flori_core_refresh_key',
+      });
+
+      // Issue new access token
+      const newPayload = {
+        sub: payload.sub,
+        email: payload.email,
+        tenantId: payload.tenantId,
+        role: payload.role,
+      };
+
+      const access_token = this.jwtService.sign(newPayload);
+      const refresh_token = this.jwtService.sign(newPayload, {
+        secret:
+          process.env.JWT_REFRESH_SECRET ||
+          'even_more_secret_flori_core_refresh_key',
+        expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN as any) || '7d',
+      });
+
+      return {
+        access_token,
+        refresh_token,
+      };
+    } catch (e) {
+      throw new UnauthorizedException('Invalid refresh token');
     }
   }
 

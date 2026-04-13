@@ -30,6 +30,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('refresh')
+  async refresh(@Body('refresh_token') refreshToken: string) {
+    return this.authService.refreshTokens(refreshToken);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('roles')
   async getRoles(@Req() req: AuthenticatedRequest) {
