@@ -326,6 +326,34 @@ export default function ProductionPage() {
     [authHeaders, selectedCycle, fetchData],
   );
 
+  const deleteVariety = useCallback(
+    async (variety: Variety) => {
+      const activeCount = cycles.filter(
+        (c) => c.variety.id === variety.id && !['COMPLETED', 'CANCELLED'].includes(c.status),
+      ).length;
+
+      if (activeCount > 0) {
+        toast.error(`Cannot delete "${variety.name}" while it has ${activeCount} active crop cycles.`);
+        return;
+      }
+
+      if (!confirm(`Delete variety "${variety.name}"? This will remove all records associated with it.`)) return;
+
+      const res = await fetch(`${API}/varieties/${variety.id}`, {
+        method: 'DELETE',
+        headers: authHeaders(),
+      });
+
+      if (res.ok) {
+        toast.success('Variety deleted');
+        fetchData();
+      } else {
+        toast.error('Failed to delete variety. It may be linked to historical records.');
+      }
+    },
+    [authHeaders, fetchData, cycles],
+  );
+
   // ─── Computed values ─────────────────────────────────────────────────────
   const activeCycles = useMemo(() => cycles.filter((c) => !['COMPLETED', 'CANCELLED'].includes(c.status)), [cycles]);
 
@@ -972,15 +1000,23 @@ export default function ProductionPage() {
                             )}
                           </div>
                         </div>
+                      <div className="flex gap-2">
                         <button
                           onClick={() => setEditingVariety(variety)}
                           className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-slate-500 hover:text-white transition-all opacity-0 group-hover:opacity-100 border border-white/5"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
+                        <button
+                          onClick={() => deleteVariety(variety)}
+                          className="p-2 bg-white/5 hover:bg-rose-500/10 rounded-xl text-slate-500 hover:text-rose-400 transition-all opacity-0 group-hover:opacity-100 border border-white/5"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
+                    </div>
 
-                      <div className="space-y-3 mb-6">
+                    <div className="space-y-3 mb-6">
                         <div className="flex items-center justify-between border-b border-white/5 pb-2">
                           <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Stem Length</span>
                           <span className="text-xs font-black text-white">{variety.targetStemLength ?? '—'} cm</span>
