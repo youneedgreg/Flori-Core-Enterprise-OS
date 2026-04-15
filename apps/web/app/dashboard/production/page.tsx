@@ -19,6 +19,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
+import StartCycleModal from '@/components/production/StartCycleModal';
+import CreateVarietyModal from '@/components/production/CreateVarietyModal';
 import { 
   BarChart, 
   Bar, 
@@ -80,6 +82,9 @@ export default function ProductionPage() {
   const [cycles, setCycles] = useState<CropCycle[]>([]);
   const [forecast, setForecast] = useState<ForecastData[]>([]);
   const [schedules, setSchedules] = useState<CropSchedule[]>([]);
+  const [zones, setZones] = useState<any[]>([]);
+  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+  const [isVarietyModalOpen, setIsVarietyModalOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -88,17 +93,43 @@ export default function ProductionPage() {
       const token = tokenMatch?.[1];
       const headers = { Authorization: `Bearer ${token}` };
 
-      const [vRes, cRes, fRes, sRes] = await Promise.all([
+      const [vRes, cRes, fRes, sRes, zRes] = await Promise.all([
         fetch(`${API}/varieties`, { headers }),
         fetch(`${API}/crop-cycles`, { headers }),
         fetch(`${API}/crop-cycles/forecast`, { headers }),
-        fetch(`${API}/crop-schedules`, { headers })
+        fetch(`${API}/crop-schedules`, { headers }),
+        fetch(`${API}/zones`, { headers })
       ]);
 
-      if (vRes.ok) setVarieties(await vRes.json());
-      if (cRes.ok) setCycles(await cRes.json());
-      if (fRes.ok) setForecast(await fRes.json());
       if (sRes.ok) setSchedules(await sRes.json());
+      if (zRes.ok) setZones(await zRes.json());
+
+      // Bootstrapping: Create a default variety if none exist
+      if (vRes.ok) {
+        const data = await vRes.json();
+        if (data.length === 0) {
+          const createRes = await fetch(`${API}/varieties`, {
+            method: 'POST',
+            headers: { 
+              ...headers, 
+              'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+              name: 'Standard Rose',
+              targetStemLength: 60,
+              bloomTime: 12,
+              marketGrade: 'A',
+              targetStemCountPerSqm: 28,
+            }),
+          });
+          if (createRes.ok) {
+             const newVariety = await createRes.json();
+             setVarieties([newVariety]);
+          }
+        } else {
+          setVarieties(data);
+        }
+      }
     } catch {
       toast.error('Failed to load production data');
     } finally {
@@ -144,11 +175,17 @@ export default function ProductionPage() {
              <Droplets className="w-5 h-5 text-rose-500" />
              Spray Logs
           </button>
-          <button className="flex items-center justify-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-sm transition-all border border-white/5">
+          <button 
+            onClick={() => setIsVarietyModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-black text-sm transition-all border border-white/10"
+          >
              <Plus className="w-5 h-5" />
              New Variety
           </button>
-          <button className="flex items-center justify-center gap-2 px-6 py-4 bg-brand-green hover:bg-brand-green/90 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+          <button 
+            onClick={() => setIsStartModalOpen(true)}
+            className="flex items-center justify-center gap-2 px-6 py-4 bg-brand-green hover:bg-brand-green/90 text-slate-950 rounded-2xl font-black text-sm transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+          >
             <Plus className="w-5 h-5" />
             Start Crop Cycle
           </button>
@@ -228,64 +265,81 @@ export default function ProductionPage() {
                   </div>
                </div>
 
-               {/* Custom Gantt View */}
-               <div className="border border-white/5 rounded-3xl overflow-hidden bg-black/40">
-                  <div className="overflow-x-auto custom-scrollbar">
-                    <div className="min-w-[1200px]">
-                      {/* Timeline Header (Months/Weeks) */}
-                      <div className="grid grid-cols-[250px_1fr] border-b border-white/5">
-                        <div className="p-6 border-r border-white/5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Greenhouse Block</div>
-                        <div className="grid grid-cols-12">
-                          {Array.from({ length: 12 }).map((_, i) => (
-                            <div key={i} className="p-4 text-center text-[9px] font-black text-slate-600 uppercase tracking-widest border-r border-white/5 last:border-0">
-                               Week {i + 1}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                {/* Custom Gantt View */}
+                <div className="border border-white/5 rounded-3xl overflow-hidden bg-black/40">
+                   <div className="overflow-x-auto custom-scrollbar">
+                     <div className="min-w-[1200px]">
+                       {/* Timeline Header (Months/Weeks) */}
+                       <div className="grid grid-cols-[250px_1fr] border-b border-white/5">
+                         <div className="p-6 border-r border-white/5 text-[10px] font-black text-slate-500 uppercase tracking-widest">Greenhouse Block</div>
+                         <div className="grid grid-cols-12">
+                           {Array.from({ length: 12 }).map((_, i) => (
+                             <div key={i} className="p-4 text-center text-[9px] font-black text-slate-600 uppercase tracking-widest border-r border-white/5 last:border-0">
+                                Week {i + 1}
+                             </div>
+                           ))}
+                         </div>
+                       </div>
 
-                      {/* Timeline Rows */}
-                      <div className="divide-y divide-white/5">
-                        {cycles.length > 0 ? cycles.slice(0, 5).map((cycle, idx) => (
-                          <div key={cycle.id} className="grid grid-cols-[250px_1fr] hover:bg-white/2 transition-colors">
-                            <div className="p-6 border-r border-white/5">
-                              <h4 className="text-sm font-black text-white uppercase">{cycle.zone?.name || 'N/A'}</h4>
-                              <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter mt-1">{cycle.variety.name} · {cycle.status}</p>
-                            </div>
-                            <div className="relative h-20 flex items-center px-4">
-                               <div 
-                                 className={`h-10 rounded-2xl relative flex items-center px-4 overflow-hidden transition-all hover:scale-[1.01] cursor-pointer ${
-                                   cycle.status === 'GROWING' 
-                                     ? 'bg-brand-green/20 border border-brand-green/30 text-brand-green shadow-xl shadow-brand-green/5' 
-                                     : 'bg-white/5 border border-white/10 text-slate-500'
-                                 }`}
-                                 style={{ 
-                                   width: `${Math.max(20, 20 + idx * 15)}%`, // Mock width for demo
-                                   marginLeft: `${idx * 10}%` // Mock offset for demo
-                                 }}
-                               >
-                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
-                                  <span className="text-[10px] font-black uppercase tracking-widest relative z-10 truncate">
-                                    {cycle.variety.name} Cycle
-                                  </span>
-                                  {cycle.status === 'GROWING' && (
-                                    <div className="ml-auto flex items-center gap-2 bg-brand-green/20 px-2 py-0.5 rounded-lg border border-brand-green/30">
-                                       <div className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
-                                       <span className="text-[8px] font-black text-brand-green uppercase">Live</span>
-                                    </div>
-                                  )}
-                               </div>
-                            </div>
-                          </div>
-                        )) : (
-                          <div className="p-20 text-center text-slate-500 font-bold uppercase text-xs tracking-widest">
-                            No active cycles to display in timeline
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-               </div>
+                       {/* Timeline Rows */}
+                       <div className="divide-y divide-white/5">
+                         {cycles.length > 0 ? (
+                           (() => {
+                             // Calculate Timeline bounds (12 weeks window)
+                             const earliestStart = Math.min(...cycles.map(c => new Date(c.startDate).getTime()));
+                             const timelineStart = new Date(earliestStart);
+                             const timelineTotalMs = 12 * 7 * 24 * 60 * 60 * 1000; // 12 Weeks
+
+                             return cycles.map((cycle) => {
+                               const start = new Date(cycle.startDate).getTime();
+                               const end = cycle.projectedHarvestDate ? new Date(cycle.projectedHarvestDate).getTime() : start + (7 * 24 * 60 * 60 * 1000);
+                               
+                               const leftPercent = Math.max(0, ((start - timelineStart.getTime()) / timelineTotalMs) * 100);
+                               const widthPercent = Math.min(100 - leftPercent, ((end - start) / timelineTotalMs) * 100);
+
+                               return (
+                                 <div key={cycle.id} className="grid grid-cols-[250px_1fr] hover:bg-white/2 transition-colors">
+                                   <div className="p-6 border-r border-white/5">
+                                     <h4 className="text-sm font-black text-white uppercase">{cycle.zone?.name || 'N/A'}</h4>
+                                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter mt-1">{cycle.variety.name} · {cycle.status}</p>
+                                   </div>
+                                   <div className="relative h-20 flex items-center px-4">
+                                      <div 
+                                        className={`h-10 rounded-2xl relative flex items-center px-4 overflow-hidden transition-all hover:scale-[1.01] cursor-pointer ${
+                                          cycle.status === 'GROWING' 
+                                            ? 'bg-brand-green/20 border border-brand-green/30 text-brand-green shadow-xl shadow-brand-green/5' 
+                                            : 'bg-white/5 border border-white/10 text-slate-500'
+                                        }`}
+                                        style={{ 
+                                          width: `${Math.max(5, widthPercent)}%`, 
+                                          marginLeft: `${leftPercent}%`
+                                        }}
+                                      >
+                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] animate-[shimmer_3s_infinite]" />
+                                         <span className="text-[10px] font-black uppercase tracking-widest relative z-10 truncate">
+                                           {cycle.variety.name}
+                                         </span>
+                                         {cycle.status === 'GROWING' && (
+                                           <div className="ml-auto flex items-center gap-2 bg-brand-green/20 px-2 py-0.5 rounded-lg border border-brand-green/30">
+                                              <div className="w-1.5 h-1.5 rounded-full bg-brand-green animate-pulse" />
+                                              <span className="text-[8px] font-black text-brand-green uppercase">Live</span>
+                                           </div>
+                                         )}
+                                      </div>
+                                   </div>
+                                 </div>
+                               );
+                             });
+                           })()
+                         ) : (
+                           <div className="p-20 text-center text-slate-500 font-bold uppercase text-xs tracking-widest">
+                             No active cycles to display in timeline
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                   </div>
+                </div>
             </div>
           )}
 
@@ -552,6 +606,24 @@ export default function ProductionPage() {
           )}
         </div>
       )}
+
+      {/* Modals */}
+      <StartCycleModal
+        isOpen={isStartModalOpen}
+        onClose={() => setIsStartModalOpen(false)}
+        apiBase={API}
+        varieties={varieties}
+        zones={zones.filter(z => z.type === 'GREENHOUSE')}
+        onSuccess={fetchData}
+        onCreateVariety={() => setIsVarietyModalOpen(true)}
+      />
+
+      <CreateVarietyModal
+        isOpen={isVarietyModalOpen}
+        onClose={() => setIsVarietyModalOpen(false)}
+        apiBase={API}
+        onSuccess={fetchData}
+      />
 
       <style jsx>{`
         @keyframes shimmer {

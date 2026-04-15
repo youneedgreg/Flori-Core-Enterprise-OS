@@ -178,6 +178,107 @@ export class HRController {
   ) {
     return this.hrService.deleteShiftAssignment(req.user.tenantId, id);
   }
+
+  // ─── Training Management ────────────────────────────────────────────────────
+
+  @Get('training/courses')
+  async getTrainingCourses(@Req() req: AuthenticatedRequest) {
+    return this.hrService.getTrainingCourses(req.user.tenantId);
+  }
+
+  @Post('training/courses')
+  @Roles('gold_admin', 'hr_manager')
+  async addTrainingCourse(@Req() req: AuthenticatedRequest, @Body() data: any) {
+    return this.hrService.addTrainingCourse(req.user.tenantId, data);
+  }
+
+  @Get('training/records')
+  async getTrainingRecords(
+    @Req() req: AuthenticatedRequest,
+    @Query('employeeId') employeeId?: string,
+  ) {
+    return this.hrService.getTrainingRecords(req.user.tenantId, employeeId);
+  }
+
+  @Post('training/records')
+  @Roles('gold_admin', 'hr_manager')
+  @UseInterceptors(FileInterceptor('file'))
+  async addTrainingRecord(
+    @Req() req: AuthenticatedRequest,
+    @Body() data: any,
+    @UploadedFile() file: any,
+  ) {
+    return this.hrService.addTrainingRecord(req.user.tenantId, data, file);
+  }
+
+  @Get('training/schedule')
+  async getTrainingSchedule(
+    @Req() req: AuthenticatedRequest,
+    @Query('start') start?: string,
+    @Query('end') end?: string,
+  ) {
+    return this.hrService.getTrainingSchedule(req.user.tenantId, start, end);
+  }
+
+  @Post('training/schedule')
+  @Roles('gold_admin', 'hr_manager')
+  async scheduleTraining(@Req() req: AuthenticatedRequest, @Body() data: any) {
+    return this.hrService.scheduleTraining(req.user.tenantId, data);
+  }
+
+  // ─── Performance Appraisals ──────────────────────────────────────────────────
+
+  @Get('appraisals/:employeeId')
+  async getAppraisals(
+    @Req() req: AuthenticatedRequest,
+    @Param('employeeId') employeeId: string,
+  ) {
+    return this.hrService.getAppraisals(req.user.tenantId, employeeId);
+  }
+
+  @Post('appraisals/:employeeId')
+  @Roles('gold_admin', 'hr_manager')
+  async createAppraisal(
+    @Req() req: AuthenticatedRequest,
+    @Param('employeeId') employeeId: string,
+    @Body('period') period: string,
+  ) {
+    return this.hrService.createAppraisal(
+      req.user.tenantId,
+      employeeId,
+      period,
+    );
+  }
+
+  @Post('appraisals/:id/review')
+  async submitAppraisalReview(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    return this.hrService.submitAppraisalReview(
+      id,
+      req.user.id,
+      data.type,
+      data.scores,
+      data.comments,
+    );
+  }
+
+  // ─── KPI Management ─────────────────────────────────────────────────────────
+
+  @Get('kpis/:employeeId')
+  async getEmployeeKPIs(
+    @Req() req: AuthenticatedRequest,
+    @Param('employeeId') employeeId: string,
+    @Query('period') period: string,
+  ) {
+    return this.hrService.calculateEmployeeKPIs(
+      req.user.tenantId,
+      employeeId,
+      period,
+    );
+  }
 }
 
 // Simple placeholder for ApiTags decorator if Swagger is not fully configured

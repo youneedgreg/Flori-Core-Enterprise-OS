@@ -376,4 +376,298 @@ export class HRService {
       where: { id: assignmentId, tenantId },
     });
   }
+
+  // ─── Training Management ────────────────────────────────────────────────────
+
+  async getTrainingCourses(tenantId: string) {
+    return this.prisma.trainingCourse.findMany({
+      where: { tenantId },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async addTrainingCourse(tenantId: string, data: any) {
+    return this.prisma.trainingCourse.create({
+      data: { ...data, tenantId },
+    });
+  }
+
+  async getTrainingRecords(tenantId: string, employeeId?: string) {
+    return this.prisma.trainingRecord.findMany({
+      where: {
+        tenantId,
+        ...(employeeId ? { employeeId } : {}),
+      },
+      include: {
+        course: true,
+        employee: { select: { firstName: true, lastName: true } },
+      },
+      orderBy: { completionDate: 'desc' },
+    });
+  }
+
+  async addTrainingRecord(
+    tenantId: string,
+    data: any,
+    file?: { buffer: Buffer; originalname: string; mimetype: string },
+  ) {
+    let certificateUrl = data.certificateUrl;
+
+    if (file) {
+      certificateUrl = await this.storage.uploadFile(
+        `training/${data.employeeId}/${Date.now()}-${file.originalname}`,
+        file.buffer,
+        file.mimetype,
+      );
+    }
+
+    const { expiryDate, completionDate, ...rest } = data;
+
+    return this.prisma.trainingRecord.create({
+      data: {
+        ...rest,
+        tenantId,
+        completionDate: new Date(completionDate),
+        expiryDate: expiryDate ? new Date(expiryDate) : null,
+        certificateUrl,
+      },
+    });
+  }
+
+  async getTrainingSchedule(
+    tenantId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    return this.prisma.trainingSchedule.findMany({
+      where: {
+        tenantId,
+        ...(startDate && endDate
+          ? {
+              scheduledDate: {
+                gte: new Date(startDate),
+                lte: new Date(endDate),
+              },
+            }
+          : {}),
+      },
+      include: { course: true },
+      orderBy: { scheduledDate: 'asc' },
+    });
+  }
+
+  async scheduleTraining(tenantId: string, data: any) {
+    return this.prisma.trainingSchedule.create({
+      data: {
+        ...data,
+        tenantId,
+        scheduledDate: new Date(data.scheduledDate),
+      },
+    });
+  }
+
+  // ─── Performance Appraisals ──────────────────────────────────────────────────
+
+  async getAppraisals(tenantId: string, employeeId: string) {
+    return this.prisma.performanceAppraisal.findMany({
+      where: { tenantId, employeeId },
+      include: {
+        reviews: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createAppraisal(tenantId: string, employeeId: string, period: string) {
+    // Check if one already exists for this period
+    const existing = await this.prisma.performanceAppraisal.findFirst({
+      where: { tenantId, employeeId, period },
+    });
+    if (existing) return existing;
+
+    // Calculate initial KPI score for the period
+    const kpiScore = await this.calculateEmployeeKPIs(
+      tenantId,
+      employeeId,
+      period,
+    );
+
+    return this.prisma.performanceAppraisal.create({
+      data: {
+        tenantId,
+        employeeId,
+        period,
+        status: 'IN_PROGRESS',
+        kpiScore: kpiScore.overallScore,
+      },
+    });
+  }
+
+  async submitAppraisalReview(
+    appraisalId: string,
+    reviewerId: string,
+    type: 'SELF' | 'PEER' | 'SUPERVISOR',
+    scores: any,
+    comments?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const review = await tx.appraisalReview.create({
+        data: {
+          appraisalId,
+          reviewerId,
+          type,
+          scores,
+          comments,
+        },
+      });
+
+      // Update aggregate scores in appraisal
+      const allReviews = await tx.appraisalReview.findMany({
+        where: { appraisalId },
+      });
+
+      const selfReviews = allReviews.filter((r) => r.type === 'SELF');
+      const peerReviews = allReviews.filter((r) => r.type === 'PEER');
+      const supervisorReviews = allReviews.filter(
+        (r) => r.type === 'SUPERVISOR',
+      );
+
+      const avg = (revs: any[]) =>
+        revs.length > 0
+          ? revs.reduce((sum, r) => sum + (Number(r.scores.overall) || 0), 0) /
+            revs.length
+          : null;
+
+      const selfScore = avg(selfReviews);
+      const peerScore = avg(peerReviews);
+      const supervisorScore = avg(supervisorReviews);
+
+      // Final score calculation (weighted)
+      let finalScore = 0;
+      let weights = 0;
+      if (selfScore !== null) {
+        finalScore += selfScore * 0.1;
+        weights += 0.1;
+      }
+      if (peerScore !== null) {
+        finalScore += peerScore * 0.3;
+        weights += 0.3;
+      }
+      if (supervisorScore !== null) {
+        finalScore += supervisorScore * 0.6;
+        weights += 0.6;
+      }
+
+      const normalizedFinalScore = weights > 0 ? finalScore / weights : null;
+
+      await tx.performanceAppraisal.update({
+        where: { id: appraisalId },
+        data: {
+          selfScore,
+          peerScore,
+          supervisorScore,
+          finalScore: normalizedFinalScore,
+          status: allReviews.length >= 3 ? 'COMPLETED' : 'IN_PROGRESS',
+        },
+      });
+
+      return review;
+    });
+  }
+
+  // ─── KPI Calculation Logic (Robust) ─────────────────────────────────────────
+
+  async calculateEmployeeKPIs(
+    tenantId: string,
+    employeeId: string,
+    period: string,
+  ) {
+    // Assuming period is "YYYY-MM"
+    const start = new Date(`${period}-01`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    // Get the User ID associated with this employee for production data tracking
+    const emp = await this.prisma.employee.findUnique({
+      where: { id: employeeId },
+      select: { userId: true },
+    });
+
+    if (!emp?.userId) {
+      return {
+        period,
+        stemsPerHour: 0,
+        rejectionRate: 0,
+        attendanceScore: 0,
+        productivityScore: 0,
+        qualityScore: 0,
+        overallScore: 0,
+      };
+    }
+
+    // 1. Productivity: Stems Per Hour
+    const logs = await this.prisma.labourLog.findMany({
+      where: {
+        tenantId,
+        userId: emp.userId,
+        timestamp: { gte: start, lt: end },
+        taskType: 'HARVEST',
+      },
+    });
+
+    const totalHours = logs.reduce((sum, l) => sum + l.hours, 0);
+    const totalStems = logs.reduce((sum, l) => sum + (l.stemsCut || 0), 0);
+    const stemsPerHour = totalHours > 0 ? totalStems / totalHours : 0;
+
+    // 2. Quality: Rejection Rate
+    const harvests = await this.prisma.harvestRecord.findMany({
+      where: {
+        tenantId,
+        supervisorId: emp.userId,
+        date: { gte: start, lt: end },
+      },
+    });
+    // Note: This assumes the employee is the supervisor/harvester listed.
+    // In a real robust system, we'd link HR to Production records more tightly.
+
+    const harvested = harvests.reduce((sum, h) => sum + h.quantityStems, 0);
+    const rejected = harvests.reduce(
+      (sum, h) => sum + (h.rejectedStems || 0),
+      0,
+    );
+    const rejectionRate = harvested > 0 ? rejected / harvested : 0;
+
+    // 3. Attendance Consistency
+    const attendance = await this.prisma.attendanceLog.findMany({
+      where: {
+        tenantId,
+        employeeId,
+        timestamp: { gte: start, lt: end },
+        type: 'CHECK_IN',
+      },
+    });
+
+    const uniqueDays = new Set(
+      attendance.map((a) => a.timestamp.toDateString()),
+    ).size;
+    const workingDays = 22; // Hardcoded or calculated from shifts
+    const attendanceScore = (uniqueDays / workingDays) * 10;
+
+    // Scoring (Normalized to 1-10)
+    const productivityScore = Math.min(stemsPerHour / 200, 1) * 10; // Target 200 stems/hr
+    const qualityScore = Math.max(0, 1 - rejectionRate / 0.05) * 10; // Target < 5% reject
+
+    const overallScore =
+      productivityScore * 0.4 + qualityScore * 0.4 + attendanceScore * 0.2;
+
+    return {
+      period,
+      stemsPerHour,
+      rejectionRate,
+      attendanceScore,
+      productivityScore,
+      qualityScore,
+      overallScore,
+    };
+  }
 }

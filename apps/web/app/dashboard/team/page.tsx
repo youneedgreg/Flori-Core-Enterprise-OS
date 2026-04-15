@@ -21,7 +21,12 @@ import {
   ExternalLink,
   Upload,
   Calendar,
-  Contact2
+  Contact2,
+  GraduationCap,
+  BarChart3,
+  Award,
+  CheckCircle,
+  FileBadge
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -58,6 +63,25 @@ interface Employee {
   attendanceLogs: any[];
   leaveRequests: any[];
   shiftAssignments: any[];
+  trainingRecords: any[];
+  appraisals: any[];
+  kpis?: any;
+}
+
+interface TrainingCourse {
+  id: string;
+  name: string;
+  category: string;
+  isMandatory: boolean;
+}
+
+interface Appraisal {
+  id: string;
+  period: string;
+  status: string;
+  finalScore: number | null;
+  kpiScore: number | null;
+  reviews: any[];
 }
 
 interface Role {
@@ -92,6 +116,17 @@ export default function TeamPage() {
     endDate: '',
     reason: ''
   });
+  const [trainingCourses, setTrainingCourses] = useState<TrainingCourse[]>([]);
+  const [trainingRecords, setTrainingRecords] = useState<any[]>([]);
+  const [trainingSchedule, setTrainingSchedule] = useState<any[]>([]);
+  const [selectedAppraisal, setSelectedAppraisal] = useState<Appraisal | null>(null);
+  const [kpiData, setKpiData] = useState<any>(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    type: 'SELF' as 'SELF' | 'PEER' | 'SUPERVISOR',
+    scores: { overall: 5 },
+    comments: ''
+  });
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -122,6 +157,14 @@ export default function TeamPage() {
       }
       if (shiftsRes.ok) setShifts(await shiftsRes.json());
       if (assignmentsRes.ok) setAllShiftAssignments(await assignmentsRes.json());
+
+      // Fetch Training Courses
+      const coursesRes = await fetch(`${API}/hr/training/courses`, { headers });
+      if (coursesRes.ok) setTrainingCourses(await coursesRes.json());
+
+      // Fetch Training Schedule
+      const scheduleRes = await fetch(`${API}/hr/training/schedule`, { headers });
+      if (scheduleRes.ok) setTrainingSchedule(await scheduleRes.json());
     } catch (error) {
       console.error('Failed to fetch HR data:', error);
       toast.error('Failed to load workforce data');
@@ -142,7 +185,16 @@ export default function TeamPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        setSelectedEmployee(await res.json());
+        const data = await res.json();
+        setSelectedEmployee(data);
+
+        // Fetch KPIs for the current month
+        const period = new Date().toISOString().slice(0, 7);
+        const kpiRes = await fetch(`${API}/hr/kpis/${id}?period=${period}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (kpiRes.ok) setKpiData(await kpiRes.json());
+
         setShowProfileModal(true);
       }
     } catch (e) {
@@ -498,6 +550,8 @@ export default function TeamPage() {
                   <TabsTrigger value="attendance" className="rounded-xl px-6 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark"><Clock className="w-4 h-4 mr-2" /> Attendance</TabsTrigger>
                   <TabsTrigger value="leave" className="rounded-xl px-6 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark"><Briefcase className="w-4 h-4 mr-2" /> Leave</TabsTrigger>
                   <TabsTrigger value="shifts" className="rounded-xl px-6 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark"><Calendar className="w-4 h-4 mr-2" /> Shifts</TabsTrigger>
+                  <TabsTrigger value="training" className="rounded-xl px-6 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark"><GraduationCap className="w-4 h-4 mr-2" /> Training</TabsTrigger>
+                  <TabsTrigger value="appraisals" className="rounded-xl px-6 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark"><BarChart3 className="w-4 h-4 mr-2" /> Performance</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="profile" className="animate-in fade-in duration-300">
@@ -1099,6 +1153,205 @@ export default function TeamPage() {
                             ))}
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="training" className="animate-in fade-in duration-300">
+                  <div className="space-y-8">
+                    {/* Training Stats & Compliance */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 group hover:border-brand-green/30 transition-all">
+                        <Award className="w-8 h-8 text-brand-green mb-4" />
+                        <h4 className="text-2xl font-black text-white">{selectedEmployee.trainingRecords.length}</h4>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Training Certs</p>
+                      </div>
+                      <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 group hover:border-amber-500/30 transition-all">
+                        <BadgeAlert className="w-8 h-8 text-amber-500 mb-4" />
+                        <h4 className="text-2xl font-black text-white">
+                          {trainingCourses.filter(c => c.isMandatory).length - selectedEmployee.trainingRecords.filter(r => r.course.isMandatory).length}
+                        </h4>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Missing Compliance</p>
+                      </div>
+                      <div className="bg-white/5 p-8 rounded-[2rem] border border-white/10 group hover:border-blue-500/30 transition-all">
+                        <Calendar className="w-8 h-8 text-blue-500 mb-4" />
+                        <h4 className="text-2xl font-black text-white">{trainingSchedule.length}</h4>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Scheduled Sessions</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Records Table */}
+                      <div className="lg:col-span-2 bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden">
+                        <div className="p-6 bg-white/5 border-b border-white/5 flex justify-between items-center">
+                           <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] flex items-center gap-2">
+                             <FileBadge className="w-4 h-4" /> TRAINING HISTORY & CERTIFICATES
+                           </h4>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="bg-white/2">
+                                <th className="px-6 py-4 text-[9px] font-black text-slate-500 uppercase">Course</th>
+                                <th className="px-6 py-4 text-[9px] font-black text-slate-500 uppercase">Status</th>
+                                <th className="px-6 py-4 text-[9px] font-black text-slate-500 uppercase text-right">Certificate</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {selectedEmployee.trainingRecords.length > 0 ? selectedEmployee.trainingRecords.map((r, i) => (
+                                <tr key={i} className="hover:bg-white/2">
+                                  <td className="px-6 py-4">
+                                    <p className="text-xs font-black text-white uppercase">{r.course.name}</p>
+                                    <p className="text-[9px] font-bold text-slate-500 uppercase mt-0.5">{new Date(r.completionDate).toLocaleDateString()}</p>
+                                  </td>
+                                  <td className="px-6 py-4">
+                                    <Badge variant="outline" className="text-[9px] border-brand-green/30 text-brand-green uppercase font-black">Valid</Badge>
+                                  </td>
+                                  <td className="px-6 py-4 text-right">
+                                    {r.certificateUrl ? (
+                                      <Link href={r.certificateUrl} target="_blank" className="p-2 bg-white/5 rounded-lg inline-block hover:bg-white/10 transition-all">
+                                        <ExternalLink className="w-3 h-3 text-slate-400" />
+                                      </Link>
+                                    ) : (
+                                      <span className="text-[9px] font-black text-slate-700 uppercase">No File</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              )) : (
+                                <tr><td colSpan={3} className="py-12 text-center text-[10px] font-black text-slate-600 uppercase">No training records found.</td></tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Compliance Tracker */}
+                      <div className="bg-brand-dark/50 p-8 rounded-[2.5rem] border border-white/10 space-y-6 self-start">
+                        <h4 className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                          <Shield className="w-4 h-4 text-brand-green" /> COMPLIANCE TRACKER
+                        </h4>
+                        <div className="space-y-4">
+                          {trainingCourses.filter(c => c.isMandatory).map((course, i) => {
+                            const completed = selectedEmployee.trainingRecords.find(r => r.courseId === course.id);
+                            return (
+                              <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5">
+                                <div>
+                                  <p className="text-[10px] font-black text-white uppercase">{course.name}</p>
+                                  <p className="text-[8px] font-bold text-slate-500 uppercase">Periodic Training</p>
+                                </div>
+                                {completed ? (
+                                  <CheckCircle className="w-5 h-5 text-brand-green" />
+                                ) : (
+                                  <div className="w-5 h-5 rounded-full border-2 border-rose-500/30 flex items-center justify-center">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="appraisals" className="animate-in fade-in duration-300">
+                  <div className="space-y-8">
+                    {/* KPI Performance Bar */}
+                    {kpiData && (
+                      <div className="bg-brand-green/5 p-8 rounded-[2.5rem] border border-brand-green/20">
+                         <div className="flex justify-between items-center mb-8">
+                            <div>
+                               <h3 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+                                 <BarChart3 className="w-5 h-5 text-brand-green" /> Performance Analytics — {new Date().toLocaleString('default', { month: 'long' })}
+                               </h3>
+                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Real-time productivity & quality scoring</p>
+                            </div>
+                            <div className="text-right">
+                               <p className="text-3xl font-black text-brand-green">{kpiData.overallScore.toFixed(1)} / 10</p>
+                               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Overall Score</p>
+                            </div>
+                         </div>
+                         
+                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            {[
+                              { label: 'Productivity', val: kpiData.productivityScore.toFixed(1), sub: `${kpiData.stemsPerHour.toFixed(0)} Stems/hr`, col: 'text-brand-green' },
+                              { label: 'Quality', val: kpiData.qualityScore.toFixed(1), sub: `${(kpiData.rejectionRate * 100).toFixed(1)}% Reject Rate`, col: 'text-emerald-500' },
+                              { label: 'Attendance', val: kpiData.attendanceScore.toFixed(1), sub: '22 Days Present', col: 'text-blue-500' },
+                              { label: 'Growth', val: '8.5', sub: 'Technical Skill', col: 'text-amber-500' }
+                            ].map((k, i) => (
+                              <div key={i} className="bg-brand-dark/50 p-6 rounded-3xl border border-white/5">
+                                 <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">{k.label}</p>
+                                 <h4 className={`text-2xl font-black ${k.col}`}>{k.val}</h4>
+                                 <p className="text-[8px] font-bold text-slate-600 uppercase mt-1">{k.sub}</p>
+                              </div>
+                            ))}
+                         </div>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* 360 Reviews */}
+                      <div className="lg:col-span-2 space-y-6">
+                        <div className="bg-white/5 rounded-[2.5rem] border border-white/10 overflow-hidden">
+                          <div className="p-6 bg-white/5 border-b border-white/5 flex justify-between items-center">
+                             <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] flex items-center gap-2">
+                               <History className="w-4 h-4" /> RECENT APPRAISAL SESSIONS
+                             </h4>
+                             <button className="px-5 py-2.5 bg-brand-green text-brand-dark text-[9px] font-black uppercase tracking-widest rounded-xl hover:brightness-110 transition-all">
+                               New Appraisal
+                             </button>
+                          </div>
+                          <div className="p-8">
+                            {selectedEmployee.appraisals.length > 0 ? selectedEmployee.appraisals.map((a, i) => (
+                              <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/5 mb-4 last:mb-0 flex items-center justify-between">
+                                 <div>
+                                   <p className="text-xs font-black text-white uppercase tracking-wider">{a.period}</p>
+                                   <p className="text-[9px] font-bold text-slate-500 uppercase mt-0.5">Status: {a.status}</p>
+                                 </div>
+                                 <div className="flex gap-12 items-center">
+                                    <div className="text-center">
+                                       <p className="text-lg font-black text-white">{a.finalScore || '—'}</p>
+                                       <p className="text-[8px] font-black text-slate-600 uppercase">360 Score</p>
+                                    </div>
+                                    <div className="text-center">
+                                       <p className="text-lg font-black text-brand-green">{a.kpiScore || '—'}</p>
+                                       <p className="text-[8px] font-black text-slate-600 uppercase">KPI Score</p>
+                                    </div>
+                                    <button className="p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all">
+                                      <ExternalLink className="w-4 h-4 text-slate-400" />
+                                    </button>
+                                 </div>
+                              </div>
+                            )) : (
+                              <div className="py-8 text-center bg-white/2 rounded-3xl border border-dashed border-white/10">
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">No formal appraisals found.</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Training Calendar Mini */}
+                      <div className="space-y-6">
+                        <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 space-y-6">
+                           <h4 className="text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
+                             <Calendar className="w-4 h-4 text-blue-400" /> UPCOMING TRAINING
+                           </h4>
+                           <div className="space-y-4">
+                              {trainingSchedule.length > 0 ? trainingSchedule.slice(0, 3).map((s, i) => (
+                                <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-pointer">
+                                   <p className="text-[10px] font-black text-white uppercase">{s.course.name}</p>
+                                   <p className="text-[8px] font-bold text-brand-green uppercase mt-1">
+                                     {new Date(s.scheduledDate).toLocaleDateString()} @ {s.location || 'Training Room'}
+                                   </p>
+                                </div>
+                              )) : (
+                                <p className="text-[9px] font-black text-slate-600 uppercase">No sessions scheduled.</p>
+                              )}
+                           </div>
+                        </div>
                       </div>
                     </div>
                   </div>

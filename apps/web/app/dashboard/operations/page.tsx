@@ -63,7 +63,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 overflow-hidden">
+    <div className="fixed inset-0 z-100 flex items-center justify-center p-4 md:p-8 overflow-hidden">
       {/* Premium Backdrop */}
       <div 
         className="absolute inset-0 bg-brand-dark/60 backdrop-blur-xl animate-in fade-in duration-500" 
@@ -73,7 +73,7 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
       {/* Modal Container */}
       <div className="relative bg-brand-dark/80 border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 fade-in duration-300">
         {/* Glow Effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-px bg-linear-to-r from-transparent via-emerald-500/50 to-transparent" />
         
         {/* Header */}
         <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/2">
@@ -122,7 +122,7 @@ function SubmitBtn({ loading, label = 'Save Record' }: { loading: boolean; label
       disabled={loading}
       className="group relative w-full flex items-center justify-center gap-3 py-5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-slate-950 font-black text-sm rounded-2xl transition-all shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] mt-6 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+      <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
       {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
       <span className="uppercase tracking-widest">{label}</span>
     </button>
@@ -1536,7 +1536,7 @@ export default function OperationsPage() {
         </div>
       ) : (
         <div className="bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/5 p-10 relative overflow-hidden shadow-2xl">
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-emerald-500/5 to-transparent pointer-events-none" />
           <div className="relative z-10">
             {tab === 'soil' && <SoilTestsTab zones={zones} />}
             {tab === 'land-prep' && <LandPrepTab zones={zones} users={users} />}

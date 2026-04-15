@@ -351,12 +351,12 @@
 
 ### 7.2 Attendance & Leave Management
 
-- [ ] Biometric integration (Timestation / ZKTeco webhook) OR mobile GPS clock-in
-- [ ] Shift scheduling: calendar view, drag-to-assign
-- [ ] Leave types: annual, sick, maternity/paternity, unpaid
-- [ ] Leave balance tracker + approval workflow
-- [ ] Late/absent alerts to supervisor
-- [ ] Attendance auto-feeds payroll engine
+- [x] Biometric integration (Timestation / ZKTeco webhook) OR mobile GPS clock-in
+- [x] Shift scheduling: calendar view, drag-to-assign
+- [x] Leave types: annual, sick, maternity/paternity, unpaid
+- [x] Leave balance tracker + approval workflow
+- [x] Late/absent alerts to supervisor
+- [x] Attendance auto-feeds payroll engine
 
 ### 7.3 Training & Appraisals
 
