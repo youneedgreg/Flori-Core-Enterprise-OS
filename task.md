@@ -1,8 +1,13 @@
 # Flori-Core Enterprise OS — Master Task List
 
 > Derived from `flori_core_plan.md`. Check off items as you complete them.
+> let us do the whole team page now, anything i left out, anything that needs to be now lets move to the inventory page let us do the whole inventory page now,  
+>  anything i left out, anything that needs to be added, anything that  
+>  needs to be linked, the page itself, everysingle nitty gritty, the full revamp  
+>  like we have done the  
+>  other pages, (zones, production, team, logistics, operations, packhouse and
 
----
+## coldroom)
 
 ## Phase 2 — Module 1: Precision Production & IoT [COMPLETED]
 

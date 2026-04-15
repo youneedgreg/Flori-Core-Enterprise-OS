@@ -232,6 +232,79 @@ export class LogisticsService {
     return route;
   }
 
+  // ── Route Detail & Status ────────────────────────────────────────────────────
+
+  async getRouteById(tenantId: string, id: string) {
+    const route = await (this.prisma as any).deliveryRoute.findFirst({
+      where: { id, tenantId },
+      include: {
+        driver: { select: { id: true, email: true, firstName: true, lastName: true } },
+        vehicle: true,
+        deliveryStops: {
+          include: {
+            order: { include: { customer: { select: { name: true, address: true, phone: true } } } },
+          },
+          orderBy: { sequenceIndex: 'asc' },
+        },
+      },
+    });
+    if (!route) throw new NotFoundException('Route not found');
+    return route;
+  }
+
+  async updateRouteStatus(tenantId: string, id: string, status: string) {
+    const route = await (this.prisma as any).deliveryRoute.findFirst({
+      where: { id, tenantId },
+    });
+    if (!route) throw new NotFoundException('Route not found');
+    return (this.prisma as any).deliveryRoute.update({
+      where: { id },
+      data: { status },
+    });
+  }
+
+  async updateStopStatus(tenantId: string, stopId: string, status: string) {
+    const stop = await (this.prisma as any).deliveryStop.findFirst({
+      where: { id: stopId, tenantId },
+      include: { order: true },
+    });
+    if (!stop) throw new NotFoundException('Stop not found');
+
+    const updatedStop = await (this.prisma as any).deliveryStop.update({
+      where: { id: stopId },
+      data: {
+        status,
+        ...(status === 'DELIVERED' && { actualArrival: new Date() }),
+      },
+    });
+
+    if (status === 'DELIVERED') {
+      await this.updateStatus(tenantId, stop.orderId, 'DELIVERED');
+    }
+
+    return updatedStop;
+  }
+
+  async getDrivers(tenantId: string) {
+    return this.prisma.user.findMany({
+      where: { tenantId, isActive: true },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: { select: { name: true } },
+      },
+      orderBy: { firstName: 'asc' },
+    });
+  }
+
+  async updateVehicle(tenantId: string, id: string, data: any) {
+    const vehicle = await (this.prisma as any).vehicle.findFirst({ where: { id, tenantId } });
+    if (!vehicle) throw new NotFoundException('Vehicle not found');
+    return (this.prisma as any).vehicle.update({ where: { id }, data });
+  }
+
   // ── Proof of Delivery (PoD) ──────────────────────────────────────────────────
 
   async submitPoD(

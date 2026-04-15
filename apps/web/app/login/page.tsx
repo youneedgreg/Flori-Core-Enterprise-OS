@@ -41,8 +41,10 @@ export default function LoginPage() {
 
       document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
       document.cookie = `refresh_token=${data.refresh_token}; path=/; max-age=604800; samesite=lax`;
-      
-      if (data.isOnboarded) {
+
+      if (data.mustChangePassword) {
+        window.location.href = '/change-password';
+      } else if (data.isOnboarded) {
         window.location.href = '/dashboard';
       } else {
         window.location.href = '/onboarding';

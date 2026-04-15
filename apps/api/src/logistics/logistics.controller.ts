@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  Put,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -97,6 +98,43 @@ export class LogisticsController {
       data.date,
       data.stopOrderIds,
     );
+  }
+
+  @Get('drivers')
+  getDrivers(@Req() req: AuthenticatedRequest) {
+    return this.logisticsService.getDrivers(req.tenantId);
+  }
+
+  @Get('routes/:id')
+  getRoute(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.logisticsService.getRouteById(req.tenantId, id);
+  }
+
+  @Patch('routes/:id/status')
+  updateRouteStatus(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body('status') status: string,
+  ) {
+    return this.logisticsService.updateRouteStatus(req.tenantId, id, status);
+  }
+
+  @Patch('stops/:stopId/status')
+  updateStopStatus(
+    @Req() req: AuthenticatedRequest,
+    @Param('stopId') stopId: string,
+    @Body('status') status: string,
+  ) {
+    return this.logisticsService.updateStopStatus(req.tenantId, stopId, status);
+  }
+
+  @Put('vehicles/:id')
+  updateVehicle(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    return this.logisticsService.updateVehicle(req.tenantId, id, data);
   }
 
   @Post('stops/:stopId/pod')
