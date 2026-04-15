@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, UseGuards, Put } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { RegisterTenantDto, LoginDto } from '@flori/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -39,5 +39,14 @@ export class AuthController {
   @Get('roles')
   async getRoles(@Req() req: AuthenticatedRequest) {
     return this.authService.getRolesForTenant(req.tenantId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('change-password')
+  async changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: { currentPassword: string; newPassword: string },
+  ) {
+    return this.authService.changePassword(req.user.id, dto);
   }
 }

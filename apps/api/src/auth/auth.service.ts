@@ -133,10 +133,17 @@ export class AuthService {
         email: user.email,
         tenantId: user.tenantId,
         role: roleName,
+        mustChangePassword: user.mustChangePassword ?? false,
       };
       const isOnboarded = !!(await this.prisma.farmProfile.findUnique({
         where: { tenantId: user.tenantId },
       }));
+
+      // Track last login
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+      });
 
       console.log(
         `[AUTH] Login success: user=${user.email}, tenantId=${user.tenantId}, isOnboarded=${isOnboarded}`,
@@ -155,6 +162,7 @@ export class AuthService {
         refresh_token,
         user: { id: user.id, email: user.email, role: roleName },
         isOnboarded,
+        mustChangePassword: user.mustChangePassword ?? false,
       };
     } catch (e) {
       console.error('[AUTH ERROR]', e);
@@ -193,6 +201,26 @@ export class AuthService {
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token');
     }
+  }
+
+  async changePassword(userId: string, dto: { currentPassword: string; newPassword: string }) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User not found');
+
+    const isMatch = await bcrypt.compare(dto.currentPassword, user.passwordHash);
+    if (!isMatch) throw new UnauthorizedException('Current password is incorrect');
+
+    if (dto.newPassword.length < 8) {
+      throw new BadRequestException('New password must be at least 8 characters');
+    }
+
+    const passwordHash = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash, mustChangePassword: false },
+    });
+
+    return { message: 'Password updated successfully' };
   }
 
   async getRolesForTenant(tenantId: string) {

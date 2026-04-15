@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Body,
   Param,
@@ -10,10 +11,12 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { TeamService } from './team.service';
+import type { InviteMemberDto, UpdateMemberDto } from './team.service';
 import type { Request } from 'express';
 
 interface AuthenticatedRequest extends Request {
   tenantId: string;
+  user: { id: string; email: string; tenantId: string; role: { name: string } };
 }
 
 @UseGuards(JwtAuthGuard)
@@ -31,16 +34,38 @@ export class TeamController {
     return this.teamService.getRoles(req.tenantId);
   }
 
+  @Get(':id')
+  findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.teamService.findOne(req.tenantId, id);
+  }
+
   @Post('invite')
   invite(
     @Req() req: AuthenticatedRequest,
-    @Body() dto: { email: string; roleId: string },
+    @Body() dto: InviteMemberDto,
   ) {
     return this.teamService.inviteMember(req.tenantId, dto);
   }
 
+  @Put(':id')
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: UpdateMemberDto,
+  ) {
+    return this.teamService.updateMember(req.tenantId, id, dto);
+  }
+
+  @Post(':id/reset-password')
+  resetPassword(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.teamService.resetPassword(req.tenantId, id);
+  }
+
   @Delete(':id')
   remove(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
-    return this.teamService.removeMember(req.tenantId, id);
+    return this.teamService.removeMember(req.tenantId, id, req.user.id);
   }
 }
