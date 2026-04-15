@@ -135,6 +135,7 @@
 - [ ] Frontend Lighthouse score > 90 (Performance, Accessibility, SEO)
 - [ ] Redis caching for stock levels, ATP, KPIs
 - [ ] CDN for static assets and document downloads
+- [ ] Custom loader per page for all pages
 
 ### 9.3 Offline Support (PWA)
 
@@ -164,7 +165,13 @@
 
 - [ ] In-app help widget (Intercom or self-hosted Chatwoot)
 - [ ] Knowledge base per module
+- [ ] New user wizard and self help page with screenshots
 - [ ] Gold Admin support ticket submission from within OS
+
+### 9.8 Dashboard & UI Enhancements
+
+- [ ] General notifications page with filtering and archive history
+- [ ] Custom loader per page for all pages
 
 ---
 
