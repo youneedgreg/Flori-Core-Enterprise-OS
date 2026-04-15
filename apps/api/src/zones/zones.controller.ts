@@ -49,7 +49,19 @@ export class ZonesController {
   update(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() data: { name?: string; areaSqm?: number; cropVarieties?: string[] },
+    @Body()
+    data: {
+      name?: string;
+      areaSqm?: number;
+      cropVarieties?: string[];
+      plantCount?: number;
+      lastWatered?: Date;
+      type?: string;
+      minTemp?: number;
+      maxTemp?: number;
+      minHumidity?: number;
+      maxHumidity?: number;
+    },
   ) {
     return this.zonesService.update(req.tenantId, id, data);
   }

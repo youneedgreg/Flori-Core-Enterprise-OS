@@ -81,13 +81,18 @@ export class ZonesService {
       cropVarieties?: string[];
       plantCount?: number;
       lastWatered?: Date;
+      type?: string;
+      minTemp?: number;
+      maxTemp?: number;
+      minHumidity?: number;
+      maxHumidity?: number;
     },
   ) {
     // Ensure ownership before update
     await this.findOne(tenantId, id);
     return await this.prisma.zone.update({
       where: { id },
-      data,
+      data: data as any,
     });
   }
 
