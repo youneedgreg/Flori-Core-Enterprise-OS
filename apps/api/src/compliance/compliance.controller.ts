@@ -29,6 +29,38 @@ import type { Response as ExpressResponse } from 'express';
 export class ComplianceController {
   constructor(private readonly complianceService: ComplianceService) {}
 
+  @Get('stats')
+  async getStats(@Req() req: any) {
+    return this.complianceService.getComplianceStats(req.user.tenantId);
+  }
+
+  @Get('spray-logs')
+  async getSprayLogs(
+    @Req() req: any,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.complianceService.getSprayLogs(req.user.tenantId, from, to);
+  }
+
+  @Get('labour-logs')
+  async getLabourLogs(
+    @Req() req: any,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.complianceService.getLabourLogs(req.user.tenantId, from, to);
+  }
+
+  @Get('audit-logs')
+  async getAuditLogs(
+    @Req() req: any,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    return this.complianceService.getAuditLogs(req.user.tenantId, from, to);
+  }
+
   @Get('certifications')
   async getCertifications(@Req() req: any) {
     return this.complianceService.getCertifications(req.user.tenantId);

@@ -182,6 +182,120 @@ export class ComplianceService {
     }
   }
 
+  // ── Stats ────────────────────────────────────────────────────────────────────
+
+  async getComplianceStats(tenantId: string) {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [certs, sprayCount, labourLogs, auditCount] = await Promise.all([
+      (this.prisma as any).certification.findMany({ where: { tenantId } }),
+      (this.prisma as any).sprayLog.count({
+        where: { tenantId, appliedAt: { gte: startOfMonth } },
+      }),
+      (this.prisma as any).labourLog.findMany({
+        where: { tenantId, timestamp: { gte: startOfMonth } },
+        select: { hours: true },
+      }),
+      (this.prisma as any).auditLog.count({
+        where: { tenantId, timestamp: { gte: thirtyDaysAgo } },
+      }),
+    ]);
+
+    const activeCerts = certs.filter(
+      (c: any) => !c.expiryDate || new Date(c.expiryDate) > now,
+    ).length;
+    const expiringSoon = certs.filter((c: any) => {
+      if (!c.expiryDate) return false;
+      const days = Math.ceil(
+        (new Date(c.expiryDate).getTime() - now.getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+      return days > 0 && days <= 30;
+    }).length;
+    const expired = certs.filter(
+      (c: any) => c.expiryDate && new Date(c.expiryDate) < now,
+    ).length;
+    const labourHours = labourLogs.reduce(
+      (sum: number, l: any) => sum + (l.hours ?? 0),
+      0,
+    );
+
+    return {
+      activeCerts,
+      expiringSoon,
+      expired,
+      totalCerts: certs.length,
+      sprayLogsMonth: sprayCount,
+      labourHoursMonth: Math.round(labourHours),
+      auditActionsMonth: auditCount,
+    };
+  }
+
+  // ── Spray Logs ───────────────────────────────────────────────────────────────
+
+  async getSprayLogs(tenantId: string, from?: string, to?: string) {
+    const dateFilter: any = {};
+    if (from) dateFilter.gte = new Date(from);
+    if (to) dateFilter.lte = new Date(to);
+
+    return (this.prisma as any).sprayLog.findMany({
+      where: {
+        tenantId,
+        ...(Object.keys(dateFilter).length ? { appliedAt: dateFilter } : {}),
+      },
+      include: {
+        zone: { select: { name: true } },
+        applicator: { select: { email: true } },
+      },
+      orderBy: { appliedAt: 'desc' },
+      take: 500,
+    });
+  }
+
+  // ── Labour Logs ──────────────────────────────────────────────────────────────
+
+  async getLabourLogs(tenantId: string, from?: string, to?: string) {
+    const dateFilter: any = {};
+    if (from) dateFilter.gte = new Date(from);
+    if (to) dateFilter.lte = new Date(to);
+
+    return (this.prisma as any).labourLog.findMany({
+      where: {
+        tenantId,
+        ...(Object.keys(dateFilter).length ? { timestamp: dateFilter } : {}),
+      },
+      include: {
+        zone: { select: { name: true } },
+        user: { select: { email: true } },
+      },
+      orderBy: { timestamp: 'desc' },
+      take: 500,
+    });
+  }
+
+  // ── Audit Trail ──────────────────────────────────────────────────────────────
+
+  async getAuditLogs(tenantId: string, from?: string, to?: string) {
+    const dateFilter: any = {};
+    if (from) dateFilter.gte = new Date(from);
+    if (to) dateFilter.lte = new Date(to);
+
+    return (this.prisma as any).auditLog.findMany({
+      where: {
+        tenantId,
+        ...(Object.keys(dateFilter).length ? { timestamp: dateFilter } : {}),
+      },
+      include: {
+        actor: { select: { email: true } },
+      },
+      orderBy: { timestamp: 'desc' },
+      take: 500,
+    });
+  }
+
   // ── Audit Report PDF Generator ───────────────────────────────────────────────
 
   async generateAuditReport(
