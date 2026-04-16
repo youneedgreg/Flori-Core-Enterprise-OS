@@ -376,6 +376,58 @@ export class SalesService {
     });
   }
 
+  // ── Stats ──────────────────────────────────────────────────────────────────
+
+  async getSalesStats(tenantId: string) {
+    const [leads, totalCustomers, orders] = await Promise.all([
+      this.prisma.lead.findMany({ where: { tenantId } }),
+      this.prisma.customer.count({ where: { tenantId } }),
+      this.prisma.order.findMany({ where: { tenantId, isTemplate: false } }),
+    ]);
+
+    const activeLeads = leads.filter((l) => !['ACTIVE', 'LOST'].includes(l.status)).length;
+    const pipelineValue = leads
+      .filter((l) => !['ACTIVE', 'LOST'].includes(l.status))
+      .reduce((sum, l) => sum + (l.value ?? 0), 0);
+    const convertedLeads = leads.filter((l) => l.status === 'ACTIVE').length;
+    const conversionRate =
+      leads.length > 0 ? Math.round((convertedLeads / leads.length) * 100) : 0;
+    const activeOrders = orders.filter(
+      (o) => !['DELIVERED', 'INVOICED'].includes(o.status),
+    ).length;
+    const totalRevenue = orders
+      .filter((o) => o.status === 'INVOICED')
+      .reduce((sum, o) => sum + o.totalAmount, 0);
+
+    return {
+      activeLeads,
+      totalCustomers,
+      pipelineValue,
+      conversionRate: `${conversionRate}%`,
+      activeOrders,
+      totalRevenue,
+    };
+  }
+
+  // ── Sales Invoices ─────────────────────────────────────────────────────────
+
+  async getSalesInvoices(tenantId: string) {
+    return this.prisma.invoice.findMany({
+      where: { tenantId },
+      include: {
+        order: {
+          select: {
+            orderNumber: true,
+            type: true,
+            currency: true,
+            customer: { select: { name: true, country: true } },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   getOrderTemplates(tenantId: string) {
     return this.prisma.order.findMany({
       where: { tenantId, isTemplate: true },

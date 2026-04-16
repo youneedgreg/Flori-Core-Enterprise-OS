@@ -23,6 +23,18 @@ import { LeadStatus, OrderStatus } from '@prisma/client';
 export class SalesController {
   constructor(private readonly salesService: salesService_1.SalesService) {}
 
+  @Get('stats')
+  async getSalesStats(@Req() req: ExpressRequest) {
+    const tenantId = (req as any).user.tenantId;
+    return this.salesService.getSalesStats(tenantId);
+  }
+
+  @Get('invoices')
+  async getInvoices(@Req() req: ExpressRequest) {
+    const tenantId = (req as any).user.tenantId;
+    return this.salesService.getSalesInvoices(tenantId);
+  }
+
   @Get('customers')
   async getCustomers(@Req() req: ExpressRequest) {
     const tenantId = (req as any).user.tenantId;

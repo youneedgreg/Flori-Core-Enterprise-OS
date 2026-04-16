@@ -7,12 +7,29 @@ import { Country } from 'country-state-city';
 import { toast } from 'sonner';
 import { PremiumModal, FormField, inputCls, selectCls, SubmitBtn } from './SalesUI';
 
+interface EditableCustomer {
+  id: string;
+  name: string;
+  contactPerson?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  country?: string;
+  type: string;
+  segment: string;
+  creditLimit?: number;
+  commissionRate?: number;
+  paymentTerms?: string;
+  notes?: string;
+}
+
 interface CreateCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
   apiBase: string;
   getAuthHeader: () => Record<string, string> | null;
   onSuccess: () => void;
+  editCustomer?: EditableCustomer | null;
 }
 
 const CUSTOMER_TYPES = [
@@ -28,23 +45,24 @@ const CUSTOMER_SEGMENTS = [
   { value: 'SPOT_MARKET', label: 'Spot Market' },
 ];
 
-export function CreateCustomerModal({ isOpen, onClose, apiBase, getAuthHeader, onSuccess }: CreateCustomerModalProps) {
+export function CreateCustomerModal({ isOpen, onClose, apiBase, getAuthHeader, onSuccess, editCustomer }: CreateCustomerModalProps) {
   const [loading, setLoading] = useState(false);
   const countries = Country.getAllCountries();
+  const isEdit = Boolean(editCustomer);
 
   const [formData, setFormData] = useState({
-    name: '',
-    contactPerson: '',
-    email: '',
-    phone: '',
-    address: '',
-    country: 'Kenya',
-    type: 'RETAILER',
-    segment: 'LOCAL_RETAIL',
-    creditLimit: '',
-    commissionRate: '',
-    paymentTerms: '',
-    notes: ''
+    name: editCustomer?.name ?? '',
+    contactPerson: editCustomer?.contactPerson ?? '',
+    email: editCustomer?.email ?? '',
+    phone: editCustomer?.phone ?? '',
+    address: editCustomer?.address ?? '',
+    country: editCustomer?.country ?? 'Kenya',
+    type: editCustomer?.type ?? 'RETAILER',
+    segment: editCustomer?.segment ?? 'LOCAL_RETAIL',
+    creditLimit: editCustomer?.creditLimit != null ? String(editCustomer.creditLimit) : '',
+    commissionRate: editCustomer?.commissionRate != null ? String(editCustomer.commissionRate) : '',
+    paymentTerms: editCustomer?.paymentTerms ?? '',
+    notes: editCustomer?.notes ?? '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,22 +78,26 @@ export function CreateCustomerModal({ isOpen, onClose, apiBase, getAuthHeader, o
         commissionRate: formData.commissionRate ? parseFloat(formData.commissionRate) : undefined,
       };
 
-      const res = await fetch(`${apiBase}/sales/customers`, {
-        method: 'POST',
+      const url = isEdit
+        ? `${apiBase}/sales/customers/${editCustomer!.id}`
+        : `${apiBase}/sales/customers`;
+
+      const res = await fetch(url, {
+        method: isEdit ? 'PUT' : 'POST',
         headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || 'Failed to create customer');
+        throw new Error(err.message || `Failed to ${isEdit ? 'update' : 'create'} customer`);
       }
 
-      toast.success('Customer created successfully');
+      toast.success(isEdit ? 'Customer updated' : 'Customer created successfully');
       onSuccess();
       onClose();
     } catch (err: any) {
-      toast.error(err.message || 'Error creating customer');
+      toast.error(err.message || 'Error saving customer');
     } finally {
       setLoading(false);
     }
@@ -83,7 +105,7 @@ export function CreateCustomerModal({ isOpen, onClose, apiBase, getAuthHeader, o
 
   return (
     <PremiumModal
-      title="Onboard New Customer"
+      title={isEdit ? `Edit ${editCustomer?.name ?? 'Customer'}` : 'Onboard New Customer'}
       subtitle="CRM Intelligence Hub"
       onClose={onClose}
       maxWidth="max-w-4xl"
@@ -271,7 +293,7 @@ export function CreateCustomerModal({ isOpen, onClose, apiBase, getAuthHeader, o
           />
         </section>
 
-        <SubmitBtn loading={loading} label="Complete Onboarding" />
+        <SubmitBtn loading={loading} label={isEdit ? 'Save Changes' : 'Complete Onboarding'} />
       </form>
     </PremiumModal>
   );
