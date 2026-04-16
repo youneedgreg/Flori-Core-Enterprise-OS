@@ -210,6 +210,79 @@ export class InventoryService {
   }
 
   /**
+   * KPI summary for the inventory dashboard.
+   */
+  async getSummary(tenantId: string) {
+    const [packed, allocated, wasted, wastageThisMonth, rawInventory] = await Promise.all([
+      this.prisma.packedBox.count({ where: { tenantId, status: { in: [BoxStatus.PACKED, BoxStatus.IN_COLD_STORAGE] } } }),
+      this.prisma.packedBox.count({ where: { tenantId, status: BoxStatus.ALLOCATED } }),
+      this.prisma.packedBox.count({ where: { tenantId, status: BoxStatus.WASTED } }),
+      this.prisma.wastageLog.aggregate({
+        where: {
+          tenantId,
+          createdAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
+        },
+        _sum: { costImpact: true, quantity: true },
+      }),
+      this.prisma.flowerInventory.aggregate({
+        where: { tenantId },
+        _sum: { quantity: true },
+      }),
+    ]);
+
+    return {
+      packedBoxesInStock: packed,
+      allocatedBoxes: allocated,
+      wastedBoxes: wasted,
+      wastageThisMonthCost: wastageThisMonth._sum.costImpact ?? 0,
+      wastageThisMonthStems: wastageThisMonth._sum.quantity ?? 0,
+      rawStemsInStock: rawInventory._sum.quantity ?? 0,
+    };
+  }
+
+  /**
+   * Returns all packed boxes, optionally filtered by status / variety.
+   */
+  async getPackedBoxes(tenantId: string, status?: string, varietyId?: string) {
+    const where: any = { tenantId };
+    if (status) where.status = status;
+    if (varietyId) where.varietyId = varietyId;
+    return await this.prisma.packedBox.findMany({
+      where,
+      include: {
+        variety: { select: { name: true } },
+        batch: { select: { batchNumber: true } },
+        order: { select: { orderNumber: true, customer: { select: { name: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 500,
+    });
+  }
+
+  /**
+   * Returns raw flower stem inventory levels.
+   */
+  async getFlowerInventory(tenantId: string) {
+    return await this.prisma.flowerInventory.findMany({
+      where: { tenantId },
+      include: { variety: { select: { name: true, defaultCostPerStem: true } } },
+      orderBy: [{ variety: { name: 'asc' } }, { grade: 'asc' }],
+    });
+  }
+
+  /**
+   * Adjusts raw flower stem inventory (set absolute quantity).
+   */
+  async adjustFlowerInventory(tenantId: string, id: string, quantity: number, notes?: string) {
+    const inv = await this.prisma.flowerInventory.findFirst({ where: { id, tenantId } });
+    if (!inv) throw new NotFoundException('Inventory record not found');
+    return await this.prisma.flowerInventory.update({
+      where: { id },
+      data: { quantity },
+    });
+  }
+
+  /**
    * Retrieves wastage logs for a tenant.
    */
   async getWastageLogs(tenantId: string) {
