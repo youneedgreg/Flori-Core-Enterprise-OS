@@ -27,11 +27,12 @@ interface GoodsReceiptModalProps {
   onSuccess: () => void;
   apiBase: string;
   getAuthHeader: () => Record<string, string> | null;
+  initialPo?: PurchaseOrder | null;
 }
 
-export function GoodsReceiptModal({ onClose, onSuccess, apiBase, getAuthHeader }: GoodsReceiptModalProps) {
-  const [step, setStep] = useState<'SCAN' | 'FORM'>('SCAN');
-  const [selectedPo, setSelectedPo] = useState<PurchaseOrder | null>(null);
+export function GoodsReceiptModal({ onClose, onSuccess, apiBase, getAuthHeader, initialPo }: GoodsReceiptModalProps) {
+  const [step, setStep] = useState<'SCAN' | 'FORM'>(initialPo ? 'FORM' : 'SCAN');
+  const [selectedPo, setSelectedPo] = useState<PurchaseOrder | null>(initialPo ?? null);
   const [receivedItems, setReceivedItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -39,6 +40,24 @@ export function GoodsReceiptModal({ onClose, onSuccess, apiBase, getAuthHeader }
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
   const inputCls = 'w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white font-black focus:outline-none focus:border-emerald-500/50 transition-colors';
+
+  // Pre-populate received items when initialPo is provided
+  useEffect(() => {
+    if (initialPo) {
+      setReceivedItems(initialPo.items.map(item => ({
+        itemId: item.itemId,
+        poItemId: item.id,
+        name: item.item.name,
+        sku: item.item.sku,
+        unit: item.item.unit,
+        expectedQty: item.quantity,
+        expectedPrice: item.unitPrice,
+        quantityReceived: item.quantity,
+        unitPriceReceived: item.unitPrice,
+        notes: ''
+      })));
+    }
+  }, [initialPo]);
 
   useEffect(() => {
     if (scanning && !scannerRef.current) {

@@ -805,7 +805,24 @@ export class ProcurementService {
         ],
       });
 
-      // 3. Update PO Status
+      // 3. Create Vendor Invoice for AP tracking
+      const invoiceNumber = `INV-${grnNumber.replace('GRN-', '')}`;
+      await tx.vendorInvoice.create({
+        data: {
+          tenantId,
+          vendorId: po.vendorId,
+          poId: po.id,
+          grnId: grn.id,
+          invoiceNumber,
+          status: 'PENDING',
+          totalAmount: totalAmountReceived,
+          paidAmount: 0,
+          currency: 'KES',
+          invoiceDate: new Date(),
+        },
+      });
+
+      // 4. Update PO Status
       await tx.purchaseOrder.update({
         where: { id: poId },
         data: {
@@ -945,5 +962,82 @@ export class ProcurementService {
   </div>
 </body>
 </html>`;
+  }
+
+  // ── GRN History ───────────────────────────────────────────────────────────────
+
+  async getGRNs(tenantId: string) {
+    return this.prisma.goodsReceivedNote.findMany({
+      where: { tenantId },
+      include: {
+        vendor: { select: { name: true } },
+        purchaseOrder: { select: { poNumber: true } },
+        items: {
+          include: {
+            item: { select: { name: true, sku: true, unit: true } },
+          },
+        },
+      },
+      orderBy: { receivedDate: 'desc' },
+    });
+  }
+
+  // ── Vendor Invoices ───────────────────────────────────────────────────────────
+
+  async getInvoices(tenantId: string) {
+    return this.prisma.vendorInvoice.findMany({
+      where: { tenantId },
+      include: {
+        vendor: { select: { name: true, email: true } },
+        po: { select: { poNumber: true } },
+        grn: { select: { grnNumber: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async markInvoicePaid(
+    tenantId: string,
+    invoiceId: string,
+    dto: {
+      amount: number;
+      method: string;
+      reference?: string;
+      notes?: string;
+    },
+  ) {
+    const inv = await this.prisma.vendorInvoice.findFirst({
+      where: { id: invoiceId, tenantId },
+    });
+    if (!inv) throw new NotFoundException('Invoice not found');
+
+    await this.prisma.vendorPayment.create({
+      data: {
+        tenantId,
+        vendorInvoiceId: invoiceId,
+        amount: dto.amount,
+        currency: 'KES',
+        method: dto.method as any,
+        reference: dto.reference,
+        paidAt: new Date(),
+        notes: dto.notes,
+      },
+    });
+
+    return this.prisma.vendorInvoice.update({
+      where: { id: invoiceId },
+      data: { status: 'PAID' as any, paidAmount: dto.amount },
+    });
+  }
+
+  async disputeInvoice(tenantId: string, invoiceId: string, reason: string) {
+    const inv = await this.prisma.vendorInvoice.findFirst({
+      where: { id: invoiceId, tenantId },
+    });
+    if (!inv) throw new NotFoundException('Invoice not found');
+    return this.prisma.vendorInvoice.update({
+      where: { id: invoiceId },
+      data: { status: 'DISPUTED' as any, rejectionReason: reason },
+    });
   }
 }

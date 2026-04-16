@@ -193,6 +193,38 @@ export class ProcurementController {
     return this.procurement.getVendorPricingTrend(req.tenantId, id, itemId);
   }
 
+  // ── GRN History ────────────────────────────────────────────────────────────
+
+  @Get('grns')
+  getGRNs(@Req() req: AuthenticatedRequest) {
+    return this.procurement.getGRNs(req.tenantId);
+  }
+
+  // ── Vendor Invoices ────────────────────────────────────────────────────────
+
+  @Get('invoices')
+  getInvoices(@Req() req: AuthenticatedRequest) {
+    return this.procurement.getInvoices(req.tenantId);
+  }
+
+  @Patch('invoices/:id/pay')
+  payInvoice(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    return this.procurement.markInvoicePaid(req.tenantId, id, body);
+  }
+
+  @Patch('invoices/:id/dispute')
+  disputeInvoice(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body('reason') reason: string,
+  ) {
+    return this.procurement.disputeInvoice(req.tenantId, id, reason);
+  }
+
   // ── Manual scan trigger (for testing / on-demand) ──────────────────────────
 
   @Post('scan/trigger')
