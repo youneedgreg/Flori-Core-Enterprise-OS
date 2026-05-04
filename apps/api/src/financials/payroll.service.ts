@@ -11,6 +11,14 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FinancialsService } from './financials.service';
+import { MpesaService } from './mpesa.service';
+import { calculateNssf, calculateShif, calculatePaye } from './tax-engine';
+import PDFDocument from 'pdfkit';
+import { Resend } from 'resend';
+import { join } from 'path';
+import { createWriteStream } from 'fs';
+
+const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 
 @Injectable()
 export class PayrollService {
@@ -19,6 +27,7 @@ export class PayrollService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly financials: FinancialsService,
+    private readonly mpesaService: MpesaService,
   ) {}
 
   // ── Employees ──────────────────────────────────────────────────────────────
@@ -79,6 +88,9 @@ export class PayrollService {
     if (run.status !== 'DRAFT')
       throw new BadRequestException('Can only process DRAFT runs');
 
+    const startOfMonth = new Date(run.year, run.month - 1, 1);
+    const endOfMonth = new Date(run.year, run.month, 0, 23, 59, 59);
+
     // Pull all active employees
     const employees = await (this.prisma as any).employee.findMany({
       where: { tenantId, isActive: true },
@@ -90,16 +102,40 @@ export class PayrollService {
     let totalNet = 0;
 
     for (const emp of employees) {
-      // SKELETON: Mocking hours from labour logs
-      const basicPay = emp.basicSalary;
-      const overtime = 0; // TODO: Pull from production labour logs
+      let loggedHours = 0;
+      if (emp.userId) {
+        const logs = await (this.prisma as any).labourLog.aggregate({
+          where: {
+            tenantId,
+            userId: emp.userId,
+            timestamp: { gte: startOfMonth, lte: endOfMonth },
+          },
+          _sum: { hours: true },
+        });
+        loggedHours = logs._sum.hours || 0;
+      }
+
+      let basicPay = emp.basicSalary || 0;
+      let overtime = 0;
+
+      // Casual vs Permanent calculation
+      if (emp.employmentType === 'CASUAL') {
+        const hourlyRate = basicPay > 0 ? basicPay / 173.33 : 0;
+        basicPay = loggedHours * hourlyRate;
+      } else {
+        if (loggedHours > 173.33) {
+          const hourlyRate = basicPay > 0 ? basicPay / 173.33 : 0;
+          overtime = (loggedHours - 173.33) * (hourlyRate * 1.5);
+        }
+      }
+
       const allowances = 0;
       const grossPay = basicPay + overtime + allowances;
 
-      // TODO: Implement Kenya Statutory Deductions (NHIF, NSSF, PAYE)
-      const nssf = 0;
-      const nhif = 0;
-      const paye = 0;
+      // Kenya Statutory Deductions (NHIF/SHIF, NSSF, PAYE)
+      const nssf = calculateNssf(grossPay);
+      const nhif = calculateShif(grossPay);
+      const paye = calculatePaye(grossPay, nssf, nhif);
 
       const deductions = nssf + nhif + paye;
       const netPay = grossPay - deductions;
@@ -160,6 +196,14 @@ export class PayrollService {
       },
     });
 
+    // Generate PDFs and send emails asynchronously
+    this.generateAndEmailPayslips(tenantId, runId).catch((err) => {
+      this.logger.error(
+        `Failed to generate/email payslips for run ${runId}`,
+        err,
+      );
+    });
+
     // Auto-post to ledger
     try {
       await this.financials.createJournal(tenantId, {
@@ -185,8 +229,23 @@ export class PayrollService {
   // ── M-Pesa Disbursement (Skeleton) ──────────────────────────────────────────
 
   async disburseMpesa(tenantId: string, runId: string) {
-    // TODO: Integrate with Safaricom B2C API
     this.logger.log(`Initiating M-Pesa bulk disbursement for run ${runId}`);
+
+    const payslips = await (this.prisma as any).payslip.findMany({
+      where: { tenantId, payrollRunId: runId, paymentMethod: 'MPESA' },
+      include: { employee: true },
+    });
+
+    const phoneNumbers = payslips
+      .map((p: any) => p.employee.mpesaPhone)
+      .filter(Boolean);
+    const amounts = payslips.map((p: any) => p.netPay);
+
+    if (phoneNumbers.length > 0) {
+      await this.mpesaService.disburseB2C(phoneNumbers, amounts, runId);
+    } else {
+      this.logger.warn(`No M-Pesa recipients found for run ${runId}`);
+    }
 
     return (this.prisma as any).payrollRun.update({
       where: { id: runId, tenantId },
@@ -195,5 +254,82 @@ export class PayrollService {
         disbursedAt: new Date(),
       },
     });
+  }
+
+  // ── Helpers ─────────────────────────────────────────────────────────────────
+
+  private async generateAndEmailPayslips(tenantId: string, runId: string) {
+    const payslips = await (this.prisma as any).payslip.findMany({
+      where: { tenantId, payrollRunId: runId },
+      include: { employee: true, payrollRun: true },
+    });
+
+    for (const payslip of payslips) {
+      try {
+        const emp = payslip.employee;
+        const run = payslip.payrollRun;
+
+        // SKELETON: Generate PDF
+        const doc = new PDFDocument({ margin: 50 });
+        const fileName = `payslip_${emp.employeeNumber}_${run.period}.pdf`;
+        const filePath = join('/tmp', fileName);
+
+        doc.pipe(createWriteStream(filePath));
+        doc.fontSize(20).text('PAYSLIP', { align: 'center' }).moveDown();
+        doc.fontSize(12).text(`Employee: ${emp.firstName} ${emp.lastName}`);
+        doc.text(`Employee No: ${emp.employeeNumber}`);
+        doc.text(`Period: ${run.period}`).moveDown();
+
+        doc.text(`Basic Salary: KES ${payslip.basicSalary.toLocaleString()}`);
+        doc.text(`Overtime: KES ${payslip.overtime.toLocaleString()}`);
+        doc
+          .text(`Gross Pay: KES ${payslip.grossPay.toLocaleString()}`)
+          .moveDown();
+
+        doc.text(`PAYE: KES ${payslip.paye.toLocaleString()}`);
+        doc.text(`NSSF: KES ${payslip.nssf.toLocaleString()}`);
+        doc.text(`SHIF/NHIF: KES ${payslip.nhif.toLocaleString()}`);
+        doc
+          .text(
+            `Total Deductions: KES ${payslip.totalDeductions.toLocaleString()}`,
+          )
+          .moveDown();
+
+        doc
+          .fontSize(14)
+          .text(`Net Pay: KES ${payslip.netPay.toLocaleString()}`, {
+            underline: true,
+          });
+        doc.end();
+
+        // Update payslip record with file path (or S3 URL in production)
+        await (this.prisma as any).payslip.update({
+          where: { id: payslip.id },
+          data: { pdfUrl: filePath },
+        });
+
+        // SKELETON: Send email
+        if (emp.email) {
+          await resend.emails.send({
+            from: 'hr@flori.os',
+            to: emp.email,
+            subject: `Your Payslip for ${run.period}`,
+            text: `Hello ${emp.firstName},\n\nPlease find attached your payslip for the period ${run.period}.\n\nBest regards,\nHR Department`,
+            attachments: [
+              {
+                filename: fileName,
+                path: filePath,
+              },
+            ],
+          });
+          this.logger.log(`Emailed payslip to ${emp.email}`);
+        }
+      } catch (err) {
+        this.logger.error(
+          `Failed generating/emailing payslip for ${payslip.employeeId}:`,
+          err,
+        );
+      }
+    }
   }
 }

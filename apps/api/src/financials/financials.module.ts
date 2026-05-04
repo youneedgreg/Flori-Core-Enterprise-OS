@@ -15,6 +15,7 @@ import { BudgetingController } from './budgeting.controller';
 import { PayrollController } from './payroll.controller';
 import { ReportingController } from './reporting.controller';
 import { PrismaModule } from '../prisma/prisma.module';
+import { MpesaService } from './mpesa.service';
 
 @Module({
   imports: [PrismaModule],
@@ -36,6 +37,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     PayrollService,
     TaxService,
     ReportingService,
+    MpesaService,
   ],
   exports: [
     FinancialsService,
@@ -47,6 +49,7 @@ import { PrismaModule } from '../prisma/prisma.module';
     PayrollService,
     TaxService,
     ReportingService,
+    MpesaService,
   ],
 })
 export class FinancialsModule {}

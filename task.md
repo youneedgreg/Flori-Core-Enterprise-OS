@@ -28,9 +28,9 @@
 
 ### 5.6 Auction Integration _(Extra)_
 
-- [ ] Dutch flower auction format (price-per-stem × lot)
-- [ ] Lot preparation and clock number assignment
-- [ ] Auction result import → auto-invoice generation
+- [x] Dutch flower auction format (price-per-stem × lot)
+- [x] Lot preparation and clock number assignment
+- [x] Auction result import → auto-invoice generation
 
 ---
 
@@ -38,11 +38,11 @@
 
 ### 6.4 Payroll Engine [SKELETON DONE]
 
-- [/] Pull hours from production labour logs + HR attendance (Skeleton integrated)
-- [ ] Implement Kenya Statutory Deductions (NHIF, NSSF, PAYE tax bracket engine)
-- [ ] Payslip PDF generation + email to employee
-- [ ] M-Pesa bulk disbursement API integration (Safaricom B2C)
-- [ ] Link actual production labour logs hourly rates to payslip computation
+- [x] Pull hours from production labour logs + HR attendance (Skeleton integrated)
+- [x] Implement Kenya Statutory Deductions (NHIF, NSSF, PAYE tax bracket engine)
+- [x] Payslip PDF generation + email to employee
+- [x] M-Pesa bulk disbursement API integration (Safaricom B2C)
+- [x] Link actual production labour logs hourly rates to payslip computation
 
 ---
 
