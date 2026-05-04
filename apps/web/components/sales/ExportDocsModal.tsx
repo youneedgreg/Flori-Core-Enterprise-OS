@@ -32,9 +32,9 @@ interface ExportDocsModalProps {
   onClose: () => void;
 }
 
-const DOC_META: Record<string, { label: string; icon: React.ElementType; color: string }> = {
-  PHYTOSANITARY:         { label: 'Phytosanitary Certificate', icon: ShieldCheck,       color: 'text-emerald-400' },
-  EXPORT_PERMIT:         { label: 'Export Permit',             icon: FlagTriangleRight,  color: 'text-amber-400'   },
+const DOC_META: Record<string, { label: string; icon: React.ElementType; color: string; requiresUpload?: boolean }> = {
+  PHYTOSANITARY:         { label: 'Phytosanitary Certificate', icon: ShieldCheck,        color: 'text-emerald-400' },
+  EXPORT_PERMIT:         { label: 'Export Permit',             icon: FlagTriangleRight,  color: 'text-amber-400', requiresUpload: true },
   CUSTOMS_INVOICE:       { label: 'Customs Invoice / Packing', icon: Package,            color: 'text-blue-400'    },
   CERTIFICATE_OF_ORIGIN: { label: 'Certificate of Origin',     icon: FileCheck,          color: 'text-violet-400'  },
 };
@@ -82,6 +82,31 @@ export function ExportDocsModal({ order, apiBase, getAuthHeader, onClose }: Expo
       fetchDocs();
     } catch (e: any) {
       toast.error(e.message ?? 'Generation failed');
+    } finally {
+      setGenerating(null);
+    }
+  }
+
+  async function uploadDoc(type: string, file: File) {
+    const headers = getAuthHeader();
+    if (!headers) return;
+    setGenerating(type);
+    setShowGenerateMenu(false);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', type);
+    
+    try {
+      const res = await fetch(`${apiBase}/export-docs/order/${order.id}/upload`, {
+        method: 'POST',
+        headers: { Authorization: headers.Authorization },
+        body: formData,
+      });
+      if (!res.ok) throw new Error((await res.json()).message || 'Failed to upload');
+      toast.success(`${DOC_META[type].label} uploaded successfully`);
+      fetchDocs();
+    } catch (e: any) {
+      toast.error(e.message ?? 'Upload failed');
     } finally {
       setGenerating(null);
     }
@@ -228,19 +253,33 @@ export function ExportDocsModal({ order, apiBase, getAuthHeader, onClose }: Expo
                   const meta = DOC_META[type];
                   const Icon = meta.icon;
                   return (
-                    <button
-                      key={type}
-                      onClick={() => generateDoc(type)}
-                      className="flex items-center gap-4 w-full px-6 py-4 text-left hover:bg-white/5 transition-all group"
-                    >
-                      <div className={`p-2 rounded-xl bg-white/5 ${meta.color} group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="text-white text-[11px] font-black uppercase tracking-wider block">{meta.label}</span>
-                        <span className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">ISO Compliance Protocol</span>
-                      </div>
-                    </button>
+                    <div key={type} className="relative w-full">
+                      <button
+                        onClick={() => {
+                          if (!meta.requiresUpload) generateDoc(type);
+                        }}
+                        className="flex items-center gap-4 w-full px-6 py-4 text-left hover:bg-white/5 transition-all group"
+                      >
+                        <div className={`p-2 rounded-xl bg-white/5 ${meta.color} group-hover:scale-110 transition-transform`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-white text-[11px] font-black uppercase tracking-wider block">{meta.label}</span>
+                          <span className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">
+                            {meta.requiresUpload ? 'Manual Upload' : 'ISO Compliance Protocol'}
+                          </span>
+                        </div>
+                      </button>
+                      {meta.requiresUpload && (
+                        <input
+                          type="file"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) uploadDoc(type, e.target.files[0]);
+                          }}
+                        />
+                      )}
+                    </div>
                   );
                 })}
               </div>

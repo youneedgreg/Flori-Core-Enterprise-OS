@@ -34,7 +34,27 @@ export class ExportDocsService {
   ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId, tenantId },
-      include: { customer: true, tenant: { include: { farmProfile: true } } },
+      include: {
+        customer: true,
+        tenant: { include: { farmProfile: true } },
+        packedBoxes: {
+          include: {
+            batch: {
+              include: {
+                cropCycle: {
+                  include: {
+                    zone: {
+                      include: {
+                        sprayLogs: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!order) {
@@ -53,6 +73,42 @@ export class ExportDocsService {
     );
 
     // Create DB record
+    return this.prisma.exportDocument.create({
+      data: {
+        tenantId,
+        orderId,
+        type,
+        fileUrl,
+        documentNumber:
+          `DOC-${type}-${order.orderNumber || orderId.slice(0, 6)}`.toUpperCase(),
+        notes,
+        status: 'GENERATED',
+      },
+    });
+  }
+
+  async uploadDocument(
+    tenantId: string,
+    orderId: string,
+    file: any,
+    type: ExportDocType,
+    notes?: string,
+  ) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId, tenantId },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    const filename = `export_docs/${orderId}/${type}_${Date.now()}_${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+    const fileUrl = await this.storage.uploadFile(
+      filename,
+      file.buffer,
+      file.mimetype,
+    );
+
     return this.prisma.exportDocument.create({
       data: {
         tenantId,
@@ -152,16 +208,41 @@ export class ExportDocsService {
           'This is to certify that the plants, plant products or other regulated articles described herein have been inspected and/or tested according to appropriate official procedures and are considered to be free from the quarantine pests specified by the importing contracting party.',
         );
         doc.moveDown();
-        doc.text('Treatment: N/A - See Spray Logs');
+
+        // Extract unique spray logs from packed boxes -> batch -> cycle -> zone
+        const sprayLogs = new Map<string, any>();
+        order.packedBoxes?.forEach((box: any) => {
+          box.batch?.cropCycle?.zone?.sprayLogs?.forEach((log: any) => {
+            sprayLogs.set(log.id, log);
+          });
+        });
+
+        if (sprayLogs.size > 0) {
+          doc.text('Treatment / Spray Logs:');
+          Array.from(sprayLogs.values()).forEach((log: any, i: number) => {
+            doc.text(
+              ` ${i + 1}. ${log.chemicalName} (EPA: ${log.epaRegNo}) - Applied: ${new Date(log.appliedAt).toLocaleDateString()}`,
+            );
+          });
+        } else {
+          doc.text(
+            'Treatment: N/A - No Spray Logs associated with these items.',
+          );
+        }
       } else if (type === 'CUSTOMS_INVOICE' || type === 'PACKING_LIST') {
         doc.text(`Total Value: ${order.currency} ${order.totalAmount}`);
-        doc.text('Items:');
-        const items = order.items as any[];
-        items.forEach((item: any, i: number) => {
-          doc.text(
-            ` ${i + 1}. ${item.varietyName} - ${item.quantity} boxes @ ${item.bunchesPerBox} bunches/box`,
-          );
-        });
+        doc.moveDown();
+        doc.text('Box Manifest:');
+
+        if (order.packedBoxes && order.packedBoxes.length > 0) {
+          order.packedBoxes.forEach((box: any, i: number) => {
+            doc.text(
+              ` Box ${i + 1} (${box.boxId}): ${box.totalStems} stems - ${box.bunchesPerBox} bunches/box`,
+            );
+          });
+        } else {
+          doc.text(' No packed boxes found for this order.');
+        }
       } else if (type === 'CERTIFICATE_OF_ORIGIN') {
         doc.text(
           `Country of Origin: ${order.tenant?.farmProfile?.location || 'Kenya'}`,

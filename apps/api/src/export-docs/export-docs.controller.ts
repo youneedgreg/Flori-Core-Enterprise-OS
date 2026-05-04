@@ -11,7 +11,10 @@ import {
   Body,
   UseGuards,
   Request as Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ExportDocsService } from './export-docs.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { ExportDocType } from '@prisma/client';
@@ -41,6 +44,25 @@ export class ExportDocsController {
     return this.exportDocsService.generateDocument(
       tenantId,
       orderId,
+      type,
+      notes,
+    );
+  }
+
+  @Post('order/:orderId/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDocument(
+    @Req() req: any,
+    @Param('orderId') orderId: string,
+    @UploadedFile() file: any,
+    @Body('type') type: ExportDocType,
+    @Body('notes') notes?: string,
+  ) {
+    const tenantId = req.user.tenantId;
+    return this.exportDocsService.uploadDocument(
+      tenantId,
+      orderId,
+      file,
       type,
       notes,
     );

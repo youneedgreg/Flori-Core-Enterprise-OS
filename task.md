@@ -1,15 +1,6 @@
 # Flori-Core Enterprise OS — Master Task List
 
 > Derived from `flori_core_plan.md`. Check off items as you complete them.
-> let us do the whole team page now, anything i left out, anything that needs to be now lets move to the inventory page let us do the whole inventory page now,  
->  anything i left out, anything that needs to be added, anything that  
->  needs to be linked, the page itself, everysingle nitty gritty, the full revamp  
->  like we have done the  
->  other pages, (zones, production, team, logistics, operations, packhouse and
-> heck the pages that have not been updated and update, like dashboard and settings  
->  and any other, those like inventory, zones, teams, have been updated, add any  
->  feature you feel is necessary in thos pages, link where you feel like is necessary  
->  to be linked, add what i left out, like do every nitty gritty, a full revamp
 
 ## coldroom)
 
@@ -28,12 +19,12 @@
 
 ### 5.3 Export Documentation Vault
 
-- [ ] Phytosanitary Certificate: auto-filled from order + spray log
-- [ ] Export Permit: regulatory API link or structured manual upload
-- [ ] Customs Invoice / Packing List from box manifest
-- [ ] Certificate of Origin template with auto-fill
-- [ ] Docs stored in S3, version-controlled, audit-accessible
-- [ ] Auto-email docs to freight forwarder/buyer with order context
+- [x] Phytosanitary Certificate: auto-filled from order + spray log
+- [x] Export Permit: regulatory API link or structured manual upload
+- [x] Customs Invoice / Packing List from box manifest
+- [x] Certificate of Origin template with auto-fill
+- [x] Docs stored in S3, version-controlled, audit-accessible
+- [x] Auto-email docs to freight forwarder/buyer with order context
 
 ### 5.6 Auction Integration _(Extra)_
 
