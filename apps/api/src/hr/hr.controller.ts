@@ -279,6 +279,46 @@ export class HRController {
       period,
     );
   }
+
+  // ─── Compliance Training Tracker ──────────────────────────────────────────────
+
+  @Get('training/compliance')
+  async getComplianceTrainingStatus(@Req() req: AuthenticatedRequest) {
+    return this.hrService.getComplianceTrainingStatus(req.user.tenantId);
+  }
+
+  // ─── All Appraisals (HR Overview) ──────────────────────────────────────────────
+
+  @Get('appraisals')
+  async getAllAppraisals(
+    @Req() req: AuthenticatedRequest,
+    @Query('period') period?: string,
+  ) {
+    return this.hrService.getAllAppraisals(req.user.tenantId, period);
+  }
+
+  // ─── Update Training Schedule ──────────────────────────────────────────────────
+
+  @Put('training/schedule/:id')
+  @Roles('gold_admin', 'hr_manager')
+  async updateTrainingSchedule(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
+    return this.hrService.updateTrainingSchedule(req.user.tenantId, id, data);
+  }
+
+  // ─── Delete Training Course ────────────────────────────────────────────────────
+
+  @Delete('training/courses/:id')
+  @Roles('gold_admin', 'hr_manager')
+  async deleteTrainingCourse(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.hrService.deleteTrainingCourse(req.user.tenantId, id);
+  }
 }
 
 // Simple placeholder for ApiTags decorator if Swagger is not fully configured

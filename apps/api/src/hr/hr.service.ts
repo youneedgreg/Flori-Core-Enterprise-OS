@@ -670,4 +670,175 @@ export class HRService {
       overallScore,
     };
   }
+
+  // ─── Compliance Training Tracker ────────────────────────────────────────────
+
+  async getComplianceTrainingStatus(tenantId: string) {
+    const complianceCategories = [
+      'CHEMICAL_HANDLING',
+      'FIRST_AID',
+      'FIRE_SAFETY',
+    ];
+
+    // Get all mandatory/compliance courses for this tenant
+    const courses = await this.prisma.trainingCourse.findMany({
+      where: {
+        tenantId,
+        category: { in: complianceCategories },
+      },
+    });
+
+    // Get all active employees
+    const employees = await this.prisma.employee.findMany({
+      where: { tenantId, isActive: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        employeeNumber: true,
+        department: true,
+        jobTitle: true,
+      },
+    });
+
+    // Get all training records for compliance courses
+    const records = await this.prisma.trainingRecord.findMany({
+      where: {
+        tenantId,
+        courseId: { in: courses.map((c) => c.id) },
+      },
+      include: { course: true },
+      orderBy: { completionDate: 'desc' },
+    });
+
+    const now = new Date();
+    const soon = new Date();
+    soon.setDate(soon.getDate() + 30);
+
+    // Build per-employee compliance matrix
+    const matrix = employees.map((emp) => {
+      const empRecords = records.filter((r) => r.employeeId === emp.id);
+      const courseStatuses = courses.map((course) => {
+        const latest = empRecords.find((r) => r.courseId === course.id);
+        let status: 'COMPLIANT' | 'EXPIRING_SOON' | 'EXPIRED' | 'NOT_TRAINED' =
+          'NOT_TRAINED';
+
+        if (latest) {
+          if (latest.expiryDate) {
+            if (latest.expiryDate < now) {
+              status = 'EXPIRED';
+            } else if (latest.expiryDate <= soon) {
+              status = 'EXPIRING_SOON';
+            } else {
+              status = 'COMPLIANT';
+            }
+          } else {
+            status = 'COMPLIANT';
+          }
+        }
+
+        return {
+          courseId: course.id,
+          courseName: course.name,
+          category: course.category,
+          status,
+          completionDate: latest?.completionDate ?? null,
+          expiryDate: latest?.expiryDate ?? null,
+          score: latest?.score ?? null,
+        };
+      });
+
+      const compliantCount = courseStatuses.filter(
+        (s) => s.status === 'COMPLIANT',
+      ).length;
+      const overallStatus =
+        compliantCount === courses.length
+          ? 'FULLY_COMPLIANT'
+          : courseStatuses.some((s) => s.status === 'EXPIRED')
+            ? 'NON_COMPLIANT'
+            : 'PARTIALLY_COMPLIANT';
+
+      return {
+        employee: emp,
+        courseStatuses,
+        overallStatus,
+        compliantCount,
+        totalRequired: courses.length,
+      };
+    });
+
+    // Summary stats
+    const fullyCompliant = matrix.filter(
+      (m) => m.overallStatus === 'FULLY_COMPLIANT',
+    ).length;
+    const nonCompliant = matrix.filter(
+      (m) => m.overallStatus === 'NON_COMPLIANT',
+    ).length;
+
+    return {
+      courses,
+      matrix,
+      summary: {
+        totalEmployees: employees.length,
+        fullyCompliant,
+        partiallyCompliant: employees.length - fullyCompliant - nonCompliant,
+        nonCompliant,
+        totalCourses: courses.length,
+      },
+    };
+  }
+
+  // ─── All Appraisals (for HR overview) ────────────────────────────────────────
+
+  async getAllAppraisals(tenantId: string, period?: string) {
+    return this.prisma.performanceAppraisal.findMany({
+      where: {
+        tenantId,
+        ...(period ? { period } : {}),
+      },
+      include: {
+        employee: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            employeeNumber: true,
+            department: true,
+            jobTitle: true,
+          },
+        },
+        reviews: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  // ─── Update Training Schedule ───────────────────────────────────────────────
+
+  async updateTrainingSchedule(
+    tenantId: string,
+    scheduleId: string,
+    data: any,
+  ) {
+    return this.prisma.trainingSchedule.update({
+      where: { id: scheduleId, tenantId },
+      data: {
+        ...(data.status ? { status: data.status } : {}),
+        ...(data.department ? { department: data.department } : {}),
+        ...(data.trainer ? { trainer: data.trainer } : {}),
+        ...(data.location ? { location: data.location } : {}),
+        ...(data.scheduledDate
+          ? { scheduledDate: new Date(data.scheduledDate) }
+          : {}),
+      },
+    });
+  }
+
+  // ─── Delete Training Course ─────────────────────────────────────────────────
+
+  async deleteTrainingCourse(tenantId: string, courseId: string) {
+    return this.prisma.trainingCourse.delete({
+      where: { id: courseId, tenantId },
+    });
+  }
 }

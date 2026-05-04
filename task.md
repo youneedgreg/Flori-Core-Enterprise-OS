@@ -61,11 +61,11 @@
 
 ### 7.3 Training & Appraisals
 
-- [ ] Training records: course, provider, date, score, certificate upload
-- [ ] Compliance training tracker: chemical handling, first aid, fire safety
-- [ ] Performance appraisal: 360° review form (self, peer, supervisor)
-- [ ] KPI scoring linked to farm productivity data
-- [ ] Training calendar with department-wide scheduling
+- [x] Training records: course, provider, date, score, certificate upload
+- [x] Compliance training tracker: chemical handling, first aid, fire safety
+- [x] Performance appraisal: 360° review form (self, peer, supervisor)
+- [x] KPI scoring linked to farm productivity data
+- [x] Training calendar with department-wide scheduling
 
 ---
 
