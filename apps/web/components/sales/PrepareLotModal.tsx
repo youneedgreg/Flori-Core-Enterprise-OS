@@ -19,7 +19,7 @@ export function PrepareLotModal({ isOpen, onClose, apiBase, getAuthHeader, onSuc
     if (isOpen) {
       const headers = getAuthHeader();
       if (headers) {
-        fetch(`${apiBase}/production/varieties`, { headers })
+        fetch(`${apiBase}/varieties`, { headers })
           .then(res => res.json())
           .then(data => {
             if (Array.isArray(data)) {
