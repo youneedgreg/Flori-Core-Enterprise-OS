@@ -16,10 +16,11 @@ import {
 import { toast } from 'sonner';
 import { logout, decodeJWT, isTokenExpired } from '../../../lib/auth';
 import Step1FarmProfile from '../../../components/onboarding/Step1FarmProfile';
+import RbacManager from '../../../components/settings/RbacManager';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
-type Tab = 'farm' | 'account' | 'system';
+type Tab = 'farm' | 'account' | 'rbac' | 'system';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('farm');
@@ -129,6 +130,7 @@ export default function SettingsPage() {
   const tabItems = [
     { id: 'farm', label: 'Farm Identity', icon: Building2 },
     { id: 'account', label: 'User Account', icon: User },
+    { id: 'rbac', label: 'Access & Roles', icon: Shield },
     { id: 'system', label: 'System Context', icon: Database },
   ];
 
@@ -258,6 +260,11 @@ export default function SettingsPage() {
                </div>
             </div>
           </div>
+        )}
+
+        {/* Access & Roles Tab */}
+        {activeTab === 'rbac' && (
+          <RbacManager />
         )}
 
         {/* System Tab */}

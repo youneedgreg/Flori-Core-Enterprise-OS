@@ -6,6 +6,10 @@
 >  needs to be linked, the page itself, everysingle nitty gritty, the full revamp  
 >  like we have done the  
 >  other pages, (zones, production, team, logistics, operations, packhouse and
+> heck the pages that have not been updated and update, like dashboard and settings  
+>  and any other, those like inventory, zones, teams, have been updated, add any  
+>  feature you feel is necessary in thos pages, link where you feel like is necessary  
+>  to be linked, add what i left out, like do every nitty gritty, a full revamp
 
 ## coldroom)
 
