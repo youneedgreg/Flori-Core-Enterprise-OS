@@ -826,7 +826,7 @@ export default function TeamPage() {
       </div>
       </TabsContent>
       <TabsContent value="roles" className="animate-in fade-in duration-300">
-        <RbacManager />
+        <RbacManager onRolesUpdated={fetchData} />
       </TabsContent>
     </Tabs>
 

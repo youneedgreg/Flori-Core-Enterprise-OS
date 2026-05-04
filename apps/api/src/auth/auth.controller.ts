@@ -38,7 +38,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('roles')
   async getRoles(@Req() req: AuthenticatedRequest) {
-    return this.authService.getRolesForTenant(req.tenantId);
+    return this.authService.getRolesForTenant(req.user.tenantId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -47,7 +47,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: { name: string; description?: string; permissions: string[] },
   ) {
-    return this.authService.createRole(req.tenantId, req.user.id, dto);
+    return this.authService.createRole(req.user.tenantId, req.user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -57,7 +57,7 @@ export class AuthController {
     @Param('id') id: string,
     @Body() dto: { name?: string; description?: string; permissions?: string[] },
   ) {
-    return this.authService.updateRole(req.tenantId, id, req.user.id, dto);
+    return this.authService.updateRole(req.user.tenantId, id, req.user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,7 +66,7 @@ export class AuthController {
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
   ) {
-    return this.authService.deleteRole(req.tenantId, id, req.user.id);
+    return this.authService.deleteRole(req.user.tenantId, id, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)

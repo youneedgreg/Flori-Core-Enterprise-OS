@@ -10,7 +10,7 @@ const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 interface Role {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   permissions: string[];
   isSystem?: boolean;
 }
@@ -27,7 +27,11 @@ const AVAILABLE_PERMISSIONS = [
   { id: 'settings.manage', label: 'Manage Settings', category: 'Settings' },
 ];
 
-export default function RbacManager() {
+interface RbacManagerProps {
+  onRolesUpdated?: () => void;
+}
+
+export default function RbacManager({ onRolesUpdated }: RbacManagerProps) {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
@@ -50,13 +54,8 @@ export default function RbacManager() {
       if (res.ok) {
         setRoles(await res.json());
       } else {
-        // Fallback to mock data if endpoint doesn't exist
-        setRoles([
-          { id: '1', name: 'GOLD_ADMIN', description: 'Full system access across all modules.', permissions: AVAILABLE_PERMISSIONS.map(p => p.id), isSystem: true },
-          { id: '2', name: 'FARM_MANAGER', description: 'Production and inventory overview.', permissions: ['dashboard.view', 'production.manage', 'inventory.manage', 'hr.manage'] },
-          { id: '3', name: 'PACKHOUSE_LEAD', description: 'Inventory and basic production.', permissions: ['dashboard.view', 'inventory.manage'] },
-          { id: '4', name: 'FINANCE_ADMIN', description: 'Financials, payroll, and procurement.', permissions: ['dashboard.view', 'financials.manage', 'financials.view', 'procurement.manage', 'sales.manage'] },
-        ]);
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || 'Failed to fetch roles');
       }
     } catch (err) {
       console.error(err);
@@ -101,14 +100,10 @@ export default function RbacManager() {
         toast.success(isNew ? 'Role created successfully' : 'Role updated successfully');
         setEditingRole(null);
         fetchRoles();
+        if (onRolesUpdated) onRolesUpdated();
       } else {
-        // Mock success if endpoint doesn't exist
-        toast.success(isNew ? 'Role created (Mock)' : 'Role updated (Mock)');
-        setRoles(prev => {
-          if (isNew) return [...prev, { ...editingRole, id: Math.random().toString() }];
-          return prev.map(r => r.id === editingRole.id ? editingRole : r);
-        });
-        setEditingRole(null);
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || 'Failed to save role');
       }
     } catch (err) {
       toast.error('Failed to save role');
@@ -137,10 +132,10 @@ export default function RbacManager() {
       if (res.ok) {
         toast.success('Role deleted successfully');
         fetchRoles();
+        if (onRolesUpdated) onRolesUpdated();
       } else {
-        // Mock success
-        toast.success('Role deleted (Mock)');
-        setRoles(prev => prev.filter(r => r.id !== role.id));
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.message || 'Failed to delete role');
       }
     } catch (err) {
       toast.error('Failed to delete role');

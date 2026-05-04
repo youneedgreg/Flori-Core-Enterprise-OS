@@ -249,7 +249,7 @@ export class TeamService {
   async getRoles(tenantId: string) {
     return this.prisma.role.findMany({
       where: { tenantId },
-      select: { id: true, name: true, permissions: true },
+      select: { id: true, name: true, description: true, permissions: true, isSystem: true },
       orderBy: { name: 'asc' },
     });
   }

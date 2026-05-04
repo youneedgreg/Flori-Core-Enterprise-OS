@@ -43,7 +43,7 @@ export class AuthService {
           prisma.role.create({
             data: {
               name: r.name,
-              isSystem: false,
+              isSystem: true,
               tenantId: tenant.id,
               permissions: r.permissions,
             },
@@ -235,6 +235,7 @@ export class AuthService {
   }
 
   async createRole(tenantId: string, userId: string, dto: { name: string; description?: string; permissions: string[] }) {
+    console.log(`[AuthService] createRole: tenantId=${tenantId}, userId=${userId}, dto=${JSON.stringify(dto)}`);
     await this.verifyGoldAdmin(userId);
     return this.prisma.role.create({
       data: {
@@ -277,7 +278,8 @@ export class AuthService {
 
   private async verifyGoldAdmin(userId: string) {
     const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
-    if (!user || user.role?.name !== 'gold_admin') {
+    console.log(`[AuthService] verifyGoldAdmin: userId=${userId}, role=${user?.role?.name}`);
+    if (!user || user.role?.name.toLowerCase() !== 'gold_admin') {
       throw new UnauthorizedException('Only Gold Admins can perform this action');
     }
   }

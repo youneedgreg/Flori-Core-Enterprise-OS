@@ -69,6 +69,76 @@
 
 ---
 
+## Phase 7.5 — AI Chatbot Assistant _(Weeks 30–32)_
+
+### 7.5.1 Core Chat Infrastructure
+
+- [ ] Persistent chat widget (bottom-right floating button) accessible from every dashboard page
+- [ ] Chat UI: message bubbles, typing indicator, file/image attachment support
+- [ ] Conversation history stored per user (resume past conversations)
+- [ ] LLM integration backend (OpenAI / Anthropic API) with system context injection
+- [ ] Rate limiting and token budget management per tenant
+
+### 7.5.2 Paper-to-Digital Migration (OCR Import)
+
+- [ ] Photo upload: snap pictures of paper records (invoices, delivery notes, spray logs, receipts)
+- [ ] OCR extraction engine: parse handwritten/printed data from uploaded images
+- [ ] Structured data preview: show extracted fields for user review before committing
+- [ ] Auto-map extracted data to system entities (inventory items, employee records, financial entries)
+- [ ] Bulk import from legacy spreadsheets (CSV/Excel) via chat — "Import this file into inventory"
+- [ ] Historical spray log import from paper notebooks (chemical, date, zone, PHI)
+- [ ] Scanned delivery note → auto-create GRN + update stock levels
+
+### 7.5.3 System Q&A & Navigation Help
+
+- [ ] Context-aware answers: "How do I add a new cold room?" → step-by-step with deep links
+- [ ] Module explainer: "What does the Pack House module do?" → feature overview
+- [ ] Error/issue help: "My payroll run failed" → diagnose from audit logs and suggest fixes
+- [ ] Permission awareness: "Why can't I see the Financials tab?" → check user role and explain
+- [ ] Searchable knowledge base integration (indexed from all module docs)
+
+### 7.5.4 Natural Language Data Queries
+
+- [ ] "How many stems did we harvest last week?" → query HarvestRecord and summarise
+- [ ] "Show me top 5 employees by stems per hour this month" → KPI leaderboard
+- [ ] "What's our current inventory of Red Naomi?" → real-time stock lookup
+- [ ] "Which documents are expiring in the next 30 days?" → compliance alert summary
+- [ ] "What was our total revenue last quarter?" → financial summary from GL
+- [ ] Response formatting: tables, charts, and downloadable CSVs inline in chat
+
+### 7.5.5 Quick Actions via Chat
+
+- [ ] "Create a purchase request for 50 bags of NPK fertiliser" → pre-fill PR form
+- [ ] "Schedule chemical handling training for the Production team next Monday" → create TrainingSchedule
+- [ ] "Apply for 3 days annual leave starting Friday" → submit LeaveRequest
+- [ ] "Log a pest scouting report for Zone A — aphids, moderate severity" → create ScoutingReport
+- [ ] "Send a reminder to all drivers about tomorrow's dispatch" → trigger notification
+- [ ] Action confirmation step: show summary card before executing any write operation
+
+### 7.5.6 Onboarding & Guided Setup
+
+- [ ] New user welcome flow: introduce available modules based on role
+- [ ] Interactive setup wizard: "Let's get your farm set up" → guide through zones, varieties, employees
+- [ ] Contextual tips: surface relevant suggestions based on current page ("Tip: you can bulk-assign shifts here")
+- [ ] Video/screenshot walkthrough links per module
+
+### 7.5.7 Proactive Alerts & Insights
+
+- [ ] Daily digest: "Good morning — 3 documents expiring this week, 2 pending leave requests"
+- [ ] Anomaly detection: "Rejection rate in Zone B spiked 3× today vs. average"
+- [ ] Compliance reminders: "5 employees overdue for Fire Safety training"
+- [ ] Financial nudges: "Payroll run for April hasn't been initiated yet"
+- [ ] Weather-linked advice: "Rain forecast for Thursday — consider adjusting spray schedule"
+
+### 7.5.8 Report Generation
+
+- [ ] "Generate a monthly production report for March" → formatted PDF/summary
+- [ ] "Export all training records as a spreadsheet" → CSV download link
+- [ ] "Summarise this week's logistics performance" → delivery stats, on-time %, wastage
+- [ ] Natural language → chart: "Plot harvest trends for Red Naomi over the last 6 months"
+
+---
+
 ## Phase 8 — Advanced Features & Intelligence _(Weeks 31–36)_
 
 ### 8.1 AI Yield Forecasting _(Extra)_
