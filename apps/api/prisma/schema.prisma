@@ -96,6 +96,7 @@ model Tenant {
 model Role {
   id          String   @id @default(uuid())
   name        String
+  description String?
   permissions Json     @default("[]")
   isSystem    Boolean  @default(false)
   tenantId    String?

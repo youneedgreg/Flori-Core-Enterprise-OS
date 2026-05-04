@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Req, UseGuards, Put } from '@nestjs/common';
+import { Controller, Post, Body, Get, Req, UseGuards, Put, Patch, Delete, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { RegisterTenantDto, LoginDto } from '@flori/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -39,6 +39,34 @@ export class AuthController {
   @Get('roles')
   async getRoles(@Req() req: AuthenticatedRequest) {
     return this.authService.getRolesForTenant(req.tenantId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('roles')
+  async createRole(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: { name: string; description?: string; permissions: string[] },
+  ) {
+    return this.authService.createRole(req.tenantId, req.user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('roles/:id')
+  async updateRole(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() dto: { name?: string; description?: string; permissions?: string[] },
+  ) {
+    return this.authService.updateRole(req.tenantId, id, req.user.id, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('roles/:id')
+  async deleteRole(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+  ) {
+    return this.authService.deleteRole(req.tenantId, id, req.user.id);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -16,7 +16,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; role: string; permissions: string[] } | null>(null);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -43,7 +43,7 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
           logout();
           return;
         }
-        setUser({ email: payload.email, role: payload.role });
+        setUser({ email: payload.email, role: payload.role, permissions: payload.permissions || [] });
       } catch (err) {
         console.error('Layout init failed:', err);
         logout();
@@ -53,23 +53,29 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
     initAuth();
   }, [token]);
 
-  const sidebarItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-    { icon: Map, label: 'Farm Zones', href: '/dashboard/zones' },
-    { icon: Sprout, label: 'Production', href: '/dashboard/production' },
-    { icon: Leaf, label: 'Farm Operations', href: '/dashboard/operations' },
-    { icon: Package, label: 'Pack House', href: '/dashboard/pack-house' },
-    { icon: Wind, label: 'Cold Room', href: '/dashboard/cold-room' },
-    { icon: Users, label: 'Team', href: '/dashboard/team' },
-    { icon: Package, label: 'Logistics', href: '/dashboard/logistics' },
-    { icon: Boxes, label: 'Inventory', href: '/dashboard/inventory' },
-    { icon: ShoppingCart, label: 'Stores', href: '/dashboard/stores' },
-    { icon: ClipboardList, label: 'Procurement', href: '/dashboard/procurement' },
-    { icon: TrendingUp, label: 'Sales & CRM', href: '/dashboard/sales' },
-    { icon: ShieldCheck, label: 'Compliance', href: '/dashboard/compliance' },
-    { icon: Landmark, label: 'Financials', href: '/dashboard/financials' },
-    { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
+  const allSidebarItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard', perm: 'dashboard.view' },
+    { icon: Map, label: 'Farm Zones', href: '/dashboard/zones', perm: 'production.manage' },
+    { icon: Sprout, label: 'Production', href: '/dashboard/production', perm: 'production.manage' },
+    { icon: Leaf, label: 'Farm Operations', href: '/dashboard/operations', perm: 'production.manage' },
+    { icon: Package, label: 'Pack House', href: '/dashboard/pack-house', perm: 'inventory.manage' },
+    { icon: Wind, label: 'Cold Room', href: '/dashboard/cold-room', perm: 'inventory.manage' },
+    { icon: Users, label: 'Team', href: '/dashboard/team', perm: 'hr.manage' },
+    { icon: Package, label: 'Logistics', href: '/dashboard/logistics', perm: 'sales.manage' },
+    { icon: Boxes, label: 'Inventory', href: '/dashboard/inventory', perm: 'inventory.manage' },
+    { icon: ShoppingCart, label: 'Stores', href: '/dashboard/stores', perm: 'inventory.manage' },
+    { icon: ClipboardList, label: 'Procurement', href: '/dashboard/procurement', perm: 'procurement.manage' },
+    { icon: TrendingUp, label: 'Sales & CRM', href: '/dashboard/sales', perm: 'sales.manage' },
+    { icon: ShieldCheck, label: 'Compliance', href: '/dashboard/compliance', perm: 'settings.manage' },
+    { icon: Landmark, label: 'Financials', href: '/dashboard/financials', perm: 'financials.view' },
+    { icon: Settings, label: 'Settings', href: '/dashboard/settings', perm: 'settings.manage' },
   ];
+
+  const sidebarItems = allSidebarItems.filter(item => {
+    if (!user) return false;
+    if (user.role === 'gold_admin') return true;
+    return user.permissions.includes(item.perm);
+  });
 
   const handleSignOut = () => {
     logout();

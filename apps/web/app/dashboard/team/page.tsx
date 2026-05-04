@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { logout, isTokenExpired } from '../../../lib/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { Badge } from '../../../components/ui/badge';
+import RbacManager from '../../../components/settings/RbacManager';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
 
@@ -342,47 +343,58 @@ export default function TeamPage() {
         </button>
       </header>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or email..."
-            className="w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold text-white placeholder-slate-600 focus:outline-none focus:border-brand-green/30 transition-colors"
-          />
-        </div>
-        <select
-          value={filterRole}
-          onChange={(e) => setFilterRole(e.target.value)}
-          className="bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-400 uppercase focus:outline-none focus:border-brand-green/30 appearance-none cursor-pointer"
-        >
-          <option value="">All Roles</option>
-          {roles.map((r) => <option key={r.id} value={r.name}>{r.name.replace(/_/g, ' ')}</option>)}
-        </select>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-400 uppercase focus:outline-none focus:border-brand-green/30 appearance-none cursor-pointer"
-        >
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="password_reset">Pending Password Reset</option>
-        </select>
-        {(search || filterRole || filterStatus) && (
-          <button
-            onClick={() => { setSearch(''); setFilterRole(''); setFilterStatus(''); }}
-            className="px-4 py-3.5 bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded-2xl text-xs font-black uppercase tracking-widest border border-white/5 transition-all flex items-center gap-1.5"
-          >
-            <X className="w-3.5 h-3.5" /> Clear
-          </button>
-        )}
-      </div>
+      <Tabs defaultValue="members" className="space-y-6">
+        <TabsList className="bg-white/5 border border-white/5 p-1 rounded-2xl h-auto flex w-fit">
+          <TabsTrigger value="members" className="rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark transition-all">
+            Members Directory
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark transition-all">
+            Roles & Permissions
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Main layout: table + slide panel */}
-      <div className="flex gap-6 items-start">
+        <TabsContent value="members" className="space-y-6 animate-in fade-in duration-300">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name or email..."
+                className="w-full bg-white/5 border border-white/5 rounded-2xl pl-12 pr-4 py-3.5 text-sm font-bold text-white placeholder-slate-600 focus:outline-none focus:border-brand-green/30 transition-colors"
+              />
+            </div>
+            <select
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-400 uppercase focus:outline-none focus:border-brand-green/30 appearance-none cursor-pointer"
+            >
+              <option value="">All Roles</option>
+              {roles.map((r) => <option key={r.id} value={r.name}>{r.name.replace(/_/g, ' ')}</option>)}
+            </select>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="bg-white/5 border border-white/5 rounded-2xl px-5 py-3.5 text-xs font-black text-slate-400 uppercase focus:outline-none focus:border-brand-green/30 appearance-none cursor-pointer"
+            >
+              <option value="">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+              <option value="password_reset">Pending Password Reset</option>
+            </select>
+            {(search || filterRole || filterStatus) && (
+              <button
+                onClick={() => { setSearch(''); setFilterRole(''); setFilterStatus(''); }}
+                className="px-4 py-3.5 bg-white/5 hover:bg-rose-500/10 text-slate-400 hover:text-rose-400 rounded-2xl text-xs font-black uppercase tracking-widest border border-white/5 transition-all flex items-center gap-1.5"
+              >
+                <X className="w-3.5 h-3.5" /> Clear
+              </button>
+            )}
+          </div>
+
+          {/* Main layout: table + slide panel */}
+          <div className="flex gap-6 items-start">
 
         {/* Members Table */}
         <div className={`bg-white/5 backdrop-blur-3xl rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl transition-all duration-500 ${selectedMember ? 'flex-[1.5]' : 'flex-1'}`}>
@@ -812,6 +824,11 @@ export default function TeamPage() {
           </div>
         )}
       </div>
+      </TabsContent>
+      <TabsContent value="roles" className="animate-in fade-in duration-300">
+        <RbacManager />
+      </TabsContent>
+    </Tabs>
 
       {/* ── Invite Modal ────────────────────────────────────────────── */}
       {showInviteModal && (

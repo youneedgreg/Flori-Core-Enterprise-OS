@@ -71,6 +71,7 @@ export class AuthService {
       email: result.user.email,
       tenantId: result.tenant.id,
       role: result.role.name,
+      permissions: result.role.permissions,
     };
 
     // --- Welcome Email Trigger ---
@@ -133,6 +134,7 @@ export class AuthService {
         email: user.email,
         tenantId: user.tenantId,
         role: roleName,
+        permissions: user.role?.permissions ?? [],
         mustChangePassword: user.mustChangePassword ?? false,
       };
       const isOnboarded = !!(await this.prisma.farmProfile.findUnique({
@@ -184,6 +186,7 @@ export class AuthService {
         email: payload.email,
         tenantId: payload.tenantId,
         role: payload.role,
+        permissions: payload.permissions ?? [],
       };
 
       const access_token = this.jwtService.sign(newPayload);
@@ -226,8 +229,57 @@ export class AuthService {
   async getRolesForTenant(tenantId: string) {
     return this.prisma.role.findMany({
       where: { tenantId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, description: true, permissions: true, isSystem: true },
+      orderBy: { name: 'asc' },
     });
+  }
+
+  async createRole(tenantId: string, userId: string, dto: { name: string; description?: string; permissions: string[] }) {
+    await this.verifyGoldAdmin(userId);
+    return this.prisma.role.create({
+      data: {
+        name: dto.name,
+        description: dto.description,
+        permissions: dto.permissions,
+        tenantId,
+        isSystem: false,
+      },
+    });
+  }
+
+  async updateRole(tenantId: string, roleId: string, userId: string, dto: { name?: string; description?: string; permissions?: string[] }) {
+    await this.verifyGoldAdmin(userId);
+    const role = await this.prisma.role.findFirst({ where: { id: roleId, tenantId } });
+    if (!role) throw new BadRequestException('Role not found');
+    if (role.isSystem) throw new BadRequestException('Cannot modify system roles');
+
+    return this.prisma.role.update({
+      where: { id: roleId },
+      data: {
+        name: dto.name,
+        description: dto.description,
+        permissions: dto.permissions,
+      },
+    });
+  }
+
+  async deleteRole(tenantId: string, roleId: string, userId: string) {
+    await this.verifyGoldAdmin(userId);
+    const role = await this.prisma.role.findFirst({ where: { id: roleId, tenantId } });
+    if (!role) throw new BadRequestException('Role not found');
+    if (role.isSystem) throw new BadRequestException('Cannot delete system roles');
+
+    const usersWithRole = await this.prisma.user.count({ where: { roleId } });
+    if (usersWithRole > 0) throw new BadRequestException('Cannot delete role assigned to active users');
+
+    return this.prisma.role.delete({ where: { id: roleId } });
+  }
+
+  private async verifyGoldAdmin(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
+    if (!user || user.role?.name !== 'gold_admin') {
+      throw new UnauthorizedException('Only Gold Admins can perform this action');
+    }
   }
 
   private generateWelcomeEmailHtml(farmName: string): string {

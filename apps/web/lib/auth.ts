@@ -6,6 +6,7 @@ export interface JWTPayload {
   exp: number;
   role: string;
   tenantId: string;
+  permissions?: string[];
   [key: string]: unknown;
 }
 
