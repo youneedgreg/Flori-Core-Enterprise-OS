@@ -83,6 +83,7 @@ function KpiCard({ icon: Icon, label, value, color, sub }: {
 }
 
 export default function TrainingPage() {
+  const [activeTab, setActiveTab] = useState<'records' | 'compliance' | 'appraisals' | 'kpis' | 'calendar'>('records');
   const [loading, setLoading] = useState(true);
   const [courses, setCourses] = useState<any[]>([]);
   const [records, setRecords] = useState<any[]>([]);
@@ -203,43 +204,61 @@ export default function TrainingPage() {
         </button>
       </header>
 
-      {/* Tabbed Interface */}
-      <Tabs defaultValue="records" className="space-y-6">
-        <TabsList className="bg-white/5 border border-white/5 p-1 rounded-2xl h-auto flex w-fit flex-wrap">
-          {[
-            { value: 'records', icon: Award, label: 'Training Records' },
-            { value: 'compliance', icon: ShieldCheck, label: 'Compliance' },
-            { value: 'appraisals', icon: Star, label: '360° Appraisals' },
-            { value: 'kpis', icon: BarChart3, label: 'KPI Dashboard' },
-            { value: 'calendar', icon: Calendar, label: 'Calendar' },
-          ].map(({ value, icon: Icon, label }) => (
-            <TabsTrigger key={value} value={value}
-              className="rounded-xl px-5 py-3 font-black text-[10px] uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark transition-all flex items-center gap-2">
-              <Icon className="w-3.5 h-3.5" /> {label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1.5 p-1 bg-white/5 border border-white/5 rounded-2xl w-fit flex-wrap overflow-x-auto scrollbar-hide">
+        {[
+          { value: 'records', icon: Award, label: 'Training Records' },
+          { value: 'compliance', icon: ShieldCheck, label: 'Compliance' },
+          { value: 'appraisals', icon: Star, label: '360° Appraisals' },
+          { value: 'kpis', icon: BarChart3, label: 'KPI Dashboard' },
+          { value: 'calendar', icon: Calendar, label: 'Calendar' },
+        ].map(({ value, icon: Icon, label }) => (
+          <button
+            key={value}
+            onClick={() => setActiveTab(value as any)}
+            className={`rounded-xl px-5 py-3 font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2 ${
+              activeTab === value
+                ? 'bg-brand-green text-slate-950 shadow-lg'
+                : 'text-slate-500 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <Icon className="w-4 h-4" /> {label}
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="records">
-          <TrainingRecordsTab records={records} courses={courses} employees={employees} onRefresh={fetchData} />
-        </TabsContent>
+      {/* Tab Content */}
+      <div className="mt-6">
+        {activeTab === 'records' && (
+          <div className="animate-in fade-in duration-300">
+            <TrainingRecordsTab records={records} courses={courses} employees={employees} onRefresh={fetchData} />
+          </div>
+        )}
 
-        <TabsContent value="compliance">
-          <ComplianceTab complianceData={complianceData} />
-        </TabsContent>
+        {activeTab === 'compliance' && (
+          <div className="animate-in fade-in duration-300">
+            <ComplianceTab complianceData={complianceData} />
+          </div>
+        )}
 
-        <TabsContent value="appraisals">
-          <AppraisalsTab appraisals={appraisals} employees={employees} onRefresh={fetchData} />
-        </TabsContent>
+        {activeTab === 'appraisals' && (
+          <div className="animate-in fade-in duration-300">
+            <AppraisalsTab appraisals={appraisals} employees={employees} onRefresh={fetchData} />
+          </div>
+        )}
 
-        <TabsContent value="kpis">
-          <KpiDashboardTab employees={employees} />
-        </TabsContent>
+        {activeTab === 'kpis' && (
+          <div className="animate-in fade-in duration-300">
+            <KpiDashboardTab employees={employees} />
+          </div>
+        )}
 
-        <TabsContent value="calendar">
-          <TrainingCalendarTab schedules={schedules} courses={courses} onRefresh={fetchData} />
-        </TabsContent>
-      </Tabs>
+        {activeTab === 'calendar' && (
+          <div className="animate-in fade-in duration-300">
+            <TrainingCalendarTab schedules={schedules} courses={courses} onRefresh={fetchData} />
+          </div>
+        )}
+      </div>
 
       {/* Add Course Modal */}
       {showAddCourse && (

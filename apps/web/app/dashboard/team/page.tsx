@@ -141,6 +141,7 @@ function Modal({ title, subtitle, onClose, children, size = 'default' }: {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function TeamPage() {
+  const [activeTab, setActiveTab] = useState<'members' | 'roles'>('members');
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -343,17 +344,33 @@ export default function TeamPage() {
         </button>
       </header>
 
-      <Tabs defaultValue="members" className="space-y-6">
-        <TabsList className="bg-white/5 border border-white/5 p-1 rounded-2xl h-auto flex w-fit">
-          <TabsTrigger value="members" className="rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark transition-all">
-            Members Directory
-          </TabsTrigger>
-          <TabsTrigger value="roles" className="rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest data-[state=active]:bg-brand-green data-[state=active]:text-brand-dark transition-all">
-            Roles & Permissions
-          </TabsTrigger>
-        </TabsList>
+      <div className="flex items-center gap-1.5 p-1 bg-white/5 border border-white/5 rounded-2xl w-fit overflow-x-auto scrollbar-hide">
+        <button
+          onClick={() => setActiveTab('members')}
+          className={`rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+            activeTab === 'members'
+              ? 'bg-brand-green text-slate-950 shadow-lg'
+              : 'text-slate-500 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          Members Directory
+        </button>
+        <button
+          onClick={() => setActiveTab('roles')}
+          className={`rounded-xl px-6 py-3 font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+            activeTab === 'roles'
+              ? 'bg-brand-green text-slate-950 shadow-lg'
+              : 'text-slate-500 hover:text-white hover:bg-white/5'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          Roles & Permissions
+        </button>
+      </div>
 
-        <TabsContent value="members" className="space-y-6 animate-in fade-in duration-300">
+      {activeTab === 'members' && (
+        <div className="space-y-6 animate-in fade-in duration-300">
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-center">
             <div className="relative flex-1 min-w-[200px] max-w-sm">
@@ -819,16 +836,19 @@ export default function TeamPage() {
                     </TabsContent>
                   </Tabs>
                 </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-      </TabsContent>
-      <TabsContent value="roles" className="animate-in fade-in duration-300">
-        <RbacManager onRolesUpdated={fetchData} />
-      </TabsContent>
-    </Tabs>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+      {activeTab === 'roles' && (
+        <div className="animate-in fade-in duration-300">
+          <RbacManager onRolesUpdated={fetchData} />
+        </div>
+      )}
 
       {/* ── Invite Modal ────────────────────────────────────────────── */}
       {showInviteModal && (
