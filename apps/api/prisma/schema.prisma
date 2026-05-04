@@ -83,11 +83,12 @@ model Tenant {
   users                 User[]
   varieties             Variety[]
   vehicles              Vehicle[]
-  vendorInvoices        VendorInvoice[]
-  vendorPerformanceLogs VendorPerformanceLog[]
   vendors               Vendor[]
   wastageLogs           WastageLog[]
   zones                 Zone[]
+  auctionLots           AuctionLot[]
+  vendorInvoices        VendorInvoice[]
+  vendorPerformanceLogs VendorPerformanceLog[]
 
   @@map("tenants")
 }
@@ -355,11 +356,37 @@ model Order {
   generatedOrders    Order[]            @relation("OrderTemplates")
   tenant             Tenant             @relation(fields: [tenantId], references: [id])
   packedBoxes        PackedBox[]
+  auctionLots        AuctionLot[]
 
   @@index([tenantId])
   @@index([status])
   @@index([isTemplate])
   @@map("orders")
+}
+
+model AuctionLot {
+  id            String           @id @default(uuid())
+  tenantId      String
+  clockNumber   String
+  varietyId     String
+  grade         QCGrade
+  bunchSize     Int
+  totalBunches  Int
+  totalStems    Int
+  expectedPrice Float?
+  actualPrice   Float?
+  status        AuctionLotStatus @default(PREPARED)
+  auctionDate   DateTime?
+  orderId       String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  order   Order?  @relation(fields: [orderId], references: [id])
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  variety Variety @relation(fields: [varietyId], references: [id])
+
+  @@index([tenantId])
+  @@map("auction_lots")
 }
 
 model TelemetryReading {
@@ -486,11 +513,12 @@ model Variety {
   updatedAt             DateTime          @updatedAt
   defaultCostPerStem    Float?
   cropCycles            CropCycle[]
-  flowerBatches         FlowerBatch[]
   flowerInventory       FlowerInventory[]
   packedBoxes           PackedBox[]
   tenant                Tenant            @relation(fields: [tenantId], references: [id])
   wastageLogs           WastageLog[]
+  auctionLots           AuctionLot[]
+  flowerBatches         FlowerBatch[]
 
   @@map("varieties")
 }
@@ -1866,6 +1894,7 @@ enum OrderType {
   STANDING_ORDER
   SPOT_ORDER
   EXPORT_CONTRACT
+  AUCTION_ORDER
 }
 
 enum TemplateFrequency {
@@ -2085,4 +2114,11 @@ enum PayrollRunStatus {
   APPROVED
   DISBURSED
   CANCELLED
+}
+
+enum AuctionLotStatus {
+  PREPARED
+  DISPATCHED
+  AUCTIONED
+  UNSOLD
 }

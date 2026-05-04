@@ -16,6 +16,9 @@ import { OrdersBoard } from '../../../components/sales/OrdersBoard';
 import { CreateCustomerModal } from '../../../components/sales/CreateCustomerModal';
 import { CreateLeadModal } from '../../../components/sales/CreateLeadModal';
 import { CreateOrderModal } from '../../../components/sales/CreateOrderModal';
+import { AuctionBoard } from '../../../components/sales/AuctionBoard';
+import { PrepareLotModal } from '../../../components/sales/PrepareLotModal';
+import { ImportAuctionResultsModal } from '../../../components/sales/ImportAuctionResultsModal';
 import { logout, isTokenExpired } from '../../../lib/auth';
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001';
@@ -58,7 +61,7 @@ const INV_STATUS: Record<string, { label: string; cls: string }> = {
   OVERDUE: { label: 'Overdue', cls: 'bg-rose-500/10 text-rose-400 border-rose-500/20' },
 };
 
-type Tab = 'pipeline' | 'customers' | 'orders' | 'invoices';
+type Tab = 'pipeline' | 'customers' | 'orders' | 'invoices' | 'auction';
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -76,6 +79,8 @@ export default function SalesPage() {
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [showLeadModal, setShowLeadModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
+  const [showPrepareLotModal, setShowPrepareLotModal] = useState(false);
+  const [showImportResultsModal, setShowImportResultsModal] = useState(false);
 
   const getAuthHeader = () => {
     const tokenMatch = document.cookie.match(/access_token=([^;]+)/);
@@ -147,6 +152,7 @@ export default function SalesPage() {
     { key: 'customers', label: 'Customers' },
     { key: 'orders',    label: 'Orders',    count: stats?.activeOrders },
     { key: 'invoices',  label: 'Invoices',  count: pendingInvoiceCount > 0 ? pendingInvoiceCount : undefined },
+    { key: 'auction',   label: 'Auction' },
   ];
 
   return (
@@ -204,6 +210,22 @@ export default function SalesPage() {
             >
               <Plus className="w-4 h-4" /> New Order
             </button>
+          )}
+          {activeTab === 'auction' && (
+            <>
+              <button
+                onClick={() => setShowPrepareLotModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:bg-amber-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+              >
+                <Plus className="w-4 h-4" /> Prepare Lot
+              </button>
+              <button
+                onClick={() => setShowImportResultsModal(true)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-slate-950 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+              >
+                <Layers className="w-4 h-4" /> Import Results
+              </button>
+            </>
           )}
         </div>
       </header>
@@ -318,6 +340,16 @@ export default function SalesPage() {
         {/* ── Orders tab ────────────────────────────────────────────────────── */}
         {activeTab === 'orders' && (
           <OrdersBoard
+            apiBase={API}
+            getAuthHeader={getAuthHeader}
+            onRefresh={handleSuccess}
+          />
+        )}
+
+        {/* ── Auction tab ───────────────────────────────────────────────────── */}
+        {activeTab === 'auction' && (
+          <AuctionBoard
+            key={`auction-${refreshKey}`}
             apiBase={API}
             getAuthHeader={getAuthHeader}
             onRefresh={handleSuccess}
@@ -509,6 +541,24 @@ export default function SalesPage() {
           apiBase={API}
           getAuthHeader={getAuthHeader}
           onSuccess={() => { setShowOrderModal(false); handleSuccess(); }}
+        />
+      )}
+      {showPrepareLotModal && (
+        <PrepareLotModal
+          isOpen={showPrepareLotModal}
+          onClose={() => setShowPrepareLotModal(false)}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
+          onSuccess={() => { setShowPrepareLotModal(false); handleSuccess(); }}
+        />
+      )}
+      {showImportResultsModal && (
+        <ImportAuctionResultsModal
+          isOpen={showImportResultsModal}
+          onClose={() => setShowImportResultsModal(false)}
+          apiBase={API}
+          getAuthHeader={getAuthHeader}
+          onSuccess={() => { setShowImportResultsModal(false); handleSuccess(); }}
         />
       )}
     </div>
