@@ -1,14 +1,144 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { MessageSquare, X, Send, Paperclip, MoreVertical, Loader2, Bot, User as UserIcon, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MessageSquare, X, Send, Paperclip, Loader2, Bot, User as UserIcon, RefreshCw, Sparkles, HelpCircle, ShieldAlert, Search } from 'lucide-react';
 import { getChatSessions, getSessionMessages, createChatSession, sendChatMessage, executeChatAction, ChatSession, ChatMessage, ChatAttachment } from '../../lib/api/chat';
 import { toast } from 'sonner';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+const SUGGESTION_CHIPS = [
+  { icon: '🏠', label: 'How do I add a new cold room?', category: 'howto' },
+  { icon: '📦', label: 'What does the Pack House module do?', category: 'module' },
+  { icon: '🔒', label: "Why can't I see the Financials tab?", category: 'permission' },
+  { icon: '⚠️', label: 'My payroll run failed', category: 'error' },
+  { icon: '📊', label: 'Show me recent audit log activity', category: 'error' },
+  { icon: '🌱', label: 'How do I record a spray application?', category: 'howto' },
+];
+
+/**
+ * Renders a markdown-like string into React elements.
+ * Supports: **bold**, [links](/path), `code`, ordered/unordered lists, and line breaks.
+ */
+function renderMarkdown(text: string, router: any): React.ReactNode[] {
+  const lines = text.split('\n');
+  const elements: React.ReactNode[] = [];
+  let listItems: React.ReactNode[] = [];
+  let listType: 'ol' | 'ul' | null = null;
+  let listCounter = 0;
+
+  const flushList = () => {
+    if (listItems.length > 0 && listType) {
+      if (listType === 'ol') {
+        elements.push(<ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2">{listItems}</ol>);
+      } else {
+        elements.push(<ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2">{listItems}</ul>);
+      }
+      listItems = [];
+      listType = null;
+      listCounter = 0;
+    }
+  };
+
+  const parseInline = (line: string, key: string): React.ReactNode => {
+    // Split by markdown patterns: **bold**, [text](url), `code`
+    const parts: React.ReactNode[] = [];
+    const regex = /(\*\*(.+?)\*\*)|(\[([^\]]+)\]\(([^)]+)\))|(`([^`]+)`)/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = regex.exec(line)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(line.slice(lastIndex, match.index));
+      }
+      if (match[1]) {
+        // **bold**
+        parts.push(<strong key={`b-${key}-${match.index}`} className="font-bold text-white">{match[2]}</strong>);
+      } else if (match[3]) {
+        // [text](url)
+        const linkText = match[4];
+        const url = match[5];
+        if (url.startsWith('/dashboard')) {
+          parts.push(
+            <button
+              key={`l-${key}-${match.index}`}
+              onClick={() => router.push(url)}
+              className="text-brand-green hover:text-emerald-300 underline underline-offset-2 font-medium transition-colors cursor-pointer"
+            >
+              {linkText}
+            </button>
+          );
+        } else {
+          parts.push(
+            <a key={`a-${key}-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="text-brand-green hover:text-emerald-300 underline underline-offset-2">{linkText}</a>
+          );
+        }
+      } else if (match[6]) {
+        // `code`
+        parts.push(<code key={`c-${key}-${match.index}`} className="bg-black/30 text-emerald-300 px-1.5 py-0.5 rounded text-xs font-mono">{match[7]}</code>);
+      }
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < line.length) {
+      parts.push(line.slice(lastIndex));
+    }
+
+    return parts.length === 1 && typeof parts[0] === 'string' ? parts[0] : <>{parts}</>;
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Numbered list: "1. text" or "1) text"
+    const olMatch = trimmed.match(/^(\d+)[.)]\s+(.+)/);
+    if (olMatch) {
+      if (listType !== 'ol') { flushList(); listType = 'ol'; }
+      listCounter++;
+      listItems.push(<li key={`li-${i}`}>{parseInline(olMatch[2], `li-${i}`)}</li>);
+      continue;
+    }
+
+    // Bullet list: "- text" or "* text"
+    const ulMatch = trimmed.match(/^[-*]\s+(.+)/);
+    if (ulMatch) {
+      if (listType !== 'ul') { flushList(); listType = 'ul'; }
+      listItems.push(<li key={`li-${i}`}>{parseInline(ulMatch[1], `li-${i}`)}</li>);
+      continue;
+    }
+
+    flushList();
+
+    // Empty line
+    if (!trimmed) {
+      elements.push(<div key={`br-${i}`} className="h-2" />);
+      continue;
+    }
+
+    // Heading-like: ### or ##
+    if (trimmed.startsWith('### ')) {
+      elements.push(<h4 key={`h4-${i}`} className="font-bold text-white text-xs uppercase tracking-wider mt-3 mb-1">{parseInline(trimmed.slice(4), `h4-${i}`)}</h4>);
+      continue;
+    }
+    if (trimmed.startsWith('## ')) {
+      elements.push(<h3 key={`h3-${i}`} className="font-bold text-white text-sm mt-3 mb-1">{parseInline(trimmed.slice(3), `h3-${i}`)}</h3>);
+      continue;
+    }
+
+    // Normal paragraph
+    elements.push(<p key={`p-${i}`} className="leading-relaxed">{parseInline(trimmed, `p-${i}`)}</p>);
+  }
+
+  flushList();
+  return elements;
+}
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const router = useRouter();
   
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -178,6 +308,43 @@ export default function ChatWidget() {
     }
   };
 
+  const handleSuggestionClick = (label: string) => {
+    setInput(label);
+    // Auto-send the suggestion
+    setTimeout(() => {
+      const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+      setInput('');
+      // Trigger send with the suggestion text
+      const sendSuggestion = async () => {
+        const optimisticUserMsg: ChatMessage = {
+          id: Date.now().toString(),
+          role: 'user',
+          content: label,
+          createdAt: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, optimisticUserMsg]);
+        setIsTyping(true);
+        let activeSessionId = currentSessionId;
+        try {
+          if (!activeSessionId) {
+            const newSession = await createChatSession(label.slice(0, 30));
+            setSessions(prev => [newSession, ...prev]);
+            activeSessionId = newSession.id;
+            setCurrentSessionId(activeSessionId);
+          }
+          const responseMsg = await sendChatMessage(activeSessionId, label);
+          setMessages(prev => [...prev, responseMsg]);
+        } catch (err: any) {
+          toast.error(err.message || 'Failed to send message');
+          setMessages(prev => prev.filter(m => m.id !== optimisticUserMsg.id));
+        } finally {
+          setIsTyping(false);
+        }
+      };
+      sendSuggestion();
+    }, 0);
+  };
+
   const renderMessageContent = (msg: ChatMessage) => {
     if (msg.role === 'system') {
       return <div className="text-emerald-400 font-medium">{msg.content}</div>;
@@ -196,7 +363,7 @@ export default function ChatWidget() {
 
       return (
         <div className="space-y-3 w-full">
-          {textContent && <div>{textContent}</div>}
+          {textContent && <div className="space-y-1">{renderMarkdown(textContent, router)}</div>}
           {actionData && (
             <div className="bg-slate-900 border border-brand-green/30 rounded-xl p-4 mt-2 w-full">
               <h4 className="font-bold text-white mb-2 flex items-center gap-2">
@@ -217,9 +384,14 @@ export default function ChatWidget() {
               </div>
             </div>
           )}
-          {parts[2] && <div className="mt-2">{parts[2].trim()}</div>}
+          {parts[2] && <div className="mt-2 space-y-1">{renderMarkdown(parts[2].trim(), router)}</div>}
         </div>
       );
+    }
+
+    // For assistant messages, render with markdown support (deep links, bold, lists)
+    if (msg.role === 'assistant') {
+      return <div className="space-y-1">{renderMarkdown(msg.content, router)}</div>;
     }
 
     return <div>{msg.content}</div>;
@@ -315,11 +487,31 @@ export default function ChatWidget() {
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
           {messages.length === 0 && !isTyping && (
-            <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-4">
-              <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-                <Bot className="w-8 h-8 text-brand-green" />
+            <div className="h-full flex flex-col items-center justify-center text-center p-4 text-slate-400 space-y-5">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-brand-green/20 to-emerald-500/10 flex items-center justify-center border border-brand-green/20">
+                <Sparkles className="w-8 h-8 text-brand-green" />
               </div>
-              <p className="text-sm">Hi! I&apos;m your AI assistant. I can help you analyze data, explain features, or manage your operations.</p>
+              <div className="space-y-2">
+                <h3 className="text-white font-bold text-base">Flori Assistant</h3>
+                <p className="text-xs text-slate-500 max-w-[280px] leading-relaxed">
+                  I can navigate the system, explain modules, diagnose errors, check your permissions, and import data from photos.
+                </p>
+              </div>
+              <div className="w-full space-y-2">
+                <p className="text-[10px] uppercase tracking-widest text-slate-600 font-bold">Try asking</p>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {SUGGESTION_CHIPS.map((chip) => (
+                    <button
+                      key={chip.label}
+                      onClick={() => handleSuggestionClick(chip.label)}
+                      className="w-full text-left px-3 py-2 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:bg-brand-green/5 hover:border-brand-green/20 transition-all duration-200 group flex items-center gap-2"
+                    >
+                      <span className="text-sm">{chip.icon}</span>
+                      <span className="text-xs text-slate-400 group-hover:text-slate-200 transition-colors truncate">{chip.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 

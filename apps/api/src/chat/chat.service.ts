@@ -7,6 +7,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatActionService } from './chat.action.service';
+import { ChatContextService } from './chat-context.service';
 import Anthropic from '@anthropic-ai/sdk';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class ChatService {
   constructor(
     private prisma: PrismaService,
     private chatAction: ChatActionService,
+    private chatContext: ChatContextService,
   ) {
     this.anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -167,12 +169,18 @@ export class ChatService {
     }
 
     try {
-      // 4. Call Anthropic
+      // 4. Build context-aware system prompt
+      const systemPrompt = await this.chatContext.buildSystemPrompt(
+        tenantId,
+        userId,
+        content,
+      );
+
+      // 5. Call Anthropic
       const response = await this.anthropic.messages.create({
-        model: 'claude-3-haiku-20240307',
-        max_tokens: 1024,
-        system:
-          'You are a helpful AI assistant for Flori-Core Enterprise OS. If the user uploads a delivery note, extract the data and return ONLY an action preview block using this format exactly: <action-preview>{"type":"CREATE_GRN","payload":{"vendorName":"...","items":[{"sku":"...","quantity":0,"unitPrice":0}]}}</action-preview>. If the user uploads a spray log, extract the data and return: <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"..."}}</action-preview>. If the user uploads a CSV inventory, extract: <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>. Otherwise, answer normally.',
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2048,
+        system: systemPrompt,
         messages: anthropicMessages,
       });
 
@@ -184,7 +192,7 @@ export class ChatService {
       const outputTokens = response.usage.output_tokens;
       const totalTokens = inputTokens + outputTokens;
 
-      // 5. Save assistant message
+      // 6. Save assistant message
       const assistantMessage = await this.prisma.chatMessage.create({
         data: {
           sessionId: session.id,
@@ -194,7 +202,7 @@ export class ChatService {
         },
       });
 
-      // 6. Update tenant token usage and session timestamp
+      // 7. Update tenant token usage and session timestamp
       await this.prisma.$transaction([
         this.prisma.tenant.update({
           where: { id: tenantId },

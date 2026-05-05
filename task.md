@@ -78,11 +78,11 @@
 
 ### 7.5.3 System Q&A & Navigation Help
 
-- [ ] Context-aware answers: "How do I add a new cold room?" → step-by-step with deep links
-- [ ] Module explainer: "What does the Pack House module do?" → feature overview
-- [ ] Error/issue help: "My payroll run failed" → diagnose from audit logs and suggest fixes
-- [ ] Permission awareness: "Why can't I see the Financials tab?" → check user role and explain
-- [ ] Searchable knowledge base integration (indexed from all module docs)
+- [x] Context-aware answers: "How do I add a new cold room?" → step-by-step with deep links
+- [x] Module explainer: "What does the Pack House module do?" → feature overview
+- [x] Error/issue help: "My payroll run failed" → diagnose from audit logs and suggest fixes
+- [x] Permission awareness: "Why can't I see the Financials tab?" → check user role and explain
+- [x] Searchable knowledge base integration (indexed from all module docs)
 
 ### 7.5.4 Natural Language Data Queries
 
