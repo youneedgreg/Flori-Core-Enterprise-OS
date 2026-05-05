@@ -47,7 +47,13 @@ export class ChatController {
     @Request() req: any,
   ) {
     const { tenantId, sub: userId } = req.user;
-    return this.chatService.sendMessage(tenantId, userId, sessionId, content, attachments);
+    return this.chatService.sendMessage(
+      tenantId,
+      userId,
+      sessionId,
+      content,
+      attachments,
+    );
   }
 
   @Post('sessions/:id/action')
@@ -58,6 +64,12 @@ export class ChatController {
     @Request() req: any,
   ) {
     const { tenantId, sub: userId } = req.user;
-    return this.chatService.executeAction(tenantId, userId, sessionId, actionType, payload);
+    return this.chatService.executeAction(
+      tenantId,
+      userId,
+      sessionId,
+      actionType,
+      payload,
+    );
   }
 }

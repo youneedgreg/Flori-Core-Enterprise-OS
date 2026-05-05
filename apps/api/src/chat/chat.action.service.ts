@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -19,22 +22,25 @@ export class ChatActionService {
       case 'IMPORT_INVENTORY':
         return this.importInventory(tenantId, userId, payload);
       default:
-        throw new HttpException(`Unknown action type: ${actionType}`, HttpStatus.BAD_REQUEST);
+        throw new HttpException(
+          `Unknown action type: ${actionType}`,
+          HttpStatus.BAD_REQUEST,
+        );
     }
   }
 
   private async createGrn(tenantId: string, userId: string, payload: any) {
     // payload should have vendorName, items: { sku, quantity, unitPrice }[]
     const { vendorName, items } = payload;
-    
+
     // Find or create vendor
     let vendor = await this.prisma.vendor.findFirst({
-      where: { tenantId, name: { contains: vendorName, mode: 'insensitive' } }
+      where: { tenantId, name: { contains: vendorName, mode: 'insensitive' } },
     });
 
     if (!vendor) {
       vendor = await this.prisma.vendor.create({
-        data: { tenantId, name: vendorName, email: 'unknown@example.com' }
+        data: { tenantId, name: vendorName, email: 'unknown@example.com' },
       });
     }
 
@@ -46,9 +52,12 @@ export class ChatActionService {
         poNumber,
         vendorId: vendor.id,
         status: 'RECEIVED',
-        totalAmount: items.reduce((acc: number, item: any) => acc + (item.quantity * item.unitPrice), 0),
+        totalAmount: items.reduce(
+          (acc: number, item: any) => acc + item.quantity * item.unitPrice,
+          0,
+        ),
         createdById: userId,
-      }
+      },
     });
 
     // Create GRN
@@ -61,17 +70,17 @@ export class ChatActionService {
         vendorId: vendor.id,
         receivedById: userId,
         status: 'RECONCILED',
-      }
+      },
     });
 
     for (const item of items) {
       // Find item
       let storeItem = await this.prisma.storeItem.findUnique({
-        where: { tenantId_sku: { tenantId, sku: item.sku } }
+        where: { tenantId_sku: { tenantId, sku: item.sku } },
       });
       if (!storeItem) {
         storeItem = await this.prisma.storeItem.create({
-          data: { tenantId, name: item.sku, sku: item.sku, category: 'OTHER' }
+          data: { tenantId, name: item.sku, sku: item.sku, category: 'OTHER' },
         });
       }
 
@@ -82,16 +91,19 @@ export class ChatActionService {
           quantityReceived: item.quantity,
           unitPriceReceived: item.unitPrice,
           totalPriceReceived: item.quantity * item.unitPrice,
-        }
+        },
       });
     }
 
-    return { success: true, message: `Created GRN ${grnNumber} from delivery note.` };
+    return {
+      success: true,
+      message: `Created GRN ${grnNumber} from delivery note.`,
+    };
   }
 
   private async createSprayLog(tenantId: string, userId: string, payload: any) {
     const { chemicalName, zoneId, phiDays, quantity, unit, date } = payload;
-    
+
     await this.prisma.sprayLog.create({
       data: {
         tenantId,
@@ -103,22 +115,28 @@ export class ChatActionService {
         phiDays: phiDays || 0,
         applicatorId: userId,
         appliedAt: new Date(date),
-        harvestAllowedAt: new Date(new Date(date).getTime() + (phiDays || 0) * 24 * 60 * 60 * 1000),
-      }
+        harvestAllowedAt: new Date(
+          new Date(date).getTime() + (phiDays || 0) * 24 * 60 * 60 * 1000,
+        ),
+      },
     });
 
     return { success: true, message: `Imported spray log for ${chemicalName}` };
   }
 
-  private async importInventory(tenantId: string, userId: string, payload: any) {
+  private async importInventory(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
     const { items } = payload; // { sku, name, category, quantity, unitCost }[]
     let imported = 0;
-    
+
     for (const item of items) {
       if (!item.sku || !item.name) continue;
-      
+
       let storeItem = await this.prisma.storeItem.findUnique({
-        where: { tenantId_sku: { tenantId, sku: item.sku } }
+        where: { tenantId_sku: { tenantId, sku: item.sku } },
       });
 
       if (!storeItem) {
@@ -129,13 +147,16 @@ export class ChatActionService {
             name: item.name,
             category: item.category || 'OTHER',
             unitCost: item.unitCost || 0,
-          }
+          },
         });
       }
 
       imported++;
     }
 
-    return { success: true, message: `Imported ${imported} items into inventory.` };
+    return {
+      success: true,
+      message: `Imported ${imported} items into inventory.`,
+    };
   }
 }

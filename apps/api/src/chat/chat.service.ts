@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/require-await */
@@ -14,7 +15,7 @@ export class ChatService {
 
   constructor(
     private prisma: PrismaService,
-    private chatAction: ChatActionService
+    private chatAction: ChatActionService,
   ) {
     this.anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -140,7 +141,9 @@ export class ChatService {
         } else if (att.type === 'text/csv' && att.data) {
           // If CSV, decode base64 and add as text
           const base64Data = att.data.split(',')[1] || att.data;
-          const decodedCsv = Buffer.from(base64Data, 'base64').toString('utf-8');
+          const decodedCsv = Buffer.from(base64Data, 'base64').toString(
+            'utf-8',
+          );
           currentMessageContent.push({
             type: 'text',
             text: `CSV File Content (${att.name}):\n${decodedCsv}`,
@@ -148,7 +151,7 @@ export class ChatService {
         }
       }
     }
-    
+
     if (content) {
       currentMessageContent.push({
         type: 'text',
