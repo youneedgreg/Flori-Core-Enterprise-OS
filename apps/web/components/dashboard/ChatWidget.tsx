@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Paperclip, MoreVertical, Loader2, Bot, User as UserIcon, RefreshCw } from 'lucide-react';
-import { getChatSessions, getSessionMessages, createChatSession, sendChatMessage, ChatSession, ChatMessage } from '../../lib/api/chat';
+import { getChatSessions, getSessionMessages, createChatSession, sendChatMessage, executeChatAction, ChatSession, ChatMessage, ChatAttachment } from '../../lib/api/chat';
 import { toast } from 'sonner';
 
 export default function ChatWidget() {
@@ -15,10 +15,13 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   
   const [input, setInput] = useState('');
+  const [attachments, setAttachments] = useState<ChatAttachment[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load sessions when widget opens
   useEffect(() => {
@@ -75,18 +78,54 @@ export default function ChatWidget() {
     }
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`File ${file.name} is too large. Max 5MB.`);
+        continue;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target?.result as string;
+        setAttachments(prev => [...prev, {
+          type: file.type,
+          name: file.name,
+          data: base64,
+          size: file.size
+        }]);
+      };
+      reader.readAsDataURL(file);
+    }
+    
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!input.trim() || isTyping) return;
+    if ((!input.trim() && attachments.length === 0) || isTyping) return;
 
     const userMsg = input.trim();
+    const currentAttachments = [...attachments];
+    
     setInput('');
+    setAttachments([]);
     
     // Add user message optimistically
     const optimisticUserMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: userMsg,
+      attachments: currentAttachments,
       createdAt: new Date().toISOString()
     };
     
@@ -103,7 +142,7 @@ export default function ChatWidget() {
         setCurrentSessionId(activeSessionId);
       }
 
-      const responseMsg = await sendChatMessage(activeSessionId, userMsg);
+      const responseMsg = await sendChatMessage(activeSessionId, userMsg, currentAttachments);
       setMessages(prev => [...prev, responseMsg]);
     } catch (err: any) {
       console.error('Failed to send message', err);
@@ -114,6 +153,76 @@ export default function ChatWidget() {
     } finally {
       setIsTyping(false);
     }
+  };
+
+  const handleExecuteAction = async (msgId: string, actionType: string, payload: any) => {
+    if (!currentSessionId || actionInProgress) return;
+    setActionInProgress(true);
+    try {
+      const result = await executeChatAction(currentSessionId, actionType, payload);
+      toast.success(result.message || 'Action executed successfully');
+      
+      // Add a system confirmation message
+      const systemMsg: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'system',
+        content: `Action completed: ${result.message || 'Success'}`,
+        createdAt: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, systemMsg]);
+    } catch (err: any) {
+      console.error('Action failed', err);
+      toast.error(err.message || 'Failed to execute action');
+    } finally {
+      setActionInProgress(false);
+    }
+  };
+
+  const renderMessageContent = (msg: ChatMessage) => {
+    if (msg.role === 'system') {
+      return <div className="text-emerald-400 font-medium">{msg.content}</div>;
+    }
+
+    // Check if the assistant message contains an action preview
+    if (msg.role === 'assistant' && msg.content.includes('<action-preview>')) {
+      const parts = msg.content.split(/<action-preview>|<\/action-preview>/);
+      const textContent = parts[0].trim();
+      let actionData = null;
+      try {
+        if (parts[1]) actionData = JSON.parse(parts[1]);
+      } catch (e) {
+        console.error('Failed to parse action preview', e);
+      }
+
+      return (
+        <div className="space-y-3 w-full">
+          {textContent && <div>{textContent}</div>}
+          {actionData && (
+            <div className="bg-slate-900 border border-brand-green/30 rounded-xl p-4 mt-2 w-full">
+              <h4 className="font-bold text-white mb-2 flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 text-brand-green" />
+                Action Required: {actionData.type}
+              </h4>
+              <div className="bg-black/20 rounded p-2 text-xs font-mono text-slate-300 overflow-x-auto mb-3 max-h-40 overflow-y-auto">
+                <pre>{JSON.stringify(actionData.payload, null, 2)}</pre>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleExecuteAction(msg.id, actionData.type, actionData.payload)}
+                  disabled={actionInProgress}
+                  className="flex-1 bg-brand-green text-slate-950 text-xs font-bold py-2 rounded hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                >
+                  {actionInProgress ? 'Executing...' : 'Confirm Action'}
+                </button>
+              </div>
+            </div>
+          )}
+          {parts[2] && <div className="mt-2">{parts[2].trim()}</div>}
+        </div>
+      );
+    }
+
+    return <div>{msg.content}</div>;
   };
 
   return (
@@ -219,12 +328,24 @@ export default function ChatWidget() {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-slate-800 text-slate-300' : 'bg-brand-green/20 text-brand-green'}`}>
                 {msg.role === 'user' ? <UserIcon className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
-              <div className={`max-w-[75%] p-3 rounded-2xl text-sm ${
+              <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${
                 msg.role === 'user' 
                   ? 'bg-brand-green text-slate-950 rounded-tr-none' 
-                  : 'bg-white/10 text-slate-200 rounded-tl-none border border-white/5'
+                  : msg.role === 'system'
+                    ? 'bg-slate-800/50 text-slate-300 border border-slate-700/50 w-full rounded-2xl'
+                    : 'bg-white/10 text-slate-200 rounded-tl-none border border-white/5'
               }`}>
-                {msg.content}
+                {msg.attachments && msg.attachments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {msg.attachments.map((att, i) => (
+                      <div key={i} className={`text-xs rounded p-1 flex items-center gap-1 ${msg.role === 'user' ? 'bg-black/10' : 'bg-black/20'}`}>
+                        <Paperclip className="w-3 h-3" />
+                        <span className="truncate max-w-[150px]">{att.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {renderMessageContent(msg)}
               </div>
             </div>
           ))}
@@ -245,9 +366,33 @@ export default function ChatWidget() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 bg-white/5 border-t border-white/10 flex-shrink-0">
+        <div className="p-4 bg-white/5 border-t border-white/10 flex-shrink-0 flex flex-col gap-2">
+          {attachments.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-1">
+              {attachments.map((att, i) => (
+                <div key={i} className="bg-slate-800 text-xs text-slate-300 rounded-md py-1 px-2 flex items-center gap-2 border border-slate-700">
+                  <span className="truncate max-w-[120px]">{att.name}</span>
+                  <button type="button" onClick={() => removeAttachment(i)} className="text-slate-500 hover:text-white">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <form onSubmit={handleSend} className="relative flex items-center">
-            <button type="button" className="absolute left-3 text-slate-400 hover:text-white transition-colors">
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              multiple
+              accept="image/*,.csv"
+              className="hidden" 
+            />
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute left-3 text-slate-400 hover:text-white transition-colors"
+            >
               <Paperclip className="w-5 h-5" />
             </button>
             <input
@@ -259,7 +404,7 @@ export default function ChatWidget() {
             />
             <button 
               type="submit" 
-              disabled={!input.trim() || isTyping}
+              disabled={(!input.trim() && attachments.length === 0) || isTyping}
               className="absolute right-2 p-1.5 bg-brand-green text-slate-950 rounded-lg hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <Send className="w-4 h-4" />

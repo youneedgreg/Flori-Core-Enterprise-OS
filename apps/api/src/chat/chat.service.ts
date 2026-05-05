@@ -5,13 +5,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ChatActionService } from './chat.action.service';
 import Anthropic from '@anthropic-ai/sdk';
 
 @Injectable()
 export class ChatService {
   private anthropic: Anthropic;
 
-  constructor(private prisma: PrismaService) {
+  constructor(
+    private prisma: PrismaService,
+    private chatAction: ChatActionService
+  ) {
     this.anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY || '',
     });
@@ -60,6 +64,7 @@ export class ChatService {
     userId: string,
     sessionId: string,
     content: string,
+    attachments?: any[],
   ) {
     // 1. Verify session & tenant limits
     const tenant = await this.prisma.tenant.findUnique({
@@ -89,12 +94,20 @@ export class ChatService {
       );
     }
 
+    // Map attachments for DB - don't store full base64 data to save space
+    const dbAttachments = attachments?.map((att) => ({
+      name: att.name,
+      type: att.type,
+      size: att.size,
+    }));
+
     // 2. Save user message
     await this.prisma.chatMessage.create({
       data: {
         sessionId: session.id,
         role: 'user',
         content,
+        attachments: dbAttachments ? (dbAttachments as any) : undefined,
       },
     });
 
@@ -110,13 +123,53 @@ export class ChatService {
       content: m.content,
     })) as Anthropic.MessageParam[];
 
+    // Add current message with attachments
+    const currentMessageContent: any[] = [];
+    if (attachments && attachments.length > 0) {
+      for (const att of attachments) {
+        if (att.type.startsWith('image/') && att.data) {
+          const base64Data = att.data.split(',')[1];
+          currentMessageContent.push({
+            type: 'image',
+            source: {
+              type: 'base64',
+              media_type: att.type as any,
+              data: base64Data,
+            },
+          });
+        } else if (att.type === 'text/csv' && att.data) {
+          // If CSV, decode base64 and add as text
+          const base64Data = att.data.split(',')[1] || att.data;
+          const decodedCsv = Buffer.from(base64Data, 'base64').toString('utf-8');
+          currentMessageContent.push({
+            type: 'text',
+            text: `CSV File Content (${att.name}):\n${decodedCsv}`,
+          });
+        }
+      }
+    }
+    
+    if (content) {
+      currentMessageContent.push({
+        type: 'text',
+        text: content,
+      });
+    }
+
+    if (currentMessageContent.length > 0) {
+      anthropicMessages.push({
+        role: 'user',
+        content: currentMessageContent,
+      });
+    }
+
     try {
       // 4. Call Anthropic
       const response = await this.anthropic.messages.create({
         model: 'claude-3-haiku-20240307',
         max_tokens: 1024,
         system:
-          'You are a helpful AI assistant for Flori-Core Enterprise OS, a farm management and cold chain logistics platform. Provide concise and accurate answers.',
+          'You are a helpful AI assistant for Flori-Core Enterprise OS. If the user uploads a delivery note, extract the data and return ONLY an action preview block using this format exactly: <action-preview>{"type":"CREATE_GRN","payload":{"vendorName":"...","items":[{"sku":"...","quantity":0,"unitPrice":0}]}}</action-preview>. If the user uploads a spray log, extract the data and return: <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"..."}}</action-preview>. If the user uploads a CSV inventory, extract: <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>. Otherwise, answer normally.',
         messages: anthropicMessages,
       });
 
@@ -158,5 +211,24 @@ export class ChatService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async executeAction(
+    tenantId: string,
+    userId: string,
+    sessionId: string,
+    actionType: string,
+    payload: any,
+  ) {
+    // Verify session
+    const session = await this.prisma.chatSession.findFirst({
+      where: { id: sessionId, tenantId, userId },
+    });
+
+    if (!session) {
+      throw new HttpException('Session not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.chatAction.executeAction(tenantId, userId, actionType, payload);
   }
 }

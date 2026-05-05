@@ -68,13 +68,13 @@
 
 ### 7.5.2 Paper-to-Digital Migration (OCR Import)
 
-- [ ] Photo upload: snap pictures of paper records (invoices, delivery notes, spray logs, receipts)
-- [ ] OCR extraction engine: parse handwritten/printed data from uploaded images
-- [ ] Structured data preview: show extracted fields for user review before committing
-- [ ] Auto-map extracted data to system entities (inventory items, employee records, financial entries)
-- [ ] Bulk import from legacy spreadsheets (CSV/Excel) via chat — "Import this file into inventory"
-- [ ] Historical spray log import from paper notebooks (chemical, date, zone, PHI)
-- [ ] Scanned delivery note → auto-create GRN + update stock levels
+- [x] Photo upload: snap pictures of paper records (invoices, delivery notes, spray logs, receipts)
+- [x] OCR extraction engine: parse handwritten/printed data from uploaded images
+- [x] Structured data preview: show extracted fields for user review before committing
+- [x] Auto-map extracted data to system entities (inventory items, employee records, financial entries)
+- [x] Bulk import from legacy spreadsheets (CSV/Excel) via chat — "Import this file into inventory"
+- [x] Historical spray log import from paper notebooks (chemical, date, zone, PHI)
+- [x] Scanned delivery note → auto-create GRN + update stock levels
 
 ### 7.5.3 System Q&A & Navigation Help
 

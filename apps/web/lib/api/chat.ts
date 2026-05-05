@@ -4,10 +4,19 @@ export interface ChatSession {
   updatedAt: string;
 }
 
+export interface ChatAttachment {
+  type: string;
+  name: string;
+  data?: string; // base64 data
+  url?: string;
+  size?: number;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
+  attachments?: ChatAttachment[];
   createdAt: string;
 }
 
@@ -50,15 +59,36 @@ export const createChatSession = async (title: string): Promise<ChatSession> => 
   return response.json();
 };
 
-export const sendChatMessage = async (sessionId: string, content: string): Promise<ChatMessage> => {
+export const sendChatMessage = async (
+  sessionId: string, 
+  content: string,
+  attachments?: ChatAttachment[]
+): Promise<ChatMessage> => {
   const response = await fetch(`${API_URL}/chat/sessions/${sessionId}/message`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ content }),
+    body: JSON.stringify({ content, attachments }),
   });
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.message || 'Failed to send message');
+  }
+  return response.json();
+};
+
+export const executeChatAction = async (
+  sessionId: string,
+  actionType: string,
+  payload: any
+): Promise<any> => {
+  const response = await fetch(`${API_URL}/chat/sessions/${sessionId}/action`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ actionType, payload }),
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || 'Failed to execute action');
   }
   return response.json();
 };

@@ -43,9 +43,21 @@ export class ChatController {
   async sendMessage(
     @Param('id') sessionId: string,
     @Body('content') content: string,
+    @Body('attachments') attachments: any[],
     @Request() req: any,
   ) {
     const { tenantId, sub: userId } = req.user;
-    return this.chatService.sendMessage(tenantId, userId, sessionId, content);
+    return this.chatService.sendMessage(tenantId, userId, sessionId, content, attachments);
+  }
+
+  @Post('sessions/:id/action')
+  async executeAction(
+    @Param('id') sessionId: string,
+    @Body('actionType') actionType: string,
+    @Body('payload') payload: any,
+    @Request() req: any,
+  ) {
+    const { tenantId, sub: userId } = req.user;
+    return this.chatService.executeAction(tenantId, userId, sessionId, actionType, payload);
   }
 }
