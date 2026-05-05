@@ -214,4 +214,79 @@ export class ChatDataService {
       netProfit: totalRevenue - totalExpenses,
     };
   }
+
+  async getAllTrainingRecords(tenantId: string) {
+    const records = await this.prisma.trainingRecord.findMany({
+      where: { tenantId },
+      include: {
+        employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
+        course: { select: { name: true, category: true } },
+      },
+      orderBy: { completionDate: 'desc' },
+    });
+
+    return records.map((r) => ({
+      employeeNumber: r.employee.employeeNumber,
+      employeeName: `${r.employee.firstName} ${r.employee.lastName}`,
+      courseName: r.course.name,
+      category: r.course.category,
+      completionDate: r.completionDate,
+      expiryDate: r.expiryDate,
+      status: r.status,
+      score: r.score,
+    }));
+  }
+
+  async getLogisticsPerformance(tenantId: string, startDate: string, endDate: string) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    const routes = await this.prisma.deliveryRoute.findMany({
+      where: {
+        tenantId,
+        date: { gte: start, lte: end },
+      },
+      include: {
+        deliveryStops: true,
+      },
+    });
+
+    let totalStops = 0;
+    let completedStops = 0;
+    let onTimeStops = 0;
+
+    routes.forEach(route => {
+      route.deliveryStops.forEach(stop => {
+        totalStops++;
+        if (stop.status === 'DELIVERED' || stop.status === 'COMPLETED') {
+          completedStops++;
+          if (stop.expectedArrival && stop.actualArrival && stop.actualArrival <= stop.expectedArrival) {
+            onTimeStops++;
+          }
+        }
+      });
+    });
+
+    // Also fetch wastage logs for the same period
+    const wastage = await this.prisma.wastageLog.aggregate({
+      where: {
+        tenantId,
+        createdAt: { gte: start, lte: end },
+      },
+      _sum: {
+        quantity: true,
+        costImpact: true,
+      },
+    });
+
+    return {
+      period: { start: startDate, end: endDate },
+      totalRoutes: routes.length,
+      totalDeliveries: totalStops,
+      completedDeliveries: completedStops,
+      onTimeDeliveryPercentage: completedStops > 0 ? (onTimeStops / completedStops) * 100 : 0,
+      totalWastageQuantity: wastage._sum.quantity || 0,
+      totalWastageCostImpact: wastage._sum.costImpact || 0,
+    };
+  }
 }

@@ -119,10 +119,10 @@
 
 ### 7.5.8 Report Generation
 
-- [ ] "Generate a monthly production report for March" → formatted PDF/summary
-- [ ] "Export all training records as a spreadsheet" → CSV download link
-- [ ] "Summarise this week's logistics performance" → delivery stats, on-time %, wastage
-- [ ] Natural language → chart: "Plot harvest trends for Red Naomi over the last 6 months"
+- [x] "Generate a monthly production report for March" → formatted PDF/summary
+- [x] "Export all training records as a spreadsheet" → CSV download link
+- [x] "Summarise this week's logistics performance" → delivery stats, on-time %, wastage
+- [x] Natural language → chart: "Plot harvest trends for Red Naomi over the last 6 months"
 
 ---
 

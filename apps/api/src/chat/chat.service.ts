@@ -275,6 +275,35 @@ export class ChatService {
             required: ['startDate', 'endDate'],
           },
         },
+        {
+          name: 'getAllTrainingRecords',
+          description:
+            'Get all training records for all employees to export or summarize.',
+          input_schema: {
+            type: 'object',
+            properties: {},
+            required: [],
+          },
+        },
+        {
+          name: 'getLogisticsPerformance',
+          description:
+            'Get delivery statistics, on-time percentage, and wastage for a specific date range.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              startDate: {
+                type: 'string',
+                description: 'Start date in YYYY-MM-DD format',
+              },
+              endDate: {
+                type: 'string',
+                description: 'End date in YYYY-MM-DD format',
+              },
+            },
+            required: ['startDate', 'endDate'],
+          },
+        },
       ];
 
       let responseContent = '';
@@ -457,6 +486,14 @@ export class ChatService {
           );
         case 'getFinancialSummary':
           return await this.chatData.getFinancialSummary(
+            tenantId,
+            toolArgs.startDate,
+            toolArgs.endDate,
+          );
+        case 'getAllTrainingRecords':
+          return await this.chatData.getAllTrainingRecords(tenantId);
+        case 'getLogisticsPerformance':
+          return await this.chatData.getLogisticsPerformance(
             tenantId,
             toolArgs.startDate,
             toolArgs.endDate,
