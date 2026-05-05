@@ -60,11 +60,11 @@
 
 ### 7.5.1 Core Chat Infrastructure
 
-- [ ] Persistent chat widget (bottom-right floating button) accessible from every dashboard page
-- [ ] Chat UI: message bubbles, typing indicator, file/image attachment support
-- [ ] Conversation history stored per user (resume past conversations)
-- [ ] LLM integration backend (OpenAI / Anthropic API) with system context injection
-- [ ] Rate limiting and token budget management per tenant
+- [x] Persistent chat widget (bottom-right floating button) accessible from every dashboard page
+- [x] Chat UI: message bubbles, typing indicator, file/image attachment support
+- [x] Conversation history stored per user (resume past conversations)
+- [x] LLM integration backend (OpenAI / Anthropic API) with system context injection
+- [x] Rate limiting and token budget management per tenant
 
 ### 7.5.2 Paper-to-Digital Migration (OCR Import)
 
