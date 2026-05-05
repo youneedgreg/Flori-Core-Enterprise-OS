@@ -111,11 +111,11 @@
 
 ### 7.5.7 Proactive Alerts & Insights
 
-- [ ] Daily digest: "Good morning — 3 documents expiring this week, 2 pending leave requests"
-- [ ] Anomaly detection: "Rejection rate in Zone B spiked 3× today vs. average"
-- [ ] Compliance reminders: "5 employees overdue for Fire Safety training"
-- [ ] Financial nudges: "Payroll run for April hasn't been initiated yet"
-- [ ] Weather-linked advice: "Rain forecast for Thursday — consider adjusting spray schedule"
+- [x] Daily digest: "Good morning — 3 documents expiring this week, 2 pending leave requests"
+- [x] Anomaly detection: "Rejection rate in Zone B spiked 3× today vs. average"
+- [x] Compliance reminders: "5 employees overdue for Fire Safety training"
+- [x] Financial nudges: "Payroll run for April hasn't been initiated yet"
+- [x] Weather-linked advice: "Rain forecast for Thursday — consider adjusting spray schedule"
 
 ### 7.5.8 Report Generation
 

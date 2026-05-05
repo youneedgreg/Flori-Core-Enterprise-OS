@@ -11,12 +11,16 @@ import {
   Request,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
+import { InsightsService } from './insights.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly insightsService: InsightsService,
+  ) {}
 
   @Get('sessions')
   async getSessions(@Request() req: any) {
@@ -73,5 +77,11 @@ export class ChatController {
       actionType,
       payload,
     );
+  }
+
+  @Post('insights/trigger')
+  async triggerInsights(@Request() req: any) {
+    const { tenantId } = req.user;
+    return this.insightsService.generateInsightsForTenant(tenantId);
   }
 }

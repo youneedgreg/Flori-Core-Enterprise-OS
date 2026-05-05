@@ -4,6 +4,7 @@ import { ChatService } from './chat.service';
 import { ChatActionService } from './chat.action.service';
 import { ChatContextService } from './chat-context.service';
 import { ChatDataService } from './chat.data.service';
+import { InsightsService } from './insights.service';
 
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuditLogModule } from '../audit-log/audit-log.module';
@@ -16,6 +17,7 @@ import { AuditLogModule } from '../audit-log/audit-log.module';
     ChatActionService,
     ChatContextService,
     ChatDataService,
+    InsightsService,
   ],
 })
 export class ChatModule {}
