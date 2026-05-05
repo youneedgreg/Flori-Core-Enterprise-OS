@@ -2,8 +2,9 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, X, Send, Paperclip, Loader2, Bot, User as UserIcon, RefreshCw, Sparkles, HelpCircle, ShieldAlert, Search } from 'lucide-react';
+import { MessageSquare, X, Send, Paperclip, Loader2, Bot, User as UserIcon, RefreshCw, Sparkles, HelpCircle, ShieldAlert, Search, Download, Table as TableIcon } from 'lucide-react';
 import { getChatSessions, getSessionMessages, createChatSession, sendChatMessage, executeChatAction, ChatSession, ChatMessage, ChatAttachment } from '../../lib/api/chat';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -25,15 +26,23 @@ function renderMarkdown(text: string, router: any): React.ReactNode[] {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: React.ReactNode[] = [];
-  let listType: 'ol' | 'ul' | null = null;
+  let listType: 'ol' | 'ul' | 'table' | null = null;
   let listCounter = 0;
 
   const flushList = () => {
     if (listItems.length > 0 && listType) {
       if (listType === 'ol') {
         elements.push(<ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 my-2">{listItems}</ol>);
-      } else {
+      } else if (listType === 'ul') {
         elements.push(<ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 my-2">{listItems}</ul>);
+      } else if (listType === 'table') {
+        elements.push(
+          <div key={`table-${elements.length}`} className="overflow-x-auto my-3 border border-white/10 rounded-lg">
+            <table className="w-full text-sm">
+              <tbody>{listItems}</tbody>
+            </table>
+          </div>
+        );
       }
       listItems = [];
       listType = null;
@@ -106,6 +115,99 @@ function renderMarkdown(text: string, router: any): React.ReactNode[] {
     if (ulMatch) {
       if (listType !== 'ul') { flushList(); listType = 'ul'; }
       listItems.push(<li key={`li-${i}`}>{parseInline(ulMatch[1], `li-${i}`)}</li>);
+      continue;
+    }
+
+    // Table parsing
+    if (trimmed.startsWith('|')) {
+      const cells = trimmed.split('|').filter((c, idx, arr) => !(idx === 0 && c === '') && !(idx === arr.length - 1 && c === '')).map(c => c.trim());
+      if (trimmed.includes('---')) continue; // skip divider
+      
+      const isHeader = listType !== 'table';
+      
+      if (listType !== 'table') {
+        flushList();
+        listType = 'table';
+        listItems = [];
+      }
+      
+      const trKey = `tr-${i}`;
+      listItems.push(
+        <tr key={trKey} className="border-b border-white/10 last:border-0">
+          {cells.map((cell, idx) => {
+            const CellTag = isHeader ? 'th' : 'td';
+            return (
+              <CellTag key={`${trKey}-${idx}`} className={`p-2 text-left ${isHeader ? 'font-bold text-white bg-white/5' : 'text-slate-300'}`}>
+                {parseInline(cell, `${trKey}-${idx}`)}
+              </CellTag>
+            );
+          })}
+        </tr>
+      );
+      continue;
+    }
+
+    // Chart tag: <chart type="bar" data='[...]' xKey="..." yKey="..." />
+    const chartMatch = trimmed.match(/<chart\s+type="([^"]+)"\s+data='([^']+)'\s+xKey="([^"]+)"\s+yKey="([^"]+)"\s*\/>/);
+    if (chartMatch) {
+      flushList();
+      try {
+        const [_, type, dataStr, xKey, yKey] = chartMatch;
+        const data = JSON.parse(dataStr);
+        elements.push(
+          <div key={`chart-${i}`} className="my-4 h-64 w-full bg-slate-900/50 p-4 rounded-xl border border-white/10">
+            <ResponsiveContainer width="100%" height="100%">
+              {type === 'bar' ? (
+                <BarChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey={xKey} stroke="#94a3b8" fontSize={12} />
+                  <YAxis stroke="#94a3b8" fontSize={12} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }} />
+                  <Bar dataKey={yKey} fill="#10b981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              ) : (
+                <LineChart data={data}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis dataKey={xKey} stroke="#94a3b8" fontSize={12} />
+                  <YAxis stroke="#94a3b8" fontSize={12} />
+                  <RechartsTooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b' }} />
+                  <Line type="monotone" dataKey={yKey} stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
+                </LineChart>
+              )}
+            </ResponsiveContainer>
+          </div>
+        );
+      } catch (e) {
+        console.error("Failed to parse chart", e);
+      }
+      continue;
+    }
+
+    // CSV tag: <csv filename="..." data='...' />
+    const csvMatch = trimmed.match(/<csv\s+filename="([^"]+)"\s+data='([^']+)'\s*\/>/);
+    if (csvMatch) {
+      flushList();
+      const [_, filename, dataStr] = csvMatch;
+      const handleDownload = () => {
+        const blob = new Blob([dataStr.replace(/\\n/g, '\n')], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      };
+      elements.push(
+        <div key={`csv-${i}`} className="my-2 p-3 bg-slate-900 border border-brand-green/30 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <TableIcon className="w-5 h-5 text-brand-green" />
+            <span className="text-sm text-slate-200">{filename}</span>
+          </div>
+          <button onClick={handleDownload} className="flex items-center gap-1.5 text-xs bg-brand-green/10 text-brand-green hover:bg-brand-green hover:text-slate-950 px-3 py-1.5 rounded-lg transition-colors font-medium">
+            <Download className="w-4 h-4" /> Download CSV
+          </button>
+        </div>
+      );
       continue;
     }
 

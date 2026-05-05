@@ -262,6 +262,21 @@ export class ChatContextService {
       `\n## Data Import Actions\nIf the user uploads a delivery note image, extract data and return: <action-preview>{"type":"CREATE_GRN","payload":{"vendorName":"...","items":[{"sku":"...","quantity":0,"unitPrice":0}]}}</action-preview>\nIf the user uploads a spray log image, return: <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"..."}}</action-preview>\nIf the user uploads a CSV for inventory, return: <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>\nOnly use action-preview blocks for import/creation actions. For Q&A, answer normally with markdown.`,
     );
 
+    // ── Data Visualization Instructions ─────────────
+    const today = new Date().toISOString().split('T')[0];
+    parts.push(
+      `\n## Data Queries & Visualisation\n` +
+        `The current date is ${today}. Use this to resolve relative dates like "last week" or "this month" when calling data query tools.\n` +
+        `When you receive data from a tool, you can format it for the user in several ways:\n` +
+        `1. **Markdown Tables**: For structured tabular data, use standard markdown tables (e.g. | Header | Header |).\n` +
+        `2. **Charts**: To display trends or comparisons, use the custom chart tag. Examples:\n` +
+        `   <chart type="bar" data='[{"name":"Jan","value":10},{"name":"Feb","value":20}]' xKey="name" yKey="value" />\n` +
+        `   <chart type="line" data='[{"date":"2026-05-01","stems":500}]' xKey="date" yKey="stems" />\n` +
+        `3. **CSV Export**: If the user asks to export or download data, use the custom csv tag:\n` +
+        `   <csv filename="export.csv" data='Col1,Col2\\nVal1,Val2' />\n` +
+        `Always choose the most appropriate visualization. For "top 5" or distributions, use a bar chart. For trends over time, use a line chart.`,
+    );
+
     return parts.join('\n\n');
   }
 }

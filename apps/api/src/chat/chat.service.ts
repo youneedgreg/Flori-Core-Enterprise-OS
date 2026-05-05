@@ -8,6 +8,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ChatActionService } from './chat.action.service';
 import { ChatContextService } from './chat-context.service';
+import { ChatDataService } from './chat.data.service';
 import Anthropic from '@anthropic-ai/sdk';
 
 @Injectable()
@@ -18,6 +19,7 @@ export class ChatService {
     private prisma: PrismaService,
     private chatAction: ChatActionService,
     private chatContext: ChatContextService,
+    private chatData: ChatDataService,
   ) {
     this.anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY || '',
@@ -176,20 +178,194 @@ export class ChatService {
         content,
       );
 
+      const chatTools: Anthropic.Tool[] = [
+        {
+          name: 'getHarvestStats',
+          description:
+            'Get daily harvest statistics (stems, rejected stems) for a specific date range.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              startDate: {
+                type: 'string',
+                description: 'Start date in YYYY-MM-DD format',
+              },
+              endDate: {
+                type: 'string',
+                description: 'End date in YYYY-MM-DD format',
+              },
+            },
+            required: ['startDate', 'endDate'],
+          },
+        },
+        {
+          name: 'getEmployeeKPIs',
+          description: 'Get top employees by KPI score.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              limit: {
+                type: 'number',
+                description: 'Number of employees to return (default 5)',
+              },
+              metricType: {
+                type: 'string',
+                description: 'Optional KPI name to filter by',
+              },
+            },
+            required: [],
+          },
+        },
+        {
+          name: 'getInventoryStock',
+          description:
+            'Get current stock levels for general store items and flowers.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              searchTerm: {
+                type: 'string',
+                description: 'Optional item name or SKU to search for',
+              },
+            },
+            required: [],
+          },
+        },
+        {
+          name: 'getExpiringDocuments',
+          description:
+            'Get employee documents and training certificates expiring soon.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              daysThreshold: {
+                type: 'number',
+                description:
+                  'Number of days from now to check for expiry (default 30)',
+              },
+            },
+            required: [],
+          },
+        },
+        {
+          name: 'getFinancialSummary',
+          description:
+            'Get total revenue, expenses, and net profit for a given date range.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              startDate: {
+                type: 'string',
+                description: 'Start date in YYYY-MM-DD format',
+              },
+              endDate: {
+                type: 'string',
+                description: 'End date in YYYY-MM-DD format',
+              },
+            },
+            required: ['startDate', 'endDate'],
+          },
+        },
+      ];
+
       // 5. Call Anthropic
-      const response = await this.anthropic.messages.create({
+      let response = await this.anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 2048,
         system: systemPrompt,
         messages: anthropicMessages,
+        tools: chatTools,
       });
 
-      const responseContent =
-        response.content[0].type === 'text'
-          ? response.content[0].text
-          : 'No text response';
-      const inputTokens = response.usage.input_tokens;
-      const outputTokens = response.usage.output_tokens;
+      let inputTokens = response.usage.input_tokens;
+      let outputTokens = response.usage.output_tokens;
+
+      // Handle tool calls
+      while (response.stop_reason === 'tool_use') {
+        const toolUse = response.content.find(
+          (c) => c.type === 'tool_use',
+        ) as Anthropic.ToolUseBlock;
+        if (!toolUse) break;
+
+        anthropicMessages.push({
+          role: 'assistant',
+          content: response.content,
+        });
+
+        const toolArgs = toolUse.input as Record<string, any>;
+        let toolResultData: any;
+
+        try {
+          switch (toolUse.name) {
+            case 'getHarvestStats':
+              toolResultData = await this.chatData.getHarvestStats(
+                tenantId,
+                toolArgs.startDate,
+                toolArgs.endDate,
+              );
+              break;
+            case 'getEmployeeKPIs':
+              toolResultData = await this.chatData.getEmployeeKPIs(
+                tenantId,
+                toolArgs.limit,
+                toolArgs.metricType,
+              );
+              break;
+            case 'getInventoryStock':
+              toolResultData = await this.chatData.getInventoryStock(
+                tenantId,
+                toolArgs.searchTerm,
+              );
+              break;
+            case 'getExpiringDocuments':
+              toolResultData = await this.chatData.getExpiringDocuments(
+                tenantId,
+                toolArgs.daysThreshold,
+              );
+              break;
+            case 'getFinancialSummary':
+              toolResultData = await this.chatData.getFinancialSummary(
+                tenantId,
+                toolArgs.startDate,
+                toolArgs.endDate,
+              );
+              break;
+            default:
+              toolResultData = { error: `Unknown tool ${toolUse.name}` };
+          }
+        } catch (e: any) {
+          toolResultData = { error: e.message };
+        }
+
+        anthropicMessages.push({
+          role: 'user',
+          content: [
+            {
+              type: 'tool_result',
+              tool_use_id: toolUse.id,
+              content: JSON.stringify(toolResultData),
+            },
+          ],
+        });
+
+        response = await this.anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 2048,
+          system: systemPrompt,
+          messages: anthropicMessages,
+          tools: chatTools,
+        });
+
+        inputTokens += response.usage.input_tokens;
+        outputTokens += response.usage.output_tokens;
+      }
+
+      const textContent = response.content.find(
+        (c) => c.type === 'text',
+      ) as Anthropic.TextBlock;
+      const responseContent = textContent
+        ? textContent.text
+        : 'No text response';
       const totalTokens = inputTokens + outputTokens;
 
       // 6. Save assistant message
