@@ -6,6 +6,7 @@ import { LayoutDashboard, Users, Map, Package, Settings, LogOut, Menu, X, Boxes,
 import Link from 'next/link';
 import { Toaster } from 'sonner';
 import { logout, decodeJWT, isTokenExpired, refreshToken } from '../../lib/auth';
+import ChatWidget from './ChatWidget';
 
 interface DashboardShellProps {
   children: React.ReactNode;
@@ -156,6 +157,9 @@ export default function DashboardShell({ children, token }: DashboardShellProps)
           {children}
         </div>
       </main>
+
+      {/* Global Chat Widget */}
+      <ChatWidget />
     </div>
   );
 }

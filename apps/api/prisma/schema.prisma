@@ -89,8 +89,41 @@ model Tenant {
   auctionLots           AuctionLot[]
   vendorInvoices        VendorInvoice[]
   vendorPerformanceLogs VendorPerformanceLog[]
+  aiTokenBudget         Int                    @default(1000000)
+  aiTokensUsed          Int                    @default(0)
+  chatSessions          ChatSession[]
 
   @@map("tenants")
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  tenantId  String
+  userId    String
+  title     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  tenant    Tenant        @relation(fields: [tenantId], references: [id])
+  user      User          @relation(fields: [userId], references: [id])
+  messages  ChatMessage[]
+
+  @@index([tenantId])
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id          String      @id @default(uuid())
+  sessionId   String
+  role        String
+  content     String
+  attachments Json?
+  tokensUsed  Int         @default(0)
+  createdAt   DateTime    @default(now())
+  session     ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("chat_messages")
 }
 
 model Role {
@@ -139,6 +172,7 @@ model User {
   scoutingReports       ScoutingReport[]       @relation("ScoutingInspector")
   sprayLogs             SprayLog[]             @relation("SprayApplicator")
   overridenSprays       SprayLog[]             @relation("SprayOverrider")
+  chatSessions          ChatSession[]
   role                  Role                   @relation(fields: [roleId], references: [id])
   tenant                Tenant                 @relation(fields: [tenantId], references: [id])
 

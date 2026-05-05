@@ -50,6 +50,7 @@ import { CropPerformanceModule } from './farm-operations/crop-performance/crop-p
 import { PreHarvestModule } from './farm-operations/pre-harvest/pre-harvest.module';
 import { HarvestRecordsModule } from './farm-operations/harvest-records/harvest-records.module';
 import { HRModule } from './hr/hr.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { HRModule } from './hr/hr.module';
     PreHarvestModule,
     HarvestRecordsModule,
     HRModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [
