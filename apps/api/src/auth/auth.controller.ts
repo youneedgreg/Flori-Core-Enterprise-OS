@@ -1,4 +1,16 @@
-import { Controller, Post, Body, Get, Req, UseGuards, Put, Patch, Delete, Param } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/require-await */
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Req,
+  UseGuards,
+  Put,
+  Patch,
+  Delete,
+  Param,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { RegisterTenantDto, LoginDto } from '@flori/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -55,17 +67,15 @@ export class AuthController {
   async updateRole(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() dto: { name?: string; description?: string; permissions?: string[] },
+    @Body()
+    dto: { name?: string; description?: string; permissions?: string[] },
   ) {
     return this.authService.updateRole(req.user.tenantId, id, req.user.id, dto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete('roles/:id')
-  async deleteRole(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  async deleteRole(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.authService.deleteRole(req.user.tenantId, id, req.user.id);
   }
 

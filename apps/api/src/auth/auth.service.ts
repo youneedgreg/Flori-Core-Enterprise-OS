@@ -206,15 +206,24 @@ export class AuthService {
     }
   }
 
-  async changePassword(userId: string, dto: { currentPassword: string; newPassword: string }) {
+  async changePassword(
+    userId: string,
+    dto: { currentPassword: string; newPassword: string },
+  ) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('User not found');
 
-    const isMatch = await bcrypt.compare(dto.currentPassword, user.passwordHash);
-    if (!isMatch) throw new UnauthorizedException('Current password is incorrect');
+    const isMatch = await bcrypt.compare(
+      dto.currentPassword,
+      user.passwordHash,
+    );
+    if (!isMatch)
+      throw new UnauthorizedException('Current password is incorrect');
 
     if (dto.newPassword.length < 8) {
-      throw new BadRequestException('New password must be at least 8 characters');
+      throw new BadRequestException(
+        'New password must be at least 8 characters',
+      );
     }
 
     const passwordHash = await bcrypt.hash(dto.newPassword, 10);
@@ -229,13 +238,25 @@ export class AuthService {
   async getRolesForTenant(tenantId: string) {
     return this.prisma.role.findMany({
       where: { tenantId },
-      select: { id: true, name: true, description: true, permissions: true, isSystem: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        permissions: true,
+        isSystem: true,
+      },
       orderBy: { name: 'asc' },
     });
   }
 
-  async createRole(tenantId: string, userId: string, dto: { name: string; description?: string; permissions: string[] }) {
-    console.log(`[AuthService] createRole: tenantId=${tenantId}, userId=${userId}, dto=${JSON.stringify(dto)}`);
+  async createRole(
+    tenantId: string,
+    userId: string,
+    dto: { name: string; description?: string; permissions: string[] },
+  ) {
+    console.log(
+      `[AuthService] createRole: tenantId=${tenantId}, userId=${userId}, dto=${JSON.stringify(dto)}`,
+    );
     await this.verifyGoldAdmin(userId);
     return this.prisma.role.create({
       data: {
@@ -248,11 +269,19 @@ export class AuthService {
     });
   }
 
-  async updateRole(tenantId: string, roleId: string, userId: string, dto: { name?: string; description?: string; permissions?: string[] }) {
+  async updateRole(
+    tenantId: string,
+    roleId: string,
+    userId: string,
+    dto: { name?: string; description?: string; permissions?: string[] },
+  ) {
     await this.verifyGoldAdmin(userId);
-    const role = await this.prisma.role.findFirst({ where: { id: roleId, tenantId } });
+    const role = await this.prisma.role.findFirst({
+      where: { id: roleId, tenantId },
+    });
     if (!role) throw new BadRequestException('Role not found');
-    if (role.isSystem) throw new BadRequestException('Cannot modify system roles');
+    if (role.isSystem)
+      throw new BadRequestException('Cannot modify system roles');
 
     return this.prisma.role.update({
       where: { id: roleId },
@@ -266,21 +295,34 @@ export class AuthService {
 
   async deleteRole(tenantId: string, roleId: string, userId: string) {
     await this.verifyGoldAdmin(userId);
-    const role = await this.prisma.role.findFirst({ where: { id: roleId, tenantId } });
+    const role = await this.prisma.role.findFirst({
+      where: { id: roleId, tenantId },
+    });
     if (!role) throw new BadRequestException('Role not found');
-    if (role.isSystem) throw new BadRequestException('Cannot delete system roles');
+    if (role.isSystem)
+      throw new BadRequestException('Cannot delete system roles');
 
     const usersWithRole = await this.prisma.user.count({ where: { roleId } });
-    if (usersWithRole > 0) throw new BadRequestException('Cannot delete role assigned to active users');
+    if (usersWithRole > 0)
+      throw new BadRequestException(
+        'Cannot delete role assigned to active users',
+      );
 
     return this.prisma.role.delete({ where: { id: roleId } });
   }
 
   private async verifyGoldAdmin(userId: string) {
-    const user = await this.prisma.user.findUnique({ where: { id: userId }, include: { role: true } });
-    console.log(`[AuthService] verifyGoldAdmin: userId=${userId}, role=${user?.role?.name}`);
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { role: true },
+    });
+    console.log(
+      `[AuthService] verifyGoldAdmin: userId=${userId}, role=${user?.role?.name}`,
+    );
     if (!user || user.role?.name.toLowerCase() !== 'gold_admin') {
-      throw new UnauthorizedException('Only Gold Admins can perform this action');
+      throw new UnauthorizedException(
+        'Only Gold Admins can perform this action',
+      );
     }
   }
 

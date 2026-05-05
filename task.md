@@ -2,19 +2,6 @@
 
 > Derived from `flori_core_plan.md`. Check off items as you complete them.
 
-## coldroom)
-
-## Phase 2 — Module 1: Precision Production & IoT [COMPLETED]
-
-- [x] **Genetic Inventory**: Full CRUD for flower varieties with stem length, bloom time, and market grade targets.
-- [x] **Lifecycle Control**: Gantt-style propagation timeline, automated yield forecasting, and status flow (Planned → Planted → Growing → Harvesting → Completed).
-- [x] **PHI Compliance**: Integrated Pre-Harvest Interval safety engine blocking early harvests post-chemical application.
-- [x] **Historical Data Entry**: Modals for back-dated logging of Harvest records, Crop Performance, and Pre-Harvest Quality checks.
-- [x] **Field Intelligence**: Zone-specific logs for Irrigation, Soil Tests, and Scouting reports (Pests/Diseases).
-- [x] **UI Polish**: Slide-in detail panels for Zones and Cycles with parallel data fetching and full navigation linking.
-
----
-
 ## Phase 5 — Module 4: Global Sales, Logistics & Compliance [IN PROGRESS]
 
 ### 5.3 Export Documentation Vault
