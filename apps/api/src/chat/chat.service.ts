@@ -15,8 +15,8 @@ import OpenAI from 'openai';
 
 @Injectable()
 export class ChatService {
-  private anthropic: Anthropic;
-  private xai: OpenAI;
+  private anthropic: Anthropic | null = null;
+  private xai: OpenAI | null = null;
 
   constructor(
     private prisma: PrismaService,
@@ -24,13 +24,18 @@ export class ChatService {
     private chatContext: ChatContextService,
     private chatData: ChatDataService,
   ) {
-    this.anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY || '',
-    });
-    this.xai = new OpenAI({
-      apiKey: process.env.XAI_API_KEY || '',
-      baseURL: 'https://api.x.ai/v1',
-    });
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
+    if (anthropicKey) {
+      this.anthropic = new Anthropic({ apiKey: anthropicKey });
+    }
+
+    const xaiKey = process.env.XAI_API_KEY;
+    if (xaiKey) {
+      this.xai = new OpenAI({
+        apiKey: xaiKey,
+        baseURL: 'https://api.x.ai/v1',
+      });
+    }
   }
 
   async getSessions(tenantId: string, userId: string) {
@@ -79,6 +84,13 @@ export class ChatService {
     attachments?: any[],
     currentPath?: string,
   ) {
+    if (!this.anthropic && !this.xai) {
+      throw new HttpException(
+        'AI API keys not configured. Please add an API key to the environment variables.',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
     // 1. Verify session & tenant limits
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: tenantId },
@@ -310,6 +322,9 @@ export class ChatService {
       let totalTokens = 0;
 
       try {
+        if (!this.anthropic) {
+          throw new Error('Anthropic API key is missing');
+        }
         // 5. Try Anthropic first
         const response = await this.anthropic.messages.create({
           model: 'claude-sonnet-4-20250514',
@@ -382,6 +397,10 @@ export class ChatService {
           systemPrompt,
         );
         const grokTools = this.convertToOpenAITools(chatTools);
+
+        if (!this.xai) {
+          throw new Error('Grok API key is missing');
+        }
 
         const grokResponse = await this.xai.chat.completions.create({
           model: 'grok-4.20-reasoning',
