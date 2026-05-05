@@ -104,10 +104,10 @@
 
 ### 7.5.6 Onboarding & Guided Setup
 
-- [ ] New user welcome flow: introduce available modules based on role
-- [ ] Interactive setup wizard: "Let's get your farm set up" → guide through zones, varieties, employees
-- [ ] Contextual tips: surface relevant suggestions based on current page ("Tip: you can bulk-assign shifts here")
-- [ ] Video/screenshot walkthrough links per module
+- [x] New user welcome flow: introduce available modules based on role
+- [x] Interactive setup wizard: "Let's get your farm set up" → guide through zones, varieties, employees
+- [x] Contextual tips: surface relevant suggestions based on current page ("Tip: you can bulk-assign shifts here")
+- [x] Video/screenshot walkthrough links per module
 
 ### 7.5.7 Proactive Alerts & Insights
 

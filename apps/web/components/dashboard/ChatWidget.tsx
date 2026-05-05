@@ -51,9 +51,9 @@ function renderMarkdown(text: string, router: any): React.ReactNode[] {
   };
 
   const parseInline = (line: string, key: string): React.ReactNode => {
-    // Split by markdown patterns: **bold**, [text](url), `code`
+    // Split by markdown patterns: ![alt](url), **bold**, [text](url), `code`
     const parts: React.ReactNode[] = [];
-    const regex = /(\*\*(.+?)\*\*)|(\[([^\]]+)\]\(([^)]+)\))|(`([^`]+)`)/g;
+    const regex = /(!\[([^\]]*)\]\(([^)]+)\))|(\*\*(.+?)\*\*)|(\[([^\]]+)\]\(([^)]+)\))|(`([^`]+)`)/g;
     let lastIndex = 0;
     let match: RegExpExecArray | null;
 
@@ -62,12 +62,19 @@ function renderMarkdown(text: string, router: any): React.ReactNode[] {
         parts.push(line.slice(lastIndex, match.index));
       }
       if (match[1]) {
+        // ![alt](url)
+        parts.push(
+          <div key={`img-${key}-${match.index}`} className="my-2 rounded-xl overflow-hidden border border-white/10 shadow-lg">
+            <img src={match[3]} alt={match[2]} className="w-full h-auto object-cover max-h-48" />
+          </div>
+        );
+      } else if (match[4]) {
         // **bold**
-        parts.push(<strong key={`b-${key}-${match.index}`} className="font-bold text-white">{match[2]}</strong>);
-      } else if (match[3]) {
+        parts.push(<strong key={`b-${key}-${match.index}`} className="font-bold text-white">{match[5]}</strong>);
+      } else if (match[6]) {
         // [text](url)
-        const linkText = match[4];
-        const url = match[5];
+        const linkText = match[7];
+        const url = match[8];
         if (url.startsWith('/dashboard')) {
           parts.push(
             <button
@@ -83,9 +90,9 @@ function renderMarkdown(text: string, router: any): React.ReactNode[] {
             <a key={`a-${key}-${match.index}`} href={url} target="_blank" rel="noopener noreferrer" className="text-brand-green hover:text-emerald-300 underline underline-offset-2">{linkText}</a>
           );
         }
-      } else if (match[6]) {
+      } else if (match[9]) {
         // `code`
-        parts.push(<code key={`c-${key}-${match.index}`} className="bg-black/30 text-emerald-300 px-1.5 py-0.5 rounded text-xs font-mono">{match[7]}</code>);
+        parts.push(<code key={`c-${key}-${match.index}`} className="bg-black/30 text-emerald-300 px-1.5 py-0.5 rounded text-xs font-mono">{match[10]}</code>);
       }
       lastIndex = regex.lastIndex;
     }
@@ -241,6 +248,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const router = useRouter();
+  const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
   
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -251,16 +259,41 @@ export default function ChatWidget() {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [actionInProgress, setActionInProgress] = useState(false);
+  const [hasWelcomed, setHasWelcomed] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load sessions when widget opens
   useEffect(() => {
-    if (isOpen && sessions.length === 0) {
+    if (isOpen) {
       loadSessions();
     }
   }, [isOpen]);
+
+  // Welcome flow trigger
+  useEffect(() => {
+    if (isOpen && !hasWelcomed && sessions.length === 0 && !isLoadingHistory) {
+      handleWelcome();
+      setHasWelcomed(true);
+    }
+  }, [isOpen, sessions.length, isLoadingHistory]);
+
+  const handleWelcome = async () => {
+    setIsTyping(true);
+    try {
+      const newSession = await createChatSession('Welcome to Flori-Core');
+      setSessions([newSession, ...sessions]);
+      setCurrentSessionId(newSession.id);
+      
+      const responseMsg = await sendChatMessage(newSession.id, "Hello! I'm new here, please introduce yourself and show me around based on my role.", [], pathname);
+      setMessages([responseMsg]);
+    } catch (err) {
+      console.error('Welcome flow failed', err);
+    } finally {
+      setIsTyping(false);
+    }
+  };
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -374,7 +407,7 @@ export default function ChatWidget() {
         setCurrentSessionId(activeSessionId);
       }
 
-      const responseMsg = await sendChatMessage(activeSessionId, userMsg, currentAttachments);
+      const responseMsg = await sendChatMessage(activeSessionId, userMsg, currentAttachments, pathname);
       setMessages(prev => [...prev, responseMsg]);
     } catch (err: any) {
       console.error('Failed to send message', err);

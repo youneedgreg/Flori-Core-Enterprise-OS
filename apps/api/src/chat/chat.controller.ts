@@ -44,6 +44,7 @@ export class ChatController {
     @Param('id') sessionId: string,
     @Body('content') content: string,
     @Body('attachments') attachments: any[],
+    @Body('currentPath') currentPath: string,
     @Request() req: any,
   ) {
     const { tenantId, sub: userId } = req.user;
@@ -53,6 +54,7 @@ export class ChatController {
       sessionId,
       content,
       attachments,
+      currentPath,
     );
   }
 

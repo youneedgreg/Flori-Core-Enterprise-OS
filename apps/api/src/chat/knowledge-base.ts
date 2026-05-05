@@ -12,6 +12,91 @@ export interface KBArticle {
   content: string;
 }
 
+export interface KBWalkthrough {
+  moduleId: string;
+  videoUrl: string;
+  screenshotUrl: string;
+  description: string;
+}
+
+export interface KBContextualTip {
+  path: string;
+  tip: string;
+  priority: 'low' | 'medium' | 'high';
+}
+
+// ─── Walkthroughs ───────────────────────────────────────────────────
+const walkthroughs: KBWalkthrough[] = [
+  {
+    moduleId: 'mod-dashboard',
+    videoUrl: 'https://vimeo.com/floricore/dashboard',
+    screenshotUrl: '/images/walkthroughs/dashboard.png',
+    description:
+      'Learn how to customize your dashboard and interpret key metrics.',
+  },
+  {
+    moduleId: 'mod-zones',
+    videoUrl: 'https://vimeo.com/floricore/zones',
+    screenshotUrl: '/images/walkthroughs/zones.png',
+    description:
+      'Guide to setting up greenhouses, cold rooms, and IoT sensors.',
+  },
+  {
+    moduleId: 'mod-production',
+    videoUrl: 'https://vimeo.com/floricore/production',
+    screenshotUrl: '/images/walkthroughs/production.png',
+    description: 'Tracking the crop lifecycle from planting to harvest.',
+  },
+  {
+    moduleId: 'mod-operations',
+    videoUrl: 'https://vimeo.com/floricore/operations',
+    screenshotUrl: '/images/walkthroughs/operations.png',
+    description: 'Managing spray logs, irrigation, and field tasks.',
+  },
+  {
+    moduleId: 'mod-packhouse',
+    videoUrl: 'https://vimeo.com/floricore/packhouse',
+    screenshotUrl: '/images/walkthroughs/packhouse.png',
+    description: 'Standardizing quality control and grading workflows.',
+  },
+  {
+    moduleId: 'mod-payroll',
+    videoUrl: 'https://vimeo.com/floricore/payroll',
+    screenshotUrl: '/images/walkthroughs/payroll.png',
+    description:
+      'Running payroll, calculating deductions, and M-Pesa disbursement.',
+  },
+];
+
+// ─── Contextual Tips ────────────────────────────────────────────────
+const contextualTips: KBContextualTip[] = [
+  {
+    path: '/dashboard/production/harvest',
+    tip: 'Tip: You can use the "Bulk Edit" feature to update multiple harvest records at once.',
+    priority: 'medium',
+  },
+  {
+    path: '/dashboard/hr/training',
+    tip: 'Tip: You can drag and drop training sessions in the calendar to reschedule them.',
+    priority: 'low',
+  },
+  {
+    path: '/dashboard/zones',
+    tip: 'Tip: Click on a zone to see real-time temperature and humidity from assigned IoT sensors.',
+    priority: 'high',
+  },
+  {
+    path: '/dashboard/inventory',
+    tip: 'Tip: Use the "Scan Barcode" action in the mobile app to quickly check stock levels.',
+    priority: 'medium',
+  },
+  {
+    path: '/dashboard/procurement/po',
+    tip: 'Tip: You can convert a Purchase Request directly into a PO to save time.',
+    priority: 'high',
+  },
+];
+
 // ─── Module Explainers ──────────────────────────────────────────────
 const modules: KBArticle[] = [
   {
@@ -658,4 +743,28 @@ export function getModuleByKeyword(keyword: string): KBArticle | undefined {
       m.keywords.some((k) => k.toLowerCase().includes(kw)) ||
       m.title.toLowerCase().includes(kw),
   );
+}
+
+/**
+ * Get a walkthrough for a specific module ID.
+ */
+export function getWalkthroughForModule(
+  moduleId: string,
+): KBWalkthrough | undefined {
+  return walkthroughs.find((w) => w.moduleId === moduleId);
+}
+
+/**
+ * Get all walkthroughs.
+ */
+export function getAllWalkthroughs(): KBWalkthrough[] {
+  return walkthroughs;
+}
+
+/**
+ * Get a contextual tip for a specific path.
+ */
+export function getTipForPath(path: string): KBContextualTip | undefined {
+  // Find exact match or partial match
+  return contextualTips.find((t) => path.startsWith(t.path));
 }

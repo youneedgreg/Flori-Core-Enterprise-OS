@@ -5,7 +5,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditLogService } from '../audit-log/audit-log.service';
-import { searchKnowledgeBase, getAllModules } from './knowledge-base';
+import {
+  searchKnowledgeBase,
+  getAllModules,
+  getTipForPath,
+  getAllWalkthroughs,
+} from './knowledge-base';
 
 interface UserContext {
   userId: string;
@@ -140,6 +145,7 @@ export class ChatContextService {
     tenantId: string,
     userId: string,
     userQuery: string,
+    currentPath?: string,
   ): Promise<string> {
     const userCtx = await this.getUserContext(tenantId, userId);
     const kbResults = searchKnowledgeBase(userQuery, 5);
@@ -173,6 +179,27 @@ export class ChatContextService {
       }
     }
 
+    // ── Contextual Tips & Onboarding ──────────────────────────────
+    if (currentPath) {
+      parts.push(
+        `\n## Current Page Context\n- The user is currently on: ${currentPath}`,
+      );
+      const tip = getTipForPath(currentPath);
+      if (tip) {
+        parts.push(`\n### Contextual Tip for this page:\n${tip.tip}`);
+      }
+    }
+
+    // Onboarding check
+    if (
+      userQuery.toLowerCase().includes('new here') ||
+      userQuery.toLowerCase().includes('introduce yourself')
+    ) {
+      parts.push(
+        `\n## Onboarding Flow\nThe user is new. Welcome them warmly. Highlight the modules they have access to based on their role (${userCtx?.roleName}). Offer to start a "Farm Setup Wizard" if they are an Admin or Manager.`,
+      );
+    }
+
     // ── Knowledge base results ────────────────────────────────────
     if (kbResults.length > 0) {
       parts.push(`\n## Relevant Knowledge Base Articles`);
@@ -181,6 +208,21 @@ export class ChatContextService {
           `### ${article.title} [${article.category}]\n${article.content}`,
         );
       }
+    }
+
+    // ── Walkthroughs ──────────────────────────────────────────────
+    if (
+      userQuery.toLowerCase().includes('walkthrough') ||
+      userQuery.toLowerCase().includes('tutorial') ||
+      userQuery.toLowerCase().includes('video')
+    ) {
+      const walkthroughs = getAllWalkthroughs();
+      parts.push(`\n## Module Walkthroughs & Videos`);
+      walkthroughs.forEach((w) => {
+        parts.push(
+          `- **${w.moduleId.replace('mod-', '').toUpperCase()}**: ${w.description}\n  - Video: ${w.videoUrl}\n  - Screenshot: ${w.screenshotUrl}`,
+        );
+      });
     }
 
     // ── Error diagnosis context ───────────────────────────────────
@@ -278,6 +320,8 @@ export class ChatContextService {
         `   <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"YYYY-MM-DD"}}</action-preview>\n\n` +
         `8. **Bulk Import Inventory**: Use for CSV data.\n` +
         `   <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>\n\n` +
+        `9. **Start Farm Setup Wizard**: For new farm onboarding.\n` +
+        `   <action-preview>{"type":"START_SETUP_WIZARD","payload":{"step":"GREETING"}}</action-preview>\n\n` +
         `Only use action-preview blocks for these specific intents. For normal questions, answer with markdown.`,
     );
 

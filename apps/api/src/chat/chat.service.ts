@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -10,10 +11,12 @@ import { ChatActionService } from './chat.action.service';
 import { ChatContextService } from './chat-context.service';
 import { ChatDataService } from './chat.data.service';
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 @Injectable()
 export class ChatService {
   private anthropic: Anthropic;
+  private xai: OpenAI;
 
   constructor(
     private prisma: PrismaService,
@@ -23,6 +26,10 @@ export class ChatService {
   ) {
     this.anthropic = new Anthropic({
       apiKey: process.env.ANTHROPIC_API_KEY || '',
+    });
+    this.xai = new OpenAI({
+      apiKey: process.env.XAI_API_KEY || '',
+      baseURL: 'https://api.x.ai/v1',
     });
   }
 
@@ -70,6 +77,7 @@ export class ChatService {
     sessionId: string,
     content: string,
     attachments?: any[],
+    currentPath?: string,
   ) {
     // 1. Verify session & tenant limits
     const tenant = await this.prisma.tenant.findUnique({
@@ -176,6 +184,7 @@ export class ChatService {
         tenantId,
         userId,
         content,
+        currentPath,
       );
 
       const chatTools: Anthropic.Tool[] = [
@@ -268,87 +277,12 @@ export class ChatService {
         },
       ];
 
-      // 5. Call Anthropic
-      let response = await this.anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2048,
-        system: systemPrompt,
-        messages: anthropicMessages,
-        tools: chatTools,
-      });
+      let responseContent = '';
+      let totalTokens = 0;
 
-      let inputTokens = response.usage.input_tokens;
-      let outputTokens = response.usage.output_tokens;
-
-      // Handle tool calls
-      while (response.stop_reason === 'tool_use') {
-        const toolUse = response.content.find(
-          (c) => c.type === 'tool_use',
-        ) as Anthropic.ToolUseBlock;
-        if (!toolUse) break;
-
-        anthropicMessages.push({
-          role: 'assistant',
-          content: response.content,
-        });
-
-        const toolArgs = toolUse.input as Record<string, any>;
-        let toolResultData: any;
-
-        try {
-          switch (toolUse.name) {
-            case 'getHarvestStats':
-              toolResultData = await this.chatData.getHarvestStats(
-                tenantId,
-                toolArgs.startDate,
-                toolArgs.endDate,
-              );
-              break;
-            case 'getEmployeeKPIs':
-              toolResultData = await this.chatData.getEmployeeKPIs(
-                tenantId,
-                toolArgs.limit,
-                toolArgs.metricType,
-              );
-              break;
-            case 'getInventoryStock':
-              toolResultData = await this.chatData.getInventoryStock(
-                tenantId,
-                toolArgs.searchTerm,
-              );
-              break;
-            case 'getExpiringDocuments':
-              toolResultData = await this.chatData.getExpiringDocuments(
-                tenantId,
-                toolArgs.daysThreshold,
-              );
-              break;
-            case 'getFinancialSummary':
-              toolResultData = await this.chatData.getFinancialSummary(
-                tenantId,
-                toolArgs.startDate,
-                toolArgs.endDate,
-              );
-              break;
-            default:
-              toolResultData = { error: `Unknown tool ${toolUse.name}` };
-          }
-        } catch (e: any) {
-          toolResultData = { error: e.message };
-        }
-
-        anthropicMessages.push({
-          role: 'user',
-          content: [
-            {
-              type: 'tool_result',
-              tool_use_id: toolUse.id,
-              content: JSON.stringify(toolResultData),
-            },
-          ],
-        });
-
-        response = await this.anthropic.messages.create({
+      try {
+        // 5. Try Anthropic first
+        const response = await this.anthropic.messages.create({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 2048,
           system: systemPrompt,
@@ -356,19 +290,115 @@ export class ChatService {
           tools: chatTools,
         });
 
-        inputTokens += response.usage.input_tokens;
-        outputTokens += response.usage.output_tokens;
+        let currentResponse = response;
+        let inputTokens = currentResponse.usage.input_tokens;
+        let outputTokens = currentResponse.usage.output_tokens;
+
+        // Handle tool calls for Anthropic
+        while (currentResponse.stop_reason === 'tool_use') {
+          const toolUse = currentResponse.content.find(
+            (c) => c.type === 'tool_use',
+          ) as Anthropic.ToolUseBlock;
+          if (!toolUse) break;
+
+          anthropicMessages.push({
+            role: 'assistant',
+            content: currentResponse.content,
+          });
+
+          const toolArgs = toolUse.input as Record<string, any>;
+          const toolResultData = await this.executeTool(
+            tenantId,
+            toolUse.name,
+            toolArgs,
+          );
+
+          anthropicMessages.push({
+            role: 'user',
+            content: [
+              {
+                type: 'tool_result',
+                tool_use_id: toolUse.id,
+                content: JSON.stringify(toolResultData),
+              },
+            ],
+          });
+
+          currentResponse = await this.anthropic.messages.create({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2048,
+            system: systemPrompt,
+            messages: anthropicMessages,
+            tools: chatTools,
+          });
+
+          inputTokens += currentResponse.usage.input_tokens;
+          outputTokens += currentResponse.usage.output_tokens;
+        }
+
+        const textContent = currentResponse.content.find(
+          (c) => c.type === 'text',
+        ) as Anthropic.TextBlock;
+        responseContent = textContent ? textContent.text : 'No text response';
+        totalTokens = inputTokens + outputTokens;
+      } catch (anthropicError: any) {
+        console.error(
+          'Anthropic failed, falling back to Grok:',
+          anthropicError.message,
+        );
+
+        // 6. Fallback to X.AI (Grok)
+        const grokMessages = this.convertToOpenAI(
+          anthropicMessages,
+          systemPrompt,
+        );
+        const grokTools = this.convertToOpenAITools(chatTools);
+
+        const grokResponse = await this.xai.chat.completions.create({
+          model: 'grok-4.20-reasoning',
+          messages: grokMessages,
+          tools: grokTools,
+        });
+
+        let currentGrokResponse = grokResponse;
+
+        // Handle tool calls for Grok
+        while (currentGrokResponse.choices[0].finish_reason === 'tool_calls') {
+          const toolCalls = currentGrokResponse.choices[0].message.tool_calls;
+          if (!toolCalls) break;
+
+          grokMessages.push(currentGrokResponse.choices[0].message);
+
+          for (const toolCall of toolCalls) {
+            if (toolCall.type === 'function') {
+              const toolArgs = JSON.parse(toolCall.function.arguments);
+              const toolResultData = await this.executeTool(
+                tenantId,
+                toolCall.function.name,
+                toolArgs,
+              );
+
+              grokMessages.push({
+                role: 'tool',
+                tool_call_id: toolCall.id,
+                content: JSON.stringify(toolResultData),
+              } as any);
+            }
+          }
+
+          currentGrokResponse = await this.xai.chat.completions.create({
+            model: 'grok-4.20-reasoning',
+            messages: grokMessages,
+            tools: grokTools,
+          });
+        }
+
+        responseContent =
+          currentGrokResponse.choices[0].message.content || 'No Grok response';
+        totalTokens = currentGrokResponse.usage?.total_tokens || 0;
       }
 
-      const textContent = response.content.find(
-        (c) => c.type === 'text',
-      ) as Anthropic.TextBlock;
-      const responseContent = textContent
-        ? textContent.text
-        : 'No text response';
-      const totalTokens = inputTokens + outputTokens;
-
-      // 6. Save assistant message
+      // 7. Save assistant message
       const assistantMessage = await this.prisma.chatMessage.create({
         data: {
           sessionId: session.id,
@@ -378,7 +408,7 @@ export class ChatService {
         },
       });
 
-      // 7. Update tenant token usage and session timestamp
+      // 8. Update tenant token usage and session timestamp
       await this.prisma.$transaction([
         this.prisma.tenant.update({
           where: { id: tenantId },
@@ -392,12 +422,87 @@ export class ChatService {
 
       return assistantMessage;
     } catch (error: any) {
-      console.error('Anthropic API Error:', error);
+      console.error('Final Chat Error:', error);
       throw new HttpException(
-        'Failed to generate AI response',
+        'Failed to generate AI response from any provider',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  private async executeTool(tenantId: string, toolName: string, toolArgs: any) {
+    try {
+      switch (toolName) {
+        case 'getHarvestStats':
+          return await this.chatData.getHarvestStats(
+            tenantId,
+            toolArgs.startDate,
+            toolArgs.endDate,
+          );
+        case 'getEmployeeKPIs':
+          return await this.chatData.getEmployeeKPIs(
+            tenantId,
+            toolArgs.limit,
+            toolArgs.metricType,
+          );
+        case 'getInventoryStock':
+          return await this.chatData.getInventoryStock(
+            tenantId,
+            toolArgs.searchTerm,
+          );
+        case 'getExpiringDocuments':
+          return await this.chatData.getExpiringDocuments(
+            tenantId,
+            toolArgs.daysThreshold,
+          );
+        case 'getFinancialSummary':
+          return await this.chatData.getFinancialSummary(
+            tenantId,
+            toolArgs.startDate,
+            toolArgs.endDate,
+          );
+        default:
+          return { error: `Unknown tool ${toolName}` };
+      }
+    } catch (e: any) {
+      return { error: e.message };
+    }
+  }
+
+  private convertToOpenAI(
+    anthropicMessages: Anthropic.MessageParam[],
+    systemPrompt: string,
+  ): OpenAI.ChatCompletionMessageParam[] {
+    const messages: OpenAI.ChatCompletionMessageParam[] = [
+      { role: 'system', content: systemPrompt },
+    ];
+
+    for (const msg of anthropicMessages) {
+      let content = '';
+      if (typeof msg.content === 'string') {
+        content = msg.content;
+      } else {
+        content = msg.content
+          .map((c) => (c.type === 'text' ? c.text : '[Attachment]'))
+          .join('\n');
+      }
+      messages.push({ role: msg.role as any, content });
+    }
+
+    return messages;
+  }
+
+  private convertToOpenAITools(
+    anthropicTools: Anthropic.Tool[],
+  ): OpenAI.ChatCompletionTool[] {
+    return anthropicTools.map((t) => ({
+      type: 'function',
+      function: {
+        name: t.name,
+        description: t.description,
+        parameters: t.input_schema as any,
+      },
+    }));
   }
 
   async executeAction(

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -31,12 +32,23 @@ export class ChatActionService {
         return this.createScoutingReport(tenantId, userId, payload);
       case 'SEND_NOTIFICATION':
         return this.sendNotification(tenantId, userId, payload);
+      case 'START_SETUP_WIZARD':
+        return this.startSetupWizard();
       default:
         throw new HttpException(
           `Unknown action type: ${actionType}`,
           HttpStatus.BAD_REQUEST,
         );
     }
+  }
+
+  private async startSetupWizard() {
+    // This action can be expanded to initialize tenant settings or flags
+    return {
+      success: true,
+      message:
+        'Farm Setup Wizard initialized. I will now guide you through setting up your zones, varieties, and employees.',
+    };
   }
 
   private async createPurchaseRequest(

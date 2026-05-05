@@ -63,12 +63,13 @@ export const createChatSession = async (title: string): Promise<ChatSession> => 
 export const sendChatMessage = async (
   sessionId: string, 
   content: string,
-  attachments?: ChatAttachment[]
+  attachments?: ChatAttachment[],
+  currentPath?: string
 ): Promise<ChatMessage> => {
   const response = await fetch(`${API_URL}/chat/sessions/${sessionId}/message`, {
     method: 'POST',
     headers: getHeaders(),
-    body: JSON.stringify({ content, attachments }),
+    body: JSON.stringify({ content, attachments, currentPath }),
   });
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
