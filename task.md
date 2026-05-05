@@ -86,21 +86,21 @@
 
 ### 7.5.4 Natural Language Data Queries
 
-- [ ] "How many stems did we harvest last week?" → query HarvestRecord and summarise
-- [ ] "Show me top 5 employees by stems per hour this month" → KPI leaderboard
-- [ ] "What's our current inventory of Red Naomi?" → real-time stock lookup
-- [ ] "Which documents are expiring in the next 30 days?" → compliance alert summary
-- [ ] "What was our total revenue last quarter?" → financial summary from GL
-- [ ] Response formatting: tables, charts, and downloadable CSVs inline in chat
+- [x] "How many stems did we harvest last week?" → query HarvestRecord and summarise
+- [x] "Show me top 5 employees by stems per hour this month" → KPI leaderboard
+- [x] "What's our current inventory of Red Naomi?" → real-time stock lookup
+- [x] "Which documents are expiring in the next 30 days?" → compliance alert summary
+- [x] "What was our total revenue last quarter?" → financial summary from GL
+- [x] Response formatting: tables, charts, and downloadable CSVs inline in chat
 
 ### 7.5.5 Quick Actions via Chat
 
-- [ ] "Create a purchase request for 50 bags of NPK fertiliser" → pre-fill PR form
-- [ ] "Schedule chemical handling training for the Production team next Monday" → create TrainingSchedule
-- [ ] "Apply for 3 days annual leave starting Friday" → submit LeaveRequest
-- [ ] "Log a pest scouting report for Zone A — aphids, moderate severity" → create ScoutingReport
-- [ ] "Send a reminder to all drivers about tomorrow's dispatch" → trigger notification
-- [ ] Action confirmation step: show summary card before executing any write operation
+- [x] "Create a purchase request for 50 bags of NPK fertiliser" → pre-fill PR form
+- [x] "Schedule chemical handling training for the Production team next Monday" → create TrainingSchedule
+- [x] "Apply for 3 days annual leave starting Friday" → submit LeaveRequest
+- [x] "Log a pest scouting report for Zone A — aphids, moderate severity" → create ScoutingReport
+- [x] "Send a reminder to all drivers about tomorrow's dispatch" → trigger notification
+- [x] Action confirmation step: show summary card before executing any write operation
 
 ### 7.5.6 Onboarding & Guided Setup
 

@@ -257,9 +257,28 @@ export class ChatContextService {
       );
     }
 
-    // ── OCR / Import instructions (preserve existing) ─────────────
+    // ── Data Import & Quick Actions ──────────────────────────────
     parts.push(
-      `\n## Data Import Actions\nIf the user uploads a delivery note image, extract data and return: <action-preview>{"type":"CREATE_GRN","payload":{"vendorName":"...","items":[{"sku":"...","quantity":0,"unitPrice":0}]}}</action-preview>\nIf the user uploads a spray log image, return: <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"..."}}</action-preview>\nIf the user uploads a CSV for inventory, return: <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>\nOnly use action-preview blocks for import/creation actions. For Q&A, answer normally with markdown.`,
+      `\n## Quick Actions & Data Import\n` +
+        `You can trigger system actions by returning a special <action-preview> block. ONLY use these for write operations. ALWAYS explain what the action will do before showing the block.\n\n` +
+        `### Available Actions:\n` +
+        `1. **Create Purchase Request**: If the user wants to buy supplies.\n` +
+        `   <action-preview>{"type":"CREATE_PURCHASE_REQUEST","payload":{"itemName":"...","sku":"...","quantity":0,"notes":"..."}}</action-preview>\n\n` +
+        `2. **Schedule Training**: For scheduling courses/training.\n` +
+        `   <action-preview>{"type":"SCHEDULE_TRAINING","payload":{"courseName":"...","date":"YYYY-MM-DD","department":"...","location":"...","trainer":"..."}}</action-preview>\n\n` +
+        `3. **Submit Leave Request**: For personal leave applications.\n` +
+        `   <action-preview>{"type":"SUBMIT_LEAVE_REQUEST","payload":{"startDate":"YYYY-MM-DD","endDate":"YYYY-MM-DD","type":"ANNUAL|SICK|MATERNITY|PATERNITY|UNPAID","reason":"..."}}</action-preview>\n\n` +
+        `4. **Create Scouting Report**: To log pest/disease findings.\n` +
+        `   <action-preview>{"type":"CREATE_SCOUTING_REPORT","payload":{"zoneName":"...","pestName":"...","severity":"LOW|MODERATE|HIGH|CRITICAL","observations":"...","date":"YYYY-MM-DD"}}</action-preview>\n\n` +
+        `5. **Send Notification**: To alert other users or roles.\n` +
+        `   <action-preview>{"type":"SEND_NOTIFICATION","payload":{"title":"...","message":"...","targetRole":"...","targetUsers":[]}}</action-preview>\n\n` +
+        `6. **Create GRN (from Delivery Note)**: Use when a user uploads a photo of a delivery note.\n` +
+        `   <action-preview>{"type":"CREATE_GRN","payload":{"vendorName":"...","items":[{"sku":"...","quantity":0,"unitPrice":0}]}}</action-preview>\n\n` +
+        `7. **Create Spray Log (from Paper)**: Use for historical spray records.\n` +
+        `   <action-preview>{"type":"CREATE_SPRAY_LOG","payload":{"chemicalName":"...","zoneId":"","phiDays":0,"quantity":0,"unit":"L","date":"YYYY-MM-DD"}}</action-preview>\n\n` +
+        `8. **Bulk Import Inventory**: Use for CSV data.\n` +
+        `   <action-preview>{"type":"IMPORT_INVENTORY","payload":{"items":[{"sku":"...","name":"...","category":"...","quantity":0,"unitCost":0}]}}</action-preview>\n\n` +
+        `Only use action-preview blocks for these specific intents. For normal questions, answer with markdown.`,
     );
 
     // ── Data Visualization Instructions ─────────────

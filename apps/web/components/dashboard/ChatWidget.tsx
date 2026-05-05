@@ -10,12 +10,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const SUGGESTION_CHIPS = [
+  { icon: '📝', label: 'Create a PR for 50 bags of fertiliser', category: 'action' },
+  { icon: '📅', label: 'Schedule training for Production team next Monday', category: 'action' },
+  { icon: '🏖️', label: 'Apply for 3 days leave starting Friday', category: 'action' },
+  { icon: '🪲', label: 'Log a pest report for Zone A - aphids', category: 'action' },
+  { icon: '🔔', label: 'Notify all drivers about tomorrow dispatch', category: 'action' },
   { icon: '🏠', label: 'How do I add a new cold room?', category: 'howto' },
-  { icon: '📦', label: 'What does the Pack House module do?', category: 'module' },
-  { icon: '🔒', label: "Why can't I see the Financials tab?", category: 'permission' },
-  { icon: '⚠️', label: 'My payroll run failed', category: 'error' },
-  { icon: '📊', label: 'Show me recent audit log activity', category: 'error' },
-  { icon: '🌱', label: 'How do I record a spray application?', category: 'howto' },
 ];
 
 /**
@@ -467,21 +467,49 @@ export default function ChatWidget() {
         <div className="space-y-3 w-full">
           {textContent && <div className="space-y-1">{renderMarkdown(textContent, router)}</div>}
           {actionData && (
-            <div className="bg-slate-900 border border-brand-green/30 rounded-xl p-4 mt-2 w-full">
-              <h4 className="font-bold text-white mb-2 flex items-center gap-2">
-                <RefreshCw className="w-4 h-4 text-brand-green" />
-                Action Required: {actionData.type}
-              </h4>
-              <div className="bg-black/20 rounded p-2 text-xs font-mono text-slate-300 overflow-x-auto mb-3 max-h-40 overflow-y-auto">
-                <pre>{JSON.stringify(actionData.payload, null, 2)}</pre>
+            <div className="bg-slate-900 border border-brand-green/30 rounded-xl p-4 mt-2 w-full shadow-lg shadow-emerald-500/5">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-bold text-white text-sm flex items-center gap-2">
+                  <RefreshCw className={`w-4 h-4 text-brand-green ${actionInProgress ? 'animate-spin' : ''}`} />
+                  Confirm Quick Action
+                </h4>
+                <span className="text-[10px] bg-brand-green/10 text-brand-green px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                  {actionData.type.replace(/_/g, ' ')}
+                </span>
               </div>
+              
+              <div className="space-y-2 mb-4 bg-black/30 rounded-lg p-3 border border-white/5">
+                {Object.entries(actionData.payload).map(([key, value]: [string, any]) => {
+                  if (key === 'items' && Array.isArray(value)) {
+                    return (
+                      <div key={key} className="space-y-1">
+                        <span className="text-[10px] text-slate-500 uppercase font-bold">{key}</span>
+                        <div className="pl-2 border-l border-white/10 space-y-1">
+                          {value.map((item: any, idx: number) => (
+                            <div key={idx} className="text-xs text-slate-300">
+                              • {item.quantity} x {item.sku || item.name || 'Item'}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key} className="flex flex-col">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold">{key}</span>
+                      <span className="text-xs text-slate-200">{String(value)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleExecuteAction(msg.id, actionData.type, actionData.payload)}
                   disabled={actionInProgress}
-                  className="flex-1 bg-brand-green text-slate-950 text-xs font-bold py-2 rounded hover:bg-emerald-400 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-brand-green text-slate-950 text-xs font-bold py-2.5 rounded-lg hover:bg-emerald-400 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-emerald-500/20"
                 >
-                  {actionInProgress ? 'Executing...' : 'Confirm Action'}
+                  {actionInProgress ? 'Processing...' : 'Confirm & Execute'}
                 </button>
               </div>
             </div>

@@ -21,12 +21,236 @@ export class ChatActionService {
         return this.createSprayLog(tenantId, userId, payload);
       case 'IMPORT_INVENTORY':
         return this.importInventory(tenantId, userId, payload);
+      case 'CREATE_PURCHASE_REQUEST':
+        return this.createPurchaseRequest(tenantId, userId, payload);
+      case 'SCHEDULE_TRAINING':
+        return this.scheduleTraining(tenantId, userId, payload);
+      case 'SUBMIT_LEAVE_REQUEST':
+        return this.submitLeaveRequest(tenantId, userId, payload);
+      case 'CREATE_SCOUTING_REPORT':
+        return this.createScoutingReport(tenantId, userId, payload);
+      case 'SEND_NOTIFICATION':
+        return this.sendNotification(tenantId, userId, payload);
       default:
         throw new HttpException(
           `Unknown action type: ${actionType}`,
           HttpStatus.BAD_REQUEST,
         );
     }
+  }
+
+  private async createPurchaseRequest(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
+    const { itemName, sku, quantity, notes } = payload;
+
+    // Find item
+    const storeItem = await this.prisma.storeItem.findFirst({
+      where: {
+        tenantId,
+        OR: [
+          sku ? { sku: { equals: sku, mode: 'insensitive' } } : {},
+          itemName ? { name: { contains: itemName, mode: 'insensitive' } } : {},
+        ].filter((obj) => Object.keys(obj).length > 0) as any,
+      },
+    });
+
+    if (!storeItem) {
+      throw new HttpException(
+        `Item "${itemName || sku}" not found in inventory.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const pr = await this.prisma.purchaseRequest.create({
+      data: {
+        tenantId,
+        itemId: storeItem.id,
+        suggestedQty: quantity,
+        notes: notes || `Requested via AI Chatbot`,
+        generatedBy: userId,
+        status: 'PENDING',
+        currentStock: 0, // Should ideally be fetched from StoreStock
+        reorderPoint: 0,
+      },
+    });
+
+    return {
+      success: true,
+      message: `Created Purchase Request for ${quantity} x ${storeItem.name}`,
+      id: pr.id,
+    };
+  }
+
+  private async scheduleTraining(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
+    const { courseName, date, department, location, trainer } = payload;
+
+    // Find course
+    let course = await this.prisma.trainingCourse.findFirst({
+      where: {
+        tenantId,
+        name: { contains: courseName, mode: 'insensitive' },
+      },
+    });
+
+    if (!course) {
+      course = await this.prisma.trainingCourse.create({
+        data: {
+          tenantId,
+          name: courseName,
+          category: 'GENERAL',
+          description: 'Auto-created via Chat',
+        },
+      });
+    }
+
+    const schedule = await this.prisma.trainingSchedule.create({
+      data: {
+        tenantId,
+        courseId: course.id,
+        scheduledDate: new Date(date),
+        department,
+        location,
+        trainer,
+        status: 'SCHEDULED',
+      },
+    });
+
+    return {
+      success: true,
+      message: `Scheduled ${course.name} for ${date} (${department || 'All Departments'})`,
+      id: schedule.id,
+    };
+  }
+
+  private async submitLeaveRequest(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
+    const { startDate, endDate, type, reason } = payload;
+
+    // Find employee linked to this user
+    const employee = await this.prisma.employee.findUnique({
+      where: { userId },
+    });
+
+    if (!employee) {
+      throw new HttpException(
+        'You do not have an associated employee record to request leave.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const leave = await this.prisma.leaveRequest.create({
+      data: {
+        tenantId,
+        employeeId: employee.id,
+        type: type || 'ANNUAL',
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        reason: reason || 'Requested via AI Chatbot',
+        status: 'PENDING',
+      },
+    });
+
+    return {
+      success: true,
+      message: `Leave request (${type}) submitted for ${startDate} to ${endDate}.`,
+      id: leave.id,
+    };
+  }
+
+  private async createScoutingReport(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
+    const { zoneName, pestName, severity, observations, date } = payload;
+
+    // Find zone
+    const zone = await this.prisma.zone.findFirst({
+      where: {
+        tenantId,
+        name: { contains: zoneName, mode: 'insensitive' },
+      },
+    });
+
+    if (!zone) {
+      throw new HttpException(
+        `Zone "${zoneName}" not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const report = await this.prisma.scoutingReport.create({
+      data: {
+        tenantId,
+        zoneId: zone.id,
+        pestDiseaseName: pestName,
+        severity: severity || 'MODERATE',
+        observations: observations || `Scouting report for ${pestName}`,
+        date: date ? new Date(date) : new Date(),
+        inspectorId: userId,
+      },
+    });
+
+    return {
+      success: true,
+      message: `Logged ${severity} severity ${pestName} report for ${zone.name}.`,
+      id: report.id,
+    };
+  }
+
+  private async sendNotification(
+    tenantId: string,
+    userId: string,
+    payload: any,
+  ) {
+    const { title, message, targetRole, targetUsers } = payload;
+
+    let userIds: string[] = [];
+
+    if (targetUsers && targetUsers.length > 0) {
+      userIds = targetUsers;
+    } else if (targetRole) {
+      const usersWithRole = await this.prisma.user.findMany({
+        where: {
+          tenantId,
+          role: { name: { contains: targetRole, mode: 'insensitive' } },
+        },
+        select: { id: true },
+      });
+      userIds = usersWithRole.map((u) => u.id);
+    }
+
+    if (userIds.length === 0) {
+      return {
+        success: false,
+        message: 'No target users found for notification.',
+      };
+    }
+
+    await this.prisma.notification.createMany({
+      data: userIds.map((id) => ({
+        tenantId,
+        userId: id,
+        title,
+        message,
+        isRead: false,
+      })),
+    });
+
+    return {
+      success: true,
+      message: `Sent notification "${title}" to ${userIds.length} users.`,
+    };
   }
 
   private async createGrn(tenantId: string, userId: string, payload: any) {
