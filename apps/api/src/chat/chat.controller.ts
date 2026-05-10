@@ -24,7 +24,7 @@ export class ChatController {
 
   @Get('sessions')
   async getSessions(@Request() req: any) {
-    const { tenantId, sub: userId } = req.user;
+    const { tenantId, id: userId } = req.user;
     return this.chatService.getSessions(tenantId, userId);
   }
 
@@ -33,13 +33,13 @@ export class ChatController {
     @Param('id') sessionId: string,
     @Request() req: any,
   ) {
-    const { tenantId, sub: userId } = req.user;
+    const { tenantId, id: userId } = req.user;
     return this.chatService.getSessionMessages(tenantId, userId, sessionId);
   }
 
   @Post('sessions')
   async createSession(@Body('title') title: string, @Request() req: any) {
-    const { tenantId, sub: userId } = req.user;
+    const { tenantId, id: userId } = req.user;
     return this.chatService.createSession(tenantId, userId, title);
   }
 
@@ -51,7 +51,7 @@ export class ChatController {
     @Body('currentPath') currentPath: string,
     @Request() req: any,
   ) {
-    const { tenantId, sub: userId } = req.user;
+    const { tenantId, id: userId } = req.user;
     return this.chatService.sendMessage(
       tenantId,
       userId,
@@ -69,7 +69,7 @@ export class ChatController {
     @Body('payload') payload: any,
     @Request() req: any,
   ) {
-    const { tenantId, sub: userId } = req.user;
+    const { tenantId, id: userId } = req.user;
     return this.chatService.executeAction(
       tenantId,
       userId,

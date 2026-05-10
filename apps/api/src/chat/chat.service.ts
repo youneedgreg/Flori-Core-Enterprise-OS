@@ -16,7 +16,7 @@ import OpenAI from 'openai';
 @Injectable()
 export class ChatService {
   private anthropic: Anthropic | null = null;
-  private xai: OpenAI | null = null;
+  private mistral: OpenAI | null = null;
 
   constructor(
     private prisma: PrismaService,
@@ -29,11 +29,11 @@ export class ChatService {
       this.anthropic = new Anthropic({ apiKey: anthropicKey });
     }
 
-    const xaiKey = process.env.XAI_API_KEY;
-    if (xaiKey) {
-      this.xai = new OpenAI({
-        apiKey: xaiKey,
-        baseURL: 'https://api.x.ai/v1',
+    const mistralKey = process.env.MISTRAL_API_KEY;
+    if (mistralKey) {
+      this.mistral = new OpenAI({
+        apiKey: mistralKey,
+        baseURL: 'https://api.mistral.ai/v1',
       });
     }
   }
@@ -84,7 +84,7 @@ export class ChatService {
     attachments?: any[],
     currentPath?: string,
   ) {
-    if (!this.anthropic && !this.xai) {
+    if (!this.anthropic && !this.mistral) {
       throw new HttpException(
         'AI API keys not configured. Please add an API key to the environment variables.',
         HttpStatus.SERVICE_UNAVAILABLE,
@@ -387,35 +387,38 @@ export class ChatService {
         totalTokens = inputTokens + outputTokens;
       } catch (anthropicError: any) {
         console.error(
-          'Anthropic failed, falling back to Grok:',
+          'Anthropic failed, falling back to Mistral:',
           anthropicError.message,
         );
 
-        // 6. Fallback to X.AI (Grok)
-        const grokMessages = this.convertToOpenAI(
+        // 6. Fallback to Mistral
+        const mistralMessages = this.convertToOpenAI(
           anthropicMessages,
           systemPrompt,
         );
-        const grokTools = this.convertToOpenAITools(chatTools);
+        const mistralTools = this.convertToOpenAITools(chatTools);
 
-        if (!this.xai) {
-          throw new Error('Grok API key is missing');
+        if (!this.mistral) {
+          throw new Error('Mistral API key is missing');
         }
 
-        const grokResponse = await this.xai.chat.completions.create({
-          model: 'grok-4.20-reasoning',
-          messages: grokMessages,
-          tools: grokTools,
+        const mistralResponse = await this.mistral.chat.completions.create({
+          model: 'mistral-large-latest',
+          messages: mistralMessages,
+          tools: mistralTools,
         });
 
-        let currentGrokResponse = grokResponse;
+        let currentMistralResponse = mistralResponse;
 
-        // Handle tool calls for Grok
-        while (currentGrokResponse.choices[0].finish_reason === 'tool_calls') {
-          const toolCalls = currentGrokResponse.choices[0].message.tool_calls;
+        // Handle tool calls for Mistral
+        while (
+          currentMistralResponse.choices[0].finish_reason === 'tool_calls'
+        ) {
+          const toolCalls =
+            currentMistralResponse.choices[0].message.tool_calls;
           if (!toolCalls) break;
 
-          grokMessages.push(currentGrokResponse.choices[0].message);
+          mistralMessages.push(currentMistralResponse.choices[0].message);
 
           for (const toolCall of toolCalls) {
             if (toolCall.type === 'function') {
@@ -426,7 +429,7 @@ export class ChatService {
                 toolArgs,
               );
 
-              grokMessages.push({
+              mistralMessages.push({
                 role: 'tool',
                 tool_call_id: toolCall.id,
                 content: JSON.stringify(toolResultData),
@@ -434,16 +437,17 @@ export class ChatService {
             }
           }
 
-          currentGrokResponse = await this.xai.chat.completions.create({
-            model: 'grok-4.20-reasoning',
-            messages: grokMessages,
-            tools: grokTools,
+          currentMistralResponse = await this.mistral.chat.completions.create({
+            model: 'mistral-large-latest',
+            messages: mistralMessages,
+            tools: mistralTools,
           });
         }
 
         responseContent =
-          currentGrokResponse.choices[0].message.content || 'No Grok response';
-        totalTokens = currentGrokResponse.usage?.total_tokens || 0;
+          currentMistralResponse.choices[0].message.content ||
+          'No Mistral response';
+        totalTokens = currentMistralResponse.usage?.total_tokens || 0;
       }
 
       // 7. Save assistant message

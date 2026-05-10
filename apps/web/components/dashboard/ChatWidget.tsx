@@ -590,7 +590,7 @@ export default function ChatWidget() {
             </div>
             <div>
               <h3 className="text-sm font-bold text-white">Flori Assistant</h3>
-              <p className="text-xs text-slate-400">Powered by Claude</p>
+              <p className="text-xs text-slate-400">Task me anything</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
