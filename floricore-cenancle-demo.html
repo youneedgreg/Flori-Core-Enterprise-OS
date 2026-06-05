@@ -2673,5 +2673,1434 @@ window.render_packhouse = () => `
 `;
 </script>
 
+
+<!-- ═══════════════════ PHASE 3 STYLES ═══════════════════ -->
+<style>
+/* ── Sensor / Climate cards ── */
+.sensor-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.sensor-card{background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:20px 22px;position:relative;overflow:hidden;}
+.sensor-card.warn-card{border-color:rgba(245,158,11,.28);}
+.sensor-room-name{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.sensor-temp{font-family:var(--font-head);font-size:44px;font-weight:700;line-height:1;margin:10px 0 4px;}
+.sensor-temp.stable{color:#4ade80;}
+.sensor-temp.warning{color:#fbbf24;}
+.sensor-meta-row{display:flex;gap:18px;margin-top:10px;}
+.sensor-meta-item{display:flex;flex-direction:column;gap:2px;}
+.sensor-meta-label{font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;}
+.sensor-meta-val{font-size:13px;font-weight:600;color:var(--text-2);}
+.sensor-status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em;margin-top:10px;}
+.sensor-status-badge.stable{background:rgba(34,197,94,.14);color:#4ade80;}
+.sensor-status-badge.warning{background:rgba(245,158,11,.14);color:#fbbf24;}
+.sensor-status-badge .pulse{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse-dot 1.4s ease-in-out infinite;}
+.sensor-trend{position:absolute;bottom:14px;right:16px;}
+.sync-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);border-radius:8px;font-size:11px;color:var(--text-3);margin-bottom:16px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse-dot 1.4s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+/* ── Gauge bar ── */
+.gauge-wrap{margin:6px 0;}
+.gauge-track{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.gauge-fill{height:100%;border-radius:3px;transition:width .6s var(--ease-o);}
+
+/* ── Check-in form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;}
+.form-input{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:8px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;transition:border-color .18s;}
+.form-input:focus{border-color:var(--green);}
+.form-select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:8px 12px;color:var(--text);font-size:13px;font-family:var(--font-body);}
+
+/* ── Team / User cards ── */
+.team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
+.user-card{background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:18px 20px;display:flex;gap:14px;align-items:flex-start;position:relative;}
+.user-avatar{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
+.user-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.user-role{font-size:12px;color:var(--text-3);margin-bottom:8px;}
+.user-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.user-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.user-badge.secure{background:rgba(34,197,94,.14);color:#4ade80;}
+.user-badge.temppw{background:rgba(245,158,11,.14);color:#fbbf24;}
+.user-badge.role-badge{background:rgba(59,130,246,.1);color:#60a5fa;}
+.user-card-actions{position:absolute;top:14px;right:14px;display:flex;gap:6px;}
+.icon-btn{width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;}
+.icon-btn:hover{border-color:var(--blue);background:rgba(59,130,246,.1);}
+
+/* ── Permission matrix ── */
+.perm-table{width:100%;border-collapse:collapse;font-size:12px;}
+.perm-table th{padding:7px 10px;text-align:left;color:var(--text-3);font-weight:500;border-bottom:1px solid rgba(255,255,255,.07);}
+.perm-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text-2);}
+.perm-table tr:last-child td{border-bottom:none;}
+.perm-check{display:inline-flex;width:16px;height:16px;align-items:center;justify-content:center;border-radius:3px;}
+.perm-check.yes{background:rgba(34,197,94,.18);color:#4ade80;font-size:11px;}
+.perm-check.no{background:rgba(255,255,255,.05);color:var(--text-4);font-size:11px;}
+
+/* ── HR — compliance bar ── */
+.compliance-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.compliance-bar-label{font-size:12px;color:var(--text-2);width:160px;flex-shrink:0;}
+.compliance-bar-track{flex:1;height:7px;background:rgba(255,255,255,.07);border-radius:4px;overflow:hidden;}
+.compliance-bar-fill{height:100%;border-radius:4px;transition:width .7s var(--ease-o);}
+.compliance-bar-pct{font-size:12px;font-weight:700;width:38px;text-align:right;}
+
+/* ── HR — KPI bar chart ── */
+.kpi-bar-chart{display:flex;align-items:flex-end;gap:10px;height:120px;padding-top:10px;}
+.kpi-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;}
+.kpi-bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .5s var(--ease-o);}
+.kpi-bar-name{font-size:9px;color:var(--text-3);text-align:center;line-height:1.3;}
+.kpi-bar-val{font-size:10px;font-weight:700;color:var(--text-2);}
+
+/* ── Logistics — Kenya Map ── */
+.map-wrap{position:relative;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06);border-radius:10px;overflow:hidden;}
+.map-svg{display:block;width:100%;}
+.route-point{animation:routePulse 2s ease-in-out infinite;}
+@keyframes routePulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+.map-legend{display:flex;gap:14px;padding:8px 12px;font-size:11px;color:var(--text-3);}
+.map-legend-item{display:flex;align-items:center;gap:5px;}
+
+/* ── Logistics — Route card ── */
+.route-card{background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;}
+.route-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.route-info{flex:1;}
+.route-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.route-meta{font-size:11px;color:var(--text-3);}
+.route-right{text-align:right;}
+.route-eta{font-size:13px;font-weight:600;color:var(--text);}
+.route-dist{font-size:11px;color:var(--text-3);}
+
+/* ── Inventory — ATP table ── */
+.atp-variety-row{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+.variety-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.atp-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;}
+.atp-chip.avail{background:rgba(34,197,94,.15);color:#4ade80;}
+.atp-chip.zero{background:rgba(239,68,68,.12);color:#f87171;}
+
+/* ── Wastage log ── */
+.wastage-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.wastage-row:last-child{border-bottom:none;}
+.wastage-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wastage-info{flex:1;}
+.wastage-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.wastage-sub{font-size:11px;color:var(--text-3);}
+.wastage-cost{font-size:13px;font-weight:700;color:#f87171;}
+</style>
+
+<!-- ═══════════════════ PHASE 3 SCRIPTS ═══════════════════ -->
+<script>
+
+/* ══════════════════════════════════════
+   MODULE 6 — COLD ROOM & CLIMATE CONTROL
+══════════════════════════════════════ */
+window.render_coldroom = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">COLD ROOM <em style="color:var(--blue);">CLIMATE CONTROL</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Live sensor monitoring · FIFO stock management</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Log</button>
+      <button class="hdr-btn primary">+ Check In Batch</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Cold Room 1</div>
+      <div class="kpi-value" style="font-size:22px;">2.1°C</div>
+      <div class="kpi-sub"><span class="up">● STABLE</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="1.5"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/><circle cx="12" cy="12" r="3"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Cold Room 2</div>
+      <div class="kpi-value" style="font-size:22px;color:var(--amber);">3.4°C</div>
+      <div class="kpi-sub"><span class="warn">⚠ WARNING</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5"><path d="M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93"/><circle cx="12" cy="12" r="3"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">FIFO Batches Active</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">12,300 stems stored</div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 014 0"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Last Sensor Sync</div>
+      <div class="kpi-value" style="font-size:20px;">2m ago</div>
+      <div class="kpi-sub">Auto-syncs every 30s</div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="cr" data-tab="climate" onclick="showTab('cr','climate')">Live Climate</div>
+    <div class="tab-btn" data-tabgroup="cr" data-tab="fifo" onclick="showTab('cr','fifo')">FIFO Stock</div>
+    <div class="tab-btn" data-tabgroup="cr" data-tab="checkin" onclick="showTab('cr','checkin')">Check In</div>
+  </div>
+
+  <!-- Live Climate -->
+  <div class="tab-panel active" data-tabgroup="cr" data-tab="climate">
+    <div class="sync-bar">
+      <div class="sync-dot"></div>
+      Live sensor data · Auto-refreshing every 30 seconds · Last sync 06/06/2026 11:42:18
+    </div>
+    <div class="sensor-grid">
+      <!-- Cold Room 1 -->
+      <div class="sensor-card">
+        <div class="sensor-room-name">Cold Room 1 — Dispatch Hold</div>
+        <div class="sensor-temp stable">2.1°C</div>
+        <div class="gauge-wrap">
+          <div style="font-size:10px;color:var(--text-4);margin-bottom:3px;">TEMPERATURE vs TARGET (0–4°C)</div>
+          <div class="gauge-track"><div class="gauge-fill" style="width:52%;background:var(--green);"></div></div>
+        </div>
+        <div class="sensor-meta-row">
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Humidity</div>
+            <div class="sensor-meta-val">91%</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Set Point</div>
+            <div class="sensor-meta-val">2.0°C</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Compressor</div>
+            <div class="sensor-meta-val">ON</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Door Status</div>
+            <div class="sensor-meta-val">Closed</div>
+          </div>
+        </div>
+        <div class="sensor-status-badge stable"><div class="pulse"></div>STABLE</div>
+      </div>
+
+      <!-- Cold Room 2 -->
+      <div class="sensor-card warn-card">
+        <div class="sensor-room-name">Cold Room 2 — Overflow / Buffer</div>
+        <div class="sensor-temp warning">3.4°C</div>
+        <div class="gauge-wrap">
+          <div style="font-size:10px;color:var(--text-4);margin-bottom:3px;">TEMPERATURE vs TARGET (0–3.0°C)</div>
+          <div class="gauge-track"><div class="gauge-fill" style="width:85%;background:var(--amber);"></div></div>
+        </div>
+        <div class="sensor-meta-row">
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Humidity</div>
+            <div class="sensor-meta-val">87%</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Set Point</div>
+            <div class="sensor-meta-val">2.5°C</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Compressor</div>
+            <div class="sensor-meta-val">MAX</div>
+          </div>
+          <div class="sensor-meta-item">
+            <div class="sensor-meta-label">Door Status</div>
+            <div class="sensor-meta-val">Closed</div>
+          </div>
+        </div>
+        <div class="sensor-status-badge warning"><div class="pulse"></div>WARNING — Temp trending up</div>
+        <div style="margin-top:10px;padding:8px 12px;background:rgba(245,158,11,.08);border-radius:8px;border-left:3px solid var(--amber);">
+          <div style="font-size:11px;color:var(--amber);font-weight:700;">Advisory</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px;">Temperature 3.4°C exceeds 3.0°C threshold. Maintenance team notified. Do not add new stock until resolved.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Temp trend mini-chart (SVG) -->
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Temperature Trend — Last 6 Hours
+        <span style="font-size:11px;color:var(--text-3);font-weight:400;">06/06/2026 05:45 – 11:45</span>
+      </div>
+      <svg width="100%" height="90" viewBox="0 0 760 90" preserveAspectRatio="none">
+        <!-- Grid lines -->
+        <line x1="0" y1="22" x2="760" y2="22" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="0" y1="45" x2="760" y2="45" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <line x1="0" y1="68" x2="760" y2="68" stroke="rgba(255,255,255,.04)" stroke-width="1"/>
+        <!-- Room 1 line (stable ~2.1°C) — maps 0-4°C to y 80-10 -->
+        <polyline points="0,55 120,52 240,54 360,53 480,52 600,55 760,53"
+          fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Room 2 line (rising 2.5→3.4°C) -->
+        <polyline points="0,46 120,44 240,42 360,40 480,36 600,32 760,25"
+          fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
+        <!-- Threshold line at 3°C = y 30 -->
+        <line x1="0" y1="30" x2="760" y2="30" stroke="rgba(239,68,68,.4)" stroke-width="1" stroke-dasharray="6 4"/>
+        <!-- Labels -->
+        <text x="4" y="10" fill="#94a3b8" font-size="9" font-family="Inter">4°C</text>
+        <text x="4" y="33" fill="#ef4444" font-size="9" font-family="Inter">3°C ▲ limit</text>
+        <text x="4" y="56" fill="#94a3b8" font-size="9" font-family="Inter">2°C</text>
+        <text x="4" y="79" fill="#94a3b8" font-size="9" font-family="Inter">0°C</text>
+        <!-- Time labels -->
+        <text x="0" y="88" fill="#475569" font-size="9" font-family="Inter">05:45</text>
+        <text x="108" y="88" fill="#475569" font-size="9" font-family="Inter">06:45</text>
+        <text x="228" y="88" fill="#475569" font-size="9" font-family="Inter">07:45</text>
+        <text x="348" y="88" fill="#475569" font-size="9" font-family="Inter">08:45</text>
+        <text x="468" y="88" fill="#475569" font-size="9" font-family="Inter">09:45</text>
+        <text x="588" y="88" fill="#475569" font-size="9" font-family="Inter">10:45</text>
+        <text x="716" y="88" fill="#475569" font-size="9" font-family="Inter">11:45</text>
+      </svg>
+      <div class="map-legend" style="padding:4px 0 0;">
+        <div class="map-legend-item"><svg width="16" height="3"><line x1="0" y1="1.5" x2="16" y2="1.5" stroke="#22c55e" stroke-width="2.5"/></svg>Cold Room 1</div>
+        <div class="map-legend-item"><svg width="16" height="3"><line x1="0" y1="1.5" x2="16" y2="1.5" stroke="#f59e0b" stroke-width="2.5"/></svg>Cold Room 2</div>
+        <div class="map-legend-item"><svg width="16" height="3"><line x1="0" y1="1.5" x2="16" y2="1.5" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="5 3"/></svg>Safe limit (3°C)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIFO Stock -->
+  <div class="tab-panel" data-tabgroup="cr" data-tab="fifo">
+    <div class="card">
+      <div class="card-title">FIFO Stock Register <span style="font-size:11px;color:var(--text-3);font-weight:400;">First-In-First-Out · 4 active batches</span></div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>#</th><th>Batch ID</th><th>Variety</th><th>Entry Date</th><th>Entry Time</th><th>Quantity</th><th>Location</th><th>Temp at Entry</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text-4);">1</td>
+            <td style="font-weight:600;color:var(--text);">FLR-20260604-003</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#ec4899;"></div>Pink Floyd (Grade B)</div></td>
+            <td>04/06/2026</td><td>16:30</td>
+            <td>2,100 stems</td><td>CR1 — Shelf A2</td><td>2.0°C</td>
+            <td><span class="badge green">DISPATCH READY</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-4);">2</td>
+            <td style="font-weight:600;color:var(--text);">FLR-20260605-001</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#ef4444;"></div>Red Naomi (Grade A)</div></td>
+            <td>05/06/2026</td><td>08:00</td>
+            <td>4,800 stems</td><td>CR1 — Shelf B1</td><td>2.1°C</td>
+            <td><span class="badge green">GRADED</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-4);">3</td>
+            <td style="font-weight:600;color:var(--text);">FLR-20260605-002</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#f8fafc;"></div>Avalanche White (Grade A)</div></td>
+            <td>05/06/2026</td><td>13:45</td>
+            <td>3,200 stems</td><td>CR2 — Shelf A1</td><td>2.8°C</td>
+            <td><span class="badge amber">PENDING QC</span></td>
+          </tr>
+          <tr>
+            <td style="color:var(--text-4);">4</td>
+            <td style="font-weight:600;color:var(--text);">FLR-20260606-001</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#ef4444;"></div>Red Naomi (Grade A)</div></td>
+            <td>06/06/2026</td><td>07:15</td>
+            <td>2,200 stems</td><td>CR1 — Shelf B2</td><td>2.0°C</td>
+            <td><span class="badge blue">GRADING</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 14px;background:var(--bg-elevated);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+        <div style="font-size:11px;color:var(--text-3);">FIFO Rule: Batch FLR-20260604-003 (Pink Floyd) must be dispatched first — entered 2 days ago. Allocated to PO-7823 (Marks &amp; Spencer, 07 Jun).</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Check In form -->
+  <div class="tab-panel" data-tabgroup="cr" data-tab="checkin">
+    <div class="card" style="max-width:640px;">
+      <div class="card-title">Log New Stock Batch</div>
+      <div class="form-grid" style="margin-bottom:14px;">
+        <div class="form-group">
+          <div class="form-label">Batch ID</div>
+          <input class="form-input" value="FLR-20260606-002" readonly>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Entry Date</div>
+          <input class="form-input" value="06/06/2026">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Variety</div>
+          <select class="form-select">
+            <option>Red Naomi</option>
+            <option>Avalanche White</option>
+            <option>Pink Floyd</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Grade</div>
+          <select class="form-select">
+            <option>Grade A</option>
+            <option>Grade B</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Quantity (stems)</div>
+          <input class="form-input" placeholder="e.g. 3,600">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Cold Room</div>
+          <select class="form-select">
+            <option>Cold Room 1</option>
+            <option disabled>Cold Room 2 — WARNING, avoid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Shelf Location</div>
+          <input class="form-input" placeholder="e.g. CR1 — Shelf C1">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Temp at Entry (°C)</div>
+          <input class="form-input" placeholder="e.g. 2.1">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;">
+        <div class="form-label">Notes</div>
+        <textarea class="form-input" rows="2" style="resize:vertical;" placeholder="Optional — harvested by, trolley count, etc."></textarea>
+      </div>
+      <button class="hdr-btn primary" style="width:100%;justify-content:center;">Save Check-In Record</button>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 7 — TEAM ACCESS
+══════════════════════════════════════ */
+window.render_team = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">TEAM <em style="color:var(--blue);">ACCESS</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · System users · roles &amp; permissions management</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export CSV</button>
+      <button class="hdr-btn primary">+ Invite Member</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Total System Users</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">All active sessions</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Active Now</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub"><span class="up">● All online</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Pending Reset</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub"><span class="warn">Grace Njoroge</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Roles in Use</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">Director · Manager · Supervisor</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="tm" data-tab="members" onclick="showTab('tm','members')">Members Directory</div>
+    <div class="tab-btn" data-tabgroup="tm" data-tab="roles" onclick="showTab('tm','roles')">Roles &amp; Permissions</div>
+  </div>
+
+  <!-- Members Directory -->
+  <div class="tab-panel active" data-tabgroup="tm" data-tab="members">
+    <div class="team-grid">
+      <!-- James -->
+      <div class="user-card">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#22c55e,#16a34a);">JK</div>
+        <div style="flex:1;">
+          <div class="user-name">James Kariuki</div>
+          <div class="user-role">Farm Director</div>
+          <div class="user-badges">
+            <span class="user-badge secure">● SECURE</span>
+            <span class="user-badge role-badge">ADMIN</span>
+            <span class="user-badge role-badge">Farm Director</span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:14px;">
+            <div style="font-size:11px;color:var(--text-4);">Last login <span style="color:var(--text-3);">Today 07:02</span></div>
+            <div style="font-size:11px;color:var(--text-4);">2FA <span style="color:#4ade80;">Enabled</span></div>
+          </div>
+        </div>
+        <div class="user-card-actions">
+          <div class="icon-btn" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg></div>
+          <div class="icon-btn" title="Permissions"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Mary -->
+      <div class="user-card">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);">MW</div>
+        <div style="flex:1;">
+          <div class="user-name">Mary Wanjiku</div>
+          <div class="user-role">Operations Manager</div>
+          <div class="user-badges">
+            <span class="user-badge secure">● SECURE</span>
+            <span class="user-badge role-badge">Operations Manager</span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:14px;">
+            <div style="font-size:11px;color:var(--text-4);">Last login <span style="color:var(--text-3);">Today 06:48</span></div>
+            <div style="font-size:11px;color:var(--text-4);">2FA <span style="color:#4ade80;">Enabled</span></div>
+          </div>
+        </div>
+        <div class="user-card-actions">
+          <div class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg></div>
+          <div class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        </div>
+      </div>
+
+      <!-- David -->
+      <div class="user-card">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);">DO</div>
+        <div style="flex:1;">
+          <div class="user-name">David Otieno</div>
+          <div class="user-role">Pack House Supervisor</div>
+          <div class="user-badges">
+            <span class="user-badge secure">● SECURE</span>
+            <span class="user-badge role-badge">Pack House Supervisor</span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:14px;">
+            <div style="font-size:11px;color:var(--text-4);">Last login <span style="color:var(--text-3);">Today 06:05</span></div>
+            <div style="font-size:11px;color:var(--text-4);">2FA <span style="color:#4ade80;">Enabled</span></div>
+          </div>
+        </div>
+        <div class="user-card-actions">
+          <div class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4z"/></svg></div>
+          <div class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Grace — needs reset -->
+      <div class="user-card" style="border-color:rgba(245,158,11,.25);">
+        <div class="user-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">GN</div>
+        <div style="flex:1;">
+          <div class="user-name">Grace Njoroge</div>
+          <div class="user-role">Field Supervisor</div>
+          <div class="user-badges">
+            <span class="user-badge temppw">⚠ TEMP PASSWORD</span>
+            <span class="user-badge role-badge">Field Supervisor</span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:14px;">
+            <div style="font-size:11px;color:var(--text-4);">Last login <span style="color:var(--text-3);">Yesterday 14:22</span></div>
+            <div style="font-size:11px;color:var(--text-4);">2FA <span style="color:#fbbf24;">Pending</span></div>
+          </div>
+          <div style="margin-top:8px;padding:6px 10px;background:rgba(245,158,11,.08);border-radius:6px;font-size:11px;color:var(--amber);">
+            Password reset required on next login
+          </div>
+        </div>
+        <div class="user-card-actions">
+          <div class="icon-btn" style="border-color:rgba(245,158,11,.3);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38"/></svg></div>
+          <div class="icon-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite section -->
+    <div class="card">
+      <div class="card-title">Invite New Team Member</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <div class="form-label">Full Name</div>
+          <input class="form-input" placeholder="e.g. John Kimani">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Email Address</div>
+          <input class="form-input" placeholder="john@cenancle.co.ke">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Role</div>
+          <select class="form-select">
+            <option>Farm Director</option>
+            <option>Operations Manager</option>
+            <option>Pack House Supervisor</option>
+            <option>Field Supervisor</option>
+            <option>HR Officer</option>
+            <option>Finance Officer</option>
+          </select>
+        </div>
+        <div class="form-group" style="align-self:flex-end;">
+          <button class="hdr-btn primary" style="width:100%;justify-content:center;">Send Invite</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Roles & Permissions -->
+  <div class="tab-panel" data-tabgroup="tm" data-tab="roles">
+    <div class="card">
+      <div class="card-title">Role Permission Matrix</div>
+      <table class="perm-table">
+        <thead>
+          <tr>
+            <th>Module</th>
+            <th>Farm Director</th>
+            <th>Ops Manager</th>
+            <th>Pack House Sup.</th>
+            <th>Field Supervisor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Dashboard</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Farm Zones</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Production</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Pack House</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Financials</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">HR &amp; Payroll</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Procurement</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Audit Logs</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Team Access</td>
+            <td><span class="perm-check yes">✓</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+            <td><span class="perm-check no">–</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 8 — HR & TRAINING
+══════════════════════════════════════ */
+window.render_hr = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">HR <em style="color:var(--purple);">&amp; TRAINING</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Training records · compliance · 360° appraisals</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Download Report</button>
+      <button class="hdr-btn primary">+ Add Record</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Training Records</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">2 passed · 1 in progress</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Compliance Rate</div>
+      <div class="kpi-value">87%</div>
+      <div class="kpi-sub"><span class="warn">⚠ Target 95%</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Active Appraisals</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">Grace Njoroge — Q2 2026</div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Scheduled Sessions</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub">Next: 10 Jun 2026</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="hr" data-tab="records" onclick="showTab('hr','records')">Training Records</div>
+    <div class="tab-btn" data-tabgroup="hr" data-tab="compliance" onclick="showTab('hr','compliance')">Compliance</div>
+    <div class="tab-btn" data-tabgroup="hr" data-tab="appraisals" onclick="showTab('hr','appraisals')">360° Appraisals</div>
+    <div class="tab-btn" data-tabgroup="hr" data-tab="kpi" onclick="showTab('hr','kpi')">KPI Dashboard</div>
+    <div class="tab-btn" data-tabgroup="hr" data-tab="calendar" onclick="showTab('hr','calendar')">Calendar</div>
+  </div>
+
+  <!-- Training Records -->
+  <div class="tab-panel active" data-tabgroup="hr" data-tab="records">
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Training Records — 2026</div>
+      <table class="dt">
+        <thead><tr><th>Course Name</th><th>Employee</th><th>Role</th><th>Status</th><th>Date</th><th>Score</th><th>Cert Expires</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Pesticide Handling &amp; Safety</td>
+            <td>David Otieno</td>
+            <td style="color:var(--text-3);">Pack House Supervisor</td>
+            <td><span class="badge green">PASSED</span></td>
+            <td>12/03/2026</td>
+            <td style="color:#4ade80;font-weight:700;">92%</td>
+            <td>12/03/2027</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">First Aid Level 2</td>
+            <td>Mary Wanjiku</td>
+            <td style="color:var(--text-3);">Operations Manager</td>
+            <td><span class="badge green">PASSED</span></td>
+            <td>01/02/2026</td>
+            <td style="color:#4ade80;font-weight:700;">88%</td>
+            <td>01/02/2027</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Cold Chain Handling Protocols</td>
+            <td>Grace Njoroge</td>
+            <td style="color:var(--text-3);">Field Supervisor</td>
+            <td><span class="badge amber">IN PROGRESS</span></td>
+            <td>Started 01/06/2026</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Upcoming Sessions</div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--blue);"></div>
+          <div class="audit-msg"><strong style="color:var(--text);">Food Safety &amp; Hygiene</strong><br/>All pack house staff · 10 Jun 2026 · 08:00–12:00</div>
+          <div class="audit-time">4 days</div>
+        </div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--purple);"></div>
+          <div class="audit-msg"><strong style="color:var(--text);">Fire Safety &amp; Evacuation Drill</strong><br/>All staff · 20 Jun 2026 · 14:00–16:00</div>
+          <div class="audit-time">14 days</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Certifications Due</div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--amber);"></div>
+          <div class="audit-msg"><strong style="color:var(--text);">Pesticide Applicator — James Kariuki</strong><br/>Renewal due 30/09/2026</div>
+          <div class="audit-time">116d</div>
+        </div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--green);"></div>
+          <div class="audit-msg"><strong style="color:var(--text);">First Aid — Mary Wanjiku</strong><br/>Valid until 01/02/2027</div>
+          <div class="audit-time">240d</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliance -->
+  <div class="tab-panel" data-tabgroup="hr" data-tab="compliance">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Compliance by Category</div>
+        <div style="margin-top:4px;">
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">Pesticide Safety</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:100%;background:#22c55e;"></div></div>
+            <div class="compliance-bar-pct" style="color:#4ade80;">100%</div>
+          </div>
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">First Aid Trained</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:75%;background:#3b82f6;"></div></div>
+            <div class="compliance-bar-pct" style="color:#60a5fa;">75%</div>
+          </div>
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">Cold Chain Handling</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:50%;background:#f59e0b;"></div></div>
+            <div class="compliance-bar-pct" style="color:#fbbf24;">50%</div>
+          </div>
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">Fire Safety Drill</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:100%;background:#22c55e;"></div></div>
+            <div class="compliance-bar-pct" style="color:#4ade80;">100%</div>
+          </div>
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">Food Hygiene Cert</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:75%;background:#3b82f6;"></div></div>
+            <div class="compliance-bar-pct" style="color:#60a5fa;">75%</div>
+          </div>
+          <div class="compliance-bar-row">
+            <div class="compliance-bar-label">Overall Compliance</div>
+            <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:87%;background:linear-gradient(90deg,#22c55e,#3b82f6);"></div></div>
+            <div class="compliance-bar-pct" style="color:#f8fafc;font-weight:700;">87%</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Compliance Actions Required</div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--amber);"></div>
+          <div class="audit-msg">Grace Njoroge must complete <strong style="color:var(--text);">Cold Chain Handling</strong> by 20/06/2026</div>
+          <div class="audit-time">14d</div>
+        </div>
+        <div class="audit-item">
+          <div class="audit-dot" style="background:var(--blue);"></div>
+          <div class="audit-msg">Pack house team (8 staff) not yet scheduled for <strong style="color:var(--text);">Food Safety Refresher</strong></div>
+          <div class="audit-time">Pending</div>
+        </div>
+        <div style="margin-top:12px;padding:10px 12px;background:rgba(34,197,94,.07);border-radius:8px;border-left:3px solid var(--green);">
+          <div style="font-size:11px;color:var(--green);font-weight:700;">GlobalG.A.P Compliance Status</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Cenancle Kenya meets 87% of required training compliance for GlobalG.A.P. Cert renewal (Nov 2026). 2 actions outstanding.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 360 Appraisals -->
+  <div class="tab-panel" data-tabgroup="hr" data-tab="appraisals">
+    <div class="card">
+      <div class="card-title">Active Appraisal — Grace Njoroge (Q2 2026)</div>
+      <div class="form-grid" style="margin-bottom:14px;">
+        <div>
+          <div class="form-label">Employee</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">Grace Njoroge</div>
+          <div style="font-size:12px;color:var(--text-3);">Field Supervisor · Zone A &amp; C</div>
+        </div>
+        <div>
+          <div class="form-label">Appraised By</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px;">Mary Wanjiku</div>
+          <div style="font-size:12px;color:var(--text-3);">Operations Manager</div>
+        </div>
+      </div>
+      <table class="dt">
+        <thead><tr><th>Dimension</th><th>Score (1–5)</th><th>Comment</th></tr></thead>
+        <tbody>
+          <tr><td>Job Knowledge</td><td><span style="color:#4ade80;font-weight:700;">4.0</span></td><td style="color:var(--text-3);">Good understanding of Zone A scouting protocols</td></tr>
+          <tr><td>Communication</td><td><span style="color:#4ade80;font-weight:700;">3.5</span></td><td style="color:var(--text-3);">Timely reporting; improve written log detail</td></tr>
+          <tr><td>Team Collaboration</td><td><span style="color:#4ade80;font-weight:700;">4.5</span></td><td style="color:var(--text-3);">Strong team player, supports junior field hands</td></tr>
+          <tr><td>Initiative &amp; Problem Solving</td><td><span style="color:#fbbf24;font-weight:700;">3.0</span></td><td style="color:var(--text-3);">Needs to escalate irrigation alerts faster</td></tr>
+          <tr><td>Safety Compliance</td><td><span style="color:#fbbf24;font-weight:700;">3.5</span></td><td style="color:var(--text-3);">Cold chain cert still in progress</td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px;display:flex;align-items:center;gap:14px;">
+        <div style="font-size:13px;color:var(--text-3);">Overall Score:</div>
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:700;color:#4ade80;">3.7 / 5.0</div>
+        <span class="badge amber">IN REVIEW</span>
+        <button class="hdr-btn primary" style="margin-left:auto;">Submit Appraisal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI Dashboard -->
+  <div class="tab-panel" data-tabgroup="hr" data-tab="kpi">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Team Performance Scores — Q2 2026</div>
+        <div class="kpi-bar-chart">
+          ${[
+            {name:'James K.',score:95,color:'#22c55e'},
+            {name:'Mary W.',score:88,color:'#3b82f6'},
+            {name:'David O.',score:82,color:'#8b5cf6'},
+            {name:'Grace N.',score:74,color:'#f59e0b'}
+          ].map(p => `
+            <div class="kpi-bar-col">
+              <div class="kpi-bar-val">${p.score}%</div>
+              <div class="kpi-bar-fill" style="height:${p.score}px;background:${p.color};opacity:.8;"></div>
+              <div class="kpi-bar-name">${p.name}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-4);">Based on attendance, task completion, compliance &amp; appraisal scores</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Department KPIs</div>
+        <div class="telem-row"><div class="telem-label">Average Attendance Rate</div><div class="telem-val">96.2%</div><div class="telem-status stable">GOOD</div></div>
+        <div class="telem-row"><div class="telem-label">Tasks Completed On-Time</div><div class="telem-val">91.4%</div><div class="telem-status stable">GOOD</div></div>
+        <div class="telem-row"><div class="telem-label">Training Compliance</div><div class="telem-val">87.0%</div><div class="telem-status warn">BELOW TARGET</div></div>
+        <div class="telem-row"><div class="telem-label">Avg Appraisal Score</div><div class="telem-val">3.7 / 5</div><div class="telem-status stable">ON TRACK</div></div>
+        <div class="telem-row"><div class="telem-label">Incident Reports (MTD)</div><div class="telem-val">0</div><div class="telem-status stable">CLEAR</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="tab-panel" data-tabgroup="hr" data-tab="calendar">
+    <div class="card">
+      <div class="card-title">Training &amp; HR Calendar — June 2026</div>
+      <table class="dt">
+        <thead><tr><th>Date</th><th>Event</th><th>Type</th><th>Attendees</th><th>Location</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>10/06/2026</td><td style="font-weight:600;color:var(--text);">Food Safety &amp; Hygiene Refresher</td><td><span class="badge blue">TRAINING</span></td><td>Pack House (8 staff)</td><td>Pack House Hall</td><td><span class="badge amber">UPCOMING</span></td></tr>
+          <tr><td>15/06/2026</td><td style="font-weight:600;color:var(--text);">Q2 Payroll Processing — Casual</td><td><span class="badge purple">PAYROLL</span></td><td>HR Office</td><td>Admin Block</td><td><span class="badge amber">UPCOMING</span></td></tr>
+          <tr><td>20/06/2026</td><td style="font-weight:600;color:var(--text);">Fire Safety &amp; Evacuation Drill</td><td><span class="badge red">SAFETY</span></td><td>All Staff (312)</td><td>Entire Farm</td><td><span class="badge gray">PLANNED</span></td></tr>
+          <tr><td>25/06/2026</td><td style="font-weight:600;color:var(--text);">Grace Njoroge — Cold Chain Cert Deadline</td><td><span class="badge amber">COMPLIANCE</span></td><td>Grace Njoroge</td><td>Online / Self-Study</td><td><span class="badge amber">IN PROGRESS</span></td></tr>
+          <tr><td>30/06/2026</td><td style="font-weight:600;color:var(--text);">Q2 2026 Staff Appraisal Submissions Due</td><td><span class="badge purple">APPRAISAL</span></td><td>All Managers</td><td>System (Online)</td><td><span class="badge gray">PLANNED</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 9 — LOGISTICS & FLEET
+══════════════════════════════════════ */
+window.render_logistics = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">FLEET <em style="color:var(--cyan);">&amp; DISPATCH</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Live routing · order queue · fleet management</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Manifest</button>
+      <button class="hdr-btn primary">+ New Route</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active Routes</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub"><span class="up">Naivasha → JKIA</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Delivered Today</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-sub">14,200 stems cleared</div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Pending Dispatch</div>
+      <div class="kpi-value">14</div>
+      <div class="kpi-sub"><span class="warn">3 urgent today</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Active Vehicles</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">KBZ 441T — En route</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="lg" data-tab="dispatch" onclick="showTab('lg','dispatch')">Live Dispatch</div>
+    <div class="tab-btn" data-tabgroup="lg" data-tab="routes" onclick="showTab('lg','routes')">All Routes</div>
+    <div class="tab-btn" data-tabgroup="lg" data-tab="orders" onclick="showTab('lg','orders')">Order Queue <span class="badge amber" style="margin-left:4px;">22</span></div>
+    <div class="tab-btn" data-tabgroup="lg" data-tab="fleet" onclick="showTab('lg','fleet')">Fleet</div>
+  </div>
+
+  <!-- Live Dispatch -->
+  <div class="tab-panel active" data-tabgroup="lg" data-tab="dispatch">
+    <div class="two-col" style="grid-template-columns:1.1fr 0.9fr;">
+      <!-- Kenya Map -->
+      <div class="card" style="padding:14px;">
+        <div class="card-title">Live Route Map — Active Dispatch
+          <span class="badge green" style="margin-left:6px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4ade80;margin-right:4px;animation:pulse-dot 1.4s ease-in-out infinite;"></span>LIVE</span>
+        </div>
+        <div class="map-wrap">
+          <svg class="map-svg" viewBox="0 0 340 380" xmlns="http://www.w3.org/2000/svg">
+            <!-- Kenya outline — simplified but recognisable -->
+            <path d="M170,18 L210,22 L248,38 L272,68 L288,90 L304,118 L312,148 L308,178 L296,200 L282,218 L270,238 L260,260 L258,285 L248,310 L235,330 L215,348 L200,358 L184,360 L170,355 L155,348 L140,334 L124,315 L112,295 L108,272 L112,248 L118,228 L108,208 L94,192 L80,172 L72,148 L70,122 L78,98 L90,76 L108,56 L130,38 L152,24 Z"
+              fill="rgba(59,130,246,0.08)" stroke="rgba(59,130,246,0.25)" stroke-width="1.5"/>
+
+            <!-- Lake Victoria -->
+            <ellipse cx="82" cy="218" rx="28" ry="22" fill="rgba(59,130,246,0.15)" stroke="rgba(59,130,246,0.2)" stroke-width="1"/>
+            <text x="62" y="220" fill="rgba(59,130,246,0.5)" font-size="7" font-family="Inter">L. Victoria</text>
+
+            <!-- Lake Naivasha area -->
+            <ellipse cx="150" cy="195" rx="10" ry="7" fill="rgba(59,130,246,0.2)" stroke="rgba(59,130,246,0.25)" stroke-width="0.8"/>
+
+            <!-- Route line: Naivasha → Nairobi → JKIA -->
+            <path d="M150,195 L174,230 L182,265" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="6 4" opacity="0.9"/>
+            <!-- Truck position (animated) on route -->
+            <circle cx="164" cy="214" r="5" fill="#22c55e" opacity="0.95">
+              <animate attributeName="r" values="5;7;5" dur="2s" repeatCount="indefinite"/>
+            </circle>
+
+            <!-- Naivasha point (farm origin) -->
+            <circle cx="150" cy="195" r="6" fill="rgba(34,197,94,0.25)" stroke="#22c55e" stroke-width="2"/>
+            <circle cx="150" cy="195" r="3" fill="#22c55e"/>
+            <text x="130" y="188" fill="#94a3b8" font-size="9" font-family="Inter" font-weight="600">Naivasha</text>
+            <text x="130" y="198" fill="#22c55e" font-size="8" font-family="Inter">CENANCLE FARM</text>
+
+            <!-- Nairobi point -->
+            <circle cx="174" cy="230" r="5" fill="rgba(59,130,246,0.25)" stroke="#3b82f6" stroke-width="2"/>
+            <circle cx="174" cy="230" r="2.5" fill="#3b82f6"/>
+            <text x="180" y="228" fill="#94a3b8" font-size="9" font-family="Inter" font-weight="600">Nairobi</text>
+
+            <!-- JKIA point (destination) -->
+            <circle cx="182" cy="265" r="7" fill="rgba(245,158,11,0.2)" stroke="#f59e0b" stroke-width="2"/>
+            <text x="158" y="278" fill="#fbbf24" font-size="9" font-family="Inter" font-weight="700">JKIA / KQ Cargo</text>
+
+            <!-- Mombasa reference -->
+            <circle cx="270" cy="290" r="3" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+            <text x="255" y="303" fill="#475569" font-size="8" font-family="Inter">Mombasa</text>
+
+            <!-- Kisumu reference -->
+            <circle cx="96" cy="210" r="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+            <text x="72" y="208" fill="#475569" font-size="8" font-family="Inter">Kisumu</text>
+
+            <!-- Eldoret reference -->
+            <circle cx="108" cy="148" r="3" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.18)" stroke-width="1"/>
+            <text x="82" y="146" fill="#475569" font-size="8" font-family="Inter">Eldoret</text>
+
+            <!-- Distance annotation -->
+            <text x="196" y="215" fill="#22c55e" font-size="8" font-family="Inter" font-weight="700">~98 km</text>
+          </svg>
+        </div>
+        <div class="map-legend">
+          <div class="map-legend-item"><div style="width:14px;height:3px;background:#22c55e;border-radius:2px;"></div>Active Route</div>
+          <div class="map-legend-item"><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div>Farm Origin</div>
+          <div class="map-legend-item"><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div>Destination</div>
+          <div class="map-legend-item"><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse-dot 1.4s ease-in-out infinite;"></div>Vehicle Live</div>
+        </div>
+      </div>
+
+      <!-- Active Route Detail -->
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="card">
+          <div class="card-title">Active Route — RTE-20260606-001</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="telem-row"><div class="telem-label">Driver</div><div class="telem-val">James Mutua</div></div>
+            <div class="telem-row"><div class="telem-label">Vehicle</div><div class="telem-val">KBZ 441T</div></div>
+            <div class="telem-row"><div class="telem-label">Route Date</div><div class="telem-val">06/06/2026</div></div>
+            <div class="telem-row"><div class="telem-label">Departed Farm</div><div class="telem-val">09:00</div></div>
+            <div class="telem-row"><div class="telem-label">ETA JKIA</div><div class="telem-val" style="color:var(--green);">11:45</div></div>
+            <div class="telem-row"><div class="telem-label">Status</div><div class="telem-val"><span class="badge green">EN ROUTE</span></div></div>
+            <div class="telem-row"><div class="telem-label">Cargo</div><div class="telem-val">18,000 stems</div></div>
+            <div class="telem-row"><div class="telem-label">Orders</div><div class="telem-val">ORD-1038, ORD-1039</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Temperature Log — Reefer Unit</div>
+          <div class="telem-row"><div class="telem-label">Current Temp</div><div class="telem-val">3.8°C</div><div class="telem-status stable">OK</div></div>
+          <div class="telem-row"><div class="telem-label">Set Point</div><div class="telem-val">4.0°C</div></div>
+          <div class="telem-row"><div class="telem-label">Humidity</div><div class="telem-val">89%</div><div class="telem-status stable">OK</div></div>
+          <div class="telem-row"><div class="telem-label">Last Check</div><div class="telem-val">11:30 (2m ago)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Routes -->
+  <div class="tab-panel" data-tabgroup="lg" data-tab="routes">
+    <div class="card">
+      <div class="card-title">All Routes — June 2026</div>
+      <div class="route-card">
+        <div class="route-icon" style="background:rgba(34,197,94,.15);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="route-info">
+          <div class="route-name">RTE-20260606-001 — Naivasha → JKIA Cargo</div>
+          <div class="route-meta">Driver: James Mutua · KBZ 441T · 18,000 stems · FloraHolland &amp; Interflora</div>
+        </div>
+        <div class="route-right">
+          <div class="route-eta"><span class="badge green">EN ROUTE</span></div>
+          <div class="route-dist">ETA 11:45 · 98km</div>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon" style="background:rgba(59,130,246,.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="route-info">
+          <div class="route-name">RTE-20260605-002 — Naivasha → Nairobi Hub</div>
+          <div class="route-meta">Driver: Peter Ndung'u · KBZ 441T · 9,600 stems · Local distribution</div>
+        </div>
+        <div class="route-right">
+          <div class="route-eta"><span class="badge green">COMPLETED</span></div>
+          <div class="route-dist">05/06/2026 · 98km</div>
+        </div>
+      </div>
+      <div class="route-card">
+        <div class="route-icon" style="background:rgba(59,130,246,.12);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="route-info">
+          <div class="route-name">RTE-20260604-001 — Naivasha → Jomo Kenyatta Int'l</div>
+          <div class="route-meta">Driver: James Mutua · KBZ 441T · 12,000 stems · FloraHolland Amsterdam</div>
+        </div>
+        <div class="route-right">
+          <div class="route-eta"><span class="badge green">COMPLETED</span></div>
+          <div class="route-dist">04/06/2026 · 98km</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Queue -->
+  <div class="tab-panel" data-tabgroup="lg" data-tab="orders">
+    <div class="card">
+      <div class="card-title">Pending Dispatch Orders <span style="font-size:11px;color:var(--text-3);font-weight:400;">22 orders awaiting dispatch</span></div>
+      <table class="dt">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Variety</th><th>Stems</th><th>Dispatch Date</th><th>Cargo Partner</th><th>Priority</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1042</td><td>FloraHolland</td><td>Red Naomi</td><td>12,000</td><td>06/06/2026</td><td>Kenya Airways Cargo</td><td><span class="badge red">URGENT</span></td><td><span class="badge amber">PACKING</span></td></tr>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1041</td><td>Interflora UK</td><td>Avalanche White</td><td>8,000</td><td>06/06/2026</td><td>Kenya Airways Cargo</td><td><span class="badge red">URGENT</span></td><td><span class="badge green">READY</span></td></tr>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1040</td><td>Marks &amp; Spencer</td><td>Pink Floyd</td><td>4,500</td><td>07/06/2026</td><td>Ethiopian Airlines Cargo</td><td><span class="badge amber">HIGH</span></td><td><span class="badge blue">GRADING</span></td></tr>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1039</td><td>Amsterdam Bloemen</td><td>Red Naomi</td><td>9,600</td><td>07/06/2026</td><td>Kenya Airways Cargo</td><td><span class="badge amber">HIGH</span></td><td><span class="badge amber">PACKING</span></td></tr>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1038</td><td>Dubai Floral WS</td><td>Avalanche White</td><td>4,800</td><td>08/06/2026</td><td>Emirates SkyCargo</td><td><span class="badge gray">NORMAL</span></td><td><span class="badge gray">PLANNED</span></td></tr>
+          <tr><td style="font-weight:600;color:var(--text);">ORD-1037</td><td>Naivas Supermarkets</td><td>Grade B Mix</td><td>2,400</td><td>08/06/2026</td><td>Own Fleet</td><td><span class="badge gray">NORMAL</span></td><td><span class="badge gray">PLANNED</span></td></tr>
+          <tr><td colspan="8" style="text-align:center;color:var(--text-4);padding:12px;font-size:11px;">+ 16 more orders · showing top 6 by priority</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Fleet -->
+  <div class="tab-panel" data-tabgroup="lg" data-tab="fleet">
+    <div class="card">
+      <div class="card-title">Fleet Register</div>
+      <table class="dt">
+        <thead><tr><th>Reg No.</th><th>Type</th><th>Make</th><th>Capacity</th><th>Reefer</th><th>Driver</th><th>Current Status</th><th>Last Service</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;color:var(--text);">KBZ 441T</td>
+            <td>Refrigerated Van</td>
+            <td>Isuzu NKR</td>
+            <td>24,000 stems</td>
+            <td><span class="badge green">YES</span></td>
+            <td>James Mutua</td>
+            <td><span class="badge green">EN ROUTE</span></td>
+            <td>15/05/2026</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:14px;padding:12px 14px;background:var(--bg-elevated);border-radius:8px;">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;">Maintenance Note</div>
+        <div style="font-size:11px;color:var(--text-3);">Next service due 15/08/2026. Reefer unit last calibrated 01/06/2026. All systems green. Consider adding a second vehicle given 22 pending dispatch orders.</div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 10 — INVENTORY HUB
+══════════════════════════════════════ */
+window.render_inventory = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">INVENTORY <em style="color:var(--green);">HUB</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Finished goods · ATP · packed boxes · wastage tracking</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Report</button>
+      <button class="hdr-btn primary">+ Log Stock Movement</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Packed Boxes In Stock</div>
+      <div class="kpi-value">24</div>
+      <div class="kpi-sub">3 box configurations</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Allocated to Orders</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-sub">6 available for new orders</div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Raw Stems Stock</div>
+      <div class="kpi-value" style="font-size:20px;">8,240</div>
+      <div class="kpi-sub">Across 3 varieties</div>
+    </div>
+    <div class="kpi-card" style="--accent:239,68,68;">
+      <div class="kpi-label">Wastage Cost MTD</div>
+      <div class="kpi-value" style="font-size:20px;">$420</div>
+      <div class="kpi-sub"><span class="warn">⚠ 3.09% reject rate</span></div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="inv" data-tab="atp" onclick="showTab('inv','atp')">ATP / Finished Goods</div>
+    <div class="tab-btn" data-tabgroup="inv" data-tab="boxes" onclick="showTab('inv','boxes')">Packed Boxes</div>
+    <div class="tab-btn" data-tabgroup="inv" data-tab="raw" onclick="showTab('inv','raw')">Raw Stems</div>
+    <div class="tab-btn" data-tabgroup="inv" data-tab="wastage" onclick="showTab('inv','wastage')">Wastage Log</div>
+  </div>
+
+  <!-- ATP / Finished Goods -->
+  <div class="tab-panel active" data-tabgroup="inv" data-tab="atp">
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-title">Available-to-Promise (ATP) — Finished Goods
+        <span style="font-size:11px;color:var(--text-3);font-weight:400;">As of 06/06/2026 11:45</span>
+      </div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Variety</th>
+            <th>Grade</th>
+            <th>Total Stock</th>
+            <th>Committed to Orders</th>
+            <th>Available to Promise (ATP)</th>
+            <th>Cold Room</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="atp-variety-row"><div class="variety-dot" style="background:#ef4444;"></div><strong style="color:var(--text);">Red Naomi</strong></div>
+            </td>
+            <td><span class="badge green">Grade A</span></td>
+            <td style="font-weight:700;color:var(--text);">4,200</td>
+            <td>3,800</td>
+            <td>
+              <div class="atp-chip avail">● 400 available</div>
+            </td>
+            <td>CR1 — B1, B2</td>
+            <td><span class="badge green">IN STOCK</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="atp-variety-row"><div class="variety-dot" style="background:#f8fafc;"></div><strong style="color:var(--text);">Avalanche White</strong></div>
+            </td>
+            <td><span class="badge green">Grade A</span></td>
+            <td style="font-weight:700;color:var(--text);">2,800</td>
+            <td>2,800</td>
+            <td>
+              <div class="atp-chip zero">✗ Fully committed</div>
+            </td>
+            <td>CR2 — A1</td>
+            <td><span class="badge amber">PENDING QC</span></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="atp-variety-row"><div class="variety-dot" style="background:#ec4899;"></div><strong style="color:var(--text);">Pink Floyd</strong></div>
+            </td>
+            <td><span class="badge amber">Grade B</span></td>
+            <td style="font-weight:700;color:var(--text);">1,240</td>
+            <td>0</td>
+            <td>
+              <div class="atp-chip avail">● 1,240 available</div>
+            </td>
+            <td>CR1 — A2</td>
+            <td><span class="badge green">DISPATCH READY</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+        <div style="background:var(--bg-elevated);border-radius:8px;padding:10px 14px;text-align:center;">
+          <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Total Stems in Stock</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text);">8,240</div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:8px;padding:10px 14px;text-align:center;">
+          <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Total Committed</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--blue);">6,600</div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:8px;padding:10px 14px;text-align:center;">
+          <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Total ATP</div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--green);">1,640</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Packed Boxes -->
+  <div class="tab-panel" data-tabgroup="inv" data-tab="boxes">
+    <div class="card">
+      <div class="card-title">Packed Box Configurations — Current Stock</div>
+      <table class="dt">
+        <thead><tr><th>Box Config</th><th>Variety</th><th>Stems/Box</th><th>Boxes in Stock</th><th>Allocated</th><th>Available</th><th>Destination Market</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">BOX-EU-200</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#ef4444;"></div>Red Naomi</div></td>
+            <td>200</td>
+            <td style="font-weight:700;color:var(--text);">12</td>
+            <td>10</td>
+            <td style="color:#4ade80;font-weight:700;">2</td>
+            <td>Netherlands (FloraHolland)</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">BOX-EU-200</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#f8fafc;"></div>Avalanche White</div></td>
+            <td>200</td>
+            <td style="font-weight:700;color:var(--text);">8</td>
+            <td>8</td>
+            <td style="color:#f87171;font-weight:700;">0</td>
+            <td>UK (Interflora)</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">BOX-LOCAL-150</td>
+            <td><div class="atp-variety-row"><div class="variety-dot" style="background:#ec4899;"></div>Pink Floyd</div></td>
+            <td>150</td>
+            <td style="font-weight:700;color:var(--text);">4</td>
+            <td>0</td>
+            <td style="color:#4ade80;font-weight:700;">4</td>
+            <td>Kenya Local (Naivas)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Raw Stems -->
+  <div class="tab-panel" data-tabgroup="inv" data-tab="raw">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Raw Stem Counts by Zone</div>
+        <table class="dt">
+          <thead><tr><th>Zone</th><th>Variety</th><th>Est. Stems</th><th>Stage</th><th>Harvest Date</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge blue">Zone A</span></td>
+              <td>Red Naomi</td>
+              <td style="font-weight:700;color:var(--text);">24,000</td>
+              <td><span class="badge amber">HARVESTING</span></td>
+              <td>06/06/2026</td>
+            </tr>
+            <tr>
+              <td><span class="badge blue">Zone B</span></td>
+              <td>Avalanche White</td>
+              <td style="font-weight:700;color:var(--text);">18,400</td>
+              <td><span class="badge green">GROWING</span></td>
+              <td>Est. 14/06/2026</td>
+            </tr>
+            <tr>
+              <td><span class="badge purple">Zone C</span></td>
+              <td>Pink Floyd</td>
+              <td style="font-weight:700;color:var(--text);">10,400</td>
+              <td><span class="badge gray">PLANTED</span></td>
+              <td>Est. 28/06/2026</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-3);">Raw stem counts are estimates based on planting density and growth stage. Pack house intake converts raw → graded stock.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Stem Flow Summary</div>
+        <div class="telem-row"><div class="telem-label">Harvested Today (raw)</div><div class="telem-val">38,400</div></div>
+        <div class="telem-row"><div class="telem-label">Intaked to Pack House</div><div class="telem-val">38,300</div></div>
+        <div class="telem-row"><div class="telem-label">Graded → Grade A</div><div class="telem-val">31,800</div></div>
+        <div class="telem-row"><div class="telem-label">Graded → Grade B</div><div class="telem-val">5,018</div></div>
+        <div class="telem-row"><div class="telem-label">Rejected / Waste</div><div class="telem-val" style="color:#f87171;">1,482</div></div>
+        <div class="telem-row"><div class="telem-label">Packed into Boxes</div><div class="telem-val">24,000</div></div>
+        <div class="telem-row"><div class="telem-label">Dispatched Today</div><div class="telem-val" style="color:#4ade80;">14,200</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wastage Log -->
+  <div class="tab-panel" data-tabgroup="inv" data-tab="wastage">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Wastage Log — June 2026</div>
+        <div class="wastage-row">
+          <div class="wastage-icon" style="background:rgba(239,68,68,.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </div>
+          <div class="wastage-info">
+            <div class="wastage-title">Botrytis damage — Avalanche White (Pack House Line 3)</div>
+            <div class="wastage-sub">05/06/2026 · 432 stems · Grader: Sarah Njoki</div>
+          </div>
+          <div class="wastage-cost">$180</div>
+        </div>
+        <div class="wastage-row">
+          <div class="wastage-icon" style="background:rgba(239,68,68,.12);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+          </div>
+          <div class="wastage-info">
+            <div class="wastage-title">Short stems &lt;60cm — Red Naomi (Zone A harvest)</div>
+            <div class="wastage-sub">04/06/2026 · 360 stems · Flagged by: Faith Wanjiru</div>
+          </div>
+          <div class="wastage-cost">$150</div>
+        </div>
+        <div class="wastage-row">
+          <div class="wastage-icon" style="background:rgba(245,158,11,.1);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+          </div>
+          <div class="wastage-info">
+            <div class="wastage-title">Mechanical bruising — Red Naomi (transit Zone A → Pack House)</div>
+            <div class="wastage-sub">03/06/2026 · 216 stems · Transport handling incident</div>
+          </div>
+          <div class="wastage-cost">$90</div>
+        </div>
+        <div style="margin-top:14px;padding:10px 14px;background:var(--bg-elevated);border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Total Wastage — MTD</div>
+            <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:#f87171;">$420</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Stems Lost</div>
+            <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--text-2);">1,008</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:10px;color:var(--text-4);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;">Reject Rate</div>
+            <div style="font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--amber);">3.09%</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Wastage by Cause — MTD</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+          <div>
+            <div class="compliance-bar-row">
+              <div class="compliance-bar-label">Botrytis / Petal Damage</div>
+              <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:43%;background:#ef4444;"></div></div>
+              <div class="compliance-bar-pct" style="color:#f87171;">43%</div>
+            </div>
+            <div class="compliance-bar-row">
+              <div class="compliance-bar-label">Short Stems (&lt;60cm)</div>
+              <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:36%;background:#f59e0b;"></div></div>
+              <div class="compliance-bar-pct" style="color:#fbbf24;">36%</div>
+            </div>
+            <div class="compliance-bar-row">
+              <div class="compliance-bar-label">Mechanical Bruising</div>
+              <div class="compliance-bar-track"><div class="compliance-bar-fill" style="width:21%;background:#8b5cf6;"></div></div>
+              <div class="compliance-bar-pct" style="color:#a78bfa;">21%</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:10px 12px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.12);border-radius:8px;">
+          <div style="font-size:11px;color:var(--green);font-weight:700;margin-bottom:4px;">Flori Insight</div>
+          <div style="font-size:11px;color:var(--text-3);">Botrytis is the leading waste cause — correlates with Zone B humidity drop (61%) logged 3h ago. Review fungicide spray schedule for Zone B immediately.</div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="telem-row"><div class="telem-label">Industry Benchmark Reject Rate</div><div class="telem-val" style="color:#4ade80;">&lt; 5%</div></div>
+          <div class="telem-row"><div class="telem-label">Cenancle Current Rate</div><div class="telem-val" style="color:var(--amber);">3.09%</div><div class="telem-status stable">WITHIN RANGE</div></div>
+          <div class="telem-row"><div class="telem-label">Target Rate</div><div class="telem-val">&lt; 2.5%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+</script>
+
 </body>
 </html>
