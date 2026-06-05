@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flori-Core · Cenancle Kenya Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* =====================================================
+       FLORI-CORE ENTERPRISE OS — CENANCLE KENYA DEMO
+       Phase 1: CSS Design System + Foundation Shell
+       ===================================================== */
+
+    /* ── DESIGN TOKENS ── */
+    :root {
+      --bg:              #020817;
+      --bg-card:         #0f1729;
+      --bg-sidebar:      #0a0f1e;
+      --bg-elevated:     #131c35;
+      --bg-hover:        rgba(255,255,255,0.035);
+
+      --border-subtle:   rgba(255,255,255,0.06);
+      --border-medium:   rgba(255,255,255,0.10);
+      --border-strong:   rgba(255,255,255,0.16);
+
+      --green:           #22c55e;
+      --green-dim:       rgba(34,197,94,0.12);
+      --green-glow:      rgba(34,197,94,0.28);
+      --blue:            #3b82f6;
+      --blue-dim:        rgba(59,130,246,0.12);
+      --amber:           #f59e0b;
+      --amber-dim:       rgba(245,158,11,0.12);
+      --red:             #ef4444;
+      --red-dim:         rgba(239,68,68,0.12);
+      --purple:          #8b5cf6;
+      --purple-dim:      rgba(139,92,246,0.12);
+      --cyan:            #06b6d4;
+      --cyan-dim:        rgba(6,182,212,0.12);
+
+      --text:            #f8fafc;
+      --text-2:          #94a3b8;
+      --text-3:          #64748b;
+      --text-4:          #475569;
+
+      --font-head:       'Space Grotesk', sans-serif;
+      --font-body:       'Inter', sans-serif;
+
+      --r-sm:  4px;
+      --r-md:  8px;
+      --r-lg:  12px;
+      --r-xl:  16px;
+      --r-2xl: 20px;
+      --r-f:   9999px;
+
+      --sidebar-w:    280px;
+      --topbar-h:      52px;
+      --chrome-hdr-h:  44px;
+      --pbar-h:        48px;
+
+      --ease:   cubic-bezier(0.25,0.46,0.45,0.94);
+      --ease-o: cubic-bezier(0,0,0.2,1);
+      --ease-s: cubic-bezier(0.34,1.56,0.64,1);
+
+      --shadow-card: 0 4px 24px rgba(0,0,0,0.45);
+      --shadow-high: 0 8px 40px rgba(0,0,0,0.65);
+    }
+
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width:100%; height:100%; overflow:hidden; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
+    }
+    a, button { cursor: none; }
+
+    /* ── CUSTOM CURSOR ── */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 22px; height: 26px;
+      pointer-events: none;
+      z-index: 999999;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+      will-change: transform;
+    }
+    #cursor svg { width:100%; height:100%; display:block; }
+
+    /* ── RIPPLE CONTAINER ── */
+    #ripples {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 999998;
+    }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--green);
+      pointer-events: none;
+      transform: translate(-50%,-50%) scale(0);
+      animation: rippleOut 0.35s var(--ease-o) forwards;
+    }
+    @keyframes rippleOut {
+      0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.85; width:8px; height:8px; }
+      100% { transform: translate(-50%,-50%) scale(1); opacity: 0;    width:28px; height:28px; }
+    }
+
+    /* =====================================================
+       LANDING PAGE
+       ===================================================== */
+    #landing {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--bg);
+      z-index: 900;
+      overflow: hidden;
+      gap: 0;
+    }
+    #landing.out {
+      animation: landingOut 0.55s var(--ease-o) forwards;
+    }
+    @keyframes landingOut { to { opacity: 0; transform: scale(1.02); pointer-events: none; } }
+
+    /* Grid background */
+    .lp-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(34,197,94,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,197,94,0.025) 1px, transparent 1px);
+      background-size: 56px 56px;
+      pointer-events: none;
+    }
+    .lp-glow {
+      position: absolute;
+      width: 700px; height: 700px;
+      background: radial-gradient(ellipse, rgba(34,197,94,0.055) 0%, transparent 68%);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-55%);
+      pointer-events: none;
+    }
+    .lp-vignette {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 40%, rgba(2,8,23,0.7) 100%);
+      pointer-events: none;
+    }
+
+    /* Logo */
+    .lp-logo {
+      display: flex; align-items: center; gap: 18px;
+      margin-bottom: 28px;
+      animation: upIn 0.75s 0.05s var(--ease-o) both;
+    }
+    .lp-logo-icon { width: 68px; height: 68px; }
+    .lp-logo-words { display: flex; flex-direction: column; gap: 2px; }
+    .lp-logo-name {
+      font-family: var(--font-head);
+      font-size: 36px; font-weight: 700;
+      letter-spacing: -0.5px; color: var(--text);
+      line-height: 1;
+    }
+    .lp-logo-name .g { color: var(--green); }
+    .lp-logo-sub {
+      font-family: var(--font-head);
+      font-size: 10px; font-weight: 500;
+      letter-spacing: 0.28em; color: var(--text-4);
+      text-transform: uppercase;
+    }
+
+    /* Headline */
+    .lp-headline {
+      font-family: var(--font-head);
+      font-size: 52px; font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -1.5px;
+      text-align: center; line-height: 1.05;
+      margin-bottom: 14px;
+      animation: upIn 0.75s 0.12s var(--ease-o) both;
+    }
+    .lp-headline em { color: var(--green); font-style: italic; }
+
+    .lp-sub {
+      font-size: 15px; color: var(--text-2);
+      text-align: center;
+      margin-bottom: 44px;
+      animation: upIn 0.75s 0.2s var(--ease-o) both;
+    }
+    .lp-sub strong { color: var(--text); font-weight: 600; }
+
+    /* CTAs */
+    .lp-ctas {
+      display: flex; gap: 14px;
+      animation: upIn 0.75s 0.28s var(--ease-o) both;
+    }
+    .btn-cta-primary {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 15px 30px;
+      background: var(--green); color: #020817;
+      font-family: var(--font-head);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; border-radius: var(--r-md);
+      cursor: none;
+      box-shadow: 0 4px 22px rgba(34,197,94,0.38);
+      transition: all 0.2s var(--ease-o);
+    }
+    .btn-cta-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(34,197,94,0.52);
+    }
+    .btn-cta-primary:active { transform: scale(0.97); }
+
+    .btn-cta-outline {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 15px 30px;
+      background: transparent; color: var(--text);
+      font-family: var(--font-head);
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: 1px solid var(--border-strong); border-radius: var(--r-md);
+      cursor: none;
+      transition: all 0.2s var(--ease-o);
+    }
+    .btn-cta-outline:hover {
+      border-color: var(--green); color: var(--green);
+      background: var(--green-dim);
+    }
+    .btn-cta-outline:active { transform: scale(0.97); }
+
+    /* Countdown */
+    .lp-countdown {
+      margin-top: 28px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-4);
+      animation: upIn 0.75s 0.38s var(--ease-o) both;
+    }
+    .lp-timer {
+      position: relative; width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lp-timer svg { position: absolute; transform: rotate(-90deg); }
+    .lp-timer-ring {
+      stroke: var(--green); stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 82; stroke-dashoffset: 0;
+      animation: timerRing 4s linear forwards;
+    }
+    @keyframes timerRing { to { stroke-dashoffset: 82; } }
+    .lp-timer-num {
+      font-family: var(--font-head);
+      font-size: 11px; font-weight: 700;
+      color: var(--green); z-index: 1;
+    }
+
+    /* =====================================================
+       APP SHELL
+       ===================================================== */
+    #app {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s var(--ease-o);
+    }
+    #app.on { opacity: 1; pointer-events: all; }
+
+    /* ── TOP MODE BAR ── */
+    #topbar {
+      height: var(--topbar-h);
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 16px;
+      flex-shrink: 0; z-index: 200;
+    }
+    .tb-brand {
+      display: flex; align-items: center; gap: 10px;
+      margin-right: auto;
+    }
+    .tb-brand-icon { width: 28px; height: 28px; }
+    .tb-brand-name {
+      font-family: var(--font-head);
+      font-size: 15px; font-weight: 700;
+      color: var(--text); letter-spacing: 0.01em;
+    }
+    .tb-brand-name .g { color: var(--green); }
+
+    .mode-group {
+      display: flex;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      padding: 3px; gap: 2px;
+    }
+    .mode-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 7px 18px;
+      border-radius: var(--r-sm);
+      border: none; background: transparent;
+      color: var(--text-3);
+      font-family: var(--font-head);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: none; transition: all 0.18s var(--ease-o);
+    }
+    .mode-btn .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%; background: currentColor;
+    }
+    .mode-btn:not(.active):hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+    .mode-btn.active {
+      background: var(--green); color: #020817;
+    }
+    .mode-btn.active .dot {
+      animation: blink 1.8s ease-in-out infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:1; }
+      50%      { opacity:0.45; }
+    }
+
+    .tb-client {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 14px;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-radius: var(--r-f);
+    }
+    .tb-client-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulseGreen 2s ease-in-out infinite;
+    }
+    .tb-client-name {
+      font-family: var(--font-head);
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.1em; color: var(--green);
+      text-transform: uppercase;
+    }
+
+    /* ── LIVE DEMO VIEW ── */
+    #live-view {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* ── BROWSER CHROME ── */
+    #chrome {
+      flex: 1; display: flex;
+      flex-direction: column; overflow: hidden;
+    }
+    #chrome-hdr {
+      height: var(--chrome-hdr-h);
+      background: #141428;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 14px; flex-shrink: 0;
+    }
+    .traffic-lights { display: flex; gap: 6px; align-items: center; }
+    .tl { width: 12px; height: 12px; border-radius: 50%; }
+    .tl-r { background: #ff5f57; }
+    .tl-y { background: #febc2e; }
+    .tl-g { background: #28c840; }
+
+    .url-bar {
+      flex: 1; max-width: 460px;
+      height: 26px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: var(--r-f);
+      display: flex; align-items: center;
+      padding: 0 12px; gap: 6px;
+      margin: 0 auto;
+    }
+    .url-lock { font-size: 9px; color: var(--green); }
+    .url-text {
+      font-size: 12px; color: var(--text-3);
+      font-family: 'Inter', monospace;
+    }
+    .url-text strong { color: var(--text); font-weight: 500; }
+    .url-text .path { color: var(--text-2); }
+
+    .live-badge {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: var(--r-f);
+      margin-left: auto;
+    }
+    .live-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--green);
+      animation: pulseGreen 1.6s ease-in-out infinite;
+    }
+    .live-text {
+      font-family: var(--font-head);
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.2em; color: var(--green);
+    }
+    @keyframes pulseGreen {
+      0%,100% { opacity:1; box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
+      50%      { opacity:0.7; box-shadow: 0 0 0 4px rgba(34,197,94,0); }
+    }
+
+    /* ── CHROME BODY ── */
+    #chrome-body {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column;
+      flex-shrink: 0; overflow: hidden;
+    }
+
+    .sb-logo {
+      display: flex; align-items: center; gap: 12px;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .sb-logo-icon { width: 34px; height: 34px; flex-shrink: 0; }
+    .sb-logo-text { display: flex; flex-direction: column; gap: 1px; }
+    .sb-logo-name {
+      font-family: var(--font-head);
+      font-size: 16px; font-weight: 700;
+      color: var(--text); letter-spacing: 0.01em; line-height: 1;
+    }
+    .sb-logo-name .g { color: var(--green); }
+    .sb-logo-ver {
+      font-family: var(--font-head);
+      font-size: 8.5px; font-weight: 500;
+      letter-spacing: 0.22em; color: var(--text-4);
+      text-transform: uppercase;
+    }
+
+    .sb-user {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 14px;
+      margin: 10px 10px 4px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--r-md);
+      flex-shrink: 0;
+    }
+    .sb-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 11px; font-weight: 700;
+      color: var(--green); flex-shrink: 0;
+    }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .sb-user-role {
+      font-size: 9.5px; color: var(--text-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .sb-status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green-glow);
+      flex-shrink: 0;
+    }
+
+    .sb-nav {
+      flex: 1; overflow-y: auto; padding: 6px 8px 6px;
+      scrollbar-width: none;
+    }
+    .sb-nav::-webkit-scrollbar { display: none; }
+
+    .nav-label {
+      font-size: 8.5px; font-weight: 600;
+      letter-spacing: 0.18em; color: var(--text-4);
+      text-transform: uppercase;
+      padding: 10px 10px 3px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--r-md);
+      cursor: none; color: var(--text-3);
+      text-decoration: none;
+      transition: all 0.15s var(--ease-o);
+      position: relative; margin-bottom: 1px;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover {
+      background: var(--bg-hover); color: var(--text-2);
+    }
+    .nav-item.active {
+      background: var(--green-dim); color: var(--green);
+      border-left-color: var(--green);
+    }
+    .nav-icon {
+      width: 18px; height: 18px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 13px; opacity: 0.75;
+    }
+    .nav-item.active .nav-icon { opacity: 1; }
+    .nav-lbl { font-size: 13px; font-weight: 500; flex: 1; }
+    .nav-badge {
+      min-width: 18px; height: 18px; padding: 0 5px;
+      border-radius: var(--r-f);
+      background: var(--red);
+      color: white; font-size: 9px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-badge.amber { background: var(--amber); }
+    .nav-badge.green { background: var(--green); color: #020817; }
+
+    .sb-bottom {
+      padding: 10px 8px;
+      border-top: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+    .nav-item-signout { color: var(--text-4); }
+    .nav-item-signout:hover { color: var(--red); background: var(--red-dim); }
+
+    /* ── MAIN CONTENT ── */
+    #main {
+      flex: 1; overflow: hidden;
+      display: flex; flex-direction: column;
+      background: var(--bg);
+    }
+    #module-wrap {
+      flex: 1; overflow-y: auto; padding: 32px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.08) transparent;
+    }
+    #module-wrap::-webkit-scrollbar { width: 4px; }
+    #module-wrap::-webkit-scrollbar-track { background: transparent; }
+    #module-wrap::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.08); border-radius: 2px;
+    }
+
+    /* Loading state */
+    .loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 320px; gap: 18px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid rgba(34,197,94,0.18);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-txt {
+      font-family: var(--font-head);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.22em; color: var(--text-4);
+      text-transform: uppercase;
+    }
+
+    /* Module placeholder (until Phase 2+ renders real content) */
+    .mod-placeholder {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 320px; gap: 14px;
+      color: var(--text-4); text-align: center;
+    }
+    .mod-ph-icon { font-size: 52px; opacity: 0.25; }
+    .mod-ph-name {
+      font-family: var(--font-head);
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--text-4);
+    }
+    .mod-ph-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-radius: var(--r-f);
+      font-family: var(--font-head);
+      font-size: 9px; font-weight: 700;
+      letter-spacing: 0.12em; color: var(--green);
+      text-transform: uppercase;
+    }
+
+    /* ── PROGRESS BAR ── */
+    #pbar {
+      height: var(--pbar-h);
+      background: var(--bg-sidebar);
+      border-top: 1px solid var(--border-subtle);
+      display: flex; align-items: center;
+      padding: 0 20px; gap: 16px;
+      flex-shrink: 0; z-index: 100;
+    }
+    .pb-info {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 170px;
+    }
+    .pb-icon { font-size: 15px; }
+    .pb-name {
+      font-family: var(--font-head);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; color: var(--text);
+      text-transform: uppercase;
+    }
+    .pb-dots {
+      display: flex; align-items: center; gap: 4px;
+      flex: 1; justify-content: center; flex-wrap: wrap;
+    }
+    .pb-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      cursor: none; transition: all 0.18s var(--ease-o);
+    }
+    .pb-dot.visited { background: rgba(34,197,94,0.45); }
+    .pb-dot.current {
+      background: var(--green); width: 8px; height: 8px;
+      animation: pulseGreen 1.6s ease-in-out infinite;
+    }
+    .pb-dot:hover { background: var(--green) !important; transform: scale(1.4); }
+    .pb-right {
+      display: flex; align-items: center; gap: 10px;
+      min-width: 100px; justify-content: flex-end;
+    }
+    .pb-counter {
+      font-family: var(--font-head);
+      font-size: 11px; color: var(--text-4);
+    }
+    .pb-counter strong { color: var(--text-2); }
+    .btn-resume {
+      display: none; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.25);
+      border-radius: var(--r-f);
+      color: var(--green);
+      font-family: var(--font-head);
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: none; transition: all 0.18s;
+    }
+    .btn-resume.show { display: flex; }
+    .btn-resume:hover { background: var(--green); color: #020817; }
+
+    /* Take-control badge */
+    #take-ctrl {
+      position: fixed;
+      bottom: calc(var(--pbar-h) + 18px);
+      left: 50%; transform: translateX(-50%) translateY(18px);
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 22px;
+      background: rgba(10,15,30,0.96);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--r-f);
+      backdrop-filter: blur(10px);
+      opacity: 0; pointer-events: none;
+      transition: all 0.4s var(--ease-s);
+      z-index: 500;
+    }
+    #take-ctrl.show {
+      opacity: 1; pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+    .tc-icon { font-size: 13px; }
+    .tc-txt { font-size: 12px; color: var(--text-2); }
+    .tc-txt strong { color: var(--text); }
+
+    /* ── GUIDED TOUR VIEW ── */
+    #tour-view {
+      flex: 1; display: none; overflow: hidden;
+    }
+    #tour-view.on { display: flex; }
+
+    .tour-left {
+      width: 38%;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column;
+      padding: 40px 36px 32px;
+      overflow-y: auto;
+    }
+    .tour-num {
+      font-family: var(--font-head);
+      font-size: 80px; font-weight: 700;
+      color: rgba(34,197,94,0.1);
+      line-height: 1; letter-spacing: -6px;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+    .tour-title {
+      font-family: var(--font-head);
+      font-size: 26px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--text); line-height: 1.2;
+      margin-bottom: 10px;
+    }
+    .tour-title em { color: var(--green); font-style: italic; }
+    .tour-desc {
+      font-size: 13px; color: var(--text-2); line-height: 1.65;
+      margin-bottom: 24px;
+    }
+    .tour-feats {
+      list-style: none; display: flex;
+      flex-direction: column; gap: 9px;
+      margin-bottom: 26px;
+    }
+    .tour-feat {
+      display: flex; align-items: flex-start; gap: 10px;
+      font-size: 13px; color: var(--text-2); line-height: 1.5;
+    }
+    .feat-ck { color: var(--green); font-size: 13px; margin-top: 1px; flex-shrink: 0; }
+    .tour-why {
+      padding: 16px 18px;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.14);
+      border-radius: var(--r-lg); margin-bottom: 32px;
+    }
+    .tour-why-lbl {
+      font-family: var(--font-head);
+      font-size: 8.5px; font-weight: 700;
+      letter-spacing: 0.22em; color: var(--green);
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .tour-why-txt {
+      font-size: 12px; color: var(--text-2); line-height: 1.65;
+    }
+    .tour-nav {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: auto; padding-top: 16px;
+    }
+    .tour-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 20px;
+      border: 1px solid var(--border-medium);
+      border-radius: var(--r-md); background: transparent;
+      color: var(--text-2);
+      font-family: var(--font-head);
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: none; transition: all 0.18s var(--ease-o);
+    }
+    .tour-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+    .tour-btn:disabled { opacity: 0.28; pointer-events: none; }
+    .tour-ctr {
+      font-family: var(--font-head); font-size: 11px;
+      color: var(--text-4); flex: 1; text-align: center;
+    }
+    .tour-ctr strong { color: var(--text-2); }
+
+    .tour-right {
+      flex: 1; background: var(--bg);
+      display: flex; flex-direction: column;
+      padding: 22px; overflow: hidden;
+    }
+    .tour-frame {
+      flex: 1; border-radius: var(--r-xl);
+      border: 1px solid rgba(255,255,255,0.09);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-high);
+    }
+    .tour-chrome-hdr {
+      height: var(--chrome-hdr-h);
+      background: #141428;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex; align-items: center;
+      padding: 0 14px; gap: 12px; flex-shrink: 0;
+    }
+    .tour-chrome-body {
+      flex: 1; display: flex; overflow: hidden;
+    }
+
+    /* Mini sidebar in tour view */
+    #tour-mini-sb {
+      width: 180px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column;
+      flex-shrink: 0; padding: 10px 6px;
+      overflow-y: auto; scrollbar-width: none;
+    }
+    #tour-mini-sb::-webkit-scrollbar { display: none; }
+    .mini-nav-item {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 8px;
+      border-radius: var(--r-sm);
+      cursor: none; color: var(--text-4);
+      font-size: 11px; font-weight: 500;
+      transition: all 0.13s; margin-bottom: 1px;
+      border-left: 2px solid transparent;
+    }
+    .mini-nav-item:hover { background: var(--bg-hover); color: var(--text-3); }
+    .mini-nav-item.active {
+      background: var(--green-dim); color: var(--green);
+      border-left-color: var(--green);
+    }
+
+    /* Tour module content area */
+    #tour-mod {
+      flex: 1; overflow-y: auto; padding: 18px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.08) transparent;
+    }
+
+    /* ── AI FLOAT BUTTON ── */
+    #ai-btn {
+      position: fixed;
+      bottom: calc(var(--pbar-h) + 16px);
+      right: 20px;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--green);
+      border: none; cursor: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 20px rgba(34,197,94,0.45);
+      transition: all 0.2s var(--ease-o);
+      z-index: 300;
+    }
+    #ai-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 28px rgba(34,197,94,0.6);
+    }
+    #ai-btn.tour-mode { bottom: 20px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes upIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .anim-fade   { animation: fadeIn  0.28s var(--ease-o) both; }
+    .anim-slide  { animation: slideIn 0.25s var(--ease-o) both; }
+    .anim-up     { animation: upIn   0.28s var(--ease-o) both; }
+
+    /* ── GLOBAL SCROLLBAR ── */
+    * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.07) transparent; }
+    *::-webkit-scrollbar { width: 4px; height: 4px; }
+    *::-webkit-scrollbar-track { background: transparent; }
+    *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     CUSTOM CURSOR
+     ══════════════════════════════════ -->
+<div id="cursor">
+  <svg viewBox="0 0 22 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 1L1 19L5.8 13.8L9.6 22L12.2 20.8L8.4 12L15.5 12L1 1Z"
+          fill="white" stroke="rgba(0,0,0,0.35)" stroke-width="0.8"
+          stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<!-- Click ripple container -->
+<div id="ripples"></div>
+
+<!-- ══════════════════════════════════
+     LANDING PAGE
+     ══════════════════════════════════ -->
+<div id="landing">
+  <div class="lp-grid"></div>
+  <div class="lp-glow"></div>
+  <div class="lp-vignette"></div>
+
+  <!-- Logo -->
+  <div class="lp-logo">
+    <svg class="lp-logo-icon" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer diamond -->
+      <polygon points="34,4 64,34 34,64 4,34" fill="#22c55e" opacity="0.9"/>
+      <!-- Inner diamond -->
+      <polygon points="34,14 54,34 34,54 14,34" fill="#16a34a" opacity="0.7"/>
+      <!-- Core -->
+      <circle cx="34" cy="34" r="7" fill="white" opacity="0.95"/>
+      <!-- Petals / rays -->
+      <line x1="34" y1="14" x2="34" y2="8"  stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="54" y1="34" x2="60" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="34" y1="54" x2="34" y2="60" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      <line x1="14" y1="34" x2="8"  y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <div class="lp-logo-words">
+      <div class="lp-logo-name">Flori<span class="g">-Core</span></div>
+      <div class="lp-logo-sub">Enterprise OS</div>
+    </div>
+  </div>
+
+  <div class="lp-headline">
+    Enterprise <em>Farm</em><br>Intelligence
+  </div>
+
+  <div class="lp-sub">
+    Prepared exclusively for <strong>Cenancle Kenya</strong> · Naivasha
+  </div>
+
+  <div class="lp-ctas">
+    <button class="btn-cta-primary" id="btn-live" onclick="enterLiveDemo()">
+      ▶&nbsp; Watch Live Demo
+    </button>
+    <button class="btn-cta-outline" onclick="enterGuidedTour()">
+      Explore Guide &nbsp;→
+    </button>
+  </div>
+
+  <div class="lp-countdown">
+    Auto-starting Live Demo in
+    <div class="lp-timer">
+      <svg width="30" height="30" viewBox="0 0 30 30">
+        <circle cx="15" cy="15" r="13" stroke="rgba(34,197,94,0.18)" stroke-width="2" fill="none"/>
+        <circle cx="15" cy="15" r="13" class="lp-timer-ring"/>
+      </svg>
+      <span class="lp-timer-num" id="lp-num">4</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     APP SHELL
+     ══════════════════════════════════ -->
+<div id="app">
+
+  <!-- ── TOP MODE BAR ── -->
+  <div id="topbar">
+    <div class="tb-brand">
+      <!-- Inline brand icon -->
+      <svg class="tb-brand-icon" viewBox="0 0 28 28" fill="none">
+        <polygon points="14,2 26,14 14,26 2,14" fill="#22c55e" opacity="0.9"/>
+        <polygon points="14,8 20,14 14,20 8,14"  fill="#16a34a" opacity="0.7"/>
+        <circle cx="14" cy="14" r="3" fill="white" opacity="0.95"/>
+      </svg>
+      <div class="tb-brand-name">Flori<span class="g">-Core</span></div>
+    </div>
+
+    <div class="mode-group">
+      <button class="mode-btn active" id="btn-mode-live" onclick="switchMode('live')">
+        <span class="dot"></span>
+        Live Demo
+      </button>
+      <button class="mode-btn" id="btn-mode-tour" onclick="switchMode('tour')">
+        Guided Tour
+      </button>
+    </div>
+
+    <div class="tb-client">
+      <div class="tb-client-dot"></div>
+      <span class="tb-client-name">Cenancle Kenya</span>
+    </div>
+  </div>
+
+  <!-- ── LIVE DEMO VIEW ── -->
+  <div id="live-view">
+
+    <!-- BROWSER CHROME -->
+    <div id="chrome">
+
+      <!-- Chrome header: traffic lights + URL bar + LIVE badge -->
+      <div id="chrome-hdr">
+        <div class="traffic-lights">
+          <div class="tl tl-r"></div>
+          <div class="tl tl-y"></div>
+          <div class="tl tl-g"></div>
+        </div>
+
+        <div class="url-bar">
+          <span class="url-lock">🔒</span>
+          <span class="url-text">floricore.<strong>cenancle</strong>.co.ke<span class="path" id="url-path">/dashboard</span></span>
+        </div>
+
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          <span class="live-text">LIVE</span>
+        </div>
+      </div>
+
+      <!-- Chrome body: sidebar + main -->
+      <div id="chrome-body">
+
+        <!-- SIDEBAR -->
+        <nav id="sidebar">
+
+          <!-- Logo -->
+          <div class="sb-logo">
+            <svg class="sb-logo-icon" viewBox="0 0 34 34" fill="none">
+              <polygon points="17,2 32,17 17,32 2,17" fill="#22c55e" opacity="0.9"/>
+              <polygon points="17,9 25,17 17,25 9,17"  fill="#16a34a" opacity="0.7"/>
+              <circle cx="17" cy="17" r="4" fill="white" opacity="0.95"/>
+            </svg>
+            <div class="sb-logo-text">
+              <div class="sb-logo-name">Flori<span class="g">-Core</span></div>
+              <div class="sb-logo-ver">Enterprise OS · v1.2.4</div>
+            </div>
+          </div>
+
+          <!-- User pill -->
+          <div class="sb-user">
+            <div class="sb-avatar">JK</div>
+            <div class="sb-user-info">
+              <div class="sb-user-name">James Kariuki</div>
+              <div class="sb-user-role">Farm Director</div>
+            </div>
+            <div class="sb-status-dot"></div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="sb-nav">
+
+            <div class="nav-label">Overview</div>
+            <a class="nav-item active" data-mod="0" onclick="navTo(0)">
+              <span class="nav-icon">⊞</span>
+              <span class="nav-lbl">Dashboard</span>
+            </a>
+
+            <div class="nav-label">Farm Management</div>
+            <a class="nav-item" data-mod="1" onclick="navTo(1)">
+              <span class="nav-icon">◫</span>
+              <span class="nav-lbl">Farm Zones</span>
+            </a>
+            <a class="nav-item" data-mod="2" onclick="navTo(2)">
+              <span class="nav-icon">⟳</span>
+              <span class="nav-lbl">Production</span>
+            </a>
+            <a class="nav-item" data-mod="3" onclick="navTo(3)">
+              <span class="nav-icon">⚙</span>
+              <span class="nav-lbl">Farm Operations</span>
+            </a>
+            <a class="nav-item" data-mod="4" onclick="navTo(4)">
+              <span class="nav-icon">▣</span>
+              <span class="nav-lbl">Pack House</span>
+            </a>
+            <a class="nav-item" data-mod="5" onclick="navTo(5)">
+              <span class="nav-icon">❄</span>
+              <span class="nav-lbl">Cold Room</span>
+              <span class="nav-badge amber">!</span>
+            </a>
+
+            <div class="nav-label">People</div>
+            <a class="nav-item" data-mod="6" onclick="navTo(6)">
+              <span class="nav-icon">◉</span>
+              <span class="nav-lbl">Team Access</span>
+            </a>
+            <a class="nav-item" data-mod="7" onclick="navTo(7)">
+              <span class="nav-icon">✦</span>
+              <span class="nav-lbl">HR &amp; Training</span>
+            </a>
+
+            <div class="nav-label">Operations</div>
+            <a class="nav-item" data-mod="8" onclick="navTo(8)">
+              <span class="nav-icon">⬡</span>
+              <span class="nav-lbl">Logistics</span>
+              <span class="nav-badge">22</span>
+            </a>
+            <a class="nav-item" data-mod="9" onclick="navTo(9)">
+              <span class="nav-icon">⊟</span>
+              <span class="nav-lbl">Inventory</span>
+            </a>
+            <a class="nav-item" data-mod="10" onclick="navTo(10)">
+              <span class="nav-icon">▤</span>
+              <span class="nav-lbl">Stores</span>
+              <span class="nav-badge amber">2</span>
+            </a>
+
+            <div class="nav-label">Commerce</div>
+            <a class="nav-item" data-mod="11" onclick="navTo(11)">
+              <span class="nav-icon">◈</span>
+              <span class="nav-lbl">Sales</span>
+            </a>
+            <a class="nav-item" data-mod="12" onclick="navTo(12)">
+              <span class="nav-icon">⊕</span>
+              <span class="nav-lbl">Procurement</span>
+              <span class="nav-badge">3</span>
+            </a>
+
+            <div class="nav-label">Finance &amp; Compliance</div>
+            <a class="nav-item" data-mod="13" onclick="navTo(13)">
+              <span class="nav-icon">$</span>
+              <span class="nav-lbl">Financials</span>
+            </a>
+            <a class="nav-item" data-mod="14" onclick="navTo(14)">
+              <span class="nav-icon">₿</span>
+              <span class="nav-lbl">Payroll Engine</span>
+            </a>
+            <a class="nav-item" data-mod="15" onclick="navTo(15)">
+              <span class="nav-icon">✓</span>
+              <span class="nav-lbl">Compliance Vault</span>
+            </a>
+
+            <div class="nav-label">Intelligence</div>
+            <a class="nav-item" data-mod="16" onclick="navTo(16)">
+              <span class="nav-icon">◎</span>
+              <span class="nav-lbl">IoT Telemetry</span>
+            </a>
+            <a class="nav-item" data-mod="17" onclick="navTo(17)">
+              <span class="nav-icon">≡</span>
+              <span class="nav-lbl">Audit Logs</span>
+            </a>
+
+          </div><!-- /sb-nav -->
+
+          <!-- Sign out -->
+          <div class="sb-bottom">
+            <a class="nav-item nav-item-signout">
+              <span class="nav-icon">↩</span>
+              <span class="nav-lbl">Sign Out</span>
+            </a>
+          </div>
+
+        </nav><!-- /sidebar -->
+
+        <!-- MAIN CONTENT AREA -->
+        <main id="main">
+          <div id="module-wrap">
+            <div class="loading" id="init-load">
+              <div class="spinner"></div>
+              <div class="loading-txt">Loading Dashboard Data...</div>
+            </div>
+          </div>
+        </main>
+
+      </div><!-- /chrome-body -->
+    </div><!-- /chrome -->
+
+  </div><!-- /live-view -->
+
+  <!-- ── GUIDED TOUR VIEW ── -->
+  <div id="tour-view">
+
+    <!-- Left panel: description -->
+    <div class="tour-left">
+      <div class="tour-num" id="t-num">01</div>
+      <div class="tour-title" id="t-title">Dashboard</div>
+      <div class="tour-desc" id="t-desc">The command center for Cenancle Kenya — a real-time view of the entire farm operation at a glance.</div>
+
+      <ul class="tour-feats" id="t-feats">
+        <li class="tour-feat"><span class="feat-ck">✓</span><span>4 live KPI cards — stems, dispatches, revenue, workforce</span></li>
+        <li class="tour-feat"><span class="feat-ck">✓</span><span>Global audit stream showing farm-wide activity in real time</span></li>
+        <li class="tour-feat"><span class="feat-ck">✓</span><span>Telemetry pulse — cold room temps, soil moisture, IoT alerts</span></li>
+        <li class="tour-feat"><span class="feat-ck">✓</span><span>Module navigation matrix for quick access to any system</span></li>
+      </ul>
+
+      <div class="tour-why">
+        <div class="tour-why-lbl">Why This Matters for Cenancle Kenya</div>
+        <div class="tour-why-txt" id="t-why">With 48,000 stems leaving Naivasha daily, James needs one screen to confirm the entire operation is running before morning tea. This dashboard replaces 4 spreadsheets and 3 WhatsApp groups.</div>
+      </div>
+
+      <div class="tour-nav">
+        <button class="tour-btn" id="t-prev" onclick="tourPrev()" disabled>← Prev</button>
+        <div class="tour-ctr">Module <strong id="t-curr">1</strong> of <strong>18</strong></div>
+        <button class="tour-btn" id="t-next" onclick="tourNext()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Right panel: browser frame with mini app -->
+    <div class="tour-right">
+      <div class="tour-frame">
+
+        <!-- Tour chrome header -->
+        <div class="tour-chrome-hdr">
+          <div class="traffic-lights">
+            <div class="tl tl-r"></div>
+            <div class="tl tl-y"></div>
+            <div class="tl tl-g"></div>
+          </div>
+          <div class="url-bar" style="max-width:340px;">
+            <span class="url-lock">🔒</span>
+            <span class="url-text">floricore.<strong>cenancle</strong>.co.ke<span class="path" id="t-url">/dashboard</span></span>
+          </div>
+          <div class="live-badge">
+            <div class="live-dot"></div>
+            <span class="live-text">LIVE</span>
+          </div>
+        </div>
+
+        <!-- Tour chrome body: mini sidebar + content -->
+        <div class="tour-chrome-body">
+
+          <div id="tour-mini-sb">
+            <!-- Populated by JS -->
+          </div>
+
+          <div id="tour-mod">
+            <!-- Module preview populated by JS -->
+          </div>
+
+        </div><!-- /tour-chrome-body -->
+      </div><!-- /tour-frame -->
+    </div><!-- /tour-right -->
+
+  </div><!-- /tour-view -->
+
+  <!-- ── PROGRESS BAR (Live Demo only) ── -->
+  <div id="pbar">
+    <div class="pb-info">
+      <span class="pb-icon" id="pb-icon">⊞</span>
+      <span class="pb-name" id="pb-name">Dashboard</span>
+    </div>
+    <div class="pb-dots" id="pb-dots"></div>
+    <div class="pb-right">
+      <span class="pb-counter"><strong id="pb-curr">1</strong> / 18</span>
+      <button class="btn-resume" id="btn-resume" onclick="resumePlay()">▶ Resume</button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ── TAKE CONTROL BADGE ── -->
+<div id="take-ctrl">
+  <span class="tc-icon">▶</span>
+  <span class="tc-txt"><strong>Auto-playing</strong> — click anywhere to take control</span>
+</div>
+
+<!-- ── AI FLOAT BUTTON ── -->
+<button id="ai-btn" onclick="navTo(18)" title="Flori Assistant">✧</button>
+
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT ENGINE — PHASE 1
+     ══════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ─────────────────────────────────────
+   MODULE REGISTRY
+   ───────────────────────────────────── */
+const MODS = [
+  { id:'dashboard',   name:'Dashboard',        icon:'⊞', url:'/dashboard',    badge:null },
+  { id:'zones',       name:'Farm Zones',        icon:'◫', url:'/zones',        badge:null },
+  { id:'production',  name:'Production',        icon:'⟳', url:'/production',   badge:null },
+  { id:'operations',  name:'Farm Operations',   icon:'⚙', url:'/operations',   badge:null },
+  { id:'packhouse',   name:'Pack House',         icon:'▣', url:'/pack-house',  badge:null },
+  { id:'coldroom',    name:'Cold Room',          icon:'❄', url:'/cold-room',   badge:'!' },
+  { id:'team',        name:'Team Access',        icon:'◉', url:'/team',         badge:null },
+  { id:'hr',          name:'HR & Training',      icon:'✦', url:'/hr',           badge:null },
+  { id:'logistics',   name:'Logistics',          icon:'⬡', url:'/logistics',   badge:'22'},
+  { id:'inventory',   name:'Inventory',          icon:'⊟', url:'/inventory',   badge:null },
+  { id:'stores',      name:'Stores',             icon:'▤', url:'/stores',       badge:'2' },
+  { id:'sales',       name:'Sales',              icon:'◈', url:'/sales',        badge:null },
+  { id:'procurement', name:'Procurement',        icon:'⊕', url:'/procurement', badge:'3' },
+  { id:'financials',  name:'Financials',         icon:'$', url:'/financials',  badge:null },
+  { id:'payroll',     name:'Payroll Engine',     icon:'₿', url:'/payroll',     badge:null },
+  { id:'compliance',  name:'Compliance Vault',   icon:'✓', url:'/compliance',  badge:null },
+  { id:'iot',         name:'IoT Telemetry',      icon:'◎', url:'/iot',         badge:null },
+  { id:'audit',       name:'Audit Logs',         icon:'≡', url:'/audit',       badge:null },
+];
+
+const TOUR_DATA = [
+  {
+    title:'<em>Dashboard</em>',
+    desc:'The command center for Cenancle Kenya — a real-time view of the entire farm operation at a glance.',
+    feats:[
+      '4 live KPI cards — stems, dispatches, revenue, workforce',
+      'Global audit stream showing farm-wide activity in real time',
+      'Telemetry pulse — cold room temps, soil moisture, IoT alerts',
+      'Module navigation matrix for quick access to any system',
+      'Live feed panel with real-time event streaming',
+    ],
+    why:'With 48,000 stems leaving Naivasha daily, James needs one screen to confirm the entire operation is running before morning tea. This dashboard replaces 4 spreadsheets and 3 WhatsApp groups.',
+  },
+  {
+    title:'Farm <em>Zones</em>',
+    desc:'Visual management of all growing areas — greenhouses and outdoor blocks — with live status, variety mapping, and zone health indicators.',
+    feats:[
+      'Zone A (Red Naomi, 3.2 ha), B (Avalanche, 2.8 ha), C (Pink Floyd, 1.5 ha)',
+      'Live growth stage badges: GROWING, HARVESTING, PLANTED',
+      'Floor plan / map-style layout toggle',
+      'Per-zone soil moisture, temp, and crop data',
+      'Quick-action: log activity, view crop cycle, flag issue',
+    ],
+    why:'Cenancle\'s 7.5 ha spread across two greenhouses and one outdoor block needs daily zone-level oversight. One screen tells supervisors exactly which blocks are harvesting vs growing.',
+  },
+  {
+    title:'Precision <em>Production</em>',
+    desc:'End-to-end crop cycle management — from propagation to harvest — with Gantt timeline, yield forecasting, and variety scheduling.',
+    feats:[
+      '12-week Gantt timeline across all zones and varieties',
+      'Weekly stem output forecast — 8-week bar chart view',
+      '6 active cycles across 3 varieties tracked in real time',
+      'Upcoming spray and pre-harvest action schedule',
+      'Crop Varieties register with benchmark yield data',
+    ],
+    why:'FloraHolland and Interflora require confirmed stem counts 10 days in advance. This module gives the production team the forecast data to commit orders with confidence.',
+  },
+  {
+    title:'Farm <em>Operations</em>',
+    desc:'Daily farm activity logging across soil health, irrigation, scouting, planting, and pre-harvest — all in one tabbed workspace.',
+    feats:[
+      'Soil test results: pH and EC values per zone with status flags',
+      'Irrigation status — drip system monitoring, moisture alerts',
+      'Pest scouting reports with zone-level warnings',
+      'Planting and land preparation records',
+      'Pre-harvest checklist and crop growth stage tracker',
+    ],
+    why:'For Cenancle\'s field supervisors to log Zone B\'s humidity warning and Zone C pest scout result in one place — without emailing three people or updating a shared drive.',
+  },
+  {
+    title:'Pack House & <em>Cold Chain</em>',
+    desc:'Intake, grading, and packing management — tracks every batch from the field gate to the cold room shelf with full QC traceability.',
+    feats:[
+      'Batch intake: variety, quantity, and field origin logging',
+      'QC grading — Grade A 84%, Grade B 13%, Reject 3%',
+      'Ready-to-pack queue and packing status tracking',
+      '8,240 total stems in pack house inventory today',
+      'Batch history with timestamp and grader identity',
+    ],
+    why:'Pack house throughput is Cenancle\'s biggest quality control point. This module catches Grade A vs Reject splits before boxes leave for Nairobi — protecting the FloraHolland relationship.',
+  },
+  {
+    title:'Cold Room & <em>Climate Control</em>',
+    desc:'Real-time climate monitoring for both cold rooms, FIFO stock management, and batch check-in — auto-synced every 30 seconds.',
+    feats:[
+      'Live sensor cards: Cold Room 1 at 2.1°C STABLE, CR2 at 3.4°C WARNING',
+      'Humidity tracking: 91% and 87% per room',
+      'FIFO stock table: batch, variety, entry date, quantity, location',
+      'Stock check-in form for new batch logging',
+      'Auto-sync indicator — refreshes every 30 seconds',
+    ],
+    why:'A 1°C deviation in the cold room can cost Cenancle an entire FloraHolland shipment due to vase life failure at destination. This module catches it before the truck departs.',
+  },
+  {
+    title:'Team <em>Access</em>',
+    desc:'User management and role-based access control — manage who sees what across the entire Flori-Core system.',
+    feats:[
+      '4 system users: Farm Director, Ops Manager, Pack House Supervisor, Field Supervisor',
+      'Role-based permissions matrix per module',
+      'Invite new team member with role assignment',
+      'Temporary password flag — Grace Njoroge pending reset',
+      'SECURE vs TEMP PW status badges per account',
+    ],
+    why:'As Cenancle scales from 4 to 12 system users, this module ensures the pack house supervisor can\'t accidentally edit a sales invoice — role-locked access from day one.',
+  },
+  {
+    title:'HR & <em>Training</em>',
+    desc:'Workforce training records, compliance tracking, performance appraisals, and shift scheduling in one integrated module.',
+    feats:[
+      'Training records with certificates, status, and expiry dates',
+      '87% compliance rate with individual drill-down',
+      '360° appraisal module with active and scheduled reviews',
+      'KPI dashboard with team performance bar charts',
+      'Training calendar with upcoming session bookings',
+    ],
+    why:'Kenya\'s KFC and GlobalG.A.P. certifications require documented training records for all 312 staff. This module makes the audit a 5-minute export, not a 3-week panic.',
+  },
+  {
+    title:'Logistics & <em>Fleet</em>',
+    desc:'Dispatch management, route building, driver assignment, and fleet tracking — from Naivasha to Nairobi cargo terminals.',
+    feats:[
+      'Live route map: Naivasha → Nairobi with active driver pin',
+      'Driver James Mutua + vehicle KBZ 441T — assigned and tracked',
+      '22 pending dispatch orders to FloraHolland, Interflora, KQ Cargo',
+      'All routes view: 2 completed, 1 active today',
+      'Fleet status panel: vehicle availability and condition',
+    ],
+    why:'Kenya Airways Cargo has a 4-hour pre-clearance window. This module tells James Mutua exactly which orders load first and ensures the cold chain handoff is timestamped and auditable.',
+  },
+  {
+    title:'Inventory <em>Hub</em>',
+    desc:'Available-to-promise (ATP) tracking, packed box counts, raw stem inventory, and wastage logging — one source of truth.',
+    feats:[
+      'ATP table: total stock vs committed vs available per variety',
+      'Red Naomi Grade A: 4,200 stems (400 ATP after commitments)',
+      'Packed boxes ready for dispatch — 3 configurations',
+      'Wastage log with cost tracking — $420 MTD',
+      'Allocation view: stems committed to active orders',
+    ],
+    why:'When FloraHolland calls to increase an order, this module tells the sales team in 10 seconds whether Cenancle has the ATP to commit — or needs to flag it as back-order.',
+  },
+  {
+    title:'<em>Stores</em> & Catalogue',
+    desc:'Internal stores management — item catalogue, stock levels, GRN movements, and low stock alerts linked directly to procurement.',
+    feats:[
+      'Item catalogue: SKU, stock level, and reorder threshold per item',
+      'Low stock alerts: Ferti Fertilizer (0 L) and Stem Sleeves flagged',
+      'GRN movement log — last 5 goods receipts with quantities',
+      'Vendor register linked to the procurement module',
+      'KES 128,400 total stock value at current prices',
+    ],
+    why:'Running out of Ferti Fertilizer mid-cycle is a production crisis. This module flags it 2 weeks early and links directly to a draft Purchase Request — one click to procurement.',
+  },
+  {
+    title:'Sales & <em>CRM</em>',
+    desc:'Pipeline management, customer records, order tracking, and invoicing — connecting Cenancle Kenya to its global flower buyers.',
+    feats:[
+      'Kanban pipeline: FloraHolland, Interflora UK, KQ Cargo, Stems EA',
+      'USD 14,000 active pipeline value across 4 deals',
+      '22 active orders tracked with stems, value, and status',
+      'Invoices: 2 paid + 1 pending — USD 52,400 total invoiced',
+      '94% conversion rate from prospect to contract',
+    ],
+    why:'Cenancle sells to 4 buyers across 3 countries in 2 currencies. This module centralises every deal, order, and payment — no more chasing invoices over WhatsApp.',
+  },
+  {
+    title:'Auto-<em>Procurement</em>',
+    desc:'Purchase request workflow, PO generation, vendor management, GRN confirmation, and invoice reconciliation — end to end.',
+    feats:[
+      '3 active Purchase Requests — fertiliser, pesticide, packaging',
+      'PO #2026-0034 dispatched — KES 538,200 with KLP Agro Supplies',
+      'Vendor roster with rating and contact details',
+      'GRN confirmation — ties delivery to PO line items',
+      'KES 1,240,000 total PO value this period',
+    ],
+    why:'James approves PRs from his phone before the farm walk-through. This module replaces a manual email chain with a trackable approval workflow — so nothing gets ordered twice.',
+  },
+  {
+    title:'Financial <em>Reporting</em>',
+    desc:'Profit & loss, balance sheet, and tax reporting — real-time financial health of the Cenancle Kenya operation.',
+    feats:[
+      'Revenue: $125,400 (+12% vs last period)',
+      'Expenses: $82,300 (-5% vs budget) — Net Income: $43,100',
+      'P&L breakdown: revenue accounts vs expense accounts',
+      'Balance Sheet and Tax Report export-ready',
+      'Date range filter and one-click Excel/PDF export',
+    ],
+    why:'Cenancle\'s CFO needs a clean P&L for the Rabobank facility review next quarter. This module generates the report in 30 seconds — not 3 days of Excel consolidation.',
+  },
+  {
+    title:'Payroll <em>Engine</em>',
+    desc:'Full payroll processing for 312 staff — permanent and casual — with run history, net pay summaries, and statutory deductions.',
+    feats:[
+      '312 workforce: 148 permanent + 164 casual workers',
+      'Last payroll run: KES 4,280,000 net pay (May 2026)',
+      'Employee records with salary, role, and department',
+      'Payroll run history with approval status tracking',
+      'NHIF, NSSF, PAYE deductions calculated automatically',
+    ],
+    why:'Paying 164 casual workers with varying days worked is a manual nightmare. Flori-Core calculates it from the attendance register — HR approves in one click.',
+  },
+  {
+    title:'Compliance <em>Vault</em>',
+    desc:'Certification management, spray logs, labour records, and full audit trail — keeping Cenancle audit-ready 365 days a year.',
+    feats:[
+      'GlobalG.A.P. (exp. 30/11/2026) and KFC cert (exp. 15/08/2026) — both ACTIVE',
+      '4 spray log entries this month with active ingredient records',
+      'Labour records: shift attendance and worker welfare logs',
+      'Audit trail: 10 logged actions across all modules',
+      'Zero expired certifications, zero expiring within 30 days',
+    ],
+    why:'A surprise GlobalG.A.P. audit at Cenancle requires spray logs, labour records, and training certificates on demand. This vault delivers them in under 2 minutes.',
+  },
+  {
+    title:'Smart <em>IoT Pulse</em>',
+    desc:'Real-time sensor data from across the farm — soil moisture, temperature, EC levels, pH — with live charts and automation rules.',
+    feats:[
+      '4 live sensors: Moisture 38.2%, Temp 22.8°C, EC 1.6 ms/cm, pH 6.3',
+      'Animated 1-hour telemetry chart — moisture fluctuations',
+      '"Low Moisture → Irrigate Zone A" automation rule — ACTIVE',
+      '"Temp > 28°C → Open Vents" rule — ACTIVE',
+      'Add Device capability for future sensor expansion',
+    ],
+    why:'Zone B\'s humidity drop to 61% was caught by IoT before a supervisor noticed. This module protects the Avalanche crop from preventable stress damage — automatically.',
+  },
+  {
+    title:'System <em>Audit Trail</em>',
+    desc:'Complete immutable record of every action taken in Flori-Core — who did what, when, and what changed.',
+    feats:[
+      'Filter by module, action type, user, and date range',
+      'POST / PUT / DELETE actions with actor and timestamp',
+      'Expandable diff view — old value vs new value per change',
+      'Export to CSV for external compliance review',
+      '10 logged audit events across production, sales, procurement, HR',
+    ],
+    why:'When a certification auditor asks who approved the pesticide PO at 3pm on a Thursday — this log shows it in 8 seconds with a full diff of what changed.',
+  },
+];
+
+/* ─────────────────────────────────────
+   STATE
+   ───────────────────────────────────── */
+let curMod     = 0;
+let tourMod    = 0;
+let mode       = 'live';        // 'live' | 'tour'
+let autoPlaying = false;
+let paused     = false;
+let visited    = new Set([0]);
+
+/* ─────────────────────────────────────
+   CURSOR ENGINE
+   ───────────────────────────────────── */
+const $cur = document.getElementById('cursor');
+let cx = innerWidth / 2, cy = innerHeight / 2;
+
+document.addEventListener('mousemove', e => {
+  cx = e.clientX; cy = e.clientY;
+  $cur.style.transform = `translate(${cx - 2}px,${cy - 2}px)`;
+});
+
+function moveTo(x, y, ms = 700) {
+  return new Promise(res => {
+    const sx = cx, sy = cy, t0 = performance.now();
+    const tick = now => {
+      const p = Math.min((now - t0) / ms, 1);
+      const e = 1 - Math.pow(1 - p, 3);          // ease-out-cubic
+      cx = sx + (x - sx) * e;
+      cy = sy + (y - sy) * e;
+      $cur.style.transform = `translate(${cx - 2}px,${cy - 2}px)`;
+      if (p < 1) requestAnimationFrame(tick);
+      else res();
+    };
+    requestAnimationFrame(tick);
+  });
+}
+
+function moveToEl(el, ms) {
+  if (!el) return Promise.resolve();
+  const r = el.getBoundingClientRect();
+  return moveTo(r.left + r.width / 2, r.top + r.height / 2, ms);
+}
+
+/* Ripple */
+function ripple(x, y) {
+  const d = document.createElement('div');
+  d.className = 'ripple';
+  d.style.cssText = `left:${x}px;top:${y}px;`;
+  document.getElementById('ripples').appendChild(d);
+  setTimeout(() => d.remove(), 400);
+}
+function clickAt(x, y) {
+  ripple(x, y);
+}
+function clickEl(el) {
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  clickAt(r.left + r.width / 2, r.top + r.height / 2);
+  el.style.transform = 'scale(0.97)';
+  setTimeout(() => el.style.transform = '', 140);
+}
+
+/* ─────────────────────────────────────
+   LANDING PAGE
+   ───────────────────────────────────── */
+let cdVal = 4;
+let cdTimer, cdInterval;
+
+function startCountdown() {
+  const numEl = document.getElementById('lp-num');
+  cdInterval = setInterval(() => {
+    cdVal--;
+    if (numEl) numEl.textContent = cdVal;
+    if (cdVal <= 0) {
+      clearInterval(cdInterval);
+      enterLiveDemo();
+    }
+  }, 1000);
+}
+
+function enterLiveDemo() {
+  clearInterval(cdInterval);
+  const lp = document.getElementById('landing');
+  lp.classList.add('out');
+  const app = document.getElementById('app');
+  setTimeout(() => {
+    lp.style.display = 'none';
+    app.classList.add('on');
+    setMode('live');
+    buildPbarDots();
+    buildTourMiniNav();
+    navTo(0, false);
+  }, 560);
+}
+
+function enterGuidedTour() {
+  clearInterval(cdInterval);
+  const lp = document.getElementById('landing');
+  lp.classList.add('out');
+  const app = document.getElementById('app');
+  setTimeout(() => {
+    lp.style.display = 'none';
+    app.classList.add('on');
+    setMode('tour');
+    buildPbarDots();
+    buildTourMiniNav();
+    setTourModule(0);
+  }, 560);
+}
+
+/* ─────────────────────────────────────
+   MODE SWITCHING
+   ───────────────────────────────────── */
+function setMode(m) {
+  mode = m;
+  const lv = document.getElementById('live-view');
+  const tv = document.getElementById('tour-view');
+  const pb = document.getElementById('pbar');
+  const ai = document.getElementById('ai-btn');
+  const bl = document.getElementById('btn-mode-live');
+  const bt = document.getElementById('btn-mode-tour');
+
+  if (m === 'live') {
+    lv.style.display = 'flex';
+    tv.classList.remove('on');
+    pb.style.display = 'flex';
+    ai.classList.remove('tour-mode');
+    bl.classList.add('active');
+    bt.classList.remove('active');
+  } else {
+    lv.style.display = 'none';
+    tv.classList.add('on');
+    pb.style.display = 'none';
+    ai.classList.add('tour-mode');
+    bl.classList.remove('active');
+    bt.classList.add('active');
+  }
+}
+
+function switchMode(m) {
+  setMode(m);
+  if (m === 'live') navTo(curMod, false);
+  else setTourModule(tourMod);
+}
+
+/* ─────────────────────────────────────
+   MODULE NAVIGATION (Live Demo)
+   ───────────────────────────────────── */
+function navTo(idx, animate = true) {
+  if (idx < 0 || idx >= MODS.length) return;
+
+  // Update sidebar active state
+  document.querySelectorAll('.nav-item[data-mod]').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.mod) === idx);
+  });
+
+  curMod = idx;
+  visited.add(idx);
+
+  // Update URL bar
+  const urlPath = document.getElementById('url-path');
+  if (urlPath) urlPath.textContent = MODS[idx].url;
+
+  // Update progress bar
+  updatePbar(idx);
+
+  // Show loading → render
+  showLoading(MODS[idx].name, () => renderMod(idx, animate));
+}
+
+function showLoading(name, cb) {
+  const wrap = document.getElementById('module-wrap');
+  wrap.innerHTML = `
+    <div class="loading anim-fade">
+      <div class="spinner"></div>
+      <div class="loading-txt">Loading ${name.toUpperCase()} Data...</div>
+    </div>`;
+  setTimeout(cb, 820);
+}
+
+function renderMod(idx, animate) {
+  const wrap = document.getElementById('module-wrap');
+  const m = MODS[idx];
+  const fn = window[`render_${m.id}`];
+
+  if (fn) {
+    wrap.innerHTML = fn();
+    if (animate) {
+      wrap.firstElementChild && wrap.firstElementChild.classList.add('anim-slide');
+    }
+    // Fire any post-render hooks
+    const hook = window[`onRender_${m.id}`];
+    if (hook) hook();
+  } else {
+    wrap.innerHTML = `
+      <div class="mod-placeholder anim-fade">
+        <div class="mod-ph-icon">${m.icon}</div>
+        <div class="mod-ph-name">${m.name}</div>
+        <div class="mod-ph-badge">Phase ${Math.floor(idx / 5) + 2} — Coming Next</div>
+      </div>`;
+  }
+}
+
+/* ─────────────────────────────────────
+   PROGRESS BAR
+   ───────────────────────────────────── */
+function buildPbarDots() {
+  const c = document.getElementById('pb-dots');
+  c.innerHTML = '';
+  MODS.forEach((m, i) => {
+    const d = document.createElement('div');
+    d.className = 'pb-dot';
+    d.title = m.name;
+    d.dataset.i = i;
+    d.onclick = () => { pausePlay(); navTo(i); };
+    c.appendChild(d);
+  });
+  updatePbar(0);
+}
+
+function updatePbar(idx) {
+  document.querySelectorAll('.pb-dot').forEach((d, i) => {
+    d.classList.remove('current', 'visited');
+    if (i === idx)         d.classList.add('current');
+    else if (visited.has(i)) d.classList.add('visited');
+  });
+  const m = MODS[idx];
+  document.getElementById('pb-icon').textContent = m.icon;
+  document.getElementById('pb-name').textContent = m.name;
+  document.getElementById('pb-curr').textContent = idx + 1;
+}
+
+/* ─────────────────────────────────────
+   AUTO-PLAY CONTROL
+   ───────────────────────────────────── */
+function pausePlay() {
+  paused = true;
+  document.getElementById('take-ctrl').classList.remove('show');
+  document.getElementById('btn-resume').classList.add('show');
+}
+
+function resumePlay() {
+  paused = false;
+  document.getElementById('btn-resume').classList.remove('show');
+  // Phase 7 will wire up the full sequencer here
+}
+
+// Click anywhere (outside topbar) to pause auto-play
+document.addEventListener('click', e => {
+  if (autoPlaying && !paused && !e.target.closest('#topbar')) {
+    pausePlay();
+  }
+});
+
+/* ─────────────────────────────────────
+   GUIDED TOUR
+   ───────────────────────────────────── */
+function buildTourMiniNav() {
+  const sb = document.getElementById('tour-mini-sb');
+  sb.innerHTML = MODS.map((m, i) => `
+    <div class="mini-nav-item ${i === tourMod ? 'active' : ''}"
+         data-ti="${i}" onclick="setTourModule(${i})">
+      <span style="font-size:11px;">${m.icon}</span>
+      <span>${m.name}</span>
+    </div>
+  `).join('');
+}
+
+function setTourModule(idx) {
+  if (idx < 0 || idx >= TOUR_DATA.length) return;
+  tourMod = idx;
+  const d = TOUR_DATA[idx];
+  const m = MODS[idx];
+
+  // Update left panel
+  document.getElementById('t-num').textContent   = String(idx + 1).padStart(2, '0');
+  document.getElementById('t-title').innerHTML   = d.title;
+  document.getElementById('t-desc').textContent  = d.desc;
+  document.getElementById('t-why').textContent   = d.why;
+  document.getElementById('t-url').textContent   = m.url;
+  document.getElementById('t-curr').textContent  = idx + 1;
+
+  document.getElementById('t-feats').innerHTML = d.feats.map(f => `
+    <li class="tour-feat"><span class="feat-ck">✓</span><span>${f}</span></li>
+  `).join('');
+
+  // Nav button states
+  document.getElementById('t-prev').disabled = idx === 0;
+  document.getElementById('t-next').disabled = idx === TOUR_DATA.length - 1;
+
+  // Update mini sidebar active
+  document.querySelectorAll('[data-ti]').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.ti) === idx);
+  });
+
+  // Render module preview in tour panel
+  const tourMod_ = document.getElementById('tour-mod');
+  const fn = window[`render_${m.id}`];
+  if (fn) {
+    tourMod_.innerHTML = fn();
+  } else {
+    tourMod_.innerHTML = `
+      <div class="mod-placeholder anim-fade" style="height:200px;">
+        <div class="mod-ph-icon">${m.icon}</div>
+        <div class="mod-ph-name">${m.name}</div>
+      </div>`;
+  }
+}
+
+function tourPrev() { setTourModule(tourMod - 1); }
+function tourNext() { setTourModule(tourMod + 1); }
+
+/* ─────────────────────────────────────
+   INIT
+   ───────────────────────────────────── */
+window.addEventListener('load', () => {
+  // Place cursor at center
+  $cur.style.transform = `translate(${innerWidth / 2}px,${innerHeight / 2}px)`;
+  cx = innerWidth / 2; cy = innerHeight / 2;
+
+  // Begin landing countdown
+  startCountdown();
+});
+
+/*
+  ─────────────────────────────────────
+  EXTENSION POINT — Phase 2+
+  Module screen renderers are registered
+  on window as: window.render_<id> = () => htmlString
+  Post-render hooks: window.onRender_<id> = () => void
+  ─────────────────────────────────────
+*/
+</script>
+
+</body>
+</html>
