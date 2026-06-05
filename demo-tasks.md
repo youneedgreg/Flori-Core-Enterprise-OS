@@ -5,17 +5,17 @@
 
 ---
 
-## PHASE 1 — Foundation (CSS + Shell) ✅
-- [ ] HTML `<head>`, title, Google Fonts (Space Grotesk + Inter)
-- [ ] CSS design system (variables, reset, base)
-- [ ] Landing page styles + HTML
-- [ ] Browser chrome wrapper (traffic lights, URL bar, LIVE badge)
-- [ ] Sidebar (logo, nav items, sign out)
-- [ ] Top mode-toggle bar
-- [ ] Main content shell + routing skeleton
-- [ ] Cursor element + CSS
-- [ ] Progress bar shell (Mode 1)
-- [ ] Guided tour shell (Mode 2)
+## PHASE 1 — Foundation (CSS + Shell) ✅ DONE
+- [x] HTML `<head>`, title, Google Fonts (Space Grotesk + Inter)
+- [x] CSS design system (variables, reset, base)
+- [x] Landing page styles + HTML (diamond logo, countdown timer, two CTAs)
+- [x] Browser chrome wrapper (traffic lights, URL bar, LIVE badge)
+- [x] Sidebar (logo, all 18 nav items grouped, user pill, sign out)
+- [x] Top mode-toggle bar (Flori-Core brand + mode group + client badge)
+- [x] Main content shell + routing skeleton (showLoading → renderMod → extension point)
+- [x] Cursor element + CSS (SVG arrow, moveTo/moveToEl/ripple engine)
+- [x] Progress bar shell (Mode 1: 18 dots, module name, counter, Resume button)
+- [x] Guided tour shell (Mode 2: left panel + right browser frame + mini sidebar)
 
 ## PHASE 2 — Module Screens Batch A (1–5) ✅
 1. Dashboard — KPIs, audit stream, telemetry pulse, module matrix
