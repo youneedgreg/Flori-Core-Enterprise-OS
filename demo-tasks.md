@@ -22,12 +22,12 @@
 - [x] Progress bar shell (Mode 1: 18 dots, module name, counter, Resume button)
 - [x] Guided tour shell (Mode 2: left panel + right browser frame + mini sidebar)
 
-## PHASE 2 — Module Screens Batch A (1–5) ✅
-1. Dashboard — KPIs, audit stream, telemetry pulse, module matrix
-2. Farm Zones — 3 zone cards, map toggle, stats
-3. Production — Gantt SVG, forecast bars, 5 tabs
-4. Farm Operations — 8 tabs, soil test table, irrigation view
-5. Pack House — intake table, QC donut chart, 5 tabs
+## PHASE 2 — Module Screens Batch A (1–5) ✅ DONE
+1. Dashboard — 4 KPI cards, audit stream, live telemetry, 12-cell quick-access matrix
+2. Farm Zones — 3 zone cards (A/B/C), SVG map view toggle, activity log, 4 KPI cards
+3. Production — 4 KPI cards, 5 tabs (Gantt SVG 12-week, Batches, Forecast bars, Varieties, Labour)
+4. Farm Operations — 4 KPI cards, 8 tabs (Soil, Irrigation, Spray, IPM, Maintenance, Tasks, Weather, Incidents)
+5. Pack House — 4 KPI cards, 5 tabs (QC donut chart 84/13/3%, Intake, Packing, Cold Chain, Labour)
 
 ## PHASE 3 — Module Screens Batch B (6–10) ✅
 6. Cold Room — 2 sensor cards, FIFO table, check-in form
