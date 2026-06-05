@@ -55,7 +55,7 @@
       --r-2xl: 20px;
       --r-f:   9999px;
 
-      --sidebar-w:    280px;
+      --sidebar-w:    240px;
       --topbar-h:      52px;
       --chrome-hdr-h:  44px;
       --pbar-h:        48px;
@@ -428,12 +428,12 @@
 
     .sb-logo {
       display: flex; align-items: center; gap: 12px;
-      padding: 18px 18px 14px;
+      padding: 16px 18px 14px;
       border-bottom: 1px solid var(--border-subtle);
       flex-shrink: 0;
     }
-    .sb-logo-icon { width: 34px; height: 34px; flex-shrink: 0; }
-    .sb-logo-text { display: flex; flex-direction: column; gap: 1px; }
+    .sb-logo-icon { width: 36px; height: 36px; flex-shrink: 0; }
+    .sb-logo-text { display: flex; flex-direction: column; gap: 2px; }
     .sb-logo-name {
       font-family: var(--font-head);
       font-size: 16px; font-weight: 700;
@@ -442,79 +442,42 @@
     .sb-logo-name .g { color: var(--green); }
     .sb-logo-ver {
       font-family: var(--font-head);
-      font-size: 8.5px; font-weight: 500;
-      letter-spacing: 0.22em; color: var(--text-4);
+      font-size: 8px; font-weight: 500;
+      letter-spacing: 0.24em; color: var(--text-4);
       text-transform: uppercase;
     }
 
-    .sb-user {
-      display: flex; align-items: center; gap: 10px;
-      padding: 11px 14px;
-      margin: 10px 10px 4px;
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--r-md);
-      flex-shrink: 0;
-    }
-    .sb-avatar {
-      width: 32px; height: 32px; border-radius: 50%;
-      background: var(--green-dim);
-      border: 1px solid rgba(34,197,94,0.25);
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-head); font-size: 11px; font-weight: 700;
-      color: var(--green); flex-shrink: 0;
-    }
-    .sb-user-info { flex: 1; min-width: 0; }
-    .sb-user-name {
-      font-size: 13px; font-weight: 600; color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .sb-user-role {
-      font-size: 9.5px; color: var(--text-4);
-      text-transform: uppercase; letter-spacing: 0.08em;
-    }
-    .sb-status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 6px var(--green-glow);
-      flex-shrink: 0;
-    }
-
+    /* Nav scroll area — no user pill here */
     .sb-nav {
-      flex: 1; overflow-y: auto; padding: 6px 8px 6px;
+      flex: 1; overflow-y: auto; padding: 8px 8px 4px;
       scrollbar-width: none;
     }
     .sb-nav::-webkit-scrollbar { display: none; }
 
-    .nav-label {
-      font-size: 8.5px; font-weight: 600;
-      letter-spacing: 0.18em; color: var(--text-4);
-      text-transform: uppercase;
-      padding: 10px 10px 3px;
-    }
+    /* Section dividers — invisible, just add spacing between groups */
+    .nav-sep { height: 8px; }
 
     .nav-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 10px;
+      display: flex; align-items: center; gap: 11px;
+      padding: 9px 12px;
       border-radius: var(--r-md);
       cursor: none; color: var(--text-3);
       text-decoration: none;
       transition: all 0.15s var(--ease-o);
-      position: relative; margin-bottom: 1px;
-      border-left: 2px solid transparent;
+      position: relative; margin-bottom: 2px;
     }
     .nav-item:hover {
-      background: var(--bg-hover); color: var(--text-2);
+      background: rgba(255,255,255,0.05); color: var(--text-2);
     }
     .nav-item.active {
       background: var(--green-dim); color: var(--green);
-      border-left-color: var(--green);
     }
     .nav-icon {
-      width: 18px; height: 18px;
+      width: 16px; height: 16px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 13px; opacity: 0.75;
+      flex-shrink: 0; opacity: 0.65;
     }
+    .nav-icon svg { width: 16px; height: 16px; display: block; }
     .nav-item.active .nav-icon { opacity: 1; }
     .nav-lbl { font-size: 13px; font-weight: 500; flex: 1; }
     .nav-badge {
@@ -524,13 +487,41 @@
       color: white; font-size: 9px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
     }
-    .nav-badge.amber { background: var(--amber); }
-    .nav-badge.green { background: var(--green); color: #020817; }
+    .nav-badge.amber { background: var(--amber); color: #020817; }
 
+    /* Bottom: user + sign-out */
     .sb-bottom {
-      padding: 10px 8px;
       border-top: 1px solid var(--border-subtle);
-      flex-shrink: 0;
+      flex-shrink: 0; padding: 8px 8px;
+    }
+    .sb-user-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--r-md);
+      margin-bottom: 2px;
+    }
+    .sb-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: 10px; font-weight: 700;
+      color: var(--green); flex-shrink: 0; position: relative;
+    }
+    .sb-avatar-dot {
+      position: absolute; bottom: 0; right: 0;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      border: 1.5px solid var(--bg-sidebar);
+    }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name {
+      font-size: 12px; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+    .sb-user-role {
+      font-size: 9px; color: var(--text-4);
+      text-transform: uppercase; letter-spacing: 0.08em;
     }
     .nav-item-signout { color: var(--text-4); }
     .nav-item-signout:hover { color: var(--red); background: var(--red-dim); }
@@ -891,17 +882,10 @@
   <!-- Logo -->
   <div class="lp-logo">
     <svg class="lp-logo-icon" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Outer diamond -->
-      <polygon points="34,4 64,34 34,64 4,34" fill="#22c55e" opacity="0.9"/>
-      <!-- Inner diamond -->
-      <polygon points="34,14 54,34 34,54 14,34" fill="#16a34a" opacity="0.7"/>
-      <!-- Core -->
-      <circle cx="34" cy="34" r="7" fill="white" opacity="0.95"/>
-      <!-- Petals / rays -->
-      <line x1="34" y1="14" x2="34" y2="8"  stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
-      <line x1="54" y1="34" x2="60" y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
-      <line x1="34" y1="54" x2="34" y2="60" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
-      <line x1="14" y1="34" x2="8"  y2="34" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
+      <!-- Green diamond background -->
+      <rect x="34" y="3" width="45" height="45" rx="10" transform="rotate(45 34 3)" fill="#22c55e"/>
+      <!-- Inner lighting bolt -->
+      <path d="M41 22L28 36h9l-8 12 18-20h-10l5-6z" fill="white" opacity="0.95"/>
     </svg>
     <div class="lp-logo-words">
       <div class="lp-logo-name">Flori<span class="g">-Core</span></div>
@@ -948,9 +932,8 @@
     <div class="tb-brand">
       <!-- Inline brand icon -->
       <svg class="tb-brand-icon" viewBox="0 0 28 28" fill="none">
-        <polygon points="14,2 26,14 14,26 2,14" fill="#22c55e" opacity="0.9"/>
-        <polygon points="14,8 20,14 14,20 8,14"  fill="#16a34a" opacity="0.7"/>
-        <circle cx="14" cy="14" r="3" fill="white" opacity="0.95"/>
+        <rect x="14" y="1" width="19" height="19" rx="4" transform="rotate(45 14 1)" fill="#22c55e"/>
+        <path d="M17 9l-4 5h3l-2.5 5 5.5-7h-3.5l2.5-3z" fill="white" opacity="0.95"/>
       </svg>
       <div class="tb-brand-name">Flori<span class="g">-Core</span></div>
     </div>
@@ -1004,126 +987,138 @@
 
           <!-- Logo -->
           <div class="sb-logo">
-            <svg class="sb-logo-icon" viewBox="0 0 34 34" fill="none">
-              <polygon points="17,2 32,17 17,32 2,17" fill="#22c55e" opacity="0.9"/>
-              <polygon points="17,9 25,17 17,25 9,17"  fill="#16a34a" opacity="0.7"/>
-              <circle cx="17" cy="17" r="4" fill="white" opacity="0.95"/>
+            <!-- Diamond logo matching real app: green diamond + lightning bolt -->
+            <svg class="sb-logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="18" y="2" width="24" height="24" rx="5" transform="rotate(45 18 2)" fill="#22c55e"/>
+              <path d="M21 12l-5 6h4l-3 6 7-8h-4l3-6z" fill="white" opacity="0.95"/>
             </svg>
             <div class="sb-logo-text">
               <div class="sb-logo-name">Flori<span class="g">-Core</span></div>
-              <div class="sb-logo-ver">Enterprise OS · v1.2.4</div>
+              <div class="sb-logo-ver">Enterprise OS</div>
             </div>
           </div>
 
-          <!-- User pill -->
-          <div class="sb-user">
-            <div class="sb-avatar">JK</div>
-            <div class="sb-user-info">
-              <div class="sb-user-name">James Kariuki</div>
-              <div class="sb-user-role">Farm Director</div>
-            </div>
-            <div class="sb-status-dot"></div>
-          </div>
-
-          <!-- Navigation -->
+          <!-- Navigation — no section labels, clean groups separated by .nav-sep -->
           <div class="sb-nav">
 
-            <div class="nav-label">Overview</div>
+            <!-- Overview -->
             <a class="nav-item active" data-mod="0" onclick="navTo(0)">
-              <span class="nav-icon">⊞</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.2" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.2" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1.2" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1.2" fill="currentColor"/></svg></span>
               <span class="nav-lbl">Dashboard</span>
             </a>
 
-            <div class="nav-label">Farm Management</div>
+            <div class="nav-sep"></div>
+
+            <!-- Farm Management -->
             <a class="nav-item" data-mod="1" onclick="navTo(1)">
-              <span class="nav-icon">◫</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1a5 5 0 0 0-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 0 0-5-5z" fill="currentColor"/><circle cx="8" cy="6" r="1.8" fill="rgba(2,8,23,0.5)"/></svg></span>
               <span class="nav-lbl">Farm Zones</span>
             </a>
             <a class="nav-item" data-mod="2" onclick="navTo(2)">
-              <span class="nav-icon">⟳</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M14 8A6 6 0 1 1 8 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/><path d="M14 1v4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
               <span class="nav-lbl">Production</span>
             </a>
             <a class="nav-item" data-mod="3" onclick="navTo(3)">
-              <span class="nav-icon">⚙</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 1v1.5M8 13.5V15M1 8h1.5M13.5 8H15M2.93 2.93l1.06 1.06M12.01 12.01l1.06 1.06M12.01 3.99l1.06-1.06M4.99 12.01l-1.06 1.06" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Farm Operations</span>
             </a>
             <a class="nav-item" data-mod="4" onclick="navTo(4)">
-              <span class="nav-icon">▣</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M1 5l7-4 7 4v7l-7 4-7-4V5z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M1 5l7 4 7-4M8 9v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M4.5 3.2l7 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Pack House</span>
             </a>
             <a class="nav-item" data-mod="5" onclick="navTo(5)">
-              <span class="nav-icon">❄</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><line x1="8" y1="1" x2="8" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="1" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="2.93" y1="2.93" x2="13.07" y2="13.07" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="13.07" y1="2.93" x2="2.93" y2="13.07" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg></span>
               <span class="nav-lbl">Cold Room</span>
               <span class="nav-badge amber">!</span>
             </a>
 
-            <div class="nav-label">People</div>
+            <div class="nav-sep"></div>
+
+            <!-- People -->
             <a class="nav-item" data-mod="6" onclick="navTo(6)">
-              <span class="nav-icon">◉</span>
-              <span class="nav-lbl">Team Access</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M2 14c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg></span>
+              <span class="nav-lbl">Team</span>
             </a>
             <a class="nav-item" data-mod="7" onclick="navTo(7)">
-              <span class="nav-icon">✦</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="4" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5.5 9.5L4 14l4-2 4 2-1.5-4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M6.5 6l1 1 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="nav-lbl">HR &amp; Training</span>
             </a>
 
-            <div class="nav-label">Operations</div>
+            <div class="nav-sep"></div>
+
+            <!-- Operations -->
             <a class="nav-item" data-mod="8" onclick="navTo(8)">
-              <span class="nav-icon">⬡</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="5" width="9" height="6" rx="1" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M10 7h2.5L15 10v1h-5V7z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><circle cx="3.5" cy="12.5" r="1.5" fill="currentColor"/><circle cx="12" cy="12.5" r="1.5" fill="currentColor"/></svg></span>
               <span class="nav-lbl">Logistics</span>
               <span class="nav-badge">22</span>
             </a>
             <a class="nav-item" data-mod="9" onclick="navTo(9)">
-              <span class="nav-icon">⊟</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1L1 5l7 4 7-4-7-4z" fill="currentColor" opacity="0.9"/><path d="M1 9l7 4 7-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M1 12l7 4 7-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.55"/></svg></span>
               <span class="nav-lbl">Inventory</span>
             </a>
             <a class="nav-item" data-mod="10" onclick="navTo(10)">
-              <span class="nav-icon">▤</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M2 6h12l-1 8H3L2 6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M2 6l1.5-4h9L14 6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M6 10v3M10 10v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Stores</span>
               <span class="nav-badge amber">2</span>
             </a>
 
-            <div class="nav-label">Commerce</div>
+            <div class="nav-sep"></div>
+
+            <!-- Commerce -->
             <a class="nav-item" data-mod="11" onclick="navTo(11)">
-              <span class="nav-icon">◈</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M1 12l4-5 3 3 4-7 3 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M1 14.5h14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Sales</span>
             </a>
             <a class="nav-item" data-mod="12" onclick="navTo(12)">
-              <span class="nav-icon">⊕</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M1 1.5h2l2.5 7h7l1.5-5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="7" cy="13.5" r="1.5" fill="currentColor"/><circle cx="12.5" cy="13.5" r="1.5" fill="currentColor"/></svg></span>
               <span class="nav-lbl">Procurement</span>
               <span class="nav-badge">3</span>
             </a>
 
-            <div class="nav-label">Finance &amp; Compliance</div>
+            <div class="nav-sep"></div>
+
+            <!-- Finance & Compliance -->
             <a class="nav-item" data-mod="13" onclick="navTo(13)">
-              <span class="nav-icon">$</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M8 3.5v9M6 5.5c0-.83.67-1.5 2-1.5s2 .67 2 1.5c0 2-4 2-4 4.5 0 .83.67 1.5 2 1.5s2-.67 2-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Financials</span>
             </a>
             <a class="nav-item" data-mod="14" onclick="navTo(14)">
-              <span class="nav-icon">₿</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><rect x="1" y="4" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M1 7.5h14" stroke="currentColor" stroke-width="1.2"/><path d="M4 11h2M9 11h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Payroll Engine</span>
             </a>
             <a class="nav-item" data-mod="15" onclick="navTo(15)">
-              <span class="nav-icon">✓</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1L2 3.5v4c0 3.8 2.6 7 6 8 3.4-1 6-4.2 6-8v-4L8 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="nav-lbl">Compliance Vault</span>
             </a>
 
-            <div class="nav-label">Intelligence</div>
+            <div class="nav-sep"></div>
+
+            <!-- Intelligence -->
             <a class="nav-item" data-mod="16" onclick="navTo(16)">
-              <span class="nav-icon">◎</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="12" r="1.2" fill="currentColor"/><path d="M5.17 9.17a4 4 0 0 1 5.66 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M2.34 6.34a8 8 0 0 1 11.32 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none"/><path d="M0 3.5a12 12 0 0 1 16 0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" fill="none" opacity="0.5"/></svg></span>
               <span class="nav-lbl">IoT Telemetry</span>
             </a>
             <a class="nav-item" data-mod="17" onclick="navTo(17)">
-              <span class="nav-icon">≡</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M9 2H4a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V7L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M9 2v5h4.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5.5 9.5h5M5.5 12h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
               <span class="nav-lbl">Audit Logs</span>
             </a>
 
           </div><!-- /sb-nav -->
 
-          <!-- Sign out -->
+          <!-- Bottom: user + sign out -->
           <div class="sb-bottom">
+            <div class="sb-user-row">
+              <div class="sb-avatar">
+                JK
+                <div class="sb-avatar-dot"></div>
+              </div>
+              <div class="sb-user-info">
+                <div class="sb-user-name">James Kariuki</div>
+                <div class="sb-user-role">Farm Director</div>
+              </div>
+            </div>
             <a class="nav-item nav-item-signout">
-              <span class="nav-icon">↩</span>
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M10.5 3.5H13a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M7 10.5l3-2.5-3-2.5M10 8H3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
               <span class="nav-lbl">Sign Out</span>
             </a>
           </div>
@@ -1744,11 +1739,19 @@ document.addEventListener('click', e => {
    ───────────────────────────────────── */
 function buildTourMiniNav() {
   const sb = document.getElementById('tour-mini-sb');
-  sb.innerHTML = MODS.map((m, i) => `
+  sb.innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px 12px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:6px;">
+      <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+        <rect x="14" y="1" width="19" height="19" rx="3.5" transform="rotate(45 14 1)" fill="#22c55e"/>
+        <path d="M17 9l-4 5h3l-2.5 5 5.5-7h-3.5l2.5-3z" fill="white" opacity="0.95"/>
+      </svg>
+      <span style="font-family:var(--font-head);font-size:12px;font-weight:700;color:var(--text);">Flori<span style="color:var(--green)">-Core</span></span>
+    </div>
+  ` + MODS.map((m, i) => `
     <div class="mini-nav-item ${i === tourMod ? 'active' : ''}"
          data-ti="${i}" onclick="setTourModule(${i})">
-      <span style="font-size:11px;">${m.icon}</span>
-      <span>${m.name}</span>
+      <span style="font-size:10px;opacity:0.7;">${m.icon}</span>
+      <span style="font-size:11px;">${m.name}</span>
     </div>
   `).join('');
 }

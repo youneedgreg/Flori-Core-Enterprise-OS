@@ -5,12 +5,17 @@
 
 ---
 
-## PHASE 1 — Foundation (CSS + Shell) ✅ DONE
+## PHASE 1 — Foundation (CSS + Shell) ✅ DONE + UI FIXED
 - [x] HTML `<head>`, title, Google Fonts (Space Grotesk + Inter)
 - [x] CSS design system (variables, reset, base)
-- [x] Landing page styles + HTML (diamond logo, countdown timer, two CTAs)
+- [x] Landing page styles + HTML (diamond+lightning bolt logo, countdown timer, two CTAs)
 - [x] Browser chrome wrapper (traffic lights, URL bar, LIVE badge)
-- [x] Sidebar (logo, all 18 nav items grouped, user pill, sign out)
+- [x] Sidebar — matches real app exactly:
+      - Lightning bolt diamond logo (matches real Flori-Core icon)
+      - 18 nav items with inline SVG line icons (no unicode symbols)
+      - No section text labels — subtle 8px nav-sep dividers only
+      - Sidebar width 240px (matches real app)
+      - User avatar + name + role at BOTTOM before Sign Out (not top pill)
 - [x] Top mode-toggle bar (Flori-Core brand + mode group + client badge)
 - [x] Main content shell + routing skeleton (showLoading → renderMod → extension point)
 - [x] Cursor element + CSS (SVG arrow, moveTo/moveToEl/ripple engine)
