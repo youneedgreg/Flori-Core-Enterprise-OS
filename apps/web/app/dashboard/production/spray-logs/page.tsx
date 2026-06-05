@@ -56,7 +56,7 @@ export default function SprayLogsPage() {
       if (usersRes.ok) setUsers(await usersRes.json());
     } catch (e) {
       console.error(e);
-      toast.error('Failed to load compliance data');
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

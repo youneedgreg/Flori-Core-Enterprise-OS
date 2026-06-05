@@ -56,7 +56,7 @@ export default function GradingPage() {
         setBatch(data);
         setFormData((prev) => ({ ...prev, stemLength: data.variety?.targetStemLength || 60 }));
       }
-    } catch { toast.error('Failed to load batch data'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, [id]);
 

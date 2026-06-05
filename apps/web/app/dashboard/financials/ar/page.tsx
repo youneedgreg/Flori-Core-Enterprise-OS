@@ -89,7 +89,7 @@ export default function ARPage() {
       const url = `${API}/financials/ar/invoices${statusFilter ? `?status=${statusFilter}` : ''}`;
       const res = await fetch(url, { headers });
       setInvoices(await res.json());
-    } catch { toast.error('Failed to load invoices'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, [statusFilter]);
 
@@ -99,7 +99,7 @@ export default function ARPage() {
       if (!headers) return;
       const res = await fetch(`${API}/financials/ar/aging`, { headers });
       setAging(await res.json());
-    } catch { toast.error('Failed to load aging report'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
   }, []);
 
   useEffect(() => { fetchInvoices(); fetchAging(); }, [fetchInvoices, fetchAging]);

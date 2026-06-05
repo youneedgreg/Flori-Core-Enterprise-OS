@@ -55,10 +55,10 @@ export function ExportDocsModal({ order, apiBase, getAuthHeader, onClose }: Expo
     if (!headers) return;
     try {
       const res = await fetch(`${apiBase}/export-docs/order/${order.id}`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setDocs(await res.json());
-    } catch {
-      toast.error('Failed to load export documents');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

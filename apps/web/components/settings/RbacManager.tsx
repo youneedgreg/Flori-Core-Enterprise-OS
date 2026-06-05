@@ -59,7 +59,7 @@ export default function RbacManager({ onRolesUpdated }: RbacManagerProps) {
       }
     } catch (err) {
       console.error(err);
-      toast.error('Failed to load roles. Using mock data.');
+      toast.error((err as Error).message);
     } finally {
       setLoading(false);
     }

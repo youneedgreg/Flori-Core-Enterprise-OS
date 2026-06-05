@@ -1676,7 +1676,7 @@ export default function OperationsPage() {
         setCycles(c);
         setUsers(u);
         setHighAlerts((scouting as any[]).filter((r: any) => r.severity === 'HIGH').length);
-      } catch { toast.error('Failed to load farm data'); }
+      } catch (e: unknown) { toast.error((e as Error).message); }
       setLoading(false);
     }
     init();

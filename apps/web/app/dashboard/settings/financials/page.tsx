@@ -31,7 +31,7 @@ export default function FinancialSettingsPage() {
         setBaseCurrency(data.baseCurrency);
       }
     } catch (e) {
-      toast.error('Failed to load currency settings');
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

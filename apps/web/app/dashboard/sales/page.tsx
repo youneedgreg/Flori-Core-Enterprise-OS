@@ -96,8 +96,8 @@ export default function SalesPage() {
     try {
       const res = await fetch(`${API}/sales/stats`, { headers });
       if (res.ok) setStats(await res.json());
-    } catch {
-      toast.error('Failed to load sales stats');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoadingStats(false);
     }
@@ -110,8 +110,8 @@ export default function SalesPage() {
     try {
       const res = await fetch(`${API}/sales/invoices`, { headers });
       if (res.ok) setInvoices(await res.json());
-    } catch {
-      toast.error('Failed to load invoices');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoadingInvoices(false);
     }

@@ -217,8 +217,8 @@ export default function ZonesPage() {
         const s = await settingsRes.json();
         if (s.defaultZoneView) setViewMode(s.defaultZoneView);
       }
-    } catch {
-      toast.error('Failed to load farm zones');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -251,8 +251,8 @@ export default function ZonesPage() {
       if (scoutRes.ok) setScoutingReports(await scoutRes.json());
       if (sprayRes.ok) setSprayLogs(await sprayRes.json());
       if (soilRes.ok) setSoilTests(await soilRes.json());
-    } catch {
-      toast.error('Failed to load zone details');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setDetailLoading(false);
     }

@@ -57,7 +57,7 @@ export default function APPage() {
       const url = `${API}/financials/ap/invoices${statusFilter ? `?status=${statusFilter}` : ''}`;
       const res = await fetch(url, { headers: h });
       setInvoices(await res.json());
-    } catch { toast.error('Failed to load vendor invoices'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, [statusFilter]);
 

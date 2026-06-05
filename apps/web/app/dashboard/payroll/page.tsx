@@ -75,7 +75,7 @@ export default function PayrollPage() {
       }
     } catch (error) {
       console.error('Failed to fetch payroll data:', error);
-      toast.error('Failed to load payroll data');
+      toast.error((error as Error).message);
     } finally {
       setLoading(false);
     }

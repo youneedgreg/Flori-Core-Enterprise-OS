@@ -312,7 +312,7 @@ export default function ChatWidget() {
       }
     } catch (err) {
       console.error('Failed to load chat sessions', err);
-      toast.error('Failed to load chat history');
+      toast.error((err as Error).message);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -326,7 +326,7 @@ export default function ChatWidget() {
       setMessages(data);
     } catch (err) {
       console.error('Failed to load messages', err);
-      toast.error('Failed to load conversation');
+      toast.error((err as Error).message);
     }
   };
 

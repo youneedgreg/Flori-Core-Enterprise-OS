@@ -771,7 +771,7 @@ export default function StoresPage() {
       if (prRes.ok) setPrs(await prRes.json());
       if (poRes.ok) setPos(await poRes.json());
       if (curRes.ok) { const d = await curRes.json(); setCurrency(d.currency ?? 'KES'); }
-    } catch { toast.error('Failed to load store data'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, []);
 

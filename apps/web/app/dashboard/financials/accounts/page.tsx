@@ -40,7 +40,7 @@ export default function ChartOfAccountsPage() {
       const data = await res.json();
       setAccounts(data);
     } catch (e) {
-      toast.error('Failed to load chart of accounts');
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

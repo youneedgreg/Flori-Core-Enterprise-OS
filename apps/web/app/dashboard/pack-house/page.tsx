@@ -806,7 +806,7 @@ export default function PackHousePage() {
       setBatches(b);
       setInventory(inv);
       setCycles(c);
-    } catch { toast.error('Failed to load pack house data'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     setLoading(false);
   }, []);
 

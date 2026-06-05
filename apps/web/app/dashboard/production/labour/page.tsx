@@ -63,7 +63,7 @@ export default function LabourDashboard() {
       if (zonesRes.ok) setZones(await zonesRes.json());
     } catch (e) {
       console.error(e);
-      toast.error('Failed to load labour data');
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

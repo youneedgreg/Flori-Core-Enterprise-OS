@@ -538,8 +538,8 @@ export default function InventoryPage() {
       if (flowerRes.ok) setFlowerInv(await flowerRes.json());
       if (wastageRes.ok) setWastageLogs(await wastageRes.json());
       if (varRes.ok) setVarieties(await varRes.json());
-    } catch {
-      toast.error('Failed to load inventory data');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

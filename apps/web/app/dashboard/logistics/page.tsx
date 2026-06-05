@@ -176,7 +176,7 @@ export default function LogisticsPage() {
       setRoutes(r);
       setDrivers(d);
     } catch (e: any) {
-      toast.error(e.message || 'Failed to load logistics data');
+      toast.error(e.message);
     } finally {
       setLoading(false);
     }

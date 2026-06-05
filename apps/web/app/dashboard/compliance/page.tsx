@@ -130,10 +130,10 @@ export default function CompliancePage() {
     setStatsLoading(true);
     try {
       const res = await fetch(`${API}/compliance/stats`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setStats(await res.json());
-    } catch {
-      toast.error('Failed to load compliance stats');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setStatsLoading(false);
     }
@@ -336,10 +336,10 @@ function CertificationsTab({
     setLoading(true);
     try {
       const res = await fetch(`${apiBase}/compliance/certifications`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setCerts(await res.json());
-    } catch {
-      toast.error('Failed to load certifications');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -660,10 +660,10 @@ function SprayLogsTab({
       if (dateFrom) params.set('from', dateFrom);
       if (dateTo) params.set('to', dateTo);
       const res = await fetch(`${apiBase}/compliance/spray-logs?${params}`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setLogs(await res.json());
-    } catch {
-      toast.error('Failed to load spray logs');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -823,10 +823,10 @@ function LabourRecordsTab({
       if (dateFrom) params.set('from', dateFrom);
       if (dateTo) params.set('to', dateTo);
       const res = await fetch(`${apiBase}/compliance/labour-logs?${params}`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setLogs(await res.json());
-    } catch {
-      toast.error('Failed to load labour logs');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -977,10 +977,10 @@ function AuditTrailTab({
       if (dateFrom) params.set('from', dateFrom);
       if (dateTo) params.set('to', dateTo);
       const res = await fetch(`${apiBase}/compliance/audit-logs?${params}`, { headers });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(`Server error (${res.status})`);
       setLogs(await res.json());
-    } catch {
-      toast.error('Failed to load audit trail');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

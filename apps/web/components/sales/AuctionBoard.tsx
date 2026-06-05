@@ -16,8 +16,8 @@ export function AuctionBoard({ apiBase, getAuthHeader, onRefresh }: any) {
       if (res.ok) {
         setLots(await res.json());
       }
-    } catch {
-      toast.error('Failed to load auction lots');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

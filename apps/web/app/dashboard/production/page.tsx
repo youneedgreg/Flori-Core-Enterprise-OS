@@ -241,8 +241,8 @@ export default function ProductionPage() {
           setVarieties(data);
         }
       }
-    } catch {
-      toast.error('Failed to load production data');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -273,8 +273,8 @@ export default function ProductionPage() {
         if (perfRes.ok) setCyclePerformanceLogs(await perfRes.json());
         if (phRes.ok) setCyclePreHarvestLogs(await phRes.json());
         if (schRes.ok) setCycleSchedules(await schRes.json());
-      } catch {
-        toast.error('Failed to load cycle details');
+      } catch (e: unknown) {
+        toast.error((e as Error).message);
       } finally {
         setCycleDetailLoading(false);
       }

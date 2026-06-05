@@ -63,8 +63,8 @@ export default function DriverDashboardPage() {
       // Select the first active route for today
       // In production, we'd strictly match `route.driverId === myDecodedId`
       setRoutes(allRoutes);
-    } catch {
-      toast.error('Failed to load active operations');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

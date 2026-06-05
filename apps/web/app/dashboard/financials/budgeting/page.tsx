@@ -66,7 +66,7 @@ export default function BudgetingPage() {
       setVarieties(await vartyRes.json());
       setBudgets(await budRes.json());
       setCostCentres(await ccRes.json());
-    } catch { toast.error('Failed to load budgeting data'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, [year, month]);
 

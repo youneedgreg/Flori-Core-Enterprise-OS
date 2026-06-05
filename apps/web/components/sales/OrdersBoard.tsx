@@ -85,8 +85,8 @@ export function OrdersBoard({ apiBase, getAuthHeader, onRefresh }: OrdersBoardPr
       if (!res.ok) throw new Error('Failed to fetch orders');
       const data = await res.json();
       setOrders(data);
-    } catch {
-      toast.error('Failed to load orders');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

@@ -119,7 +119,7 @@ export default function TrainingPage() {
       setAppraisals(appraisalsData);
       setComplianceData(complianceRes);
     } catch (e: any) {
-      toast.error(e.message || 'Failed to load training data');
+      toast.error(e.message);
     } finally {
       setLoading(false);
     }

@@ -26,10 +26,10 @@ export function PrepareLotModal({ isOpen, onClose, apiBase, getAuthHeader, onSuc
               setVarieties(data);
             } else {
               setVarieties([]);
-              toast.error(data.message || 'Failed to load varieties');
+              toast.error(data.message);
             }
           })
-          .catch(() => toast.error('Failed to load varieties'));
+          .catch((e: unknown) => toast.error((e as Error).message));
       }
     }
   }, [isOpen, apiBase, getAuthHeader]);

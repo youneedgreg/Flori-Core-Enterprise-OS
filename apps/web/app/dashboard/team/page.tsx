@@ -187,7 +187,7 @@ export default function TeamPage() {
       setMembers(membersData);
       setRoles(rolesData);
     } catch (e: any) {
-      toast.error(e.message || 'Failed to load team data');
+      toast.error(e.message);
     } finally {
       setLoading(false);
     }
@@ -202,7 +202,7 @@ export default function TeamPage() {
       setSelectedMember(data);
       setEditForm({ firstName: data.firstName, lastName: data.lastName, phone: data.phone, roleId: data.roleId, isActive: data.isActive });
     } catch (e: any) {
-      toast.error('Failed to load member profile');
+      toast.error(e.message);
     } finally {
       setPanelLoading(false);
     }

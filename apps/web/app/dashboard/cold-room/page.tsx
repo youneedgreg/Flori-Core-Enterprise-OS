@@ -774,7 +774,7 @@ export default function ColdRoomDashboard() {
       const data = await apiFetch('/cold-room/zones');
       setRooms(data);
       if (data.length > 0 && !selectedRoom) setSelectedRoom(data[0].id);
-    } catch { toast.error('Failed to load cold room data'); }
+    } catch (e: unknown) { toast.error((e as Error).message); }
     finally { setLoading(false); }
   }, [selectedRoom]);
 

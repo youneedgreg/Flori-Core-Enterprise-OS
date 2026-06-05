@@ -274,8 +274,8 @@ export default function ProcurementPage() {
       if (grnRes.ok) setGrns(await grnRes.json());
       if (invRes.ok) setInvoices(await invRes.json());
       if (itemsRes.ok) setStoreItems(await itemsRes.json());
-    } catch {
-      toast.error('Failed to load procurement data');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }

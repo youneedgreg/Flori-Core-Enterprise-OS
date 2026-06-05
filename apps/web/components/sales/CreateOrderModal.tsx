@@ -86,7 +86,7 @@ export function CreateOrderModal({ isOpen, onClose, apiBase, getAuthHeader, onSu
     ]).then(([c, a]) => {
       setCustomers(Array.isArray(c) ? c : []);
       setAtpData(Array.isArray(a) ? a : []);
-    }).catch(() => toast.error('Failed to load form data'));
+    }).catch((e: unknown) => toast.error((e as Error).message));
   }, [isOpen]);
 
   // Unique varieties from ATP

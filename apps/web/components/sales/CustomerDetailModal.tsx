@@ -35,8 +35,8 @@ export function CustomerDetailModal({ customerId, onClose, apiBase, getAuthHeade
       if (!custRes.ok || !timelineRes.ok) throw new Error('API Error');
       setCustomer(await custRes.json());
       setTimeline(await timelineRes.json());
-    } catch {
-      toast.error('Failed to load customer details');
+    } catch (e: unknown) {
+      toast.error((e as Error).message);
     } finally {
       setLoading(false);
     }
