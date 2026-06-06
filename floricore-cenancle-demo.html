@@ -4099,8 +4099,1769 @@ window.render_inventory = () => `
   </div>
 </div>
 `;
+/* ══════════════════════════════════════
+   MODULE 11 — STORES & CATALOGUE
+══════════════════════════════════════ */
+window.render_stores = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">STORES &amp; <em style="color:#f59e0b;">PROCUREMENT</em></div>
+      <div class="mod-subtitle">Item catalogue · stock levels · GRN/issue tracking · vendor management · PO workflow. Currency: <strong style="color:#f59e0b;">KES</strong></div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">↻ Refresh</button>
+      <button class="hdr-btn" style="background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:#60a5fa;">+ Add Vendor</button>
+      <button class="hdr-btn primary">+ Add Item</button>
+    </div>
+  </div>
+
+  <!-- KPI row (4 cards matching real app) -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Total Items</div>
+      <div class="kpi-value">18</div>
+      <div class="kpi-sub">In catalogue</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Stock Value</div>
+      <div class="kpi-value">KES 128,400</div>
+      <div class="kpi-sub"><span class="up">At current unit rates</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Pending PRs</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">Awaiting approvals</div>
+    </div>
+    <div class="kpi-card" style="--accent:239,68,68;">
+      <div class="kpi-label">Low Stock Alerts</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub"><span class="warn">⚠ Action required</span></div>
+    </div>
+  </div>
+
+  <!-- 5 Tabs matching real app -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="stores" data-tab="catalogue" onclick="showTab('stores','catalogue')">Item Catalogue</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="movements" onclick="showTab('stores','movements')">Movement Log</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="procurement" onclick="showTab('stores','procurement')">Procurement <span class="badge amber" style="margin-left:4px;">3</span></div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="vendors" onclick="showTab('stores','vendors')">Vendors</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="lowstock" onclick="showTab('stores','lowstock')">Low Stock <span class="badge red" style="margin-left:4px;">2</span></div>
+  </div>
+
+  <!-- Item Catalogue: columns = Item/SKU, Category, Total Stock, Stock Health, Unit Cost, Total Value -->
+  <div class="tab-panel active" data-tabgroup="stores" data-tab="catalogue">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Item / SKU</th>
+            <th>Category</th>
+            <th>Total Stock</th>
+            <th>Stock Health</th>
+            <th>Unit Cost</th>
+            <th>Total Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--text);display:block;">Fertiliser A-NPK</strong><span style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;">FRT-NPK-001</span></td>
+            <td><span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(132,204,22,0.12);color:#a3e635;border:1px solid rgba(132,204,22,0.25);">Fertiliser</span></td>
+            <td><span style="color:var(--text);font-weight:700;">480 <span style="font-size:11px;color:#64748b;">kg</span></span></td>
+            <td><div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:3px;"><div style="height:100%;width:75%;background:#22c55e;border-radius:4px;"></div></div><span style="font-size:10px;color:#22c55e;font-weight:700;">✓ OK</span></td>
+            <td style="color:#94a3b8;font-size:12px;font-weight:700;">KES 180.00</td>
+            <td style="color:#34d399;font-size:12px;font-weight:700;">KES 86,400</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text);display:block;">Pesticide X200</strong><span style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;">PST-X200-002</span></td>
+            <td><span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(249,115,22,0.12);color:#fb923c;border:1px solid rgba(249,115,22,0.25);">Pesticide</span></td>
+            <td><span style="color:var(--text);font-weight:700;">12 <span style="font-size:11px;color:#64748b;">litres</span></span></td>
+            <td><div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:3px;"><div style="height:100%;width:55%;background:#f59e0b;border-radius:4px;"></div></div><span style="font-size:10px;color:#f59e0b;font-weight:700;">↻ Reorder</span></td>
+            <td style="color:#94a3b8;font-size:12px;font-weight:700;">KES 950.00</td>
+            <td style="color:#34d399;font-size:12px;font-weight:700;">KES 11,400</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text);display:block;">Packaging Boxes (48-stem)</strong><span style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;">PKG-BOX-001</span></td>
+            <td><span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(6,182,212,0.12);color:#22d3ee;border:1px solid rgba(6,182,212,0.25);">Packaging</span></td>
+            <td><span style="color:var(--text);font-weight:700;">340 <span style="font-size:11px;color:#64748b;">pcs</span></span></td>
+            <td><div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:3px;"><div style="height:100%;width:68%;background:#22c55e;border-radius:4px;"></div></div><span style="font-size:10px;color:#22c55e;font-weight:700;">✓ OK</span></td>
+            <td style="color:#94a3b8;font-size:12px;font-weight:700;">KES 45.00</td>
+            <td style="color:#34d399;font-size:12px;font-weight:700;">KES 15,300</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text);display:block;">Stem Sleeves (plastic)</strong><span style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;">PKG-SLV-002</span></td>
+            <td><span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(6,182,212,0.12);color:#22d3ee;border:1px solid rgba(6,182,212,0.25);">Packaging</span></td>
+            <td><span style="color:#f87171;font-weight:700;">1,200 <span style="font-size:11px;color:#64748b;">pcs</span></span></td>
+            <td><div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:3px;"><div style="height:100%;width:20%;background:#ef4444;border-radius:4px;"></div></div><span style="font-size:10px;color:#ef4444;font-weight:700;">⚠ Below Min</span></td>
+            <td style="color:#94a3b8;font-size:12px;font-weight:700;">KES 5.00</td>
+            <td style="color:#34d399;font-size:12px;font-weight:700;">KES 6,000</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--text);display:block;">PPE Gloves (L)</strong><span style="font-size:10px;color:#64748b;font-weight:700;text-transform:uppercase;">PPE-GLV-003</span></td>
+            <td><span style="padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(168,85,247,0.12);color:#c084fc;border:1px solid rgba(168,85,247,0.25);">PPE</span></td>
+            <td><span style="color:var(--text);font-weight:700;">85 <span style="font-size:11px;color:#64748b;">pairs</span></span></td>
+            <td><div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:4px;overflow:hidden;margin-bottom:3px;"><div style="height:100%;width:60%;background:#22c55e;border-radius:4px;"></div></div><span style="font-size:10px;color:#22c55e;font-weight:700;">✓ OK</span></td>
+            <td style="color:#94a3b8;font-size:12px;font-weight:700;">KES 110.00</td>
+            <td style="color:#34d399;font-size:12px;font-weight:700;">KES 9,350</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Movement Log: Type, Item, Zone, Quantity, Reference, Notes, Date -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="movements">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Item</th>
+            <th>Zone</th>
+            <th>Quantity</th>
+            <th>Reference</th>
+            <th>Notes</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);color:#34d399;font-size:10px;font-weight:700;letter-spacing:0.08em;">↓ GRN</span></td>
+            <td><strong style="color:var(--text);">Pesticide X200</strong><div style="font-size:10px;color:#64748b;">PST-X200-002</div></td>
+            <td style="color:#94a3b8;font-size:12px;">Zone A (Farm)</td>
+            <td style="color:#34d399;font-weight:700;">+50 litres</td>
+            <td style="color:#64748b;font-size:11px;">GRN-2026-041</td>
+            <td style="color:#64748b;font-size:11px;">—</td>
+            <td style="color:#64748b;font-size:11px;">05/06/2026</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;font-size:10px;font-weight:700;letter-spacing:0.08em;">↑ Issue</span></td>
+            <td><strong style="color:var(--text);">Fertiliser A-NPK</strong><div style="font-size:10px;color:#64748b;">FRT-NPK-001</div></td>
+            <td style="color:#94a3b8;font-size:12px;">Zone A (Farm)</td>
+            <td style="color:#f87171;font-weight:700;">-25 kg</td>
+            <td style="color:#64748b;font-size:11px;">ISS-2026-112</td>
+            <td style="color:#64748b;font-size:11px;">Fertigation run</td>
+            <td style="color:#64748b;font-size:11px;">04/06/2026</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.25);color:#f59e0b;font-size:10px;font-weight:700;letter-spacing:0.08em;">↑ Issue</span></td>
+            <td><strong style="color:var(--text);">Stem Sleeves</strong><div style="font-size:10px;color:#64748b;">PKG-SLV-002</div></td>
+            <td style="color:#94a3b8;font-size:12px;">Pack House</td>
+            <td style="color:#f87171;font-weight:700;">-1,000 pcs</td>
+            <td style="color:#64748b;font-size:11px;">ISS-2026-111</td>
+            <td style="color:#64748b;font-size:11px;">Packing run #44</td>
+            <td style="color:#64748b;font-size:11px;">04/06/2026</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);color:#34d399;font-size:10px;font-weight:700;letter-spacing:0.08em;">↓ GRN</span></td>
+            <td><strong style="color:var(--text);">Packaging Boxes</strong><div style="font-size:10px;color:#64748b;">PKG-BOX-001</div></td>
+            <td style="color:#94a3b8;font-size:12px;">Main Store</td>
+            <td style="color:#34d399;font-weight:700;">+500 pcs</td>
+            <td style="color:#64748b;font-size:11px;">GRN-2026-040</td>
+            <td style="color:#64748b;font-size:11px;">—</td>
+            <td style="color:#64748b;font-size:11px;">02/06/2026</td>
+          </tr>
+          <tr>
+            <td><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:8px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;font-size:10px;font-weight:700;letter-spacing:0.08em;">✕ Write-Off</span></td>
+            <td><strong style="color:var(--text);">PPE Gloves (L)</strong><div style="font-size:10px;color:#64748b;">PPE-GLV-003</div></td>
+            <td style="color:#94a3b8;font-size:12px;">Zone C (Farm)</td>
+            <td style="color:#f87171;font-weight:700;">-5 pairs</td>
+            <td style="color:#64748b;font-size:11px;">WO-2026-008</td>
+            <td style="color:#64748b;font-size:11px;">Damaged in storage</td>
+            <td style="color:#64748b;font-size:11px;">01/06/2026</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Procurement: Purchase Requests table -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="procurement">
+    <div style="margin-bottom:16px;">
+      <h3 style="font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.08em;display:flex;align-items:center;gap:8px;margin:0 0 12px 0;"><span style="color:#34d399;">◈</span> Purchase Requests</h3>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Status</th>
+              <th>Current Stock</th>
+              <th>Suggested Qty</th>
+              <th>Vendor</th>
+              <th>Est. Total</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--text);">Stem Sleeves</strong><div style="font-size:10px;color:#64748b;margin-top:1px;">PKG-SLV-002 · Packaging</div><span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(52,211,153,0.15);color:#34d399;">⚡ AUTO</span></td>
+              <td><span style="padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">Pending</span></td>
+              <td><span style="color:#f87171;font-size:12px;font-weight:700;">1,200 pcs</span><div style="font-size:10px;color:#64748b;">reorder @ 2,500</div></td>
+              <td style="font-weight:700;color:var(--text);">5,000 pcs</td>
+              <td style="color:#94a3b8;font-size:12px;">Naivasha Farm Inputs</td>
+              <td style="color:var(--text);font-weight:700;">KES 25,000</td>
+              <td style="color:#64748b;font-size:11px;">05/06/2026</td>
+              <td><div style="display:flex;gap:6px;"><button style="padding:5px 12px;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;">Approve</button><button style="padding:5px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;">Reject</button></div></td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text);">Fertiliser A-NPK</strong><div style="font-size:10px;color:#64748b;margin-top:1px;">FRT-NPK-001 · Fertiliser</div><span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(52,211,153,0.15);color:#34d399;">⚡ AUTO</span></td>
+              <td><span style="padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(245,158,11,0.12);color:#f59e0b;border:1px solid rgba(245,158,11,0.25);">Pending</span></td>
+              <td><span style="color:#f87171;font-size:12px;font-weight:700;">80 kg</span><div style="font-size:10px;color:#64748b;">reorder @ 200 kg</div></td>
+              <td style="font-weight:700;color:var(--text);">400 kg</td>
+              <td style="color:#94a3b8;font-size:12px;">KLP Agro Supplies</td>
+              <td style="color:var(--text);font-weight:700;">KES 72,000</td>
+              <td style="color:#64748b;font-size:11px;">04/06/2026</td>
+              <td><div style="display:flex;gap:6px;"><button style="padding:5px 12px;background:rgba(52,211,153,0.15);border:1px solid rgba(52,211,153,0.3);color:#34d399;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;">Approve</button><button style="padding:5px 12px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;">Reject</button></div></td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--text);">Pesticide X200</strong><div style="font-size:10px;color:#64748b;margin-top:1px;">PST-X200-002 · Pesticide</div><span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(59,130,246,0.15);color:#60a5fa;">MANUAL</span></td>
+              <td><span style="padding:3px 10px;border-radius:8px;font-size:10px;font-weight:700;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25);">Approved</span></td>
+              <td><span style="color:#f59e0b;font-size:12px;font-weight:700;">12 litres</span><div style="font-size:10px;color:#64748b;">reorder @ 20 L</div></td>
+              <td style="font-weight:700;color:var(--text);">50 litres</td>
+              <td style="color:#94a3b8;font-size:12px;">KLP Agro Supplies</td>
+              <td style="color:var(--text);font-weight:700;">KES 47,500</td>
+              <td style="color:#64748b;font-size:11px;">03/06/2026</td>
+              <td style="color:#34d399;font-size:11px;font-weight:700;">→ PO created</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vendors tab -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="vendors">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Contact Person</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Payment Terms</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">KLP Agro Supplies</td>
+            <td>Kevin Mwangi</td>
+            <td style="color:#60a5fa;font-size:11px;">kevin@klpagro.co.ke</td>
+            <td>+254 712 345 678</td>
+            <td style="color:#94a3b8;">NET 30</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Naivasha Farm Inputs</td>
+            <td>Alice Koech</td>
+            <td style="color:#60a5fa;font-size:11px;">alice@nfi.co.ke</td>
+            <td>+254 723 456 789</td>
+            <td style="color:#94a3b8;">NET 15</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PackRight Kenya</td>
+            <td>Peter Njiru</td>
+            <td style="color:#60a5fa;font-size:11px;">peter@packright.ke</td>
+            <td>+254 734 567 890</td>
+            <td style="color:#94a3b8;">COD</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Low Stock tab -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="lowstock">
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;overflow:hidden;">
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Current Stock</th>
+            <th>Min Level</th>
+            <th>Reorder Point</th>
+            <th>Pending PR</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Stem Sleeves (plastic)</td>
+            <td style="font-weight:700;color:#ef4444;">1,200 pcs</td>
+            <td>2,500 pcs</td>
+            <td style="color:#f59e0b;">2,500 pcs</td>
+            <td style="color:#34d399;font-weight:600;">Yes (PR-2026-0044)</td>
+            <td><span class="badge red" style="cursor:pointer;">URGENT AUTO-PR</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Fertiliser A-NPK</td>
+            <td style="font-weight:700;color:#f59e0b;">80 kg</td>
+            <td>100 kg</td>
+            <td style="color:#f59e0b;">200 kg</td>
+            <td style="color:#34d399;font-weight:600;">Yes (PR-2026-0043)</td>
+            <td><span class="badge amber" style="cursor:pointer;">REORDER TRIGGERED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 12 — SALES & CRM
+══════════════════════════════════════ */
+window.render_sales = () => `
+
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Total Stock Value</div>
+      <div class="kpi-value">KES 128,400</div>
+      <div class="kpi-sub"><span class="up">At current unit rates</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Low Stock Alerts</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub"><span class="warn">⚠ Action required</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Pending PRs</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">Awaiting approvals</div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Catalogued Items</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">Across 2 categories</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="stores" data-tab="catalogue" onclick="showTab('stores','catalogue')">Item Catalogue</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="movements" onclick="showTab('stores','movements')">Movement Log</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="vendors" onclick="showTab('stores','vendors')">Vendors</div>
+    <div class="tab-btn" data-tabgroup="stores" data-tab="lowstock" onclick="showTab('stores','lowstock')">Low Stock <span class="badge amber" style="margin-left:4px;">2</span></div>
+  </div>
+
+  <!-- Item Catalogue -->
+  <div class="tab-panel active" data-tabgroup="stores" data-tab="catalogue">
+    <div class="card">
+      <div class="card-title">Catalogue Registry</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Item Name</th>
+            <th>Category</th>
+            <th>Current Stock</th>
+            <th>Min Level</th>
+            <th>Unit</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">SKU-8900</td>
+            <td style="font-weight:600;color:var(--text);">Ferti Fertilizer</td>
+            <td>Chemical Inputs</td>
+            <td style="font-weight:700;color:#ef4444;">0</td>
+            <td>50</td>
+            <td>Litres</td>
+            <td><span class="badge red">BELOW MIN</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">SKU-3301</td>
+            <td style="font-weight:600;color:var(--text);">Pesticide X200</td>
+            <td>Chemical Inputs</td>
+            <td style="font-weight:700;color:var(--text);">12</td>
+            <td>10</td>
+            <td>Litres</td>
+            <td><span class="badge green">OK</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">SKU-1100</td>
+            <td style="font-weight:600;color:var(--text);">Packaging Boxes</td>
+            <td>Materials</td>
+            <td style="font-weight:700;color:var(--text);">340</td>
+            <td>100</td>
+            <td>Units</td>
+            <td><span class="badge green">OK</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">SKU-1101</td>
+            <td style="font-weight:600;color:var(--text);">Stem Sleeves</td>
+            <td>Materials</td>
+            <td style="font-weight:700;color:var(--amber);">1,200</td>
+            <td>2,500</td>
+            <td>Units</td>
+            <td><span class="badge amber">LOW</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Movement Log -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="movements">
+    <div class="card">
+      <div class="card-title">Last 5 Movements</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>SKU</th>
+            <th>Item</th>
+            <th>Transaction Type</th>
+            <th>Quantity</th>
+            <th>Operator</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>05/06/2026</td>
+            <td>SKU-3301</td>
+            <td>Pesticide X200</td>
+            <td>Goods Received (GRN)</td>
+            <td style="color:var(--green);font-weight:600;">+50 L</td>
+            <td>David Otieno</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td>04/06/2026</td>
+            <td>SKU-8900</td>
+            <td>Ferti Fertilizer</td>
+            <td>Issue to Zone A</td>
+            <td style="color:#f87171;font-weight:600;">-25 L</td>
+            <td>Mary Wanjiku</td>
+            <td><span class="badge green">COMPLETED</span></td>
+          </tr>
+          <tr>
+            <td>04/06/2026</td>
+            <td>SKU-1101</td>
+            <td>Stem Sleeves</td>
+            <td>Issue to Pack House</td>
+            <td style="color:#f87171;font-weight:600;">-1,000 Pcs</td>
+            <td>David Otieno</td>
+            <td><span class="badge green">COMPLETED</span></td>
+          </tr>
+          <tr>
+            <td>02/06/2026</td>
+            <td>SKU-1100</td>
+            <td>Packaging Boxes</td>
+            <td>Goods Received (GRN)</td>
+            <td style="color:var(--green);font-weight:600;">+500 Pcs</td>
+            <td>David Otieno</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td>01/06/2026</td>
+            <td>SKU-3301</td>
+            <td>Pesticide X200</td>
+            <td>Issue to Zone B</td>
+            <td style="color:#f87171;font-weight:600;">-10 L</td>
+            <td>Grace Njoroge</td>
+            <td><span class="badge green">COMPLETED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vendors -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="vendors">
+    <div class="card">
+      <div class="card-title">Active Vendor Register</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Rating</th>
+            <th>Contact Person</th>
+            <th>Phone</th>
+            <th>Active POs</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">KLP Agro Supplies</td>
+            <td style="color:var(--amber);font-weight:600;">★ 4.8</td>
+            <td>Kevin Mwangi</td>
+            <td>+254 712 345 678</td>
+            <td style="font-weight:700;">1</td>
+            <td><span class="badge green">PREFERRED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Naivasha Farm Inputs</td>
+            <td style="color:var(--amber);font-weight:600;">★ 4.5</td>
+            <td>Alice Koech</td>
+            <td>+254 723 456 789</td>
+            <td style="font-weight:700;">0</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Low Stock -->
+  <div class="tab-panel" data-tabgroup="stores" data-tab="lowstock">
+    <div class="card">
+      <div class="card-title">Low Stock Alert Dashboard</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Current Stock</th>
+            <th>Min Level</th>
+            <th>Reorder Qty</th>
+            <th>Pending PR</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Ferti Fertilizer</td>
+            <td style="font-weight:700;color:#ef4444;">0 L</td>
+            <td>50 L</td>
+            <td>100 L</td>
+            <td style="color:var(--green);font-weight:600;">Yes (PR-2026-0044)</td>
+            <td><span class="badge red" style="cursor:pointer;">URGENT AUTO-PR</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Stem Sleeves</td>
+            <td style="font-weight:700;color:var(--amber);">1,200 Pcs</td>
+            <td>2,500 Pcs</td>
+            <td>5,000 Pcs</td>
+            <td style="color:var(--green);font-weight:600;">Yes (PR-2026-0042)</td>
+            <td><span class="badge amber" style="cursor:pointer;">REORDER TRIGGERED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 12 — SALES & CRM
+══════════════════════════════════════ */
+window.render_sales = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">SALES &amp; <em style="color:var(--blue);">CRM</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Sales pipeline · orders tracking · global invoicing</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Pipeline</button>
+      <button class="hdr-btn primary">+ New Order</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Active Pipeline</div>
+      <div class="kpi-value">USD 14,000</div>
+      <div class="kpi-sub">Across 4 key deals</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active Orders</div>
+      <div class="kpi-value">22</div>
+      <div class="kpi-sub"><span class="up">9 export contracts</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Invoiced Revenue MTD</div>
+      <div class="kpi-value">USD 52,400</div>
+      <div class="kpi-sub">75% paid (30 days terms)</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Conversion Rate</div>
+      <div class="kpi-value">94%</div>
+      <div class="kpi-sub"><span class="up">+2.4% vs last period</span></div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="sales" data-tab="pipeline" onclick="showTab('sales','pipeline')">Pipeline (Kanban)</div>
+    <div class="tab-btn" data-tabgroup="sales" data-tab="customers" onclick="showTab('sales','customers')">Customers</div>
+    <div class="tab-btn" data-tabgroup="sales" data-tab="orders" onclick="showTab('sales','orders')">Orders Queue <span class="badge green" style="margin-left:4px;">22</span></div>
+    <div class="tab-btn" data-tabgroup="sales" data-tab="invoices" onclick="showTab('sales','invoices')">Invoices</div>
+  </div>
+
+  <!-- Pipeline (Kanban) -->
+  <div class="tab-panel active" data-tabgroup="sales" data-tab="pipeline">
+    <div class="kanban-board">
+      <div class="kanban-col">
+        <div class="kanban-col-hdr">PROSPECTS <span class="kanban-col-count">1</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-title">FloraHolland Q3 Order</div>
+          <div class="kanban-card-body">12,000 stems · Red Naomi</div>
+          <div class="kanban-card-foot">
+            <span class="kanban-card-val">USD 8,400</span>
+            <span class="badge gray">Q3 target</span>
+          </div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-hdr">NEGOTIATION <span class="kanban-col-count">1</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-title">Interflora UK</div>
+          <div class="kanban-card-body">8,000 stems · Avalanche White</div>
+          <div class="kanban-card-foot">
+            <span class="kanban-card-val">USD 5,600</span>
+            <span class="badge amber">Price review</span>
+          </div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-hdr">CONTRACT SENT <span class="kanban-col-count">1</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-title">Kenya Airways Cargo Partner</div>
+          <div class="kanban-card-body">Weekly cold chain allocation</div>
+          <div class="kanban-card-foot">
+            <span class="kanban-card-val">Ongoing capacity</span>
+            <span class="badge blue">Reviewing</span>
+          </div>
+        </div>
+      </div>
+      <div class="kanban-col">
+        <div class="kanban-col-hdr">CONVERTED / ACTIVE <span class="kanban-col-count">1</span></div>
+        <div class="kanban-card">
+          <div class="kanban-card-title">Stems East Africa</div>
+          <div class="kanban-card-body">Regional distribution agreement</div>
+          <div class="kanban-card-foot">
+            <span class="kanban-card-val">USD 12,500/mo</span>
+            <span class="badge green">RECURRING</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customers -->
+  <div class="tab-panel" data-tabgroup="sales" data-tab="customers">
+    <div class="card">
+      <div class="card-title">Global Customer Directory</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Market Segment</th>
+            <th>Export Target</th>
+            <th>Currency</th>
+            <th>Active Orders</th>
+            <th>Revenue MTD</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">FloraHolland</td>
+            <td>Netherlands Auction</td>
+            <td>Europe</td>
+            <td>EUR</td>
+            <td style="font-weight:700;">12</td>
+            <td style="font-weight:700;color:var(--text);">USD 32,400</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Interflora UK</td>
+            <td>United Kingdom Florists</td>
+            <td>United Kingdom</td>
+            <td>GBP</td>
+            <td style="font-weight:700;">6</td>
+            <td style="font-weight:700;color:var(--text);">USD 14,800</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Stems East Africa</td>
+            <td>Regional Wholesale</td>
+            <td>East Africa</td>
+            <td>KES</td>
+            <td style="font-weight:700;">4</td>
+            <td style="font-weight:700;color:var(--text);">KES 780,000</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Orders Queue -->
+  <div class="tab-panel" data-tabgroup="sales" data-tab="orders">
+    <div class="card">
+      <div class="card-title">Active Orders Table <span style="font-size:11px;color:var(--text-3);font-weight:400;">Showing 5 of 22 active orders</span></div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Variety</th>
+            <th>Stems</th>
+            <th>Total Value</th>
+            <th>Delivery Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">ORD-1042</td>
+            <td>FloraHolland</td>
+            <td>Red Naomi</td>
+            <td>12,000</td>
+            <td style="font-weight:700;color:var(--text);">USD 8,400</td>
+            <td>06/06/2026</td>
+            <td><span class="badge amber">PACKING</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">ORD-1041</td>
+            <td>Interflora UK</td>
+            <td>Avalanche White</td>
+            <td>8,000</td>
+            <td style="font-weight:700;color:var(--text);">USD 5,600</td>
+            <td>06/06/2026</td>
+            <td><span class="badge green">READY</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">ORD-1040</td>
+            <td>Marks &amp; Spencer</td>
+            <td>Pink Floyd</td>
+            <td>4,500</td>
+            <td style="font-weight:700;color:var(--text);">USD 3,150</td>
+            <td>07/06/2026</td>
+            <td><span class="badge blue">GRADING</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">ORD-1039</td>
+            <td>Amsterdam Bloemen</td>
+            <td>Red Naomi</td>
+            <td>9,600</td>
+            <td style="font-weight:700;color:var(--text);">USD 6,720</td>
+            <td>07/06/2026</td>
+            <td><span class="badge amber">PACKING</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">ORD-1038</td>
+            <td>Dubai Floral WS</td>
+            <td>Avalanche White</td>
+            <td>4,800</td>
+            <td style="font-weight:700;color:var(--text);">USD 3,360</td>
+            <td>08/06/2026</td>
+            <td><span class="badge gray">PLANNED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Invoices -->
+  <div class="tab-panel" data-tabgroup="sales" data-tab="invoices">
+    <div class="card">
+      <div class="card-title">Recent Invoices</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Invoice ID</th>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Total Value</th>
+            <th>Due Date</th>
+            <th>Paid Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">INV-2026-0092</td>
+            <td>ORD-1036</td>
+            <td>FloraHolland</td>
+            <td style="font-weight:700;color:var(--text);">USD 24,200</td>
+            <td>31/05/2026</td>
+            <td>02/06/2026</td>
+            <td><span class="badge green">PAID</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">INV-2026-0093</td>
+            <td>ORD-1037</td>
+            <td>Interflora UK</td>
+            <td style="font-weight:700;color:var(--text);">USD 18,000</td>
+            <td>02/06/2026</td>
+            <td>04/06/2026</td>
+            <td><span class="badge green">PAID</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">INV-2026-0094</td>
+            <td>ORD-1041</td>
+            <td>Interflora UK</td>
+            <td style="font-weight:700;color:var(--text);">USD 5,600</td>
+            <td>15/06/2026</td>
+            <td>-</td>
+            <td><span class="badge amber">PENDING</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 13 — AUTO-PROCUREMENT
+══════════════════════════════════════ */
+window.render_procurement = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">AUTO-<em style="color:var(--green);">PROCUREMENT</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Purchase requests · purchase orders · GRN matching</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Orders</button>
+      <button class="hdr-btn primary">+ New PO</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Pending Approvals</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub"><span class="warn">PR approvals required</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active POs</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">PO-2026-0034 en route</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Total PO Value MTD</div>
+      <div class="kpi-value" style="font-size:21px;">KES 1,240,000</div>
+      <div class="kpi-sub">Across preferred vendors</div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Active Vendors</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub">Naivasha local partners</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="proc" data-tab="requests" onclick="showTab('proc','requests')">Purchase Requests (PR) <span class="badge amber" style="margin-left:4px;">3</span></div>
+    <div class="tab-btn" data-tabgroup="proc" data-tab="orders" onclick="showTab('proc','orders')">Purchase Orders (PO)</div>
+    <div class="tab-btn" data-tabgroup="proc" data-tab="vendors" onclick="showTab('proc','vendors')">Vendors</div>
+    <div class="tab-btn" data-tabgroup="proc" data-tab="grn" onclick="showTab('proc','grn')">GRN History</div>
+    <div class="tab-btn" data-tabgroup="proc" data-tab="invoices" onclick="showTab('proc','invoices')">Invoices (AP)</div>
+  </div>
+
+  <!-- Purchase Requests -->
+  <div class="tab-panel active" data-tabgroup="proc" data-tab="requests">
+    <div class="card">
+      <div class="card-title">Pending Purchase Requests</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>PR ID</th>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Est Cost</th>
+            <th>Requester</th>
+            <th>Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PR-2026-0044</td>
+            <td style="font-weight:600;color:var(--text);">Ferti Fertilizer</td>
+            <td>234 Litres</td>
+            <td style="font-weight:700;color:var(--text);">KES 148,000</td>
+            <td>Mary Wanjiku</td>
+            <td>05/06/2026</td>
+            <td><span class="badge amber">PENDING</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PR-2026-0043</td>
+            <td style="font-weight:600;color:var(--text);">Pesticide X200</td>
+            <td>50 Litres</td>
+            <td style="font-weight:700;color:var(--text);">KES 85,000</td>
+            <td>Mary Wanjiku</td>
+            <td>04/06/2026</td>
+            <td><span class="badge green">APPROVED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PR-2026-0042</td>
+            <td style="font-weight:600;color:var(--text);">Packaging Boxes</td>
+            <td>500 Units</td>
+            <td style="font-weight:700;color:var(--text);">KES 92,000</td>
+            <td>David Otieno</td>
+            <td>02/06/2026</td>
+            <td><span class="badge blue">CONVERTED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Purchase Orders -->
+  <div class="tab-panel" data-tabgroup="proc" data-tab="orders">
+    <div class="card">
+      <div class="card-title">Active Purchase Orders</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>PO ID</th>
+            <th>PR ID</th>
+            <th>Vendor</th>
+            <th>Total Value</th>
+            <th>Date</th>
+            <th>Delivery Status</th>
+            <th>Payment Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PO-2026-0034</td>
+            <td>PR-2026-0042</td>
+            <td>KLP Agro Supplies</td>
+            <td style="font-weight:700;color:var(--text);">KES 538,200</td>
+            <td>03/06/2026</td>
+            <td><span class="badge blue">DISPATCHED</span></td>
+            <td><span class="badge red">UNPAID</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Vendors -->
+  <div class="tab-panel" data-tabgroup="proc" data-tab="vendors">
+    <div class="card">
+      <div class="card-title">Approved Vendors</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Vendor Name</th>
+            <th>Rating</th>
+            <th>Contact Person</th>
+            <th>Main Supply</th>
+            <th>Active Contracts</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">KLP Agro Supplies</td>
+            <td style="color:var(--amber);font-weight:600;">★ 4.8</td>
+            <td>Kevin Mwangi</td>
+            <td>Chemicals &amp; Fertilizers</td>
+            <td>1</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Naivasha Farm Inputs</td>
+            <td style="color:var(--amber);font-weight:600;">★ 4.5</td>
+            <td>Alice Koech</td>
+            <td>Materials &amp; Packing</td>
+            <td>0</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRN History -->
+  <div class="tab-panel" data-tabgroup="proc" data-tab="grn">
+    <div class="card">
+      <div class="card-title">Goods Received Notes (GRN)</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>GRN ID</th>
+            <th>PO ID</th>
+            <th>Vendor</th>
+            <th>Items Received</th>
+            <th>Quantity</th>
+            <th>Received Date</th>
+            <th>Inspector</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">GRN-0932</td>
+            <td>PO-2026-0033</td>
+            <td>Naivasha Farm Inputs</td>
+            <td>Packaging Boxes</td>
+            <td>500 units</td>
+            <td>02/06/2026</td>
+            <td>David Otieno</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">GRN-0931</td>
+            <td>PO-2026-0031</td>
+            <td>KLP Agro Supplies</td>
+            <td>Pesticide X200</td>
+            <td>50 Litres</td>
+            <td>28/05/2026</td>
+            <td>David Otieno</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Invoices -->
+  <div class="tab-panel" data-tabgroup="proc" data-tab="invoices">
+    <div class="card">
+      <div class="card-title">Accounts Payable Invoices</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Invoice ID</th>
+            <th>PO ID</th>
+            <th>Vendor</th>
+            <th>Value</th>
+            <th>Due Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">INV-KLP-8910</td>
+            <td>PO-2026-0034</td>
+            <td>KLP Agro Supplies</td>
+            <td style="font-weight:700;color:var(--text);">KES 538,200</td>
+            <td>18/06/2026</td>
+            <td><span class="badge amber">PENDING APPROVAL</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">INV-NFI-2309</td>
+            <td>PO-2026-0033</td>
+            <td>Naivasha Farm Inputs</td>
+            <td style="font-weight:700;color:var(--text);">KES 92,000</td>
+            <td>12/06/2026</td>
+            <td><span class="badge green">PAID</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 14 — FINANCIAL REPORTING
+══════════════════════════════════════ */
+window.render_financials = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">FINANCIAL <em style="color:var(--green);">REPORTING</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · General ledger · Profit &amp; Loss · Balance Sheet</div>
+    </div>
+    <div class="mod-header-right">
+      <div style="font-size:11px;color:var(--text-3);background:var(--bg-card);border:1px solid var(--border-subtle);padding:6px 12px;border-radius:7px;margin-right:4px;">31/12/2025 – 05/06/2026</div>
+      <button class="hdr-btn">Export XML</button>
+      <button class="hdr-btn primary">Export PDF</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Revenue</div>
+      <div class="kpi-value">USD 125,400</div>
+      <div class="kpi-sub"><span class="up">▲ +12% from last period</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:239,68,68;">
+      <div class="kpi-label">Expenses</div>
+      <div class="kpi-value">USD 82,300</div>
+      <div class="kpi-sub"><span class="up" style="color:var(--green);">▼ -5% vs budget</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Net Income</div>
+      <div class="kpi-value">USD 43,100</div>
+      <div class="kpi-sub">34.4% net margin</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Net Assets</div>
+      <div class="kpi-value" style="font-size:22px;">USD 1,450,000</div>
+      <div class="kpi-sub">Fixed &amp; liquid assets</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="fin" data-tab="pl" onclick="showTab('fin','pl')">Profit &amp; Loss</div>
+    <div class="tab-btn" data-tabgroup="fin" data-tab="balance" onclick="showTab('fin','balance')">Balance Sheet</div>
+    <div class="tab-btn" data-tabgroup="fin" data-tab="tax" onclick="showTab('fin','tax')">Tax Report</div>
+  </div>
+
+  <!-- Profit & Loss -->
+  <div class="tab-panel active" data-tabgroup="fin" data-tab="pl">
+    <div class="card">
+      <div class="card-title">Profit &amp; Loss Statement <span style="font-size:11px;color:var(--text-3);font-weight:400;">USD Currency</span></div>
+      <table class="dt" style="font-size:13px;">
+        <thead>
+          <tr>
+            <th style="font-size:12px;">Account / Description</th>
+            <th style="font-size:12px;text-align:right;">Code</th>
+            <th style="font-size:12px;text-align:right;">Amount (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="font-weight:600;color:var(--text);"><td colspan="3">REVENUE</td></tr>
+          <tr>
+            <td style="padding-left:20px;">Sales Revenue (Export Cut Roses)</td>
+            <td style="text-align:right;color:var(--text-3);">4000</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$118,000</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Shipping &amp; Logistics Freight Charge</td>
+            <td style="text-align:right;color:var(--text-3);">4100</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$7,400</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(255,255,255,0.02);">
+            <td style="padding-left:10px;">Total Revenue</td>
+            <td></td>
+            <td style="text-align:right;color:var(--green); font-size:14px;">$125,400</td>
+          </tr>
+          <tr style="font-weight:600;color:var(--text);"><td colspan="3" style="padding-top:14px;">COST OF GOODS SOLD (COGS)</td></tr>
+          <tr>
+            <td style="padding-left:20px;">Crop Inputs (Fertilizer, Pesticides)</td>
+            <td style="text-align:right;color:var(--text-3);">5000</td>
+            <td style="text-align:right;color:var(--text-2); font-weight:600;">$18,000</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Direct Labor (Harvest, Pack House)</td>
+            <td style="text-align:right;color:var(--text-3);">5100</td>
+            <td style="text-align:right;color:var(--text-2); font-weight:600;">$27,000</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(255,255,255,0.02);">
+            <td style="padding-left:10px;">Total COGS</td>
+            <td></td>
+            <td style="text-align:right;color:var(--text); font-size:14px;">$45,000</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(34,197,94,0.05);">
+            <td style="font-size:13px;padding-left:10px;">Gross Profit</td>
+            <td></td>
+            <td style="text-align:right;color:var(--green); font-size:14px;">$80,400</td>
+          </tr>
+          <tr style="font-weight:600;color:var(--text);"><td colspan="3" style="padding-top:14px;">OPERATIONAL EXPENSES (OPEX)</td></tr>
+          <tr>
+            <td style="padding-left:20px;">Administrative Payroll</td>
+            <td style="text-align:right;color:var(--text-3);">6000</td>
+            <td style="text-align:right;color:var(--text-2); font-weight:600;">$28,000</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Utilities &amp; Greenhouse Power</td>
+            <td style="text-align:right;color:var(--text-3);">6100</td>
+            <td style="text-align:right;color:var(--text-2); font-weight:600;">$4,500</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Crop &amp; Assets Insurance</td>
+            <td style="text-align:right;color:var(--text-3);">6200</td>
+            <td style="text-align:right;color:var(--text-2); font-weight:600;">$4,800</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(255,255,255,0.02);">
+            <td style="padding-left:10px;">Total Expenses</td>
+            <td></td>
+            <td style="text-align:right;color:var(--text); font-size:14px;">$37,300</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(59,130,246,0.08);border-top:1.5px solid var(--border-strong);">
+            <td style="font-size:14px;padding-left:10px;">Net Income</td>
+            <td></td>
+            <td style="text-align:right;color:var(--blue); font-size:15px;">$43,100</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Balance Sheet -->
+  <div class="tab-panel" data-tabgroup="fin" data-tab="balance">
+    <div class="card">
+      <div class="card-title">Balance Sheet Statement</div>
+      <table class="dt" style="font-size:13px;">
+        <thead>
+          <tr>
+            <th style="font-size:12px;">Account / Description</th>
+            <th style="font-size:12px;text-align:right;">Amount (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="font-weight:600;color:var(--text);"><td colspan="2">ASSETS</td></tr>
+          <tr>
+            <td style="padding-left:20px;">Cash &amp; Bank Balances</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$85,000</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Accounts Receivable (AR)</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$52,400</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Greenhouse Infrastructures &amp; Equipment</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$1,312,600</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(34,197,94,0.05);">
+            <td style="padding-left:10px;">Total Assets</td>
+            <td style="text-align:right;color:var(--green); font-size:14px;">$1,450,000</td>
+          </tr>
+          <tr style="font-weight:600;color:var(--text);"><td colspan="2" style="padding-top:14px;">LIABILITIES &amp; EQUITY</td></tr>
+          <tr>
+            <td style="padding-left:20px;">Accounts Payable (AP)</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$15,000</td>
+          </tr>
+          <tr>
+            <td style="padding-left:20px;">Retained Earnings</td>
+            <td style="text-align:right;font-weight:600;color:var(--text);">$1,435,000</td>
+          </tr>
+          <tr style="font-weight:700;background:rgba(59,130,246,0.08);border-top:1.5px solid var(--border-strong);">
+            <td style="padding-left:10px;">Total Liabilities &amp; Equity</td>
+            <td style="text-align:right;color:var(--blue); font-size:14px;">$1,450,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tax Report -->
+  <div class="tab-panel" data-tabgroup="fin" data-tab="tax">
+    <div class="card">
+      <div class="card-title">Tax Accruals &amp; VAT Return (KRA)</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Tax Category</th>
+            <th>Base Amount</th>
+            <th>Rate</th>
+            <th>Tax Liability</th>
+            <th>Filing Period</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">VAT Collected (16% Output)</td>
+            <td>KES 8,450,000</td>
+            <td>16%</td>
+            <td style="font-weight:700;color:var(--text);">KES 1,352,000</td>
+            <td>May 2026</td>
+            <td><span class="badge blue">DECLARED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">VAT Paid (Input Deductions)</td>
+            <td>KES 5,375,000</td>
+            <td>16%</td>
+            <td style="font-weight:700;color:var(--green);">KES 860,000</td>
+            <td>May 2026</td>
+            <td><span class="badge green">CLAIMABLE</span></td>
+          </tr>
+          <tr style="font-weight:700;background:var(--bg-elevated);">
+            <td style="color:var(--text);">Net VAT Payable (KRA)</td>
+            <td>-</td>
+            <td>-</td>
+            <td style="color:var(--amber);">KES 492,000</td>
+            <td>Due 20/06/2026</td>
+            <td><span class="badge amber">PENDING REMITTANCE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 15 — PAYROLL ENGINE
+══════════════════════════════════════ */
+window.render_payroll = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">PAYROLL <em style="color:var(--green);">ENGINE</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Statutory deductions · M-Pesa disbursements · pay slips</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Bank Sheet</button>
+      <button class="hdr-btn primary">Run Payroll</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active Workforce</div>
+      <div class="kpi-value">312 staff</div>
+      <div class="kpi-sub">148 permanent · 164 casuals</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Active Payroll Runs</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-sub">Next run scheduled 25/06</div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Last Net Pay Run</div>
+      <div class="kpi-value" style="font-size:20px;">KES 4,280,000</div>
+      <div class="kpi-sub">Processed on 31/05/2026</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">M-Pesa Gateway</div>
+      <div class="kpi-value" style="font-size:18px;color:var(--green);">ONLINE</div>
+      <div class="kpi-sub"><span class="up">● API Auto-sync active</span></div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="prl" data-tab="employees" onclick="showTab('prl','employees')">Employees Registry</div>
+    <div class="tab-btn" data-tabgroup="prl" data-tab="runs" onclick="showTab('prl','runs')">Payroll Runs</div>
+    <div class="tab-btn" data-tabgroup="prl" data-tab="overview" onclick="showTab('prl','overview')">Engine Overview</div>
+  </div>
+
+  <!-- Employees Tab -->
+  <div class="tab-panel active" data-tabgroup="prl" data-tab="employees">
+    <div class="card">
+      <div class="card-title">Employee Compensation Records</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Role</th>
+            <th>Class</th>
+            <th>Gross salary</th>
+            <th>Department</th>
+            <th>Bank/M-Pesa</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">James Kariuki</td>
+            <td>Farm Director</td>
+            <td><span class="badge blue">Permanent</span></td>
+            <td style="font-weight:700;color:var(--text);">KES 85,000/mo</td>
+            <td>Administration</td>
+            <td>NCBA Bank</td>
+            <td><span class="badge green">SECURE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Mary Wanjiku</td>
+            <td>Operations Manager</td>
+            <td><span class="badge blue">Permanent</span></td>
+            <td style="font-weight:700;color:var(--text);">KES 62,000/mo</td>
+            <td>Farm Operations</td>
+            <td>Equity Bank</td>
+            <td><span class="badge green">SECURE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Grace Njoroge</td>
+            <td>Field Supervisor</td>
+            <td><span class="badge blue">Permanent</span></td>
+            <td style="font-weight:700;color:var(--text);">KES 45,000/mo</td>
+            <td>Crop Management</td>
+            <td>M-Pesa</td>
+            <td><span class="badge amber">TEMP PW</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">David Otieno</td>
+            <td>Pack House Supervisor</td>
+            <td><span class="badge blue">Permanent</span></td>
+            <td style="font-weight:700;color:var(--text);">KES 50,000/mo</td>
+            <td>Post-Harvest</td>
+            <td>M-Pesa</td>
+            <td><span class="badge green">SECURE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Payroll Runs -->
+  <div class="tab-panel" data-tabgroup="prl" data-tab="runs">
+    <div class="card">
+      <div class="card-title">Payroll Runs History</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Run ID</th>
+            <th>Period</th>
+            <th>Total Employees</th>
+            <th>Gross Pay</th>
+            <th>Deductions</th>
+            <th>Net Payout</th>
+            <th>Payment Method</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PRL-2026-05</td>
+            <td>May 2026</td>
+            <td>312 staff</td>
+            <td>KES 5,850,000</td>
+            <td>KES 1,570,000</td>
+            <td style="font-weight:700;color:var(--text);">KES 4,280,000</td>
+            <td>M-Pesa (Casual) &amp; Bank</td>
+            <td><span class="badge green">PROCESSED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">PRL-2026-04</td>
+            <td>April 2026</td>
+            <td>308 staff</td>
+            <td>KES 5,720,000</td>
+            <td>KES 1,530,000</td>
+            <td style="font-weight:700;color:var(--text);">KES 4,190,000</td>
+            <td>M-Pesa (Casual) &amp; Bank</td>
+            <td><span class="badge green">PROCESSED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="tab-panel" data-tabgroup="prl" data-tab="overview">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-title">Kenya Statutory Deductions (Auto-computed)</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="telem-row"><div class="telem-label">PAYE Bracket Range</div><div class="telem-val">10% - 35%</div><div class="telem-status stable">ACTIVE</div></div>
+          <div class="telem-row"><div class="telem-label">NSSF Tier I &amp; II Contribution</div><div class="telem-val">Employer/Employee 6%</div></div>
+          <div class="telem-row"><div class="telem-label">NHIF / SHIF Transition Rates</div><div class="telem-val">2.75% of Gross Income</div></div>
+          <div class="telem-row"><div class="telem-label">Housing Levy</div><div class="telem-val">1.5% match applied</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Disbursement Gateways</div>
+        <div class="telem-row"><div class="telem-label">Safaricom M-Pesa B2C Channel</div><div class="telem-val" style="color:var(--green);font-weight:700;">CONNECTED</div></div>
+        <div class="telem-row"><div class="telem-label">Corporate Bank Swift (MT101)</div><div class="telem-val" style="color:var(--green);font-weight:700;">READY</div></div>
+        <div class="telem-row"><div class="telem-label">M-Pesa Float Balance</div><div class="telem-val">KES 2,450,000</div></div>
+        <div class="telem-row"><div class="telem-label">System Rule Alert</div><div class="telem-val" style="color:var(--amber);">Refill Float before next Casual run</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 16 — COMPLIANCE VAULT
+══════════════════════════════════════ */
+window.render_compliance = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">COMPLIANCE <em style="color:var(--green);">VAULT</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Environmental certificates · chemical spray logs · labor audits</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Audit PDF</button>
+      <button class="hdr-btn primary">+ Log Spray Entry</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active Certifications</div>
+      <div class="kpi-value">2</div>
+      <div class="kpi-sub"><span class="up">GlobalG.A.P. &amp; KFC Silver</span></div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Expiring &le; 30 Days</div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-sub">All certs up to date</div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Sprays This Month</div>
+      <div class="kpi-value">4 applications</div>
+      <div class="kpi-sub">All PHI intervals monitored</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Compliance Score</div>
+      <div class="kpi-value">98.6%</div>
+      <div class="kpi-sub">KFC Audit Benchmark Pass</div>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="comp" data-tab="certs" onclick="showTab('comp','certs')">Certifications</div>
+    <div class="tab-btn" data-tabgroup="comp" data-tab="spray" onclick="showTab('comp','spray')">Spray Logs</div>
+    <div class="tab-btn" data-tabgroup="comp" data-tab="labour" onclick="showTab('comp','labour')">Labour Records</div>
+    <div class="tab-btn" data-tabgroup="comp" data-tab="audit" onclick="showTab('comp','audit')">Audit Logs Trail</div>
+  </div>
+
+  <!-- Certifications -->
+  <div class="tab-panel active" data-tabgroup="comp" data-tab="certs">
+    <div class="card">
+      <div class="card-title">Regulatory &amp; Market Certifications</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Certification</th>
+            <th>Issuing Body</th>
+            <th>Expiry Date</th>
+            <th>Last Audit Date</th>
+            <th>Audit Scope</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">GlobalG.A.P.</td>
+            <td>FoodPLUS GmbH</td>
+            <td>30/11/2026</td>
+            <td>12/11/2025</td>
+            <td>Export Market Quality &amp; Safety Standards</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">KFC Certification</td>
+            <td>Kenya Flower Council</td>
+            <td>15/08/2026</td>
+            <td>10/08/2025</td>
+            <td>Fair Trade, Environment &amp; Social Standards</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Spray Logs -->
+  <div class="tab-panel" data-tabgroup="comp" data-tab="spray">
+    <div class="card">
+      <div class="card-title">Chemical &amp; Pesticide Spray Log Registry</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Chemical Applied</th>
+            <th>Target Pest</th>
+            <th>Dose / Ha</th>
+            <th>Pre-Harvest Interval (PHI)</th>
+            <th>Re-Entry Status</th>
+            <th>Applicator</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>05/06/2026</td>
+            <td style="font-weight:600;color:var(--text);">Fungicide F400</td>
+            <td>Botrytis</td>
+            <td>1.5 kg</td>
+            <td>3 days</td>
+            <td><span class="badge amber">RESTRICTED (PHI Active)</span></td>
+            <td>Samuel Kimani</td>
+          </tr>
+          <tr>
+            <td>28/05/2026</td>
+            <td style="font-weight:600;color:var(--text);">Insecticide X2</td>
+            <td>Red Spider Mite</td>
+            <td>800 ml</td>
+            <td>5 days</td>
+            <td><span class="badge green">CLEARED</span></td>
+            <td>Samuel Kimani</td>
+          </tr>
+          <tr>
+            <td>12/05/2026</td>
+            <td style="font-weight:600;color:var(--text);">Bio-Neem Oil</td>
+            <td>Aphids</td>
+            <td>2.0 L</td>
+            <td>1 day</td>
+            <td><span class="badge green">CLEARED</span></td>
+            <td>Samuel Kimani</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Labour Records -->
+  <div class="tab-panel" data-tabgroup="comp" data-tab="labour">
+    <div class="card">
+      <div class="card-title">Shift Attendance compliance summaries</div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Shift ID</th>
+            <th>Date</th>
+            <th>Class</th>
+            <th>Workers Present</th>
+            <th>Total Hours</th>
+            <th>Welfare Audit</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Shift-B-05</td>
+            <td>05/06/2026</td>
+            <td>Casual workers</td>
+            <td style="font-weight:700;">156 / 162</td>
+            <td>1,248 hrs</td>
+            <td>Break times &amp; PPE verified</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Shift-A-05</td>
+            <td>05/06/2026</td>
+            <td>Permanent staff</td>
+            <td style="font-weight:700;">150 / 150</td>
+            <td>1,200 hrs</td>
+            <td>Safe environment checked</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Shift-B-04</td>
+            <td>04/06/2026</td>
+            <td>Casual workers</td>
+            <td style="font-weight:700;">158 / 162</td>
+            <td>1,264 hrs</td>
+            <td>PPE compliance check passed</td>
+            <td><span class="badge green">VERIFIED</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit Trail -->
+  <div class="tab-panel" data-tabgroup="comp" data-tab="audit">
+    <div class="card">
+      <div class="card-title">Vault Audit History Trail <span style="font-size:11px;color:var(--text-3);font-weight:400;">Last 3 log actions</span></div>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Operator</th>
+            <th>Module</th>
+            <th>Action</th>
+            <th>Target Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>05/06/2026 09:12</td>
+            <td>James Kariuki (Director)</td>
+            <td>Compliance Logs</td>
+            <td>Chemical application log submitted</td>
+            <td>Fungicide F400 (Zone A)</td>
+          </tr>
+          <tr>
+            <td>04/06/2026 14:00</td>
+            <td>Mary Wanjiku (Ops)</td>
+            <td>HR &amp; Training</td>
+            <td>Training certificate uploaded</td>
+            <td>PPE usage course validation</td>
+          </tr>
+          <tr>
+            <td>01/06/2026 10:30</td>
+            <td>James Kariuki (Director)</td>
+            <td>Compliance Vault</td>
+            <td>KFC Silver Renewal signed</td>
+            <td>KFC-CERT-2026-REV</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
 
 </script>
+
+<!-- ═══════════════════ PHASE 4 STYLES ═══════════════════ -->
+<style>
+/* ── Sales Kanban Board ── */
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-top: 6px;
+}
+.kanban-col {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 250px;
+}
+.kanban-col-hdr {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.kanban-col-count {
+  background: rgba(255,255,255,0.05);
+  padding: 1px 6px;
+  border-radius: 20px;
+  font-size: 9px;
+  color: var(--text-2);
+}
+.kanban-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.kanban-card:hover {
+  border-color: var(--blue);
+  transform: translateY(-1px);
+}
+.kanban-card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.kanban-card-body {
+  font-size: 11px;
+  color: var(--text-3);
+}
+.kanban-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.kanban-card-val {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-2);
+}
+</style>
 
 </body>
 </html>
