@@ -1689,6 +1689,8 @@ function moveTo(x, y, ms = 700) {
 function moveToEl(el, ms) {
   if (!el) return Promise.resolve();
   const r = el.getBoundingClientRect();
+  // Element is inside a hidden container (display:none tab panel) — skip
+  if (r.width === 0 && r.height === 0) return Promise.resolve();
   return moveTo(r.left + r.width / 2, r.top + r.height / 2, ms);
 }
 
@@ -7891,14 +7893,12 @@ function openKbdOverlay()  { document.getElementById('kbd-overlay').classList.ad
 function closeKbdOverlay() { document.getElementById('kbd-overlay').classList.remove('open'); }
 
 function pbPrev() {
-  const prev = Math.max(0, curMod - 1);
-  if (mode === 'tour') { setTourModule(prev); }
-  else { pbarJump(prev); }
+  if (mode === 'tour') { setTourModule(Math.max(0, tourMod - 1)); }
+  else { pbarJump(Math.max(0, curMod - 1)); }
 }
 function pbNext() {
-  const next = Math.min(MODS.length - 1, curMod + 1);
-  if (mode === 'tour') { setTourModule(next); }
-  else { pbarJump(next); }
+  if (mode === 'tour') { setTourModule(Math.min(MODS.length - 1, tourMod + 1)); }
+  else { pbarJump(Math.min(MODS.length - 1, curMod + 1)); }
 }
 
 document.addEventListener('keydown', e => {
