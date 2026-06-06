@@ -1100,7 +1100,12 @@
             </a>
             <a class="nav-item" data-mod="17" onclick="navTo(17)">
               <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M9 2H4a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V7L9 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" fill="none"/><path d="M9 2v5h4.5" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M5.5 9.5h5M5.5 12h3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></span>
-              <span class="nav-lbl">Audit Logs</span>
+              <span class="nav-lbl">Audit Trail</span>
+            </a>
+            <a class="nav-item" data-mod="18" onclick="navTo(18)">
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 2c-3.3 0-6 2.2-6 5 0 1.4.6 2.7 1.7 3.6L3 14l3.2-1.5C7 12.8 7.5 13 8 13c3.3 0 6-2.2 6-5s-2.7-6-6-6z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M5 8h.5M8 8h.5M11 8h.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              <span class="nav-lbl">AI Assistant</span>
+              <span class="nav-badge" style="background:rgba(34,197,94,0.2);color:#4ade80;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:auto;">NEW</span>
             </a>
 
           </div><!-- /sb-nav -->
@@ -1258,7 +1263,8 @@ const MODS = [
   { id:'payroll',     name:'Payroll Engine',     icon:'₿', url:'/payroll',     badge:null },
   { id:'compliance',  name:'Compliance Vault',   icon:'✓', url:'/compliance',  badge:null },
   { id:'iot',         name:'IoT Telemetry',      icon:'◎', url:'/iot',         badge:null },
-  { id:'audit',       name:'Audit Logs',         icon:'≡', url:'/audit',       badge:null },
+  { id:'audit',       name:'Audit Trail',        icon:'≡', url:'/audit',       badge:null },
+  { id:'ai',          name:'AI Assistant',       icon:'◆', url:'/ai',          badge:'NEW' },
 ];
 
 const TOUR_DATA = [
@@ -1477,6 +1483,18 @@ const TOUR_DATA = [
       '10 logged audit events across production, sales, procurement, HR',
     ],
     why:'When a certification auditor asks who approved the pesticide PO at 3pm on a Thursday — this log shows it in 8 seconds with a full diff of what changed.',
+  },
+  {
+    title:'<em>AI</em> Assistant',
+    desc:'Conversational AI built into Flori-Core — ask questions about your farm data in plain English and get instant, context-aware answers.',
+    feats:[
+      '"Projected output this week?" → 52,800 stems — Zone A peak harvest',
+      '"Which zone needs attention?" → Zone B moisture at 61%, irrigation recommended',
+      '"Who last edited the payroll run?" → Audit trail sourced instantly',
+      'Suggested prompts auto-generated from live farm context',
+      'Full conversation history with timestamp and model source',
+    ],
+    why:'James needs answers at 5 AM before the farm walk-through, not a database query. The AI turns 18 modules of structured data into a 10-second answer — in plain English.',
   },
 ];
 
@@ -1724,7 +1742,6 @@ function pausePlay() {
 function resumePlay() {
   paused = false;
   document.getElementById('btn-resume').classList.remove('show');
-  // Phase 7 will wire up the full sequencer here
 }
 
 // Click anywhere (outside topbar) to pause auto-play
@@ -1948,11 +1965,14 @@ window.addEventListener('load', () => {
 
 <!-- ═══════════════════ PHASE 2 SCRIPTS ═══════════════════ -->
 <script>
-/* ─── shared tab helper ─── */
+/* ─── shared tab helper (Phase 6 version in later script block overrides) ─── */
 function showTab(groupId, tabId) {
-  document.querySelectorAll(`[data-tabgroup="${groupId}"]`).forEach(el => {
-    const t = el.dataset.tab;
-    el.classList.toggle('active', t === tabId);
+  document.querySelectorAll(`[data-tabgroup="${groupId}"][data-tab]`).forEach(el => {
+    const isTarget = el.dataset.tab === tabId;
+    el.classList.toggle('active', el.classList.contains('tab-btn') && isTarget);
+    if (el.classList.contains('tab-panel')) {
+      el.style.display = isTarget ? 'block' : 'none';
+    }
   });
 }
 
@@ -4416,245 +4436,6 @@ window.render_stores = () => `
    MODULE 12 — SALES & CRM
 ══════════════════════════════════════ */
 window.render_sales = () => `
-
-
-  <!-- KPI row -->
-  <div class="kpi-row">
-    <div class="kpi-card" style="--accent:34,197,94;">
-      <div class="kpi-label">Total Stock Value</div>
-      <div class="kpi-value">KES 128,400</div>
-      <div class="kpi-sub"><span class="up">At current unit rates</span></div>
-    </div>
-    <div class="kpi-card" style="--accent:245,158,11;">
-      <div class="kpi-label">Low Stock Alerts</div>
-      <div class="kpi-value">2</div>
-      <div class="kpi-sub"><span class="warn">⚠ Action required</span></div>
-    </div>
-    <div class="kpi-card" style="--accent:59,130,246;">
-      <div class="kpi-label">Pending PRs</div>
-      <div class="kpi-value">3</div>
-      <div class="kpi-sub">Awaiting approvals</div>
-    </div>
-    <div class="kpi-card" style="--accent:139,92,246;">
-      <div class="kpi-label">Catalogued Items</div>
-      <div class="kpi-value">4</div>
-      <div class="kpi-sub">Across 2 categories</div>
-    </div>
-  </div>
-
-  <!-- Tab bar -->
-  <div class="tab-bar">
-    <div class="tab-btn active" data-tabgroup="stores" data-tab="catalogue" onclick="showTab('stores','catalogue')">Item Catalogue</div>
-    <div class="tab-btn" data-tabgroup="stores" data-tab="movements" onclick="showTab('stores','movements')">Movement Log</div>
-    <div class="tab-btn" data-tabgroup="stores" data-tab="vendors" onclick="showTab('stores','vendors')">Vendors</div>
-    <div class="tab-btn" data-tabgroup="stores" data-tab="lowstock" onclick="showTab('stores','lowstock')">Low Stock <span class="badge amber" style="margin-left:4px;">2</span></div>
-  </div>
-
-  <!-- Item Catalogue -->
-  <div class="tab-panel active" data-tabgroup="stores" data-tab="catalogue">
-    <div class="card">
-      <div class="card-title">Catalogue Registry</div>
-      <table class="dt">
-        <thead>
-          <tr>
-            <th>SKU</th>
-            <th>Item Name</th>
-            <th>Category</th>
-            <th>Current Stock</th>
-            <th>Min Level</th>
-            <th>Unit</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">SKU-8900</td>
-            <td style="font-weight:600;color:var(--text);">Ferti Fertilizer</td>
-            <td>Chemical Inputs</td>
-            <td style="font-weight:700;color:#ef4444;">0</td>
-            <td>50</td>
-            <td>Litres</td>
-            <td><span class="badge red">BELOW MIN</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">SKU-3301</td>
-            <td style="font-weight:600;color:var(--text);">Pesticide X200</td>
-            <td>Chemical Inputs</td>
-            <td style="font-weight:700;color:var(--text);">12</td>
-            <td>10</td>
-            <td>Litres</td>
-            <td><span class="badge green">OK</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">SKU-1100</td>
-            <td style="font-weight:600;color:var(--text);">Packaging Boxes</td>
-            <td>Materials</td>
-            <td style="font-weight:700;color:var(--text);">340</td>
-            <td>100</td>
-            <td>Units</td>
-            <td><span class="badge green">OK</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">SKU-1101</td>
-            <td style="font-weight:600;color:var(--text);">Stem Sleeves</td>
-            <td>Materials</td>
-            <td style="font-weight:700;color:var(--amber);">1,200</td>
-            <td>2,500</td>
-            <td>Units</td>
-            <td><span class="badge amber">LOW</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Movement Log -->
-  <div class="tab-panel" data-tabgroup="stores" data-tab="movements">
-    <div class="card">
-      <div class="card-title">Last 5 Movements</div>
-      <table class="dt">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>SKU</th>
-            <th>Item</th>
-            <th>Transaction Type</th>
-            <th>Quantity</th>
-            <th>Operator</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>05/06/2026</td>
-            <td>SKU-3301</td>
-            <td>Pesticide X200</td>
-            <td>Goods Received (GRN)</td>
-            <td style="color:var(--green);font-weight:600;">+50 L</td>
-            <td>David Otieno</td>
-            <td><span class="badge green">VERIFIED</span></td>
-          </tr>
-          <tr>
-            <td>04/06/2026</td>
-            <td>SKU-8900</td>
-            <td>Ferti Fertilizer</td>
-            <td>Issue to Zone A</td>
-            <td style="color:#f87171;font-weight:600;">-25 L</td>
-            <td>Mary Wanjiku</td>
-            <td><span class="badge green">COMPLETED</span></td>
-          </tr>
-          <tr>
-            <td>04/06/2026</td>
-            <td>SKU-1101</td>
-            <td>Stem Sleeves</td>
-            <td>Issue to Pack House</td>
-            <td style="color:#f87171;font-weight:600;">-1,000 Pcs</td>
-            <td>David Otieno</td>
-            <td><span class="badge green">COMPLETED</span></td>
-          </tr>
-          <tr>
-            <td>02/06/2026</td>
-            <td>SKU-1100</td>
-            <td>Packaging Boxes</td>
-            <td>Goods Received (GRN)</td>
-            <td style="color:var(--green);font-weight:600;">+500 Pcs</td>
-            <td>David Otieno</td>
-            <td><span class="badge green">VERIFIED</span></td>
-          </tr>
-          <tr>
-            <td>01/06/2026</td>
-            <td>SKU-3301</td>
-            <td>Pesticide X200</td>
-            <td>Issue to Zone B</td>
-            <td style="color:#f87171;font-weight:600;">-10 L</td>
-            <td>Grace Njoroge</td>
-            <td><span class="badge green">COMPLETED</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Vendors -->
-  <div class="tab-panel" data-tabgroup="stores" data-tab="vendors">
-    <div class="card">
-      <div class="card-title">Active Vendor Register</div>
-      <table class="dt">
-        <thead>
-          <tr>
-            <th>Vendor Name</th>
-            <th>Rating</th>
-            <th>Contact Person</th>
-            <th>Phone</th>
-            <th>Active POs</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">KLP Agro Supplies</td>
-            <td style="color:var(--amber);font-weight:600;">★ 4.8</td>
-            <td>Kevin Mwangi</td>
-            <td>+254 712 345 678</td>
-            <td style="font-weight:700;">1</td>
-            <td><span class="badge green">PREFERRED</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">Naivasha Farm Inputs</td>
-            <td style="color:var(--amber);font-weight:600;">★ 4.5</td>
-            <td>Alice Koech</td>
-            <td>+254 723 456 789</td>
-            <td style="font-weight:700;">0</td>
-            <td><span class="badge green">ACTIVE</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Low Stock -->
-  <div class="tab-panel" data-tabgroup="stores" data-tab="lowstock">
-    <div class="card">
-      <div class="card-title">Low Stock Alert Dashboard</div>
-      <table class="dt">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Current Stock</th>
-            <th>Min Level</th>
-            <th>Reorder Qty</th>
-            <th>Pending PR</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">Ferti Fertilizer</td>
-            <td style="font-weight:700;color:#ef4444;">0 L</td>
-            <td>50 L</td>
-            <td>100 L</td>
-            <td style="color:var(--green);font-weight:600;">Yes (PR-2026-0044)</td>
-            <td><span class="badge red" style="cursor:pointer;">URGENT AUTO-PR</span></td>
-          </tr>
-          <tr>
-            <td style="font-weight:600;color:var(--text);">Stem Sleeves</td>
-            <td style="font-weight:700;color:var(--amber);">1,200 Pcs</td>
-            <td>2,500 Pcs</td>
-            <td>5,000 Pcs</td>
-            <td style="color:var(--green);font-weight:600;">Yes (PR-2026-0042)</td>
-            <td><span class="badge amber" style="cursor:pointer;">REORDER TRIGGERED</span></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-`;
-
-/* ══════════════════════════════════════
-   MODULE 12 — SALES & CRM
-══════════════════════════════════════ */
-window.render_sales = () => `
 <div class="mod-page">
   <div class="mod-header">
     <div>
@@ -5562,6 +5343,412 @@ window.render_payroll = () => `
 /* ══════════════════════════════════════
    MODULE 16 — COMPLIANCE VAULT
 ══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   MODULE 17 — IOT TELEMETRY
+══════════════════════════════════════ */
+window.render_iot = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">IoT <em style="color:var(--cyan);">TELEMETRY</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Naivasha · 4 active sensors · auto-sync every 30s</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export CSV</button>
+      <button class="hdr-btn" style="background:rgba(6,182,212,0.12);border-color:rgba(6,182,212,0.3);color:#22d3ee;">+ Add Device</button>
+      <button class="hdr-btn primary">+ New Rule</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:6,182,212;">
+      <div class="kpi-label">Soil Moisture</div>
+      <div class="kpi-value" style="color:var(--cyan);">38.2%</div>
+      <div class="kpi-sub">Zone A avg · <span class="up">OPTIMAL</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2c0 6-7 9-7 14a7 7 0 0014 0c0-5-7-8-7-14z"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:245,158,11;">
+      <div class="kpi-label">Ambient Temp</div>
+      <div class="kpi-value">22.8°C</div>
+      <div class="kpi-sub">Greenhouse avg · <span class="up">NORMAL</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">EC Level</div>
+      <div class="kpi-value">1.6 mS/cm</div>
+      <div class="kpi-sub">Substrate avg · <span class="up">OPTIMAL</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">pH Level</div>
+      <div class="kpi-value">6.3</div>
+      <div class="kpi-sub">Root zone avg · <span class="up">OPTIMAL</span></div>
+      <div class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="iot" data-tab="sensors" onclick="showTab('iot','sensors')">Live Sensors</div>
+    <div class="tab-btn" data-tabgroup="iot" data-tab="chart" onclick="showTab('iot','chart')">Telemetry Chart</div>
+    <div class="tab-btn" data-tabgroup="iot" data-tab="rules" onclick="showTab('iot','rules')">Automation Rules</div>
+  </div>
+
+  <!-- Live Sensors -->
+  <div class="tab-panel active" data-tabgroup="iot" data-tab="sensors">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+      <div class="card" style="border-color:rgba(6,182,212,0.25);">
+        <div class="card-title" style="color:var(--cyan);">Moisture Sensor — Zone A <span class="badge blue" style="margin-left:8px;">LIVE</span></div>
+        <div style="font-family:var(--font-head);font-size:48px;font-weight:700;color:var(--cyan);line-height:1;margin:12px 0 4px;">38.2<span style="font-size:20px;color:var(--text-3);">%</span></div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Last reading: 06/06/2026 10:14:32 · Sensor ID: IOT-MST-A01</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:38.2%;background:var(--cyan);border-radius:8px;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-4);">
+          <span>0%</span><span>Optimal: 35–45%</span><span>100%</span>
+        </div>
+      </div>
+      <div class="card" style="border-color:rgba(245,158,11,0.2);">
+        <div class="card-title">Temp Sensor — Greenhouse A <span class="badge green" style="margin-left:8px;">NORMAL</span></div>
+        <div style="font-family:var(--font-head);font-size:48px;font-weight:700;color:var(--text);line-height:1;margin:12px 0 4px;">22.8<span style="font-size:20px;color:var(--text-3);">°C</span></div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Last reading: 06/06/2026 10:14:32 · Sensor ID: IOT-TMP-A01</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:57%;background:var(--amber);border-radius:8px;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-4);">
+          <span>15°C</span><span>Optimal: 18–26°C</span><span>35°C</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">EC Probe — Substrate Zone A/B <span class="badge green" style="margin-left:8px;">OPTIMAL</span></div>
+        <div style="font-family:var(--font-head);font-size:48px;font-weight:700;color:var(--purple);line-height:1;margin:12px 0 4px;">1.6<span style="font-size:16px;color:var(--text-3);">mS/cm</span></div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Last reading: 06/06/2026 10:14:32 · Sensor ID: IOT-EC-AB01</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:64%;background:var(--purple);border-radius:8px;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-4);">
+          <span>0</span><span>Optimal: 1.4–1.8 mS/cm</span><span>2.5</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">pH Meter — Root Zone <span class="badge green" style="margin-left:8px;">OPTIMAL</span></div>
+        <div style="font-family:var(--font-head);font-size:48px;font-weight:700;color:var(--green);line-height:1;margin:12px 0 4px;">6.3<span style="font-size:20px;color:var(--text-3);">pH</span></div>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Last reading: 06/06/2026 10:14:32 · Sensor ID: IOT-PH-AB01</div>
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;height:6px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:52%;background:var(--green);border-radius:8px;"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-4);">
+          <span>5.0</span><span>Optimal: 5.8–6.5 pH</span><span>8.0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Telemetry Chart -->
+  <div class="tab-panel" data-tabgroup="iot" data-tab="chart">
+    <div class="card">
+      <div class="card-title">1-Hour Moisture Telemetry — Zone A <span id="iot-live-badge" style="display:inline-flex;align-items:center;gap:5px;font-size:10px;color:#22c55e;font-weight:600;margin-left:8px;"><span style="width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse-dot 1.5s infinite;display:inline-block;"></span>LIVE</span></div>
+      <canvas id="iot-canvas" width="640" height="140" style="width:100%;height:140px;display:block;"></canvas>
+      <div style="display:flex;gap:20px;margin-top:12px;font-size:11px;color:var(--text-3);">
+        <span><span style="color:var(--cyan);">◆</span> Moisture %</span>
+        <span><span style="color:rgba(34,197,94,0.5);">- -</span> Optimal min (35%)</span>
+        <span><span style="color:rgba(245,158,11,0.5);">- -</span> Alert threshold (30%)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Automation Rules -->
+  <div class="tab-panel" data-tabgroup="iot" data-tab="rules">
+    <div class="card">
+      <div class="card-title">Active Automation Rules</div>
+      <table class="dt">
+        <thead><tr><th>Rule Name</th><th>Trigger Condition</th><th>Action Taken</th><th>Target</th><th>Last Fired</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">Low Moisture Alert</td>
+            <td>Moisture &lt; 30% (Zone A)</td>
+            <td>Activate Drip Irrigation + Alert James</td>
+            <td>Zone A — Drip system</td>
+            <td style="color:var(--text-3);">05/06/2026 14:22</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">High Temp Vent</td>
+            <td>Temp &gt; 28°C (any greenhouse)</td>
+            <td>Open roof vents + WhatsApp alert</td>
+            <td>Greenhouse A &amp; B vents</td>
+            <td style="color:var(--text-3);">04/06/2026 11:05</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">EC Correction</td>
+            <td>EC &gt; 2.0 mS/cm</td>
+            <td>Reduce fertiliser dosing 20%</td>
+            <td>Fertigation system</td>
+            <td style="color:var(--text-3);">01/06/2026 08:00</td>
+            <td><span class="badge green">ACTIVE</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--text);">pH Drift Alert</td>
+            <td>pH &lt; 5.5 or &gt; 7.0</td>
+            <td>Flag for manual correction + log event</td>
+            <td>Nutrient tank A</td>
+            <td style="color:var(--text-3);">Never triggered</td>
+            <td><span class="badge gray">STANDBY</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+window.onRender_iot = function() {
+  const canvas = document.getElementById('iot-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = 140;
+  canvas.width = W; canvas.height = H;
+  const pts = [38,37,36,35,34,33,35,37,38,39,38,37,36,38,40,41,40,39,38,37,38,39,38,37,36,35,34,35,36,37,38,38,37,36,35,37,38,39,38.2];
+  const minV = 28, maxV = 44;
+  function norm(v){ return H - (((v-minV)/(maxV-minV))*H*0.75 + H*0.1); }
+  ctx.clearRect(0,0,W,H);
+  // grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+  for(let i=0;i<5;i++){ const y=H*0.1+H*0.75*(i/4); ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+  // optimal min dashed
+  ctx.strokeStyle = 'rgba(34,197,94,0.3)'; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
+  const optY = norm(35); ctx.beginPath(); ctx.moveTo(0,optY); ctx.lineTo(W,optY); ctx.stroke();
+  // alert threshold
+  ctx.strokeStyle = 'rgba(245,158,11,0.3)';
+  const altY = norm(30); ctx.beginPath(); ctx.moveTo(0,altY); ctx.lineTo(W,altY); ctx.stroke();
+  ctx.setLineDash([]);
+  // fill gradient
+  const grad = ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(6,182,212,0.3)'); grad.addColorStop(1,'rgba(6,182,212,0)');
+  const step = W/(pts.length-1);
+  ctx.beginPath(); ctx.moveTo(0, norm(pts[0]));
+  for(let i=1;i<pts.length;i++) ctx.lineTo(i*step, norm(pts[i]));
+  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
+  ctx.fillStyle = grad; ctx.fill();
+  // line
+  ctx.beginPath(); ctx.moveTo(0, norm(pts[0]));
+  for(let i=1;i<pts.length;i++) ctx.lineTo(i*step, norm(pts[i]));
+  ctx.strokeStyle = '#06b6d4'; ctx.lineWidth = 2; ctx.stroke();
+  // dots
+  pts.forEach((v,i)=>{ ctx.beginPath(); ctx.arc(i*step,norm(v),2.5,0,Math.PI*2); ctx.fillStyle='#06b6d4'; ctx.fill(); });
+};
+
+/* ══════════════════════════════════════
+   MODULE 18 — AUDIT TRAIL
+══════════════════════════════════════ */
+window.render_audit = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">SYSTEM <em style="color:var(--purple);">AUDIT TRAIL</em></div>
+      <div class="mod-subtitle">Cenancle Kenya · Immutable action log · full diff history · 10 events this session</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export CSV</button>
+      <button class="hdr-btn primary">Filter Log</button>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:139,92,246;">
+      <div class="kpi-label">Events Today</div>
+      <div class="kpi-value">10</div>
+      <div class="kpi-sub">Across 6 modules</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Active Users</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-sub">James, Mary, Grace</div>
+    </div>
+    <div class="kpi-card" style="--accent:59,130,246;">
+      <div class="kpi-label">Changes (PUT/POST)</div>
+      <div class="kpi-value">7</div>
+      <div class="kpi-sub">3 reads, 0 deletions</div>
+    </div>
+    <div class="kpi-card" style="--accent:34,197,94;">
+      <div class="kpi-label">Compliance Score</div>
+      <div class="kpi-value">100%</div>
+      <div class="kpi-sub">No policy violations</div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="card" style="margin-bottom:14px;padding:12px 16px;">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;">Filter:</div>
+      <select style="background:var(--bg-elevated);border:1px solid rgba(255,255,255,.08);color:var(--text-2);font-size:12px;padding:5px 10px;border-radius:7px;cursor:pointer;">
+        <option>All Modules</option><option>Production</option><option>Sales</option><option>Procurement</option><option>HR &amp; Training</option><option>Compliance</option>
+      </select>
+      <select style="background:var(--bg-elevated);border:1px solid rgba(255,255,255,.08);color:var(--text-2);font-size:12px;padding:5px 10px;border-radius:7px;cursor:pointer;">
+        <option>All Actions</option><option>POST</option><option>PUT</option><option>DELETE</option><option>GET</option>
+      </select>
+      <select style="background:var(--bg-elevated);border:1px solid rgba(255,255,255,.08);color:var(--text-2);font-size:12px;padding:5px 10px;border-radius:7px;cursor:pointer;">
+        <option>All Users</option><option>James Kariuki</option><option>Mary Wanjiku</option><option>Grace Njoroge</option>
+      </select>
+      <input type="date" value="2026-06-06" style="background:var(--bg-elevated);border:1px solid rgba(255,255,255,.08);color:var(--text-2);font-size:12px;padding:5px 10px;border-radius:7px;">
+      <button class="hdr-btn" style="margin-left:auto;">Clear Filters</button>
+    </div>
+  </div>
+
+  <!-- Audit table -->
+  <div class="card">
+    <div class="card-title">Audit Events <span style="font-size:11px;color:var(--text-3);font-weight:400;">Click any row to expand diff</span></div>
+    <table class="dt">
+      <thead><tr><th>Timestamp</th><th>Actor</th><th>Module</th><th>Action</th><th>Record</th><th>Method</th><th></th></tr></thead>
+      <tbody>
+        ${[
+          ['06/06/2026 10:14','James Kariuki','Production','Updated batch status: GROWING → HARVESTING','Batch FC-2406-044','PUT','green'],
+          ['06/06/2026 09:55','Mary Wanjiku','Sales','Created new order SO-7821 (18,000 stems)','Order SO-7821','POST','blue'],
+          ['06/06/2026 09:12','James Kariuki','Compliance','Submitted spray log — Fungicide F400','Spray Log SL-0341','POST','purple'],
+          ['06/06/2026 08:47','Grace Njoroge','Farm Ops','Logged Zone B moisture warning (61%)','IoT Alert IOT-0088','POST','amber'],
+          ['06/06/2026 08:30','Mary Wanjiku','HR &amp; Training','Approved casual contract renewal — 12 workers','Contract batch CB-019','PUT','green'],
+          ['05/06/2026 17:00','James Kariuki','Procurement','Approved PR-2026-0043 — Fertiliser reorder','PR-2026-0043','PUT','green'],
+          ['05/06/2026 14:22','System','IoT','Triggered automation: Low Moisture → Irrigate Zone A','Rule IOT-RULE-001','POST','cyan'],
+          ['05/06/2026 12:30','Mary Wanjiku','Payroll','Reviewed May payroll run PRL-2026-05','PRL-2026-05','GET','gray'],
+          ['05/06/2026 11:15','Grace Njoroge','Cold Room','Logged batch check-in — Cold Room 1','Batch CR1-B044','POST','blue'],
+          ['04/06/2026 16:00','James Kariuki','Sales','Confirmed invoice INV-2026-0041 (USD 18,900)','Invoice INV-0041','PUT','green'],
+        ].map(([ts,actor,mod,action,rec,method,color],i) => `
+        <tr onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='table-row'?'none':'table-row'" style="cursor:pointer;">
+          <td style="font-size:11px;color:var(--text-3);">${ts}</td>
+          <td style="font-weight:600;color:var(--text);font-size:12px;">${actor}</td>
+          <td><span class="badge ${color}">${mod}</span></td>
+          <td style="color:var(--text-2);max-width:220px;">${action}</td>
+          <td style="font-size:11px;color:var(--text-3);">${rec}</td>
+          <td><span class="badge ${method==='DELETE'?'red':method==='PUT'?'amber':method==='POST'?'blue':'gray'}" style="font-family:monospace;">${method}</span></td>
+          <td style="color:var(--text-4);font-size:11px;">▼ diff</td>
+        </tr>
+        <tr style="display:none;">
+          <td colspan="7" style="padding:0;">
+            <div style="background:rgba(0,0,0,0.3);border-left:2px solid rgba(255,255,255,0.06);padding:12px 20px;font-family:monospace;font-size:11px;">
+              <div style="color:#f87171;margin-bottom:4px;">− old: ${i===0?'"status":"GROWING"':i===1?'null':i===5?'"status":"PENDING"':'"previous value"'}</div>
+              <div style="color:#4ade80;">+ new: ${i===0?'"status":"HARVESTING"':i===1?'{"order_id":"SO-7821","stems":18000}':i===5?'"status":"APPROVED"':'"updated value"'}</div>
+              <div style="color:var(--text-4);margin-top:6px;">IP: 197.232.${50+i}.${10+i} · Session: sess_${Math.abs(37841+i*7613)}</div>
+            </div>
+          </td>
+        </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+</div>
+`;
+
+/* ══════════════════════════════════════
+   MODULE 19 — AI ASSISTANT
+══════════════════════════════════════ */
+window.render_ai = () => `
+<div class="mod-page" style="display:flex;flex-direction:column;height:100%;padding:0;">
+  <div style="padding:20px 28px 0;">
+    <div class="mod-header" style="margin-bottom:16px;">
+      <div>
+        <div class="mod-title">FLORI-CORE <em style="color:var(--green);">AI ASSISTANT</em></div>
+        <div class="mod-subtitle">Powered by farm context · James Kariuki · Cenancle Kenya · 06/06/2026</div>
+      </div>
+      <div class="mod-header-right">
+        <button class="hdr-btn">Clear Chat</button>
+        <button class="hdr-btn" style="background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);color:#4ade80;">Farm Context: ON</button>
+      </div>
+    </div>
+    <!-- Suggested prompts -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      ${[
+        'Projected output this week?',
+        'Which zone needs attention?',
+        'Status of cold rooms?',
+        'Any pending approvals?',
+        'Sales pipeline summary',
+      ].map(p=>`<button onclick="this.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));this.classList.add('active');" style="padding:6px 14px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#4ade80;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;transition:all .18s;">${p}</button>`).join('')}
+    </div>
+  </div>
+
+  <!-- Chat messages -->
+  <div style="flex:1;overflow-y:auto;padding:0 28px 12px;display:flex;flex-direction:column;gap:14px;">
+
+    <!-- System init -->
+    <div style="text-align:center;font-size:11px;color:var(--text-4);padding:8px 0;">
+      Flori-Core AI connected · Farm context loaded (18 modules) · Today 06/06/2026
+    </div>
+
+    <!-- User message 1 -->
+    <div style="display:flex;justify-content:flex-end;">
+      <div style="max-width:65%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.2);border-radius:14px 14px 2px 14px;padding:12px 16px;">
+        <div style="font-size:13px;color:var(--text);">Projected output this week?</div>
+        <div style="font-size:10px;color:var(--text-4);margin-top:6px;text-align:right;">James · 10:02 AM</div>
+      </div>
+    </div>
+
+    <!-- AI response 1 -->
+    <div style="display:flex;gap:10px;align-items:flex-start;">
+      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#000;">AI</div>
+      <div style="max-width:75%;background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:2px 14px 14px 14px;padding:14px 16px;">
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">
+          Based on current production data across all zones, <strong style="color:#22c55e;">projected output this week is 52,800 stems</strong> — up 10% from last week.
+          <br><br>
+          Breakdown: Zone A (Red Naomi) is entering peak harvest this week at ~<strong>28,500 stems</strong>. Zone B (Avalanche White) contributes <strong>17,200</strong>. Zone C (Pink Floyd) is in vegetative stage at <strong>7,100</strong>.
+          <br><br>
+          <div style="background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.15);border-radius:8px;padding:10px;margin-top:4px;font-size:12px;">
+            ⚠️ <strong style="color:var(--amber);">Zone B moisture alert</strong> (61%) may reduce output by ~600 stems if not corrected by EOD. Irrigation triggered automatically.
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--text-4);margin-top:8px;">Flori-Core AI · 10:02 AM · Sources: Production, Farm Zones, IoT</div>
+      </div>
+    </div>
+
+    <!-- User message 2 -->
+    <div style="display:flex;justify-content:flex-end;">
+      <div style="max-width:65%;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.2);border-radius:14px 14px 2px 14px;padding:12px 16px;">
+        <div style="font-size:13px;color:var(--text);">Who last approved a purchase request?</div>
+        <div style="font-size:10px;color:var(--text-4);margin-top:6px;text-align:right;">James · 10:05 AM</div>
+      </div>
+    </div>
+
+    <!-- AI response 2 -->
+    <div style="display:flex;gap:10px;align-items:flex-start;">
+      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#000;">AI</div>
+      <div style="max-width:75%;background:var(--bg-card);border:1px solid rgba(255,255,255,.07);border-radius:2px 14px 14px 14px;padding:14px 16px;">
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">
+          The last approved purchase request was <strong style="color:var(--green);">PR-2026-0043</strong> — Fertiliser A-NPK (400 kg from KLP Agro Supplies, KES 72,000).
+          <br><br>
+          Approved by <strong>James Kariuki</strong> on <strong>05/06/2026 at 17:00</strong>. This was logged in the Audit Trail (ref: Audit event #6 today).
+        </div>
+        <div style="font-size:10px;color:var(--text-4);margin-top:8px;">Flori-Core AI · 10:05 AM · Sources: Procurement, Audit Trail</div>
+      </div>
+    </div>
+
+    <!-- Streaming response (current) -->
+    <div style="display:flex;gap:10px;align-items:flex-start;" id="ai-streaming-row">
+      <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#06b6d4);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;color:#000;">AI</div>
+      <div style="max-width:75%;background:var(--bg-card);border:1px solid rgba(34,197,94,0.2);border-radius:2px 14px 14px 14px;padding:14px 16px;">
+        <div id="ai-stream-text" style="font-size:13px;color:var(--text);line-height:1.6;min-height:20px;"></div>
+        <div style="font-size:10px;color:var(--text-4);margin-top:8px;">Flori-Core AI · streaming<span id="ai-dots" style="color:var(--green);">...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input bar -->
+  <div style="padding:12px 28px 20px;border-top:1px solid rgba(255,255,255,.06);">
+    <div style="display:flex;gap:10px;align-items:center;background:var(--bg-card);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px 16px;">
+      <input id="ai-input" type="text" placeholder="Ask anything about Cenancle Kenya farm operations..." value="What is the status of our cold rooms right now?"
+        style="flex:1;background:none;border:none;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;">
+      <button style="background:var(--green);color:#000;border:none;border-radius:8px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;">Send ↑</button>
+    </div>
+    <div style="display:flex;justify-content:center;margin-top:8px;">
+      <span style="font-size:10px;color:var(--text-4);">Flori-Core AI · Context-aware · Powered by farm data · Not a substitute for field judgment</span>
+    </div>
+  </div>
+</div>
+`;
+window.onRender_ai = function() {
+  const el = document.getElementById('ai-stream-text');
+  const dotsEl = document.getElementById('ai-dots');
+  if (!el) return;
+  const msg = 'Cold Room 1 is at 2.1°C — STABLE. Cold Room 2 is at 3.4°C — currently in WARNING state (threshold: 2.5°C). An IoT alert was triggered 3 hours ago. The batch currently in CR2 (FC-2406-041, 2,800 stems) was checked in at 06:30 AM. Recommend immediate inspection.';
+  let i = 0;
+  const iv = setInterval(()=>{
+    if(i < msg.length){ el.textContent = msg.slice(0,++i) + '|'; }
+    else { el.textContent = msg; if(dotsEl) dotsEl.style.display='none'; clearInterval(iv); }
+  }, 28);
+};
+
 window.render_compliance = () => `
 <div class="mod-page">
   <div class="mod-header">
@@ -5785,6 +5972,257 @@ window.render_compliance = () => `
 </div>
 `;
 
+</script>
+
+<!-- ═══════════════════ PHASE 5 STYLES ═══════════════════ -->
+<style>
+/* ── AI chat ── */
+#ai-input::placeholder { color: var(--text-4); }
+/* ── IoT gauge ── */
+.iot-gauge-track { background: rgba(255,255,255,0.06); border-radius: 8px; height: 6px; overflow: hidden; }
+.iot-gauge-fill  { height: 100%; border-radius: 8px; transition: width 1.2s var(--ease-o); }
+/* ── Blink caret (typeText) ── */
+@keyframes blink-caret { 0%,100%{opacity:1;} 50%{opacity:0;} }
+/* ── Tab panel fade-in ── */
+.tab-panel { transition: opacity 0.22s ease; }
+</style>
+
+<!-- ═══════════════════ PHASE 6 + 7 + 8 SCRIPTS ═══════════════════ -->
+<script>
+/* ══════════════════════════════════════
+   PHASE 6 — ANIMATION ENGINE ENHANCEMENTS
+══════════════════════════════════════ */
+
+/* Tab fade helper — replaces the bare toggle from Phase 2 */
+function showTab(groupId, tabId) {
+  const panels = document.querySelectorAll(`[data-tabgroup="${groupId}"][data-tab]`);
+  panels.forEach(el => {
+    const isTarget = el.dataset.tab === tabId;
+    if (el.classList.contains('tab-btn')) {
+      el.classList.toggle('active', isTarget);
+    } else if (el.classList.contains('tab-panel')) {
+      if (isTarget) {
+        el.style.display = 'block';
+        el.style.opacity = '0';
+        requestAnimationFrame(() => {
+          el.style.transition = 'opacity 0.22s ease';
+          el.style.opacity = '1';
+        });
+      } else {
+        el.style.transition = '';
+        el.style.display = 'none';
+        el.style.opacity = '';
+      }
+    }
+  });
+}
+
+/* Typing animation — char-by-char with blinking caret */
+function typeText(el, text, speed = 38) {
+  return new Promise(res => {
+    let i = 0;
+    el.textContent = '';
+    const caret = document.createElement('span');
+    caret.style.cssText = 'display:inline-block;width:2px;height:1em;background:var(--green);margin-left:2px;vertical-align:text-bottom;animation:blink-caret .65s step-end infinite;';
+    el.appendChild(caret);
+    const iv = setInterval(() => {
+      if (i < text.length) {
+        caret.insertAdjacentText('beforebegin', text[i++]);
+      } else {
+        clearInterval(iv);
+        setTimeout(() => { caret.remove(); res(); }, 400);
+      }
+    }, speed);
+  });
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+/* ══════════════════════════════════════
+   PHASE 7 — AUTO-PLAY SEQUENCER
+══════════════════════════════════════ */
+
+/* Steps per module — each step: {type:'nav'|'tab'|'hover'|'wait'|'click', ...} */
+const MOD_STEPS = {
+  dashboard:   [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:800}, {type:'hover',sel:'.audit-item'}, {type:'wait',ms:700}, {type:'hover',sel:'.mm-cell'} ],
+  zones:       [ {type:'hover',sel:'.zone-card'}, {type:'wait',ms:700}, {type:'tab',group:'zones_noop',tab:'map'}, {type:'wait',ms:600} ],
+  production:  [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:600}, {type:'tab',group:'prod',tab:'batches'}, {type:'wait',ms:700}, {type:'tab',group:'prod',tab:'forecast'}, {type:'wait',ms:700} ],
+  operations:  [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:600} ],
+  packhouse:   [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  coldroom:    [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:800} ],
+  team:        [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  hr:          [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  logistics:   [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  inventory:   [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  stores:      [ {type:'hover',sel:'.tab-btn'}, {type:'wait',ms:600} ],
+  sales:       [ {type:'hover',sel:'.kanban-card'}, {type:'wait',ms:700} ],
+  procurement: [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  financials:  [ {type:'tab',group:'fin',tab:'balance'}, {type:'wait',ms:800} ],
+  payroll:     [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  compliance:  [ {type:'hover',sel:'.kpi-card'}, {type:'wait',ms:700} ],
+  iot:         [ {type:'tab',group:'iot',tab:'chart'}, {type:'wait',ms:900}, {type:'tab',group:'iot',tab:'rules'}, {type:'wait',ms:700} ],
+  audit:       [ {type:'hover',sel:'.dt tr'}, {type:'wait',ms:700} ],
+  ai:          [ {type:'wait',ms:1200} ],
+};
+
+let seqRunning = false;
+
+async function runModSteps(modId) {
+  const steps = MOD_STEPS[modId] || [];
+  for (const step of steps) {
+    if (paused) return;
+    if (step.type === 'hover') {
+      const el = document.querySelector(step.sel);
+      if (el) { await moveToEl(el, 600); await wait(220); }
+    } else if (step.type === 'click') {
+      const el = document.querySelector(step.sel);
+      if (el) { await moveToEl(el, 550); clickEl(el); await wait(300); }
+    } else if (step.type === 'tab') {
+      const btn = document.querySelector(`[data-tabgroup="${step.group}"][data-tab="${step.tab}"].tab-btn`);
+      if (btn) { await moveToEl(btn, 500); clickEl(btn); showTab(step.group, step.tab); await wait(200); }
+    } else if (step.type === 'wait') {
+      await wait(step.ms);
+    }
+    if (paused) return;
+  }
+}
+
+async function startAutoPlay() {
+  autoPlaying = true;
+  paused = false;
+  seqRunning = true;
+
+  for (let i = 0; i < MODS.length; i++) {
+    if (paused) { seqRunning = false; return; }
+
+    navTo(i, true);
+    await wait(900); // wait for loading spinner
+
+    // Show "Take Control" badge after 3s into first module
+    if (i === 0) {
+      setTimeout(() => {
+        if (autoPlaying && !paused) document.getElementById('take-ctrl').classList.add('show');
+      }, 3000);
+    }
+
+    await wait(600);
+    if (paused) { seqRunning = false; return; }
+
+    await runModSteps(MODS[i].id);
+    if (paused) { seqRunning = false; return; }
+
+    await wait(500);
+  }
+
+  // Loop back to AI chat demo
+  if (!paused) {
+    navTo(MODS.length - 1, true);
+    seqRunning = false;
+  }
+}
+
+/* Wire up Resume button */
+function resumePlay() {
+  paused = false;
+  document.getElementById('btn-resume').classList.remove('show');
+  document.getElementById('take-ctrl').classList.remove('show');
+  if (!seqRunning) startAutoPlay();
+}
+
+/* Auto-start when entering live demo (overrides Phase 1 definition) */
+function enterLiveDemo() {
+  clearInterval(cdInterval);
+  const lp = document.getElementById('landing');
+  lp.classList.add('out');
+  const app = document.getElementById('app');
+  setTimeout(() => {
+    lp.style.display = 'none';
+    app.classList.add('on');
+    setMode('live');
+    buildPbarDots();
+    buildTourMiniNav();
+    navTo(0, false);
+    // Kick off auto-play after a short delay
+    setTimeout(startAutoPlay, 1200);
+  }, 560);
+}
+
+/* ══════════════════════════════════════
+   PHASE 8 — GUIDED TOUR CURSOR DEMO
+══════════════════════════════════════ */
+
+let tourCursorTimer = null;
+
+async function runTourCursorDemo(idx) {
+  if (tourCursorTimer) clearTimeout(tourCursorTimer);
+  const modId = MODS[idx] && MODS[idx].id;
+  if (!modId) return;
+
+  const frame = document.getElementById('tour-mod');
+  if (!frame) return;
+
+  // Small delay to let the module render
+  await wait(400);
+
+  // Hover over first KPI card
+  const card = frame.querySelector('.kpi-card, .zone-card, .kanban-card, .kpi-value');
+  if (card) {
+    await moveToEl(card, 700);
+    await wait(300);
+    // Hover second element
+    const cards = frame.querySelectorAll('.kpi-card, .audit-item, .dt tr');
+    if (cards.length > 1) {
+      await moveToEl(cards[1], 600);
+      await wait(200);
+    }
+  }
+
+  // Loop every 4s
+  tourCursorTimer = setTimeout(() => runTourCursorDemo(idx), 4000);
+}
+
+/* Full setTourModule with cursor demo (overrides Phase 1 definition) */
+function setTourModule(idx) {
+  if (idx < 0 || idx >= TOUR_DATA.length) return;
+  tourMod = idx;
+  const d = TOUR_DATA[idx];
+  const m = MODS[idx];
+
+  document.getElementById('t-num').textContent   = String(idx + 1).padStart(2, '0');
+  document.getElementById('t-title').innerHTML   = d.title;
+  document.getElementById('t-desc').textContent  = d.desc;
+  document.getElementById('t-why').textContent   = d.why;
+  document.getElementById('t-url').textContent   = m.url;
+  document.getElementById('t-curr').textContent  = idx + 1;
+
+  document.getElementById('t-feats').innerHTML = d.feats.map(f => `
+    <li class="tour-feat"><span class="feat-ck">✓</span><span>${f}</span></li>
+  `).join('');
+
+  document.getElementById('t-prev').disabled = idx === 0;
+  document.getElementById('t-next').disabled = idx === TOUR_DATA.length - 1;
+
+  document.querySelectorAll('[data-ti]').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.ti) === idx);
+  });
+
+  const tourModEl = document.getElementById('tour-mod');
+  const fn = window[`render_${m.id}`];
+  if (fn) {
+    tourModEl.innerHTML = fn();
+    const hook = window[`onRender_${m.id}`];
+    if (hook) hook();
+  } else {
+    tourModEl.innerHTML = `
+      <div class="mod-placeholder anim-fade" style="height:200px;">
+        <div class="mod-ph-icon">${m.icon}</div>
+        <div class="mod-ph-name">${m.name}</div>
+      </div>`;
+  }
+
+  // Kick off 4s cursor demo loop
+  if (mode === 'tour') runTourCursorDemo(idx);
+}
 </script>
 
 <!-- ═══════════════════ PHASE 4 STYLES ═══════════════════ -->
