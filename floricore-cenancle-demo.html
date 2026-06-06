@@ -952,6 +952,10 @@
       <div class="tb-client-dot"></div>
       <span class="tb-client-name">Cenancle Kenya</span>
     </div>
+    <button id="notif-bell" onclick="toggleNotifDrawer()" title="Notifications" style="position:relative;background:none;border:none;color:var(--text-3);cursor:pointer;padding:6px 8px;border-radius:8px;display:flex;align-items:center;justify-content:center;transition:all .18s;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <span id="notif-count" style="position:absolute;top:2px;right:2px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;line-height:1;padding:0 3px;border:1.5px solid var(--bg);">5</span>
+    </button>
   </div>
 
   <!-- ── LIVE DEMO VIEW ── -->
@@ -1108,6 +1112,19 @@
               <span class="nav-badge" style="background:rgba(34,197,94,0.2);color:#4ade80;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:auto;">NEW</span>
             </a>
 
+            <div class="nav-sep"></div>
+
+            <!-- Background Systems -->
+            <a class="nav-item" data-mod="19" onclick="navTo(19)">
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M2 3.5h12M2 7h12M2 10.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="11.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M13 10.5v1l.7.7" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></span>
+              <span class="nav-lbl">Communications</span>
+              <span class="nav-badge" style="background:rgba(59,130,246,0.2);color:#60a5fa;font-size:8px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:auto;">14</span>
+            </a>
+            <a class="nav-item" data-mod="20" onclick="navTo(20)">
+              <span class="nav-icon"><svg viewBox="0 0 16 16" fill="none"><path d="M8 1l1.8 3.6 4 .6-2.9 2.8.7 4L8 10l-3.6 1.9.7-4L2.2 5.2l4-.6L8 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" fill="none"/></svg></span>
+              <span class="nav-lbl">Automations</span>
+            </a>
+
           </div><!-- /sb-nav -->
 
           <!-- Bottom: user + sign out -->
@@ -1168,7 +1185,7 @@
 
       <div class="tour-nav">
         <button class="tour-btn" id="t-prev" onclick="tourPrev()" disabled>← Prev</button>
-        <div class="tour-ctr">Module <strong id="t-curr">1</strong> of <strong>18</strong></div>
+        <div class="tour-ctr">Module <strong id="t-curr">1</strong> of <strong id="t-total">21</strong></div>
         <button class="tour-btn" id="t-next" onclick="tourNext()">Next →</button>
       </div>
     </div>
@@ -1219,7 +1236,7 @@
     </div>
     <div class="pb-dots" id="pb-dots"></div>
     <div class="pb-right">
-      <span class="pb-counter"><strong id="pb-curr">1</strong> / 18</span>
+      <span class="pb-counter"><strong id="pb-curr">1</strong> / <span id="pb-total">21</span></span>
       <button class="btn-resume" id="btn-resume" onclick="resumePlay()">▶ Resume</button>
     </div>
   </div>
@@ -1230,6 +1247,30 @@
 <div id="take-ctrl">
   <span class="tc-icon">▶</span>
   <span class="tc-txt"><strong>Auto-playing</strong> — click anywhere to take control</span>
+</div>
+
+<!-- ── NOTIFICATION DRAWER ── -->
+<div id="notif-overlay" onclick="closeNotifDrawer()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.2);"></div>
+<div id="notif-drawer">
+  <div class="nd-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text);">Notifications</span>
+      <span id="nd-unread-badge" style="background:rgba(239,68,68,0.15);color:#f87171;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);">5 unread</span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button onclick="markAllRead()" style="background:none;border:1px solid rgba(255,255,255,.08);color:var(--text-3);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:var(--font-body);">Mark all read</button>
+      <button onclick="closeNotifDrawer()" style="background:none;border:none;color:var(--text-4);font-size:18px;cursor:pointer;line-height:1;padding:2px 6px;">×</button>
+    </div>
+  </div>
+  <div class="nd-tabs">
+    <div class="nd-tab active" onclick="filterNotifs('all',this)">All <span class="nd-tab-count">5</span></div>
+    <div class="nd-tab" onclick="filterNotifs('alerts',this)">Alerts <span class="nd-tab-count">2</span></div>
+    <div class="nd-tab" onclick="filterNotifs('approvals',this)">Approvals <span class="nd-tab-count">2</span></div>
+    <div class="nd-tab" onclick="filterNotifs('system',this)">System <span class="nd-tab-count">1</span></div>
+  </div>
+  <div id="nd-list">
+    <!-- Populated by JS -->
+  </div>
 </div>
 
 <!-- ── AI FLOAT BUTTON ── -->
@@ -1265,6 +1306,8 @@ const MODS = [
   { id:'iot',         name:'IoT Telemetry',      icon:'◎', url:'/iot',         badge:null },
   { id:'audit',       name:'Audit Trail',        icon:'≡', url:'/audit',       badge:null },
   { id:'ai',          name:'AI Assistant',       icon:'◆', url:'/ai',          badge:'NEW' },
+  { id:'comms',       name:'Communications',     icon:'✉', url:'/communications', badge:'14' },
+  { id:'automations', name:'Automations',        icon:'⚡', url:'/automations', badge:null },
 ];
 
 const TOUR_DATA = [
@@ -1496,6 +1539,30 @@ const TOUR_DATA = [
     ],
     why:'James needs answers at 5 AM before the farm walk-through, not a database query. The AI turns 18 modules of structured data into a 10-second answer — in plain English.',
   },
+  {
+    title:'<em>Communications</em> Hub',
+    desc:'Every automated message Flori-Core sends — emails, WhatsApp alerts, and SMS — visible in one place, showing the system working in the background.',
+    feats:[
+      'Cold Room 2 alert email sent to James + QC supervisor at 02:14 AM',
+      'WhatsApp to driver: "New delivery assigned — JKIA — 03:00 AM pickup"',
+      'Payslip SMS dispatched to 164 casual workers via Safaricom',
+      'Compliance reminder email — GlobalG.A.P expiry in 14 days',
+      'Buyer order confirmation email with invoice PDF attached',
+    ],
+    why:'When a buyer asks "did we get the dispatch confirmation?" — James opens this hub and sees every message sent, by whom, to whom, and when. No more chasing staff over WhatsApp.',
+  },
+  {
+    title:'System <em>Automations</em>',
+    desc:'The brain behind every alert — a visual rule engine showing what triggers, what fires, and a complete log of every automated action taken.',
+    feats:[
+      '6 active automation rules spanning cold room, inventory, payroll, and compliance',
+      'Run log: timestamped history of every automation that fired',
+      'Cold Room 2 breach → Email + WhatsApp → fired today at 02:14 AM',
+      'Inventory reorder trigger → Draft PO created automatically',
+      'Per-user notification preference matrix: Email / WhatsApp / SMS / In-App',
+    ],
+    why:'Cenancle\'s compliance auditor asks: "How did you know the cold room breached?" This screen shows the exact automation rule, when it fired, and who was notified — all in one export.',
+  },
 ];
 
 /* ─────────────────────────────────────
@@ -1715,6 +1782,10 @@ function buildPbarDots() {
     d.onclick = () => { pausePlay(); navTo(i); };
     c.appendChild(d);
   });
+  const tot = document.getElementById('pb-total');
+  if (tot) tot.textContent = MODS.length;
+  const tTot = document.getElementById('t-total');
+  if (tTot) tTot.textContent = MODS.length;
   updatePbar(0);
 }
 
@@ -6063,6 +6134,8 @@ const MOD_STEPS = {
   iot:         [ {type:'tab',group:'iot',tab:'chart'}, {type:'wait',ms:900}, {type:'tab',group:'iot',tab:'rules'}, {type:'wait',ms:700} ],
   audit:       [ {type:'hover',sel:'.dt tr'}, {type:'wait',ms:700} ],
   ai:          [ {type:'wait',ms:1200} ],
+  comms:       [ {type:'tab',group:'comms',tab:'whatsapp'}, {type:'wait',ms:800}, {type:'tab',group:'comms',tab:'sms'}, {type:'wait',ms:700} ],
+  automations: [ {type:'tab',group:'auto',tab:'log'}, {type:'wait',ms:800}, {type:'tab',group:'auto',tab:'prefs'}, {type:'wait',ms:700} ],
 };
 
 let seqRunning = false;
@@ -6301,5 +6374,1060 @@ function setTourModule(idx) {
 }
 </style>
 
+<!-- ═══════════════════ PHASE 10 STYLES ═══════════════════ -->
+<style>
+/* ── Notification Drawer ── */
+#notif-bell:hover { background:rgba(255,255,255,.06); color:var(--text); }
+#notif-drawer {
+  position: fixed;
+  top: var(--topbar-h);
+  right: 0;
+  width: 380px;
+  height: calc(100vh - var(--topbar-h));
+  background: var(--bg-card);
+  border-left: 1px solid rgba(255,255,255,.08);
+  z-index: 9001;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.28s var(--ease-o);
+}
+#notif-drawer.open { transform: translateX(0); }
+.nd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.nd-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  padding: 0 12px;
+}
+.nd-tab {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.nd-tab.active { color: var(--green); border-color: var(--green); }
+.nd-tab:hover:not(.active) { color: var(--text); }
+.nd-tab-count {
+  background: rgba(255,255,255,.06);
+  padding: 1px 5px;
+  border-radius: 8px;
+  font-size: 9px;
+}
+#nd-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.nd-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.nd-item:hover { background: rgba(255,255,255,.025); }
+.nd-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.nd-item-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.nd-item-body { flex: 1; min-width: 0; }
+.nd-item-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.nd-item-desc  { font-size: 11px; color: var(--text-3); margin-top: 2px; line-height: 1.4; }
+.nd-item-meta  { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
+.nd-item-time  { font-size: 10px; color: var(--text-4); }
+.nd-dismiss    { background: none; border: none; color: var(--text-4); cursor: pointer; font-size: 14px; padding: 2px 4px; opacity: 0; transition: opacity .15s; }
+.nd-item:hover .nd-dismiss { opacity: 1; }
+
+/* ── Email client ── */
+.email-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 0;
+  height: calc(100% - 12px);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.email-inbox {
+  background: rgba(255,255,255,.02);
+  border-right: 1px solid rgba(255,255,255,.06);
+  overflow-y: auto;
+}
+.email-inbox-hdr {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.email-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: background .15s;
+}
+.email-row:hover, .email-row.active { background: rgba(59,130,246,.08); }
+.email-row.active { border-left: 2px solid var(--blue); }
+.email-row.unread .email-row-subject { font-weight: 700; color: var(--text); }
+.email-row-from    { font-size: 11px; font-weight: 600; color: var(--text-2); }
+.email-row-subject { font-size: 11px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.email-row-time    { font-size: 10px; color: var(--text-4); }
+.email-preview {
+  padding: 20px 24px;
+  overflow-y: auto;
+  background: var(--bg-card);
+}
+.email-header-block { border-bottom: 1px solid rgba(255,255,255,.07); padding-bottom: 16px; margin-bottom: 18px; }
+.email-subject-line { font-family: var(--font-head); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.3; }
+.email-meta-row { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--text-3); margin-bottom: 4px; }
+.email-meta-row strong { color: var(--text-2); font-weight: 600; }
+.email-body { font-size: 12px; color: var(--text-2); line-height: 1.8; }
+.email-letterhead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(34,197,94,.06);
+  border: 1px solid rgba(34,197,94,.15);
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+.email-section { margin-bottom: 16px; }
+.email-section h4 { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 8px; }
+.email-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.email-table td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--text-2); }
+.email-table td:first-child { color: var(--text-3); font-size: 11px; }
+.email-table td:last-child { font-weight: 600; color: var(--text); text-align: right; }
+.email-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green);
+  color: #020817;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+/* ── WhatsApp UI ── */
+.wa-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: calc(100% - 12px);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.wa-list {
+  background: rgba(255,255,255,.02);
+  border-right: 1px solid rgba(255,255,255,.06);
+  overflow-y: auto;
+}
+.wa-list-hdr {
+  background: rgba(255,255,255,.04);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-family: var(--font-head);
+}
+.wa-chat-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+  cursor: pointer;
+  transition: background .15s;
+  align-items: flex-start;
+}
+.wa-chat-row:hover, .wa-chat-row.active { background: rgba(34,197,94,.07); }
+.wa-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.wa-chat-info { flex: 1; min-width: 0; }
+.wa-chat-name { font-size: 12px; font-weight: 600; color: var(--text); }
+.wa-chat-preview { font-size: 11px; color: var(--text-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.wa-chat-time { font-size: 10px; color: var(--text-4); flex-shrink: 0; }
+.wa-window {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+.wa-win-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,.03);
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.wa-win-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.wa-win-status { font-size: 11px; color: var(--green); }
+.wa-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.wa-msg {
+  max-width: 78%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  position: relative;
+}
+.wa-msg.out {
+  background: rgba(34,197,94,.2);
+  border: 1px solid rgba(34,197,94,.25);
+  color: var(--text);
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+}
+.wa-msg.in {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,.06);
+  color: var(--text-2);
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+}
+.wa-msg.system {
+  background: rgba(59,130,246,.1);
+  border: 1px solid rgba(59,130,246,.2);
+  color: #93c5fd;
+  align-self: center;
+  text-align: center;
+  font-size: 11px;
+  border-radius: 10px;
+}
+.wa-msg-time { font-size: 10px; color: var(--text-4); margin-top: 4px; text-align: right; }
+.wa-read-tick { color: #60a5fa; font-size: 11px; }
+.wa-input-row {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,.05);
+  background: rgba(255,255,255,.02);
+}
+
+/* ── SMS UI ── */
+.sms-shell {
+  display: flex;
+  gap: 20px;
+  height: calc(100% - 12px);
+}
+.sms-phone {
+  width: 280px;
+  flex-shrink: 0;
+  background: var(--bg-elevated);
+  border: 2px solid rgba(255,255,255,.1);
+  border-radius: 32px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sms-phone-notch {
+  background: rgba(0,0,0,.4);
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sms-phone-notch-pill {
+  width: 64px;
+  height: 10px;
+  background: rgba(0,0,0,.8);
+  border-radius: 6px;
+}
+.sms-phone-hdr {
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sms-contact { font-size: 12px; font-weight: 700; color: var(--text); }
+.sms-number  { font-size: 10px; color: var(--text-4); }
+.sms-thread  { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+.sms-bubble {
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.sms-bubble.out {
+  background: #007aff;
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+}
+.sms-bubble.in {
+  background: rgba(255,255,255,.1);
+  color: var(--text-2);
+  align-self: flex-start;
+  border-bottom-left-radius: 3px;
+}
+.sms-time { font-size: 9px; color: var(--text-4); text-align: center; margin: 4px 0; }
+.sms-detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+/* ── Automation screens ── */
+.rule-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.rule-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.rule-body { flex: 1; min-width: 0; }
+.rule-trigger { font-size: 12px; font-weight: 600; color: var(--text); }
+.rule-action  { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.rule-meta    { font-size: 10px; color: var(--text-4); margin-top: 3px; }
+.toggle-matrix { border-collapse: collapse; width: 100%; font-size: 12px; }
+.toggle-matrix th { text-align: left; padding: 8px 14px; color: var(--text-3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+.toggle-matrix td { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.04); color: var(--text-2); vertical-align: middle; }
+.toggle-matrix td:first-child { font-weight: 600; color: var(--text); }
+.tog {
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  transition: background .2s;
+}
+.tog.on  { background: var(--green); }
+.tog.off { background: rgba(255,255,255,.12); }
+.tog::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px;
+  transition: left .2s;
+}
+.tog.on::after  { left: 18px; }
+.tog.off::after { left: 2px; }
+</style>
+
+<!-- ═══════════════════ PHASE 10 SCRIPTS ═══════════════════ -->
+<script>
+/* ══════════════════════════════════════
+   NOTIFICATION DATA
+══════════════════════════════════════ */
+const NOTIFICATIONS = [
+  { id:1, cat:'alerts',    icon:'🌡', bg:'rgba(239,68,68,.12)',    title:'Cold Room 2 Temperature Alert',        desc:'3.4°C — above 2.5°C threshold. Auto-alert sent to James Kariuki.',         time:'2 min ago',  mod:5,  unread:true  },
+  { id:2, cat:'approvals', icon:'💼', bg:'rgba(245,158,11,.12)',   title:'PR #PR-2026-0043 pending approval',    desc:'Fertiliser A-NPK — KES 72,000 from KLP Agro Supplies.',                    time:'1 hr ago',   mod:12, unread:true  },
+  { id:3, cat:'approvals', icon:'💰', bg:'rgba(139,92,246,.12)',   title:'June 2026 payroll ready for approval', desc:'KES 4,280,000 net pay — 312 employees. Review before 25/06.',               time:'3 hrs ago',  mod:14, unread:true  },
+  { id:4, cat:'alerts',    icon:'✅', bg:'rgba(34,197,94,.12)',    title:'Order #SO-7821 dispatched to JKIA',    desc:'18,000 stems (Red Naomi) — ETA JKIA 06:30 AM. Driver James Mutua.',         time:'3 hrs ago',  mod:8,  unread:true  },
+  { id:5, cat:'system',    icon:'📋', bg:'rgba(59,130,246,.12)',   title:'GlobalG.A.P certificate — 8 days',    desc:'Cert expires 30/11/2026. Renewal checklist opened by Compliance Officer.',  time:'Today',      mod:15, unread:true  },
+];
+let notifDismissed = new Set();
+
+function renderNotifList(filter) {
+  const list = document.getElementById('nd-list');
+  if (!list) return;
+  const items = NOTIFICATIONS.filter(n => !notifDismissed.has(n.id) && (filter === 'all' || n.cat === filter));
+  if (!items.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--text-4);font-size:13px;">All caught up ✓</div>';
+    return;
+  }
+  list.innerHTML = items.map(n => `
+    <div class="nd-item${n.unread ? ' unread' : ''}" onclick="notifClick(${n.id},${n.mod})">
+      <div class="nd-item-icon" style="background:${n.bg};">${n.icon}</div>
+      <div class="nd-item-body">
+        <div class="nd-item-title">${n.title}</div>
+        <div class="nd-item-desc">${n.desc}</div>
+        <div class="nd-item-meta">
+          <span class="nd-item-time">${n.time}</span>
+          <button class="nd-dismiss" onclick="event.stopPropagation();dismissNotif(${n.id})">×</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateBellBadge() {
+  const unread = NOTIFICATIONS.filter(n => !notifDismissed.has(n.id) && n.unread).length;
+  const badge = document.getElementById('notif-count');
+  if (badge) {
+    badge.textContent = unread;
+    badge.style.display = unread > 0 ? 'flex' : 'none';
+  }
+  const unreadBadge = document.getElementById('nd-unread-badge');
+  if (unreadBadge) unreadBadge.textContent = unread + ' unread';
+}
+
+function toggleNotifDrawer() {
+  const drawer = document.getElementById('notif-drawer');
+  const overlay = document.getElementById('notif-overlay');
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    drawer.classList.remove('open');
+    overlay.style.display = 'none';
+  } else {
+    drawer.classList.add('open');
+    overlay.style.display = 'block';
+    renderNotifList('all');
+  }
+}
+
+function closeNotifDrawer() {
+  document.getElementById('notif-drawer').classList.remove('open');
+  document.getElementById('notif-overlay').style.display = 'none';
+}
+
+function filterNotifs(cat, tabEl) {
+  document.querySelectorAll('.nd-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  renderNotifList(cat);
+}
+
+function dismissNotif(id) {
+  notifDismissed.add(id);
+  updateBellBadge();
+  renderNotifList('all');
+}
+
+function markAllRead() {
+  NOTIFICATIONS.forEach(n => { n.unread = false; });
+  updateBellBadge();
+  renderNotifList('all');
+  const badge = document.getElementById('nd-unread-badge');
+  if (badge) badge.textContent = '0 unread';
+}
+
+function notifClick(id, modIdx) {
+  closeNotifDrawer();
+  const n = NOTIFICATIONS.find(x => x.id === id);
+  if (n) n.unread = false;
+  updateBellBadge();
+  navTo(modIdx, true);
+}
+
+/* ══════════════════════════════════════
+   EMAIL DATA (10A)
+══════════════════════════════════════ */
+const EMAILS = [
+  {
+    from:'Flori-Core System',
+    subject:'✅ Order #SO-7821 Confirmed — Flamingo Horticulture UK',
+    time:'10:02 AM',
+    cat:'alerts',
+    preview:'Your order has been confirmed...',
+    body:`
+      <div class="email-letterhead">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="14" y="1" width="19" height="19" rx="3.5" transform="rotate(45 14 1)" fill="#22c55e"/><path d="M17 9l-4 5h3l-2.5 5 5.5-7h-3.5l2.5-3z" fill="white" opacity="0.95"/></svg>
+        <div><div style="font-family:var(--font-head);font-weight:700;color:var(--text);font-size:13px;">Cenancle Kenya Ltd</div><div style="font-size:10px;color:var(--text-3);">Naivasha, Kenya · orders@cenancle.co.ke</div></div>
+      </div>
+      <div class="email-section">
+        <p style="color:var(--text-2);margin-bottom:14px;">Dear Flamingo Horticulture Team,</p>
+        <p style="color:var(--text-2);margin-bottom:14px;">We are pleased to confirm your order has been processed and is scheduled for dispatch.</p>
+        <table class="email-table">
+          <tr><td>Order Reference</td><td>#SO-7821</td></tr>
+          <tr><td>Product</td><td>Red Naomi — Grade A</td></tr>
+          <tr><td>Quantity</td><td>18,000 stems (375 boxes)</td></tr>
+          <tr><td>Delivery Date</td><td>07/06/2026 via KQ Cargo</td></tr>
+          <tr><td>Total Value</td><td>USD 18,900</td></tr>
+          <tr><td>Payment Terms</td><td>NET 30 — Invoice attached</td></tr>
+        </table>
+      </div>
+      <div class="email-section"><h4>Attached</h4>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:7px;padding:6px 12px;font-size:11px;color:#60a5fa;">📄 Invoice INV-2026-0041.pdf</div>
+      </div>
+      <div class="email-cta">View Order in Flori-Core →</div>`
+  },
+  {
+    from:'Flori-Core System',
+    subject:'⚠ Cold Room 2 Alert — 3.4°C above threshold',
+    time:'02:14 AM',
+    cat:'alerts',
+    preview:'ALERT: Cold Room 2 breach detected...',
+    body:`
+      <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:14px 18px;margin-bottom:18px;">
+        <div style="font-size:14px;font-weight:700;color:#f87171;margin-bottom:6px;">⚠ Cold Room 2 Temperature Breach</div>
+        <div style="font-size:12px;color:var(--text-2);">Automated alert triggered at <strong>02:14 AM on 06/06/2026</strong></div>
+      </div>
+      <table class="email-table">
+        <tr><td>Sensor ID</td><td>IOT-COLD-CR2</td></tr>
+        <tr><td>Current Reading</td><td style="color:#f87171;font-weight:700;">3.4°C</td></tr>
+        <tr><td>Threshold</td><td>2.5°C</td></tr>
+        <tr><td>Breach Duration</td><td>38 minutes</td></tr>
+        <tr><td>Batch at Risk</td><td>FC-2406-041 — 2,800 stems</td></tr>
+        <tr><td>Notified</td><td>James Kariuki + David Otieno</td></tr>
+      </table>
+      <div class="email-section" style="margin-top:16px;"><h4>Action Checklist</h4>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-2);">
+          <div>☐ Inspect Cold Room 2 door seal immediately</div>
+          <div>☐ Check compressor unit status</div>
+          <div>☐ Move batch FC-2406-041 to Cold Room 1 if temp exceeds 4°C</div>
+          <div>☐ Log corrective action in Compliance Vault</div>
+        </div>
+      </div>
+      <div class="email-cta" style="background:var(--red);">Open Cold Room Monitor →</div>`
+  },
+  {
+    from:'Flori-Core System',
+    subject:'📦 GRN Confirmed — PO #PO-2026-0034 (KLP Agro)',
+    time:'Yesterday 4:30 PM',
+    cat:'procurement',
+    preview:'Good Receipt Note signed off...',
+    body:`
+      <div class="email-letterhead">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="14" y="1" width="19" height="19" rx="3.5" transform="rotate(45 14 1)" fill="#22c55e"/><path d="M17 9l-4 5h3l-2.5 5 5.5-7h-3.5l2.5-3z" fill="white" opacity="0.95"/></svg>
+        <div><div style="font-family:var(--font-head);font-weight:700;color:var(--text);font-size:13px;">Cenancle Kenya Ltd — Stores</div><div style="font-size:10px;color:var(--text-3);">GRN Notification</div></div>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin-bottom:14px;">Dear KLP Agro Supplies,<br>This confirms receipt of your delivery against PO #PO-2026-0034.</p>
+      <table class="email-table">
+        <tr><td>PO Reference</td><td>#PO-2026-0034</td></tr>
+        <tr><td>GRN Reference</td><td>GRN-2026-041</td></tr>
+        <tr><td>Items Received</td><td>Fertiliser A-NPK</td></tr>
+        <tr><td>Quantity</td><td>400 kg (as ordered)</td></tr>
+        <tr><td>Received By</td><td>David Otieno</td></tr>
+        <tr><td>Receipt Date</td><td>05/06/2026 at 14:30</td></tr>
+      </table>
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:8px;font-size:11px;color:#4ade80;">✓ Stock updated in Flori-Core Stores. Payment will be processed per NET 30 terms.</div>`
+  },
+  {
+    from:'Flori-Core System',
+    subject:'💰 Payslip — May 2026 — Grace Njoroge',
+    time:'01/06/2026',
+    cat:'payroll',
+    preview:'Your May 2026 payslip is attached...',
+    body:`
+      <div class="email-letterhead">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="14" y="1" width="19" height="19" rx="3.5" transform="rotate(45 14 1)" fill="#22c55e"/><path d="M17 9l-4 5h3l-2.5 5 5.5-7h-3.5l2.5-3z" fill="white" opacity="0.95"/></svg>
+        <div><div style="font-family:var(--font-head);font-weight:700;color:var(--text);font-size:13px;">Cenancle Kenya Ltd — Payroll</div><div style="font-size:10px;color:var(--text-3);">May 2026 Payslip</div></div>
+      </div>
+      <p style="color:var(--text-2);font-size:12px;margin-bottom:14px;">Dear Grace Njoroge,<br>Please find your payslip for May 2026 below.</p>
+      <table class="email-table">
+        <tr><td>Employee</td><td>Grace Njoroge</td></tr>
+        <tr><td>Role</td><td>Field Supervisor</td></tr>
+        <tr><td>Pay Period</td><td>01 May – 31 May 2026</td></tr>
+        <tr><td>Gross Pay</td><td>KES 45,000</td></tr>
+        <tr><td>PAYE</td><td>KES 5,200</td></tr>
+        <tr><td>NSSF (Tier I + II)</td><td>KES 2,700</td></tr>
+        <tr><td>NHIF / SHIF</td><td>KES 1,238</td></tr>
+        <tr><td>Housing Levy</td><td>KES 675</td></tr>
+        <tr style="font-weight:700;"><td style="color:var(--text);">Net Pay</td><td style="color:#4ade80;font-size:14px;">KES 35,187</td></tr>
+      </table>
+      <div style="margin-top:14px;font-size:11px;color:var(--text-3);">Paid via M-Pesa to registered number ending 4521. Queries: HR +254 712 000 001</div>`
+  },
+  {
+    from:'Flori-Core System',
+    subject:'📋 GlobalG.A.P Renewal Reminder — Expiry in 177 days',
+    time:'06/06/2026',
+    cat:'compliance',
+    preview:'Certificate expiry approaching...',
+    body:`
+      <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:14px 18px;margin-bottom:18px;">
+        <div style="font-size:14px;font-weight:700;color:#fbbf24;margin-bottom:6px;">📋 Certification Renewal Reminder</div>
+        <div style="font-size:12px;color:var(--text-2);">Your GlobalG.A.P. certification expires on <strong>30/11/2026</strong> — 177 days from today.</div>
+      </div>
+      <table class="email-table">
+        <tr><td>Certificate</td><td>GlobalG.A.P. GRASP + IFA</td></tr>
+        <tr><td>Issuing Body</td><td>FoodPLUS GmbH</td></tr>
+        <tr><td>Expiry Date</td><td>30/11/2026</td></tr>
+        <tr><td>Responsible Person</td><td>James Kariuki (Farm Director)</td></tr>
+        <tr><td>Last Audit</td><td>12/11/2025</td></tr>
+      </table>
+      <div class="email-section" style="margin-top:16px;"><h4>Renewal Checklist</h4>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--text-2);">
+          <div>☐ Book audit date with FoodPLUS GmbH</div>
+          <div>☐ Update spray logs and confirm PHI compliance</div>
+          <div>☐ Review worker welfare documentation</div>
+          <div>☐ Confirm all staff training certificates are current</div>
+        </div>
+      </div>
+      <div class="email-cta">Open Compliance Vault →</div>`
+  },
+];
+
+let activeEmail = 0;
+
+/* ══════════════════════════════════════
+   WHATSAPP DATA (10B)
+══════════════════════════════════════ */
+const WA_CHATS = [
+  {
+    name:'James Kariuki',
+    avatar:'JK',
+    avbg:'#1d4ed8',
+    status:'Farm Director',
+    preview:'ALERT: Cold Room 2 is at 3.4°C…',
+    messages:[
+      { type:'system', text:'06/06/2026 02:14 AM' },
+      { type:'in',  from:'Flori-Core System', text:'🌡 ALERT: Cold Room 2 is at 3.4°C (threshold: 2.5°C). Check immediately. — Flori-Core System', time:'02:14', ticks:'✓✓' },
+      { type:'out', text:'On my way to check now. Who else was notified?', time:'02:16', ticks:'✓✓' },
+      { type:'in',  from:'Flori-Core System', text:'David Otieno and QC Supervisor have been notified. IoT rule: CR-BREACH-001 triggered.', time:'02:16', ticks:'✓✓' },
+      { type:'out', text:'OK. Logging corrective action now.', time:'02:22', ticks:'✓✓' },
+    ]
+  },
+  {
+    name:'James Mutua (Driver)',
+    avatar:'JM',
+    avbg:'#0f766e',
+    status:'Fleet Driver',
+    preview:'📦 New delivery assigned…',
+    messages:[
+      { type:'system', text:'06/06/2026 04:45 AM' },
+      { type:'in',  from:'Flori-Core Logistics', text:'📦 New delivery assigned: Order #SO-7821 | Naivasha → JKIA | Pickup: 05:30 AM | 375 boxes | Cold chain required. Tap to confirm.', time:'04:45', ticks:'✓✓' },
+      { type:'out', text:'Confirmed. Loading now. ETA JKIA 06:20 AM.', time:'04:52', ticks:'✓✓' },
+      { type:'in',  from:'Flori-Core Logistics', text:'✅ Dispatch confirmed. CMR document generated. Safe travels.', time:'04:53', ticks:'✓✓' },
+    ]
+  },
+  {
+    name:'Flamingo Horticulture',
+    avatar:'FH',
+    avbg:'#7c3aed',
+    status:'Buyer — Amsterdam',
+    preview:'✅ Your order #SO-7821 is packed…',
+    messages:[
+      { type:'system', text:'06/06/2026 05:00 AM' },
+      { type:'in', from:'Flori-Core Sales', text:'✅ Your order #SO-7821 (Red Naomi Grade A, 18,000 stems) is packed and en route to JKIA. ETA: 06:30 AM. CMR: CEN-0892. — Cenancle Kenya', time:'05:00', ticks:'✓✓' },
+      { type:'out', text:'Received, thank you! We\'ll confirm receipt at cargo.', time:'07:15', ticks:'✓✓' },
+    ]
+  },
+  {
+    name:'Harvest Team B',
+    avatar:'👷',
+    avbg:'#d97706',
+    status:'Casual Workers Group · 64 members',
+    preview:'📋 SHIFT TOMORROW — Zone B harvest…',
+    messages:[
+      { type:'system', text:'05/06/2026 05:00 PM' },
+      { type:'in', from:'Flori-Core HR', text:'📋 SHIFT TOMORROW — Zone B harvest, report by 6:00 AM. Bring your ID. PPE provided on site. — Cenancle Farm Ops', time:'17:00', ticks:'✓' },
+    ]
+  },
+  {
+    name:'Finance Team',
+    avatar:'💰',
+    avbg:'#065f46',
+    status:'Finance Manager + CFO',
+    preview:'💰 June 2026 payroll ready…',
+    messages:[
+      { type:'system', text:'05/06/2026 06:00 PM' },
+      { type:'in', from:'Flori-Core Payroll', text:'💰 June 2026 payroll is ready for review. Total payout: KES 4,280,000. 312 employees. Approve in Flori-Core → florico.re/payroll', time:'18:00', ticks:'✓✓' },
+      { type:'out', text:'Will review tonight and approve by 9 PM.', time:'18:05', ticks:'✓✓' },
+    ]
+  },
+];
+let activeWaChat = 0;
+
+/* ══════════════════════════════════════
+   SMS DATA (10C)
+══════════════════════════════════════ */
+const SMS_THREADS = [
+  {
+    name:'James Kariuki',
+    number:'+254 712 000 001',
+    messages:[
+      { type:'system', text:'06/06/2026 02:14 AM' },
+      { type:'in', text:'FLORICORE ALERT: Cold Room 2 breach at 3.4C. Threshold exceeded 38min. Login now: florico.re/coldroom' },
+      { type:'system', text:'Delivered' },
+    ]
+  },
+  {
+    name:'Casual Worker — Mary K.',
+    number:'+254 7XX XXX X21',
+    messages:[
+      { type:'system', text:'01/06/2026' },
+      { type:'in', text:'CENANCLE PAYROLL: Your net pay for May 2026 is KES 14,200. Paid via M-Pesa to 0712XXXXX1. Queries: HR 0712 345 678' },
+      { type:'system', text:'Delivered' },
+    ]
+  },
+  {
+    name:'Flamingo Horticulture',
+    number:'+44 20 7XXX XXXX',
+    messages:[
+      { type:'system', text:'06/06/2026 05:30 AM' },
+      { type:'in', text:'Cenancle Kenya: Your order SO-7821 has departed Naivasha. ETA JKIA 06:30. CMR Ref: CEN-0892. Track: florico.re/track/0892' },
+      { type:'system', text:'Delivered' },
+    ]
+  },
+];
+let activeSmsThread = 0;
+
+/* ══════════════════════════════════════
+   MODULE 20 — COMMUNICATIONS HUB (10A+10B+10C)
+══════════════════════════════════════ */
+window.render_comms = () => `
+<div class="mod-page" style="padding-bottom:0;height:100%;display:flex;flex-direction:column;">
+  <div class="mod-header" style="flex-shrink:0;">
+    <div>
+      <div class="mod-title">COMMUNICATIONS <em style="color:var(--blue);">HUB</em></div>
+      <div class="mod-subtitle">Every automated message sent by Flori-Core — emails, WhatsApp, SMS — all in one place</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Log</button>
+      <button class="hdr-btn primary">+ Compose</button>
+    </div>
+  </div>
+  <div class="tab-bar" style="flex-shrink:0;">
+    <div class="tab-btn active" data-tabgroup="comms" data-tab="email" onclick="showTab('comms','email');renderEmailList();renderEmailPreview(activeEmail);">📧 Email <span class="badge blue" style="margin-left:4px;">5</span></div>
+    <div class="tab-btn" data-tabgroup="comms" data-tab="whatsapp" onclick="showTab('comms','whatsapp');renderWaList();renderWaChat(activeWaChat);">💬 WhatsApp <span class="badge green" style="margin-left:4px;">5</span></div>
+    <div class="tab-btn" data-tabgroup="comms" data-tab="sms" onclick="showTab('comms','sms');renderSmsList();renderSmsThread(activeSmsThread);">📱 SMS <span class="badge gray" style="margin-left:4px;">3</span></div>
+    <div class="tab-btn" data-tabgroup="comms" data-tab="stats" onclick="showTab('comms','stats');">📊 Overview</div>
+  </div>
+  <div style="flex:1;overflow:hidden;padding:0 0 16px 0;">
+    <div class="tab-panel active" data-tabgroup="comms" data-tab="email" style="height:100%;padding:0 28px;box-sizing:border-box;overflow:hidden;">
+      <div class="email-shell" style="margin-top:8px;">
+        <div class="email-inbox">
+          <div class="email-inbox-hdr">Inbox · Automated <span class="badge blue" style="float:right;margin-top:-1px;">5</span></div>
+          <div id="email-inbox-list"></div>
+        </div>
+        <div class="email-preview" id="email-preview-pane"></div>
+      </div>
+    </div>
+    <div class="tab-panel" data-tabgroup="comms" data-tab="whatsapp" style="height:100%;padding:0 28px;box-sizing:border-box;overflow:hidden;">
+      <div class="wa-shell" style="margin-top:8px;">
+        <div class="wa-list">
+          <div class="wa-list-hdr">WhatsApp Business</div>
+          <div id="wa-chat-list"></div>
+        </div>
+        <div class="wa-window" id="wa-chat-window"></div>
+      </div>
+    </div>
+    <div class="tab-panel" data-tabgroup="comms" data-tab="sms" style="height:100%;padding:0 28px;box-sizing:border-box;overflow:hidden;">
+      <div class="sms-shell" style="margin-top:8px;">
+        <div class="sms-phone">
+          <div class="sms-phone-notch"><div class="sms-phone-notch-pill"></div></div>
+          <div class="sms-phone-hdr">
+            <div>
+              <div class="sms-contact" id="sms-contact-name">James Kariuki</div>
+              <div class="sms-number" id="sms-contact-num">+254 712 000 001</div>
+            </div>
+            <div style="margin-left:auto;font-size:10px;color:var(--text-4);">SMS</div>
+          </div>
+          <div class="sms-thread" id="sms-thread"></div>
+        </div>
+        <div class="sms-detail">
+          <div class="card" style="flex-shrink:0;">
+            <div class="card-title">SMS Threads <span style="font-size:11px;color:var(--text-3);font-weight:400;">Click to switch</span></div>
+            <div id="sms-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">SMS Delivery Stats</div>
+            ${[['Delivered','164','#22c55e'],['Failed','0','#ef4444'],['Queued','3','#f59e0b']].map(([l,v,c])=>`
+              <div class="telem-row"><div class="telem-label">${l}</div><div class="telem-val" style="color:${c};">${v}</div></div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-panel" data-tabgroup="comms" data-tab="stats" style="padding:16px 28px;">
+      <div class="kpi-row">
+        <div class="kpi-card" style="--accent:59,130,246;"><div class="kpi-label">Emails Sent Today</div><div class="kpi-value">5</div><div class="kpi-sub">100% delivered</div></div>
+        <div class="kpi-card" style="--accent:34,197,94;"><div class="kpi-label">WhatsApp Sent</div><div class="kpi-value">9</div><div class="kpi-sub">All read ✓</div></div>
+        <div class="kpi-card" style="--accent:139,92,246;"><div class="kpi-label">SMS Dispatched</div><div class="kpi-value">167</div><div class="kpi-sub">164 casual payslips</div></div>
+        <div class="kpi-card" style="--accent:34,197,94;"><div class="kpi-label">Open Rate (Email)</div><div class="kpi-value">100%</div><div class="kpi-sub">All opened within 8min</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Outbound Log</div>
+        <table class="dt">
+          <thead><tr><th>Time</th><th>Channel</th><th>Recipient</th><th>Message/Subject</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>10:02 AM</td><td><span class="badge blue">Email</span></td><td>Flamingo Horticulture</td><td>Order Confirmation — SO-7821</td><td><span class="badge green">DELIVERED</span></td></tr>
+            <tr><td>05:00 AM</td><td><span class="badge green">WhatsApp</span></td><td>Flamingo Horticulture</td><td>Order #SO-7821 packed and en route</td><td><span class="badge green">READ</span></td></tr>
+            <tr><td>04:45 AM</td><td><span class="badge green">WhatsApp</span></td><td>James Mutua (Driver)</td><td>New delivery assigned — JKIA</td><td><span class="badge green">READ</span></td></tr>
+            <tr><td>02:14 AM</td><td><span class="badge red">Email</span></td><td>James Kariuki + David Otieno</td><td>⚠ Cold Room 2 Alert — 3.4°C</td><td><span class="badge green">DELIVERED</span></td></tr>
+            <tr><td>02:14 AM</td><td><span class="badge green">WhatsApp</span></td><td>James Kariuki</td><td>🌡 Cold Room 2 breach alert</td><td><span class="badge green">READ</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+window.onRender_comms = function() {
+  renderEmailList(); renderEmailPreview(0);
+  renderWaList();    renderWaChat(0);
+  renderSmsList();   renderSmsThread(0);
+};
+
+function renderEmailList() {
+  const el = document.getElementById('email-inbox-list');
+  if (!el) return;
+  el.innerHTML = EMAILS.map((e,i) => `
+    <div class="email-row unread${i === activeEmail ? ' active' : ''}" onclick="renderEmailPreview(${i})">
+      <div class="email-row-from">${e.from}</div>
+      <div class="email-row-subject">${e.subject}</div>
+      <div class="email-row-time">${e.time}</div>
+    </div>
+  `).join('');
+}
+
+function renderEmailPreview(idx) {
+  activeEmail = idx;
+  const pane = document.getElementById('email-preview-pane');
+  if (!pane) return;
+  const e = EMAILS[idx];
+  pane.innerHTML = `
+    <div class="email-header-block">
+      <div class="email-subject-line">${e.subject}</div>
+      <div class="email-meta-row"><strong>From:</strong> ${e.from} &lt;noreply@floricore.cenancle.co.ke&gt;</div>
+      <div class="email-meta-row"><strong>To:</strong> James Kariuki &lt;james@cenancle.co.ke&gt;</div>
+      <div class="email-meta-row"><strong>Date:</strong> ${e.time} · Cenancle Kenya · Naivasha</div>
+    </div>
+    <div class="email-body">${e.body}</div>
+  `;
+  renderEmailList();
+}
+
+function renderWaList() {
+  const el = document.getElementById('wa-chat-list');
+  if (!el) return;
+  el.innerHTML = WA_CHATS.map((c,i) => `
+    <div class="wa-chat-row${i === activeWaChat ? ' active' : ''}" onclick="renderWaChat(${i})">
+      <div class="wa-avatar" style="background:${c.avbg};">${c.avatar}</div>
+      <div class="wa-chat-info">
+        <div class="wa-chat-name">${c.name}</div>
+        <div class="wa-chat-preview">${c.preview}</div>
+      </div>
+      <div class="wa-chat-time">${c.messages.length > 1 ? c.messages[c.messages.length-1].time||'' : ''}</div>
+    </div>
+  `).join('');
+}
+
+function renderWaChat(idx) {
+  activeWaChat = idx;
+  const win = document.getElementById('wa-chat-window');
+  if (!win) return;
+  const c = WA_CHATS[idx];
+  win.innerHTML = `
+    <div class="wa-win-hdr">
+      <div class="wa-avatar" style="background:${c.avbg};width:32px;height:32px;font-size:11px;">${c.avatar}</div>
+      <div><div class="wa-win-name">${c.name}</div><div class="wa-win-status">● online</div></div>
+    </div>
+    <div class="wa-messages">
+      ${c.messages.map(m => m.type === 'system'
+        ? `<div style="text-align:center;font-size:10px;color:var(--text-4);padding:2px 0;">${m.text}</div>`
+        : `<div class="wa-msg ${m.type}">
+            ${m.from ? `<div style="font-size:9px;color:var(--green);font-weight:700;margin-bottom:3px;">${m.from}</div>` : ''}
+            ${m.text}
+            <div class="wa-msg-time">${m.time||''} ${m.ticks ? `<span class="wa-read-tick">${m.ticks}</span>` : ''}</div>
+           </div>`
+      ).join('')}
+    </div>
+    <div class="wa-input-row">
+      <input placeholder="Type a message" style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:var(--text-2);font-size:12px;padding:7px 12px;border-radius:20px;outline:none;font-family:var(--font-body);">
+      <button style="background:var(--green);border:none;color:#000;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">↑</button>
+    </div>
+  `;
+  renderWaList();
+}
+
+function renderSmsList() {
+  const el = document.getElementById('sms-list');
+  if (!el) return;
+  el.innerHTML = SMS_THREADS.map((t,i) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;background:${i===activeSmsThread?'rgba(0,122,255,.1)':'rgba(255,255,255,.02)'};border:1px solid ${i===activeSmsThread?'rgba(0,122,255,.25)':'rgba(255,255,255,.06)'};" onclick="renderSmsThread(${i})">
+      <div style="width:32px;height:32px;border-radius:50%;background:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">${t.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+      <div><div style="font-size:12px;font-weight:600;color:var(--text);">${t.name}</div><div style="font-size:10px;color:var(--text-4);">${t.number}</div></div>
+    </div>
+  `).join('');
+}
+
+function renderSmsThread(idx) {
+  activeSmsThread = idx;
+  const t = SMS_THREADS[idx];
+  const thread = document.getElementById('sms-thread');
+  const nm = document.getElementById('sms-contact-name');
+  const num = document.getElementById('sms-contact-num');
+  if (nm) nm.textContent = t.name;
+  if (num) num.textContent = t.number;
+  if (thread) thread.innerHTML = t.messages.map(m =>
+    m.type === 'system'
+      ? `<div class="sms-time">${m.text}</div>`
+      : `<div class="sms-bubble ${m.type}">${m.text}</div>`
+  ).join('');
+  renderSmsList();
+}
+
+/* ══════════════════════════════════════
+   MODULE 21 — AUTOMATIONS (10D)
+══════════════════════════════════════ */
+window.render_automations = () => `
+<div class="mod-page">
+  <div class="mod-header">
+    <div>
+      <div class="mod-title">SYSTEM <em style="color:var(--amber);">AUTOMATIONS</em></div>
+      <div class="mod-subtitle">All background rules, triggers, and notification preferences that make Flori-Core self-managing</div>
+    </div>
+    <div class="mod-header-right">
+      <button class="hdr-btn">Export Rules</button>
+      <button class="hdr-btn primary">+ New Rule</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card" style="--accent:34,197,94;"><div class="kpi-label">Active Rules</div><div class="kpi-value">6</div><div class="kpi-sub">0 paused, 0 errored</div></div>
+    <div class="kpi-card" style="--accent:59,130,246;"><div class="kpi-label">Fired Today</div><div class="kpi-value">4</div><div class="kpi-sub">1 cold room, 2 inventory, 1 nightly</div></div>
+    <div class="kpi-card" style="--accent:245,158,11;"><div class="kpi-label">Messages Sent</div><div class="kpi-value">12</div><div class="kpi-sub">5 email · 5 WhatsApp · 2 SMS</div></div>
+    <div class="kpi-card" style="--accent:34,197,94;"><div class="kpi-label">Failure Rate</div><div class="kpi-value">0%</div><div class="kpi-sub">All deliveries confirmed</div></div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-btn active" data-tabgroup="auto" data-tab="rules" onclick="showTab('auto','rules')">Automation Rules</div>
+    <div class="tab-btn" data-tabgroup="auto" data-tab="log" onclick="showTab('auto','log')">Run Log</div>
+    <div class="tab-btn" data-tabgroup="auto" data-tab="prefs" onclick="showTab('auto','prefs')">Notification Preferences</div>
+  </div>
+
+  <!-- Rules -->
+  <div class="tab-panel active" data-tabgroup="auto" data-tab="rules">
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${[
+        ['🌡','rgba(239,68,68,.15)','Cold Room temp > 3°C','Email + WhatsApp → James Kariuki + David Otieno','Last fired: today 02:14 AM','ACTIVE','green'],
+        ['📦','rgba(245,158,11,.15)','Inventory qty < reorder level','Email alert + Draft PO created automatically','Last fired: yesterday 16:00','ACTIVE','green'],
+        ['📋','rgba(59,130,246,.15)','Certificate expiry within 14 days','Email reminder → Compliance Officer + Farm Director','Next fire: in 163 days','ACTIVE','green'],
+        ['💰','rgba(139,92,246,.15)','Payroll approved','Payslip emails + SMS batch → all employees','Last fired: 01/06/2026','ACTIVE','green'],
+        ['✅','rgba(34,197,94,.15)','Sales order confirmed','Invoice generated + email → buyer (auto-attach PDF)','Fires: on event','ACTIVE','green'],
+        ['🌙','rgba(100,116,139,.15)','Daily 11 PM (cron)','Nightly audit snapshot saved to Audit Trail','Last fired: yesterday 23:00','ACTIVE','green'],
+      ].map(([icon,bg,trigger,action,meta,status,sc])=>`
+        <div class="rule-card">
+          <div class="rule-icon" style="background:${bg};">${icon}</div>
+          <div class="rule-body">
+            <div class="rule-trigger">${trigger}</div>
+            <div class="rule-action">→ ${action}</div>
+            <div class="rule-meta">${meta}</div>
+          </div>
+          <span class="badge ${sc}">${status}</span>
+          <button style="background:none;border:1px solid rgba(255,255,255,.08);color:var(--text-3);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;margin-left:4px;">Edit</button>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- Run Log -->
+  <div class="tab-panel" data-tabgroup="auto" data-tab="log">
+    <div class="card">
+      <div class="card-title">Automation Run Log <span style="font-size:11px;color:var(--text-3);font-weight:400;">Last 10 events</span></div>
+      <table class="dt">
+        <thead><tr><th>Timestamp</th><th>Rule Triggered</th><th>Recipient(s)</th><th>Channel(s)</th><th>Status</th></tr></thead>
+        <tbody>
+          ${[
+            ['06/06 02:14 AM','Cold Room 2 temp > 3°C','James Kariuki, David Otieno','Email + WhatsApp','✅','green'],
+            ['06/06 10:02 AM','Sales order confirmed','Flamingo Horticulture','Email','✅','green'],
+            ['05/06 17:00 PM','Inventory qty < reorder level','James Kariuki (PR draft)','Email','✅','green'],
+            ['05/06 17:00 PM','Inventory qty < reorder level (stems)','James Kariuki (PR draft)','Email','✅','green'],
+            ['05/06 05:00 PM','Payroll approved','164 casual workers','Email + SMS','✅','green'],
+            ['05/06 23:00 PM','Daily nightly cron','System (Audit Trail)','Internal','✅','green'],
+            ['04/06 23:00 PM','Daily nightly cron','System (Audit Trail)','Internal','✅','green'],
+            ['04/06 16:45 PM','Sales order confirmed','KQ Cargo Buyer','Email','✅','green'],
+            ['01/06 09:00 AM','Payroll approved','312 employees','Email + SMS','✅','green'],
+            ['01/06 23:00 PM','Daily nightly cron','System (Audit Trail)','Internal','✅','green'],
+          ].map(([ts,rule,recip,ch,icon,sc])=>`
+            <tr>
+              <td style="font-size:11px;color:var(--text-3);">${ts}</td>
+              <td style="font-weight:600;color:var(--text);font-size:12px;">${rule}</td>
+              <td style="font-size:11px;color:var(--text-3);">${recip}</td>
+              <td><span class="badge gray" style="font-size:10px;">${ch}</span></td>
+              <td style="font-size:14px;">${icon} <span class="badge ${sc}" style="font-size:9px;">SENT</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Notification Preferences -->
+  <div class="tab-panel" data-tabgroup="auto" data-tab="prefs">
+    <div class="card">
+      <div class="card-title">Notification Preference Matrix <span style="font-size:11px;color:var(--text-3);font-weight:400;">Per user · per channel</span></div>
+      <table class="toggle-matrix">
+        <thead>
+          <tr>
+            <th style="width:200px;">Alert Type</th>
+            <th>James Kariuki<br><span style="font-weight:400;text-transform:none;letter-spacing:0;">Farm Director</span></th>
+            <th>Mary Wanjiku<br><span style="font-weight:400;text-transform:none;letter-spacing:0;">Ops Manager</span></th>
+            <th>Grace Njoroge<br><span style="font-weight:400;text-transform:none;letter-spacing:0;">Field Supervisor</span></th>
+            <th>David Otieno<br><span style="font-weight:400;text-transform:none;letter-spacing:0;">Pack House Sup.</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            ['Cold Room Alerts',     ['Email+WA+SMS','Email+WA','—','Email+WA']],
+            ['Inventory / Low Stock',['Email+WA','Email','—','Email']],
+            ['Payroll Notifications',['Email','Email+WA','SMS (payslip)','SMS (payslip)']],
+            ['Sales Order Events',   ['Email','Email+WA','—','—']],
+            ['Procurement Approvals',['Email+WA+SMS','—','—','—']],
+            ['Compliance Reminders', ['Email','Email','—','—']],
+            ['Daily Audit Digest',   ['Email','—','—','—']],
+          ].map(([type, channels])=>`
+            <tr>
+              <td>${type}</td>
+              ${channels.map(ch=>`<td><span style="font-size:11px;font-weight:600;color:${ch==='—'?'var(--text-4)':'#4ade80'};">${ch}</span></td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div style="margin-top:16px;font-size:11px;color:var(--text-4);">Toggle individual channels by clicking — preferences are saved per user session and synced across all devices.</div>
+    </div>
+  </div>
+</div>
+`;
+</script>
 </body>
 </html>
