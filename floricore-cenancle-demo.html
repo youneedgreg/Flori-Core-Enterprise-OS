@@ -235,6 +235,68 @@
     }
     .btn-cta-outline:active { transform: scale(0.97); }
 
+    /* Stats strip */
+    .lp-stats {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 20px;
+      animation: upIn 0.75s 0.22s var(--ease-o) both;
+    }
+    .lp-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 0 24px;
+    }
+    .lp-stat-val {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--green);
+      line-height: 1;
+    }
+    .lp-stat-lbl {
+      font-size: 10px;
+      color: var(--text-4);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 500;
+    }
+    .lp-stat-div {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,.08);
+    }
+    /* Feature pills */
+    .lp-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 620px;
+      margin-bottom: 32px;
+      animation: upIn 0.75s 0.29s var(--ease-o) both;
+    }
+    .lp-pill {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .18s;
+    }
+    .lp-pill:hover {
+      background: rgba(34,197,94,.07);
+      border-color: rgba(34,197,94,.2);
+      color: var(--text);
+    }
     /* Countdown */
     .lp-countdown {
       margin-top: 28px;
@@ -881,10 +943,8 @@
 
   <!-- Logo -->
   <div class="lp-logo">
-    <svg class="lp-logo-icon" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- Green diamond background -->
+    <svg class="lp-logo-icon" viewBox="0 0 68 68" fill="none">
       <rect x="34" y="3" width="45" height="45" rx="10" transform="rotate(45 34 3)" fill="#22c55e"/>
-      <!-- Inner lighting bolt -->
       <path d="M41 22L28 36h9l-8 12 18-20h-10l5-6z" fill="white" opacity="0.95"/>
     </svg>
     <div class="lp-logo-words">
@@ -894,11 +954,32 @@
   </div>
 
   <div class="lp-headline">
-    Enterprise <em>Farm</em><br>Intelligence
+    One platform.<br><em>Every corner</em> of your farm.
   </div>
 
   <div class="lp-sub">
-    Prepared exclusively for <strong>Cenancle Kenya</strong> · Naivasha
+    Built exclusively for <strong>Cenancle Kenya</strong> · Naivasha · June 2026
+  </div>
+
+  <!-- Stats strip -->
+  <div class="lp-stats">
+    <div class="lp-stat"><div class="lp-stat-val">21</div><div class="lp-stat-lbl">Modules</div></div>
+    <div class="lp-stat-div"></div>
+    <div class="lp-stat"><div class="lp-stat-val">48K</div><div class="lp-stat-lbl">Stems / Day</div></div>
+    <div class="lp-stat-div"></div>
+    <div class="lp-stat"><div class="lp-stat-val">312</div><div class="lp-stat-lbl">Staff Managed</div></div>
+    <div class="lp-stat-div"></div>
+    <div class="lp-stat"><div class="lp-stat-val">8.45M</div><div class="lp-stat-lbl">KES Rev MTD</div></div>
+  </div>
+
+  <!-- Feature pills -->
+  <div class="lp-pills">
+    <div class="lp-pill">🌡 IoT Sensor Monitoring</div>
+    <div class="lp-pill">📦 Auto Procurement</div>
+    <div class="lp-pill">✅ GlobalG.A.P Compliance</div>
+    <div class="lp-pill">💬 WhatsApp + SMS Alerts</div>
+    <div class="lp-pill">💰 Payroll Engine (PAYE / NSSF)</div>
+    <div class="lp-pill">◆ AI Farm Assistant</div>
   </div>
 
   <div class="lp-ctas">
@@ -906,12 +987,12 @@
       ▶&nbsp; Watch Live Demo
     </button>
     <button class="btn-cta-outline" onclick="enterGuidedTour()">
-      Explore Guide &nbsp;→
+      Guided Tour &nbsp;→
     </button>
   </div>
 
   <div class="lp-countdown">
-    Auto-starting Live Demo in
+    Auto-starting in
     <div class="lp-timer">
       <svg width="30" height="30" viewBox="0 0 30 30">
         <circle cx="15" cy="15" r="13" stroke="rgba(34,197,94,0.18)" stroke-width="2" fill="none"/>
@@ -919,6 +1000,7 @@
       </svg>
       <span class="lp-timer-num" id="lp-num">4</span>
     </div>
+    <span style="color:var(--text-4);font-size:11px;">· or press <kbd style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);padding:1px 6px;border-radius:4px;font-size:10px;font-family:monospace;">Space</kbd> to start now</span>
   </div>
 </div>
 
@@ -1236,7 +1318,9 @@
     </div>
     <div class="pb-dots" id="pb-dots"></div>
     <div class="pb-right">
+      <button class="pb-nav-btn" onclick="pbPrev()" id="pb-prev-btn" title="Previous module (←)">‹</button>
       <span class="pb-counter"><strong id="pb-curr">1</strong> / <span id="pb-total">21</span></span>
+      <button class="pb-nav-btn" onclick="pbNext()" id="pb-next-btn" title="Next module (→)">›</button>
       <button class="btn-resume" id="btn-resume" onclick="resumePlay()">▶ Resume</button>
     </div>
   </div>
@@ -1245,8 +1329,8 @@
 
 <!-- ── TAKE CONTROL BADGE ── -->
 <div id="take-ctrl">
-  <span class="tc-icon">▶</span>
-  <span class="tc-txt"><strong>Auto-playing</strong> — click anywhere to take control</span>
+  <span class="tc-icon" style="width:20px;height:20px;background:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#000;flex-shrink:0;">▶</span>
+  <span class="tc-txt"><strong>Auto-playing</strong> — press <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">Space</kbd> to pause · <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">→</kbd> to skip · <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">?</kbd> for help</span>
 </div>
 
 <!-- ── NOTIFICATION DRAWER ── -->
@@ -1321,7 +1405,7 @@ const TOUR_DATA = [
       'Module navigation matrix for quick access to any system',
       'Live feed panel with real-time event streaming',
     ],
-    why:'With 48,000 stems leaving Naivasha daily, James needs one screen to confirm the entire operation is running before morning tea. This dashboard replaces 4 spreadsheets and 3 WhatsApp groups.',
+    why:'James used to open 4 spreadsheets and ping 3 WhatsApp groups before he could say "operations are running." This screen is that answer in under 10 seconds — every morning, before the first truck leaves.',
   },
   {
     title:'Farm <em>Zones</em>',
@@ -1333,7 +1417,7 @@ const TOUR_DATA = [
       'Per-zone soil moisture, temp, and crop data',
       'Quick-action: log activity, view crop cycle, flag issue',
     ],
-    why:'Cenancle\'s 7.5 ha spread across two greenhouses and one outdoor block needs daily zone-level oversight. One screen tells supervisors exactly which blocks are harvesting vs growing.',
+    why:'Last season a moisture issue in Zone B went unnoticed for 3 days because nobody updated the shared sheet. This screen flags it in real time — before stems are damaged and before a buyer is let down.',
   },
   {
     title:'Precision <em>Production</em>',
@@ -1345,7 +1429,7 @@ const TOUR_DATA = [
       'Upcoming spray and pre-harvest action schedule',
       'Crop Varieties register with benchmark yield data',
     ],
-    why:'FloraHolland and Interflora require confirmed stem counts 10 days in advance. This module gives the production team the forecast data to commit orders with confidence.',
+    why:'FloraHolland requires confirmed stem counts 10 days ahead. Without a forecasting tool, Cenancle guesses. Guessing with premium European buyers costs contracts. This module ends that permanently.',
   },
   {
     title:'Farm <em>Operations</em>',
@@ -1357,7 +1441,7 @@ const TOUR_DATA = [
       'Planting and land preparation records',
       'Pre-harvest checklist and crop growth stage tracker',
     ],
-    why:'For Cenancle\'s field supervisors to log Zone B\'s humidity warning and Zone C pest scout result in one place — without emailing three people or updating a shared drive.',
+    why:'One missed re-entry interval after a spray is a KEPHIS violation that can suspend Cenancle\'s export licence. This module captures every spray event, every applicator, every chemical — so the paper trail is always clean.',
   },
   {
     title:'Pack House & <em>Cold Chain</em>',
@@ -1369,7 +1453,7 @@ const TOUR_DATA = [
       '8,240 total stems in pack house inventory today',
       'Batch history with timestamp and grader identity',
     ],
-    why:'Pack house throughput is Cenancle\'s biggest quality control point. This module catches Grade A vs Reject splits before boxes leave for Nairobi — protecting the FloraHolland relationship.',
+    why:'At 48,000 stems per day, a 3% reject rate is 1,440 stems of lost revenue — daily. This screen makes the reject rate visible, traceable by batch, and actionable before boxes are sealed and shipped.',
   },
   {
     title:'Cold Room & <em>Climate Control</em>',
@@ -1381,7 +1465,7 @@ const TOUR_DATA = [
       'Stock check-in form for new batch logging',
       'Auto-sync indicator — refreshes every 30 seconds',
     ],
-    why:'A 1°C deviation in the cold room can cost Cenancle an entire FloraHolland shipment due to vase life failure at destination. This module catches it before the truck departs.',
+    why:'Cold Room 2 breached 3.4°C at 02:14 AM this morning. Flori-Core alerted James by WhatsApp instantly. He corrected it and logged the action before 02:30 AM. Without this module, that batch — and that buyer relationship — would be lost.',
   },
   {
     title:'Team <em>Access</em>',
@@ -1393,7 +1477,7 @@ const TOUR_DATA = [
       'Temporary password flag — Grace Njoroge pending reset',
       'SECURE vs TEMP PW status badges per account',
     ],
-    why:'As Cenancle scales from 4 to 12 system users, this module ensures the pack house supervisor can\'t accidentally edit a sales invoice — role-locked access from day one.',
+    why:'With 312 staff accessing finance, operations, procurement, and payroll — who sees what matters. A rogue procurement approval or a payroll export in the wrong hands is a liability. This module enforces clean access, every session.',
   },
   {
     title:'HR & <em>Training</em>',
@@ -1405,7 +1489,7 @@ const TOUR_DATA = [
       'KPI dashboard with team performance bar charts',
       'Training calendar with upcoming session bookings',
     ],
-    why:'Kenya\'s KFC and GlobalG.A.P. certifications require documented training records for all 312 staff. This module makes the audit a 5-minute export, not a 3-week panic.',
+    why:'A KEPHIS auditor asks: "Was your spray operator certified on the day of the application?" If you can\'t answer in 30 seconds, the audit fails. This module holds the answer — per employee, per chemical, per date.',
   },
   {
     title:'Logistics & <em>Fleet</em>',
@@ -1417,7 +1501,7 @@ const TOUR_DATA = [
       'All routes view: 2 completed, 1 active today',
       'Fleet status panel: vehicle availability and condition',
     ],
-    why:'Kenya Airways Cargo has a 4-hour pre-clearance window. This module tells James Mutua exactly which orders load first and ensures the cold chain handoff is timestamped and auditable.',
+    why:'A Naivasha→JKIA cold-chain shipment has a 2-hour window between pack house and cargo hold. Miss the KQ cargo cut-off and the batch sits overnight. This module tracks every truck, every dispatch — and auto-fills the CMR.',
   },
   {
     title:'Inventory <em>Hub</em>',
@@ -1429,7 +1513,7 @@ const TOUR_DATA = [
       'Wastage log with cost tracking — $420 MTD',
       'Allocation view: stems committed to active orders',
     ],
-    why:'When FloraHolland calls to increase an order, this module tells the sales team in 10 seconds whether Cenancle has the ATP to commit — or needs to flag it as back-order.',
+    why:'ATP — Available to Promise — is what separates farms that confidently quote buyers from farms that over-commit and apologise. This module shows exactly how many stems exist, how many are committed, and how many are truly available.',
   },
   {
     title:'<em>Stores</em> & Catalogue',
@@ -1441,7 +1525,7 @@ const TOUR_DATA = [
       'Vendor register linked to the procurement module',
       'KES 128,400 total stock value at current prices',
     ],
-    why:'Running out of Ferti Fertilizer mid-cycle is a production crisis. This module flags it 2 weeks early and links directly to a draft Purchase Request — one click to procurement.',
+    why:'Fertiliser reordered two weeks late delays an entire crop cycle. This module sets reorder triggers — the moment stock drops below threshold, a draft PO is created and the procurement flow starts. Nobody has to notice. The system does.',
   },
   {
     title:'Sales & <em>CRM</em>',
@@ -1453,7 +1537,7 @@ const TOUR_DATA = [
       'Invoices: 2 paid + 1 pending — USD 52,400 total invoiced',
       '94% conversion rate from prospect to contract',
     ],
-    why:'Cenancle sells to 4 buyers across 3 countries in 2 currencies. This module centralises every deal, order, and payment — no more chasing invoices over WhatsApp.',
+    why:'Cenancle\'s sales team tracked orders across WhatsApp, email, and a spreadsheet — three places for one truth. This kanban board collapses it to one. Confirmed order → invoice auto-generated → dispatch triggered → buyer notified. All automatic.',
   },
   {
     title:'Auto-<em>Procurement</em>',
@@ -1465,7 +1549,7 @@ const TOUR_DATA = [
       'GRN confirmation — ties delivery to PO line items',
       'KES 1,240,000 total PO value this period',
     ],
-    why:'James approves PRs from his phone before the farm walk-through. This module replaces a manual email chain with a trackable approval workflow — so nothing gets ordered twice.',
+    why:'A KES 72,000 fertiliser order approved verbally, executed late, and GRN signed by the wrong person — this module forces process on every purchase, with a full audit trail that satisfies KEPHIS, GlobalG.A.P, or any bank requesting financial controls.',
   },
   {
     title:'Financial <em>Reporting</em>',
@@ -1477,7 +1561,7 @@ const TOUR_DATA = [
       'Balance Sheet and Tax Report export-ready',
       'Date range filter and one-click Excel/PDF export',
     ],
-    why:'Cenancle\'s CFO needs a clean P&L for the Rabobank facility review next quarter. This module generates the report in 30 seconds — not 3 days of Excel consolidation.',
+    why:'Pulling together month-end P&L from multiple spreadsheets used to take the finance team 3 days. This module generates the full income statement instantly — with every transaction linked to its source document and every figure reconciled in real time.',
   },
   {
     title:'Payroll <em>Engine</em>',
@@ -1489,7 +1573,7 @@ const TOUR_DATA = [
       'Payroll run history with approval status tracking',
       'NHIF, NSSF, PAYE deductions calculated automatically',
     ],
-    why:'Paying 164 casual workers with varying days worked is a manual nightmare. Flori-Core calculates it from the attendance register — HR approves in one click.',
+    why:'312 employees. PAYE, NSSF, NHIF, Housing Levy. 164 casual workers on weekly attendance. Flori-Core calculates every deduction in seconds, runs payroll on approval, and dispatches payslips by email and SMS — without HR touching a calculator.',
   },
   {
     title:'Compliance <em>Vault</em>',
@@ -1501,7 +1585,7 @@ const TOUR_DATA = [
       'Audit trail: 10 logged actions across all modules',
       'Zero expired certifications, zero expiring within 30 days',
     ],
-    why:'A surprise GlobalG.A.P. audit at Cenancle requires spray logs, labour records, and training certificates on demand. This vault delivers them in under 2 minutes.',
+    why:'GlobalG.A.P re-certification is Cenancle\'s licence to sell to European buyers. One lapsed certificate can freeze an entire export relationship worth millions. This vault tracks every cert, every spray log, every audit — and alerts 14 days before anything expires.',
   },
   {
     title:'Smart <em>IoT Pulse</em>',
@@ -1513,7 +1597,7 @@ const TOUR_DATA = [
       '"Temp > 28°C → Open Vents" rule — ACTIVE',
       'Add Device capability for future sensor expansion',
     ],
-    why:'Zone B\'s humidity drop to 61% was caught by IoT before a supervisor noticed. This module protects the Avalanche crop from preventable stress damage — automatically.',
+    why:'Soil moisture at 38%, cold room at 2.1°C, EC at 1.6 — these are Cenancle\'s farm vital signs. Checking them by walking the greenhouse takes 45 minutes. Checking them here takes 10 seconds. And unlike a walk, this sends an alert at 2 AM if something breaks.',
   },
   {
     title:'System <em>Audit Trail</em>',
@@ -1525,7 +1609,7 @@ const TOUR_DATA = [
       'Export to CSV for external compliance review',
       '10 logged audit events across production, sales, procurement, HR',
     ],
-    why:'When a certification auditor asks who approved the pesticide PO at 3pm on a Thursday — this log shows it in 8 seconds with a full diff of what changed.',
+    why:'When a buyer disputes an invoice, an auditor asks who approved a PO, or a regulator asks when a spray record was modified — Cenancle needs the answer in minutes, not after a week of emails. Every change, every user, every timestamp. Immutable.',
   },
   {
     title:'<em>AI</em> Assistant',
@@ -1537,7 +1621,7 @@ const TOUR_DATA = [
       'Suggested prompts auto-generated from live farm context',
       'Full conversation history with timestamp and model source',
     ],
-    why:'James needs answers at 5 AM before the farm walk-through, not a database query. The AI turns 18 modules of structured data into a 10-second answer — in plain English.',
+    why:'A new Farm Director inheriting Cenancle gets an AI that already knows all 6 active crop cycles, every cold room reading, every pending approval, and the full P&L — and answers in plain English. Ask it anything. It knows the farm better than any onboarding document.',
   },
   {
     title:'<em>Communications</em> Hub',
@@ -1549,7 +1633,7 @@ const TOUR_DATA = [
       'Compliance reminder email — GlobalG.A.P expiry in 14 days',
       'Buyer order confirmation email with invoice PDF attached',
     ],
-    why:'When a buyer asks "did we get the dispatch confirmation?" — James opens this hub and sees every message sent, by whom, to whom, and when. No more chasing staff over WhatsApp.',
+    why:'When Flamingo Horticulture asks "did you send the dispatch confirmation?" — James opens this screen and shows the WhatsApp read receipt, timestamp, and the email it was CC\'d to. One screen. No more chasing. End of conversation.',
   },
   {
     title:'System <em>Automations</em>',
@@ -1561,7 +1645,7 @@ const TOUR_DATA = [
       'Inventory reorder trigger → Draft PO created automatically',
       'Per-user notification preference matrix: Email / WhatsApp / SMS / In-App',
     ],
-    why:'Cenancle\'s compliance auditor asks: "How did you know the cold room breached?" This screen shows the exact automation rule, when it fired, and who was notified — all in one export.',
+    why:'Flori-Core doesn\'t wait to be asked. Cold room breaches → alert fired in 60 seconds. Stock drops → draft PO created. Certificate expires in 14 days → reminder sent. This screen shows every rule, when it last fired, and exactly who was notified. A farm that runs itself.',
   },
 ];
 
@@ -1799,6 +1883,10 @@ function updatePbar(idx) {
   document.getElementById('pb-icon').textContent = m.icon;
   document.getElementById('pb-name').textContent = m.name;
   document.getElementById('pb-curr').textContent = idx + 1;
+  const pp = document.getElementById('pb-prev-btn');
+  const pn = document.getElementById('pb-next-btn');
+  if (pp) pp.disabled = idx === 0;
+  if (pn) pn.disabled = idx === MODS.length - 1;
 }
 
 /* ─────────────────────────────────────
@@ -7651,6 +7739,251 @@ window.render_automations = () => `
   </div>
 </div>
 `;
+</script>
+
+<!-- ═══════════════════ KEYBOARD SHORTCUTS ═══════════════════ -->
+<style>
+/* Progress bar nav buttons */
+.pb-nav-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--text-3);
+  font-size: 16px;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--font-body);
+}
+.pb-nav-btn:hover { background: rgba(255,255,255,.07); color: var(--text); border-color: rgba(255,255,255,.2); }
+
+/* Keyboard shortcut overlay */
+#kbd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2,8,23,0.82);
+  backdrop-filter: blur(8px);
+  z-index: 99999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+#kbd-overlay.open { display: flex; }
+.kbd-panel {
+  background: var(--bg-card);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 16px;
+  padding: 32px 36px;
+  width: 480px;
+  max-width: 94vw;
+  box-shadow: 0 24px 80px rgba(0,0,0,.6);
+}
+.kbd-title {
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.kbd-sub {
+  font-size: 11px;
+  color: var(--text-4);
+  margin-bottom: 24px;
+}
+.kbd-section {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--text-4);
+  margin: 16px 0 8px;
+}
+.kbd-rows { display: flex; flex-direction: column; gap: 6px; }
+.kbd-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.kbd-row:last-child { border-bottom: none; }
+.kbd-desc { font-size: 12px; color: var(--text-2); }
+.kbd-keys { display: flex; gap: 4px; align-items: center; }
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.14);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: var(--text-2);
+  min-width: 26px;
+  text-align: center;
+}
+.kbd-close-btn {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  color: var(--text-3);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all .15s;
+}
+.kbd-close-btn:hover { background: rgba(255,255,255,.08); color: var(--text); }
+</style>
+
+<!-- Keyboard Shortcut Overlay -->
+<div id="kbd-overlay" onclick="closeKbdOverlay()">
+  <div class="kbd-panel" onclick="event.stopPropagation()">
+    <div class="kbd-title">Keyboard Shortcuts</div>
+    <div class="kbd-sub">All shortcuts work in both Live Demo and Guided Tour modes</div>
+
+    <div class="kbd-section">Playback</div>
+    <div class="kbd-rows">
+      <div class="kbd-row"><span class="kbd-desc">Pause / Resume auto-play</span><span class="kbd-keys"><kbd>Space</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Next module</span><span class="kbd-keys"><kbd>→</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Previous module</span><span class="kbd-keys"><kbd>←</kbd></span></div>
+    </div>
+
+    <div class="kbd-section">Mode</div>
+    <div class="kbd-rows">
+      <div class="kbd-row"><span class="kbd-desc">Switch to Live Demo</span><span class="kbd-keys"><kbd>L</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Switch to Guided Tour</span><span class="kbd-keys"><kbd>G</kbd></span></div>
+    </div>
+
+    <div class="kbd-section">Navigation</div>
+    <div class="kbd-rows">
+      <div class="kbd-row"><span class="kbd-desc">Jump to module 1–9</span><span class="kbd-keys"><kbd>1</kbd> – <kbd>9</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Jump to module 10</span><span class="kbd-keys"><kbd>0</kbd></span></div>
+    </div>
+
+    <div class="kbd-section">Interface</div>
+    <div class="kbd-rows">
+      <div class="kbd-row"><span class="kbd-desc">Open / close notifications</span><span class="kbd-keys"><kbd>N</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Close drawer / overlay</span><span class="kbd-keys"><kbd>Esc</kbd></span></div>
+      <div class="kbd-row"><span class="kbd-desc">Show this help panel</span><span class="kbd-keys"><kbd>?</kbd></span></div>
+    </div>
+
+    <button class="kbd-close-btn" onclick="closeKbdOverlay()">Close — press <strong>Esc</strong> or <strong>?</strong></button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   KEYBOARD NAVIGATION
+══════════════════════════════════════ */
+
+function openKbdOverlay()  { document.getElementById('kbd-overlay').classList.add('open'); }
+function closeKbdOverlay() { document.getElementById('kbd-overlay').classList.remove('open'); }
+
+function pbPrev() {
+  const prev = Math.max(0, curMod - 1);
+  if (mode === 'tour') { setTourModule(prev); }
+  else { pbarJump(prev); }
+}
+function pbNext() {
+  const next = Math.min(MODS.length - 1, curMod + 1);
+  if (mode === 'tour') { setTourModule(next); }
+  else { pbarJump(next); }
+}
+
+document.addEventListener('keydown', e => {
+  // Don't intercept if typing in an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+
+  const kbdOpen = document.getElementById('kbd-overlay').classList.contains('open');
+
+  // Escape — close overlays
+  if (e.key === 'Escape') {
+    if (kbdOpen) { closeKbdOverlay(); return; }
+    const notifOpen = document.getElementById('notif-drawer').classList.contains('open');
+    if (notifOpen) { closeNotifDrawer(); return; }
+    if (mode === 'live' && autoPlaying && !paused) pausePlay();
+    return;
+  }
+
+  // ? — keyboard help
+  if (e.key === '?' || e.key === '/') {
+    if (kbdOpen) closeKbdOverlay(); else openKbdOverlay();
+    return;
+  }
+
+  // Close overlay before other shortcuts
+  if (kbdOpen) return;
+
+  // Space — pause/resume
+  if (e.key === ' ') {
+    e.preventDefault();
+    // On landing page, start demo
+    const landing = document.getElementById('landing');
+    if (landing && landing.style.display !== 'none' && !landing.classList.contains('out')) {
+      enterLiveDemo(); return;
+    }
+    if (mode === 'live') {
+      if (paused) resumePlay(); else pausePlay();
+    }
+    return;
+  }
+
+  // Arrow keys — next/prev
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    pbNext(); return;
+  }
+  if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    pbPrev(); return;
+  }
+
+  // L — live demo
+  if (e.key === 'l' || e.key === 'L') {
+    const app = document.getElementById('app');
+    if (app && app.classList.contains('on')) switchMode('live');
+    return;
+  }
+
+  // G — guided tour
+  if (e.key === 'g' || e.key === 'G') {
+    const app = document.getElementById('app');
+    if (app && app.classList.contains('on')) switchMode('tour');
+    return;
+  }
+
+  // N — toggle notifications
+  if (e.key === 'n' || e.key === 'N') {
+    const app = document.getElementById('app');
+    if (app && app.classList.contains('on')) toggleNotifDrawer();
+    return;
+  }
+
+  // 1-9, 0 — jump to module
+  if (e.key >= '1' && e.key <= '9') {
+    const idx = parseInt(e.key) - 1;
+    if (mode === 'live') pbarJump(idx);
+    else if (mode === 'tour') setTourModule(idx);
+    return;
+  }
+  if (e.key === '0') {
+    if (mode === 'live') pbarJump(9);
+    else if (mode === 'tour') setTourModule(9);
+    return;
+  }
+});
+
 </script>
 </body>
 </html>
