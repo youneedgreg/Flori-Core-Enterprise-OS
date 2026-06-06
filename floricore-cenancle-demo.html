@@ -1252,27 +1252,49 @@
 
     <!-- Left panel: description -->
     <div class="tour-left">
-      <div class="tour-num" id="t-num">01</div>
-      <div class="tour-title" id="t-title">Dashboard</div>
-      <div class="tour-desc" id="t-desc">The command center for Cenancle Kenya — a real-time view of the entire farm operation at a glance.</div>
 
-      <ul class="tour-feats" id="t-feats">
-        <li class="tour-feat"><span class="feat-ck">✓</span><span>4 live KPI cards — stems, dispatches, revenue, workforce</span></li>
-        <li class="tour-feat"><span class="feat-ck">✓</span><span>Global audit stream showing farm-wide activity in real time</span></li>
-        <li class="tour-feat"><span class="feat-ck">✓</span><span>Telemetry pulse — cold room temps, soil moisture, IoT alerts</span></li>
-        <li class="tour-feat"><span class="feat-ck">✓</span><span>Module navigation matrix for quick access to any system</span></li>
-      </ul>
-
-      <div class="tour-why">
-        <div class="tour-why-lbl">Why This Matters for Cenancle Kenya</div>
-        <div class="tour-why-txt" id="t-why">With 48,000 stems leaving Naivasha daily, James needs one screen to confirm the entire operation is running before morning tea. This dashboard replaces 4 spreadsheets and 3 WhatsApp groups.</div>
+      <!-- Mobile bottom-sheet handle (hidden on desktop) -->
+      <div class="sheet-handle" id="sheet-handle">
+        <div class="sheet-drag-bar"></div>
+        <div class="sheet-peek-row">
+          <div class="sheet-peek-info">
+            <span class="sheet-peek-num" id="t-peek-num">01</span>
+            <span class="sheet-peek-title" id="t-peek-title">Dashboard</span>
+          </div>
+          <div class="sheet-peek-nav">
+            <button class="sheet-nav-btn" id="s-prev" onclick="tourPrev()">‹</button>
+            <span class="sheet-nav-ctr" id="t-peek-ctr">1/21</span>
+            <button class="sheet-nav-btn" id="s-next" onclick="tourNext()">›</button>
+          </div>
+        </div>
+        <div class="sheet-expand-hint">Tap for details ↑</div>
       </div>
 
-      <div class="tour-nav">
-        <button class="tour-btn" id="t-prev" onclick="tourPrev()" disabled>← Prev</button>
-        <div class="tour-ctr">Module <strong id="t-curr">1</strong> of <strong id="t-total">21</strong></div>
-        <button class="tour-btn" id="t-next" onclick="tourNext()">Next →</button>
-      </div>
+      <!-- Inner scrollable content -->
+      <div class="tour-left-inner">
+        <div class="tour-num" id="t-num">01</div>
+        <div class="tour-title" id="t-title">Dashboard</div>
+        <div class="tour-desc" id="t-desc">The command center for Cenancle Kenya — a real-time view of the entire farm operation at a glance.</div>
+
+        <ul class="tour-feats" id="t-feats">
+          <li class="tour-feat"><span class="feat-ck">✓</span><span>4 live KPI cards — stems, dispatches, revenue, workforce</span></li>
+          <li class="tour-feat"><span class="feat-ck">✓</span><span>Global audit stream showing farm-wide activity in real time</span></li>
+          <li class="tour-feat"><span class="feat-ck">✓</span><span>Telemetry pulse — cold room temps, soil moisture, IoT alerts</span></li>
+          <li class="tour-feat"><span class="feat-ck">✓</span><span>Module navigation matrix for quick access to any system</span></li>
+        </ul>
+
+        <div class="tour-why">
+          <div class="tour-why-lbl">Why This Matters for Cenancle Kenya</div>
+          <div class="tour-why-txt" id="t-why">With 48,000 stems leaving Naivasha daily, James needs one screen to confirm the entire operation is running before morning tea. This dashboard replaces 4 spreadsheets and 3 WhatsApp groups.</div>
+        </div>
+
+        <div class="tour-nav">
+          <button class="tour-btn" id="t-prev" onclick="tourPrev()" disabled>← Prev</button>
+          <div class="tour-ctr">Module <strong id="t-curr">1</strong> of <strong id="t-total">21</strong></div>
+          <button class="tour-btn" id="t-next" onclick="tourNext()">Next →</button>
+        </div>
+      </div><!-- /tour-left-inner -->
+
     </div>
 
     <!-- Right panel: browser frame with mini app -->
@@ -8212,6 +8234,489 @@ document.addEventListener('click', e => {
   const navItem = e.target.closest('.nav-item[data-mod]');
   if (navItem) closeSidebar();
 });
+</script>
+<!-- ── MOBILE TOAST ── -->
+<div id="mobile-toast" aria-live="polite">
+  <span class="toast-icon" id="toast-icon">⊞</span>
+  <span class="toast-text" id="toast-text">Dashboard</span>
+  <span class="toast-badge" id="toast-badge">1/21</span>
+</div>
+
+<!-- ── SWIPE HINT ── -->
+<div id="swipe-hint">
+  <span style="opacity:.55;">‹</span>
+  <span class="swipe-hint-text">Swipe to explore</span>
+  <span style="opacity:.55;">›</span>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MOBILE-NATIVE EXPERIENCE
+     ═══════════════════════════════════════ -->
+<style>
+
+/* ── Toast ── */
+#mobile-toast {
+  position: fixed;
+  top: calc(var(--topbar-h) + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-70px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px 9px 11px;
+  background: rgba(8,13,26,.96);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 100px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 28px rgba(0,0,0,.55), inset 0 0 0 1px rgba(34,197,94,.08);
+  z-index: 99990;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: transform .36s cubic-bezier(.34,1.56,.64,1), opacity .26s;
+}
+#mobile-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast-icon  { font-size: 15px; line-height: 1; }
+.toast-text  { font-family: var(--font-head); font-size: 13px; font-weight: 600; color: var(--text); }
+.toast-badge {
+  background: var(--green-dim);
+  border: 1px solid rgba(34,197,94,.25);
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  font-family: var(--font-head);
+  letter-spacing: .04em;
+}
+
+/* ── Swipe hint ── */
+#swipe-hint {
+  position: fixed;
+  bottom: calc(var(--pbar-h) + 22px);
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 18px;
+  background: rgba(8,13,26,.88);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 100px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-3);
+  font-size: 15px;
+  z-index: 99989;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .4s var(--ease-o);
+}
+#swipe-hint.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.swipe-hint-text {
+  font-family: var(--font-head);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* ── Sheet handle — desktop: invisible ── */
+.sheet-handle { display: none; }
+
+/* ── tour-left-inner — desktop: acts as a flex child ── */
+.tour-left-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}
+
+/* ── Slide-in animations for live demo ── */
+@keyframes mod-in-right { from { opacity:0; transform:translateX(22px); } to { opacity:1; transform:translateX(0); } }
+@keyframes mod-in-left  { from { opacity:0; transform:translateX(-22px);} to { opacity:1; transform:translateX(0); } }
+.mod-slide-right { animation: mod-in-right .24s var(--ease-o) both; }
+.mod-slide-left  { animation: mod-in-left  .24s var(--ease-o) both; }
+
+/* ── Swipe edge flash indicators ── */
+.swipe-edge {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9000;
+  width: 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  font-size: 15px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s;
+}
+.swipe-edge.left  { left:0;  border-radius:0 10px 10px 0; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22); border-left:none; }
+.swipe-edge.right { right:0; border-radius:10px 0 0 10px; background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22); border-right:none; }
+.swipe-edge.show  { opacity:1; }
+
+/* ═══════════════════════════════════════
+   MOBILE OVERRIDES (≤ 768px)
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── TOUR VIEW: full-screen preview + bottom sheet ── */
+  #tour-view {
+    flex-direction: row !important;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Preview fills entire tour-view */
+  .tour-right {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: none !important;
+    padding: 0 !important;
+    z-index: 1;
+    background: var(--bg);
+  }
+
+  .tour-frame {
+    border-radius: 0 !important;
+    border: none !important;
+    height: 100%;
+  }
+
+  /* ── BOTTOM SHEET ── */
+  .tour-left {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0;
+    right: 0;
+    top: auto !important;
+    width: 100% !important;
+    max-height: 84vh;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-top: 1px solid rgba(255,255,255,.1) !important;
+    border-radius: 22px 22px 0 0;
+    background: rgba(7,12,25,.98);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    box-shadow: 0 -12px 48px rgba(0,0,0,.65);
+    padding: 0 !important;
+    z-index: 50;
+    /* Peek: show just the handle (72px) */
+    transform: translateY(calc(100% - 72px));
+    transition: transform .38s cubic-bezier(.32,.72,0,1);
+    overflow: hidden;
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .tour-left.sheet-expanded {
+    transform: translateY(0);
+  }
+
+  /* Inner content scrolls */
+  .tour-left-inner {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    flex: 1;
+    padding: 4px 18px 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tour-left-inner .tour-num    { font-size: 36px; letter-spacing: -3px; margin-bottom: 0; padding-top: 4px; }
+  .tour-left-inner .tour-title  { font-size: 17px; margin-bottom: 8px; }
+  .tour-left-inner .tour-desc   { font-size: 12px; margin-bottom: 14px; }
+  .tour-left-inner .tour-feats  { gap: 7px; margin-bottom: 14px; }
+  .tour-left-inner .tour-feat   { font-size: 12px; }
+  .tour-left-inner .tour-why    { margin-bottom: 14px; padding: 12px 14px; border-radius: 10px; }
+  .tour-left-inner .tour-why-txt { font-size: 11px; }
+  .tour-left-inner .tour-nav    { display: none; }
+
+  /* ── SHEET HANDLE ── */
+  .sheet-handle {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px 16px 11px;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .sheet-drag-bar {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255,255,255,.18);
+    margin: 0 auto;
+  }
+
+  .sheet-peek-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .sheet-peek-info {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sheet-peek-num {
+    font-family: var(--font-head);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    flex-shrink: 0;
+    opacity: .75;
+  }
+
+  .sheet-peek-title {
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sheet-peek-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .sheet-nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    color: var(--text-2);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: all .12s;
+    font-family: var(--font-body);
+    line-height: 1;
+  }
+
+  .sheet-nav-btn:active:not(:disabled) {
+    background: var(--green-dim);
+    border-color: rgba(34,197,94,.4);
+    color: var(--green);
+    transform: scale(.92);
+  }
+
+  .sheet-nav-btn:disabled { opacity: .22; pointer-events: none; }
+
+  .sheet-nav-ctr {
+    font-family: var(--font-head);
+    font-size: 11px;
+    color: var(--text-4);
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .sheet-expand-hint {
+    font-size: 10px;
+    color: var(--text-4);
+    text-align: center;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    font-family: var(--font-head);
+    margin-top: -2px;
+    transition: opacity .25s;
+  }
+
+  .tour-left.sheet-expanded .sheet-expand-hint { opacity: 0; }
+  .tour-left.sheet-expanded .sheet-drag-bar { background: rgba(255,255,255,.28); }
+}
+</style>
+
+<script>
+/* ═══════════════════════════════════════
+   MOBILE-NATIVE EXPERIENCE
+═══════════════════════════════════════ */
+
+const isMobile = () => window.innerWidth <= 768;
+
+/* ── TOAST ── */
+let _toastT = null;
+function showMobileToast(icon, text, badge) {
+  if (!isMobile()) return;
+  const el  = document.getElementById('mobile-toast');
+  const icE = document.getElementById('toast-icon');
+  const txE = document.getElementById('toast-text');
+  const bgE = document.getElementById('toast-badge');
+  if (!el) return;
+  if (icE) icE.textContent = icon  || '';
+  if (txE) txE.textContent = text  || '';
+  if (bgE) { bgE.textContent = badge || ''; bgE.style.display = badge ? '' : 'none'; }
+  el.classList.add('show');
+  clearTimeout(_toastT);
+  _toastT = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+/* ── SHEET EXPAND/COLLAPSE ── */
+function toggleSheet()   { document.querySelector('.tour-left')?.classList.toggle('sheet-expanded'); }
+function expandSheet()   { document.querySelector('.tour-left')?.classList.add('sheet-expanded'); }
+function collapseSheet() { document.querySelector('.tour-left')?.classList.remove('sheet-expanded'); }
+
+/* Sheet handle tap (not nav buttons) */
+(function() {
+  const h = document.getElementById('sheet-handle');
+  if (!h) return;
+  h.addEventListener('click', e => {
+    if (!isMobile() || e.target.closest('.sheet-nav-btn')) return;
+    toggleSheet();
+  });
+})();
+
+/* ── PATCH setTourModule: update sheet peek + toast ── */
+const _stmOrig = setTourModule;
+window.setTourModule = function(idx) {
+  _stmOrig(idx);
+  /* Update sheet peek */
+  const label = String(idx + 1).padStart(2, '0');
+  const raw   = (TOUR_DATA[idx] && TOUR_DATA[idx].title) ? TOUR_DATA[idx].title.replace(/<[^>]*>/g, '') : '';
+  const total = TOUR_DATA.length;
+  const pn = document.getElementById('t-peek-num');
+  const pt = document.getElementById('t-peek-title');
+  const pc = document.getElementById('t-peek-ctr');
+  const sp = document.getElementById('s-prev');
+  const sn = document.getElementById('s-next');
+  if (pn) pn.textContent = label;
+  if (pt) pt.textContent = raw;
+  if (pc) pc.textContent = `${idx + 1}/${total}`;
+  if (sp) sp.disabled = (idx === 0);
+  if (sn) sn.disabled = (idx === total - 1);
+  /* Mobile: show toast + collapse sheet to reveal preview */
+  if (isMobile()) {
+    const m = MODS[idx];
+    showMobileToast(m.icon, raw, `${idx + 1}/${total}`);
+    collapseSheet();
+  }
+};
+
+/* ── PATCH renderMod: slide animation + live toast ── */
+let _navDir = 1;
+const _rmOrig = renderMod;
+window.renderMod = function(idx, animate) {
+  _rmOrig(idx, animate);
+  if (isMobile() && mode === 'live') {
+    const wrap = document.getElementById('module-wrap');
+    if (wrap && wrap.firstElementChild) {
+      wrap.firstElementChild.classList.add(_navDir >= 0 ? 'mod-slide-right' : 'mod-slide-left');
+    }
+    const m = MODS[idx];
+    showMobileToast(m.icon, m.name, `${idx + 1}/${MODS.length}`);
+  }
+};
+
+/* ── Track navigation direction for slide animation ── */
+const _pbNextOrig = pbNext;
+const _pbPrevOrig = pbPrev;
+window.pbNext = function() { _navDir =  1; _pbNextOrig(); };
+window.pbPrev = function() { _navDir = -1; _pbPrevOrig(); };
+
+/* ── SWIPE GESTURE (left/right) ── */
+let _tx = 0, _ty = 0, _tt = 0, _blocked = false;
+
+document.addEventListener('touchstart', e => {
+  _tx = e.touches[0].clientX;
+  _ty = e.touches[0].clientY;
+  _tt = Date.now();
+  _blocked = !!e.target.closest('.tour-left, #sidebar, #notif-drawer, #pbar, #topbar, .sheet-handle');
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  if (!isMobile() || _blocked) return;
+  const dx = e.changedTouches[0].clientX - _tx;
+  const dy = e.changedTouches[0].clientY - _ty;
+  const dt = Date.now() - _tt;
+  if (dt > 480 || Math.abs(dx) < 42 || Math.abs(dy) > Math.abs(dx) * 0.85) return;
+
+  if (dx < 0) {
+    /* Swipe left → next */
+    _navDir = 1;
+    if (mode === 'live') pbNext();
+    else { collapseSheet(); setTimeout(tourNext, 80); }
+  } else {
+    /* Swipe right → prev */
+    _navDir = -1;
+    if (mode === 'live') pbPrev();
+    else { collapseSheet(); setTimeout(tourPrev, 80); }
+  }
+}, { passive: true });
+
+/* ── SWIPE EDGE FLASH INDICATORS ── */
+(function() {
+  const L = document.createElement('div');
+  L.className = 'swipe-edge left'; L.textContent = '‹';
+  const R = document.createElement('div');
+  R.className = 'swipe-edge right'; R.textContent = '›';
+  document.body.appendChild(L);
+  document.body.appendChild(R);
+  let _et;
+  document.addEventListener('touchstart', e => {
+    if (!isMobile()) return;
+    const x = e.touches[0].clientX;
+    if (x < 22 || x > window.innerWidth - 22) {
+      L.classList.add('show'); R.classList.add('show');
+      clearTimeout(_et);
+      _et = setTimeout(() => { L.classList.remove('show'); R.classList.remove('show'); }, 550);
+    }
+  }, { passive: true });
+})();
+
+/* ── SWIPE HINT on first app entry ── */
+function _showSwipeHint() {
+  if (!isMobile()) return;
+  const h = document.getElementById('swipe-hint');
+  if (!h) return;
+  setTimeout(() => {
+    h.classList.add('show');
+    setTimeout(() => h.classList.remove('show'), 2600);
+  }, 1100);
+}
+
+/* Patch both entry points */
+const _eldOrig = enterLiveDemo;
+const _egtOrig = enterGuidedTour;
+window.enterLiveDemo   = function() { _eldOrig();  _showSwipeHint(); };
+window.enterGuidedTour = function() { _egtOrig();
+  /* Init sheet peek on tour entry */
+  const m = MODS[0];
+  const raw = TOUR_DATA[0].title.replace(/<[^>]*>/g,'');
+  const pn = document.getElementById('t-peek-num');
+  const pt = document.getElementById('t-peek-title');
+  const pc = document.getElementById('t-peek-ctr');
+  if (pn) pn.textContent = '01';
+  if (pt) pt.textContent = raw;
+  if (pc) pc.textContent = `1/${TOUR_DATA.length}`;
+  _showSwipeHint();
+};
 </script>
 </body>
 </html>
