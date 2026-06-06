@@ -1011,6 +1011,9 @@
 
   <!-- ── TOP MODE BAR ── -->
   <div id="topbar">
+    <button id="sb-toggle" onclick="toggleSidebar()" title="Menu" style="display:none;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:8px;color:var(--text-3);cursor:pointer;transition:all .18s;">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
     <div class="tb-brand">
       <!-- Inline brand icon -->
       <svg class="tb-brand-icon" viewBox="0 0 28 28" fill="none">
@@ -1332,6 +1335,9 @@
   <span class="tc-icon" style="width:20px;height:20px;background:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#000;flex-shrink:0;">▶</span>
   <span class="tc-txt"><strong>Auto-playing</strong> — press <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">Space</kbd> to pause · <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">→</kbd> to skip · <kbd style="background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:0 5px;border-radius:3px;font-size:10px;font-family:monospace;">?</kbd> for help</span>
 </div>
+
+<!-- ── SIDEBAR OVERLAY (mobile drawer backdrop) ── -->
+<div id="sb-overlay" onclick="closeSidebar()" style="display:none;position:fixed;inset:0;z-index:7999;background:rgba(0,0,0,0.55);backdrop-filter:blur(2px);"></div>
 
 <!-- ── NOTIFICATION DRAWER ── -->
 <div id="notif-overlay" onclick="closeNotifDrawer()" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.2);"></div>
@@ -7984,6 +7990,228 @@ document.addEventListener('keydown', e => {
   }
 });
 
+</script>
+
+<!-- ═══════════════════════════════════════
+     RESPONSIVE — MOBILE & TABLET SUPPORT
+     ═══════════════════════════════════════ -->
+<style>
+
+/* ── Touch devices: restore native cursor ── */
+@media (hover: none) and (pointer: coarse) {
+  body, a, button { cursor: pointer !important; }
+  #cursor, #ripples { display: none !important; }
+}
+
+/* ── 1280px: narrow sidebar slightly ── */
+@media (max-width: 1280px) {
+  :root { --sidebar-w: 210px; }
+}
+
+/* ── 1100px: existing breakpoint extended ── */
+@media (max-width: 1100px) {
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── 1024px: tablet ── */
+@media (max-width: 1024px) {
+  :root { --sidebar-w: 188px; }
+
+  /* Landing */
+  .lp-headline { font-size: 38px; letter-spacing: -1px; }
+  .lp-logo-name { font-size: 30px; }
+  .lp-logo-icon { width: 56px; height: 56px; }
+
+  /* Grids */
+  .two-col          { grid-template-columns: 1fr; }
+  .sensor-grid      { grid-template-columns: 1fr; }
+  .team-grid        { grid-template-columns: 1fr; }
+  #zones-grid-view  { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Tour */
+  .tour-left  { width: 42%; padding: 28px 22px 24px; }
+  .tour-num   { font-size: 60px; }
+  .tour-title { font-size: 22px; }
+
+  /* Notification drawer */
+  #notif-drawer { width: 340px; }
+
+  /* Topbar */
+  .tb-client-name { font-size: 9px; }
+  .mode-btn { padding: 7px 14px; }
+}
+
+/* ── 768px: mobile ── */
+@media (max-width: 768px) {
+
+  /* Hide custom cursor */
+  #cursor  { display: none; }
+  #ripples { display: none; }
+  body { cursor: auto; }
+
+  /* Show hamburger */
+  #sb-toggle { display: flex !important; }
+
+  /* ── LANDING ── */
+  #landing { padding: 0 16px; justify-content: flex-start; padding-top: 48px; overflow-y: auto; }
+  .lp-logo { flex-direction: column; align-items: center; gap: 10px; margin-bottom: 18px; text-align: center; }
+  .lp-logo-icon { width: 54px; height: 54px; }
+  .lp-logo-name { font-size: 26px; }
+  .lp-logo-words { align-items: center; }
+  .lp-headline { font-size: 28px; letter-spacing: -0.5px; margin-bottom: 12px; text-align: center; }
+  .lp-sub { font-size: 13px; margin-bottom: 20px; text-align: center; }
+  .lp-stats { flex-wrap: wrap; justify-content: center; margin-bottom: 14px; }
+  .lp-stat { padding: 4px 12px; }
+  .lp-stat-val { font-size: 18px; }
+  .lp-stat-lbl { font-size: 9px; }
+  .lp-pills { padding: 0; max-width: 100%; margin-bottom: 22px; }
+  .lp-pill { font-size: 10px; padding: 5px 10px; }
+  .lp-ctas { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; max-width: 380px; margin-bottom: 18px; }
+  .btn-cta-primary, .btn-cta-outline { justify-content: center; padding: 14px 20px; }
+  .lp-countdown { font-size: 11px; }
+
+  /* ── TOPBAR ── */
+  #topbar { padding: 0 12px; gap: 8px; }
+  .tb-brand-name { font-size: 13px; }
+  .tb-client { display: none; }
+  .mode-btn { padding: 6px 10px; font-size: 10px; letter-spacing: 0.04em; }
+  .mode-btn .dot { display: none; }
+
+  /* ── SIDEBAR: fixed drawer ── */
+  #sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0;
+    height: calc(100dvh - var(--topbar-h));
+    z-index: 8000;
+    transform: translateX(-100%);
+    transition: transform 0.28s var(--ease-o);
+    box-shadow: 6px 0 28px rgba(0,0,0,0.6);
+    width: 250px !important;
+  }
+  #sidebar.sb-open { transform: translateX(0); }
+
+  /* ── BROWSER CHROME HEADER ── */
+  #chrome-hdr { padding: 0 12px; gap: 8px; height: 36px; }
+  #chrome-hdr .traffic-lights { display: none; }
+  #chrome-hdr .url-bar { display: none; }
+  .tour-chrome-hdr { height: 36px; padding: 0 12px; gap: 8px; }
+  .tour-chrome-hdr .traffic-lights { display: none; }
+  .tour-chrome-hdr .url-bar { display: none; }
+
+  /* ── MAIN CONTENT ── */
+  #module-wrap { padding: 14px 12px; }
+  .mod-page { padding: 12px 10px !important; }
+  .mod-header { flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .mod-header-right { flex-wrap: wrap; gap: 6px; width: 100%; }
+  .hdr-btn { font-size: 11px; padding: 5px 10px; }
+  .mod-title { font-size: 17px; }
+  .mod-subtitle { font-size: 11px; }
+
+  /* KPIs: 2-column */
+  .kpi-row  { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .kpi-card { padding: 14px 12px; }
+  .kpi-value { font-size: 20px; }
+  .kpi-label { font-size: 10px; }
+  .kpi-sub   { font-size: 10px; }
+
+  /* All 2-col and 3-col grids: stack */
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .sensor-grid { grid-template-columns: 1fr; }
+  .team-grid   { grid-template-columns: 1fr; }
+  .form-grid   { grid-template-columns: 1fr; }
+  #zones-grid-view { grid-template-columns: 1fr !important; }
+  .mod-matrix  { grid-template-columns: repeat(3, 1fr); }
+
+  /* Tables: horizontal scroll */
+  .card { overflow-x: auto; }
+  .dt   { min-width: 420px; }
+  .gantt-wrap .gantt-svg { min-width: 460px; }
+  .perm-table { min-width: 380px; }
+
+  /* Sensor temps */
+  .sensor-temp { font-size: 34px; }
+  .sensor-meta-row { gap: 12px; }
+
+  /* ── TOUR VIEW: stack vertically ── */
+  #tour-view { flex-direction: column !important; }
+  .tour-left {
+    width: 100%;
+    max-height: 45vh;
+    overflow-y: auto;
+    padding: 16px 14px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .tour-right { flex: none; height: 50vh; padding: 10px; }
+  .tour-num   { font-size: 40px; letter-spacing: -3px; }
+  .tour-title { font-size: 18px; }
+  .tour-desc  { font-size: 12px; margin-bottom: 14px; }
+  .tour-feats { margin-bottom: 14px; }
+  .tour-why   { padding: 12px 14px; margin-bottom: 16px; }
+  .tour-why-txt { font-size: 11px; }
+  #tour-mini-sb { display: none; }
+
+  /* ── PROGRESS BAR ── */
+  #pbar { padding: 0 10px; gap: 6px; }
+  .pb-info { min-width: auto; }
+  .pb-icon { display: none; }
+  .pb-name { display: none; }
+  .pb-dots { max-width: 110px; overflow: hidden; gap: 2px; }
+  .pb-dot { width: 4px; height: 4px; }
+  .pb-dot.current { width: 6px; height: 6px; }
+  .pb-counter { font-size: 10px; }
+  .pb-right { min-width: auto; gap: 6px; }
+
+  /* ── NOTIFICATION DRAWER: full width ── */
+  #notif-drawer { width: 100vw; }
+
+  /* ── AI BUTTON ── */
+  #ai-btn { width: 42px; height: 42px; font-size: 18px; right: 14px; }
+
+  /* ── TAKE CONTROL BADGE ── */
+  #take-ctrl { width: calc(100vw - 28px); padding: 8px 12px; }
+  .tc-txt { font-size: 10px; }
+
+  /* ── KEYBOARD OVERLAY ── */
+  .kbd-panel { padding: 22px 18px; }
+  .kbd-title { font-size: 14px; }
+}
+
+/* ── 480px: small phones ── */
+@media (max-width: 480px) {
+  .lp-headline { font-size: 24px; }
+  .lp-logo-name { font-size: 22px; }
+  .lp-logo-icon { width: 48px; height: 48px; }
+  .lp-stat-div { display: none; }
+  .lp-stat { padding: 4px 8px; }
+  .kpi-row  { grid-template-columns: 1fr; }
+  .kpi-value { font-size: 26px; }
+  .mod-matrix { grid-template-columns: repeat(2, 1fr); }
+  .mode-btn { padding: 6px 8px; font-size: 9px; }
+}
+</style>
+
+<script>
+/* ── SIDEBAR DRAWER TOGGLE (mobile) ── */
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sb-overlay');
+  const isOpen = sb.classList.toggle('sb-open');
+  ov.style.display = isOpen ? 'block' : 'none';
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('sb-open');
+  document.getElementById('sb-overlay').style.display = 'none';
+}
+
+/* Close sidebar when a nav item is tapped on mobile */
+document.addEventListener('click', e => {
+  if (window.innerWidth > 768) return;
+  const navItem = e.target.closest('.nav-item[data-mod]');
+  if (navItem) closeSidebar();
+});
 </script>
 </body>
 </html>
