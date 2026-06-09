@@ -66,7 +66,7 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif;letter-spacing:-.02em}
 .side .blogo div b{color:#fff;font-family:'Sora';font-size:13px;font-weight:700;display:block;line-height:1.1}
 .side .blogo div span{font-size:9px;letter-spacing:.18em;color:var(--brand)}
 .navsec{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:12px 10px 5px}
-.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#4a6b56;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;position:relative;margin-bottom:2px;border:1px solid transparent}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#3d5748;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;position:relative;margin-bottom:2px;border:1px solid transparent}
 .side a svg{width:15px;height:15px;opacity:.6;flex:none}
 .side a .bdg{margin-left:auto;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(251,191,36,.15);color:var(--warn)}
 .side a .bdg.new{background:rgba(16,185,129,.2);color:var(--brand)}
@@ -513,11 +513,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         <div class="card">
           <div class="hd"><h4>Recent Activity <span class="tag t-ok" style="font-size:10px;">Live</span></h4><a class="lnk">View all →</a></div>
           <div class="bd" style="padding-top:6px">
-            <div class="aitem"><div class="adot" style="background:#1aa56a"></div><div class="amsg">Production log updated — Zone A batch #FC-2406-044 graded<small>3 min ago</small></div></div>
-            <div class="aitem"><div class="adot" style="background:#2563c9"></div><div class="amsg">Sales order #SO-7821 confirmed — Amsterdam Export 18,000 stems<small>18 min ago</small></div></div>
-            <div class="aitem"><div class="adot" style="background:#7c3aed"></div><div class="amsg">HR: Casual contracts renewed — 12 workers (Harvest Season)<small>2 hrs ago</small></div></div>
-            <div class="aitem"><div class="adot" style="background:#c98a00"></div><div class="amsg">IoT Alert: Cold Room 2 temperature rising — 3.4°C<small>3 hrs ago</small></div></div>
-            <div class="aitem"><div class="adot" style="background:#0fb59a"></div><div class="amsg">Procurement PO-1122 approved — KES 240,000 substrate order<small>5 hrs ago</small></div></div>
+            <div class="aitem"><div class="adot" style="background:var(--ok)"></div><div class="amsg">Production log updated — Zone A batch #FC-2406-044 graded<small>3 min ago</small></div></div>
+            <div class="aitem"><div class="adot" style="background:var(--info)"></div><div class="amsg">Sales order #SO-7821 confirmed — Amsterdam Export 18,000 stems<small>18 min ago</small></div></div>
+            <div class="aitem"><div class="adot" style="background:var(--purple)"></div><div class="amsg">HR: Casual contracts renewed — 12 workers (Harvest Season)<small>2 hrs ago</small></div></div>
+            <div class="aitem"><div class="adot" style="background:var(--warn)"></div><div class="amsg">IoT Alert: Cold Room 2 temperature rising — 3.4°C<small>3 hrs ago</small></div></div>
+            <div class="aitem"><div class="adot" style="background:var(--brand-2)"></div><div class="amsg">Procurement PO-1122 approved — KES 240,000 substrate order<small>5 hrs ago</small></div></div>
           </div>
         </div>
         <div class="gcol">
@@ -659,7 +659,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <div class="topbar">
       <div class="crumb">Production<b>Cycle Management</b></div>
       <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search batches…"></div>
-      <div class="tbright"><button class="btn ghost" style="padding:7px 13px;font-size:12px">Export</button><button class="btn primary" style="padding:7px 13px;font-size:12px">+ New Cycle</button><div class="who"><div class="av">JM</div><div><b>James Mwangi</b><small>Farm Director</small></div></div></div>
+      <div class="tbright"><button class="btn ghost" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-log-activity')">Log Activity</button><button class="btn primary" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-new-cycle')">+ New Cycle</button><div class="who"><div class="av">JM</div><div><b>James Mwangi</b><small>Farm Director</small></div></div></div>
     </div>
     <div class="content">
       <div class="kpis">
@@ -894,7 +894,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <div class="topbar">
       <div class="crumb">Pack House<b>Grading &amp; Packing</b></div>
       <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search batches…"></div>
-      <div class="tbright"><button class="btn ghost" style="padding:7px 13px;font-size:12px">Export GRN</button><button class="btn primary" style="padding:7px 13px;font-size:12px">+ New Batch</button><div class="who"><div class="av">RK</div><div><b>Ruth Kamau</b><small>Pack House Sup.</small></div></div></div>
+      <div class="tbright"><button class="btn ghost" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-grn')">Record GRN</button><button class="btn primary" style="padding:7px 13px;font-size:12px">+ New Batch</button><div class="who"><div class="av">RK</div><div><b>Ruth Kamau</b><small>Pack House Sup.</small></div></div></div>
     </div>
     <div class="content">
       <div class="kpis">
@@ -1130,7 +1130,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             </div>
           </div>
           <div class="user-card">
-            <div class="user-av" style="background:linear-gradient(135deg,#2563c9,#0fb59a)">MW</div>
+            <div class="user-av" style="background:linear-gradient(135deg,#3b82f6,#34d399)">MW</div>
             <div style="flex:1">
               <div class="user-name">Mary Wanjiku</div>
               <div class="user-role">Operations Manager</div>
@@ -1141,7 +1141,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             </div>
           </div>
           <div class="user-card">
-            <div class="user-av" style="background:linear-gradient(135deg,#c98a00,#f59e0b)">DO</div>
+            <div class="user-av" style="background:linear-gradient(135deg,#d97706,#fbbf24)">DO</div>
             <div style="flex:1">
               <div class="user-name">David Otieno</div>
               <div class="user-role">Pack House Supervisor</div>
@@ -1343,20 +1343,20 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
               <ellipse cx="78" cy="210" rx="24" ry="18" fill="rgba(37,99,201,.12)" stroke="rgba(37,99,201,.2)" stroke-width="1"/>
               <text x="56" y="212" fill="rgba(37,99,201,.5)" font-size="7" font-family="Plus Jakarta Sans">L. Victoria</text>
               <ellipse cx="144" cy="188" rx="9" ry="6" fill="rgba(37,99,201,.18)" stroke="rgba(37,99,201,.25)" stroke-width="0.8"/>
-              <path d="M144,188 L166,222 L174,256" fill="none" stroke="#1a7a45" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5,3" opacity=".9"/>
-              <circle cx="144" cy="188" r="6" fill="rgba(26,122,69,.2)" stroke="#1a7a45" stroke-width="2"/>
-              <circle cx="144" cy="188" r="3" fill="#1a7a45"/>
-              <text x="122" y="181" fill="#4a6b56" font-size="9" font-family="Plus Jakarta Sans" font-weight="600">Naivasha</text>
-              <text x="122" y="191" fill="#1a7a45" font-size="7.5" font-family="Plus Jakarta Sans">CENANCLE</text>
-              <circle cx="160" cy="210" r="5" fill="#1a7a45" opacity=".9">
+              <path d="M144,188 L166,222 L174,256" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="5,3" opacity=".9"/>
+              <circle cx="144" cy="188" r="6" fill="rgba(16,185,129,.2)" stroke="#10b981" stroke-width="2"/>
+              <circle cx="144" cy="188" r="3" fill="#10b981"/>
+              <text x="122" y="181" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans" font-weight="600">Naivasha</text>
+              <text x="122" y="191" fill="#10b981" font-size="7.5" font-family="Plus Jakarta Sans">CENANCLE</text>
+              <circle cx="160" cy="210" r="5" fill="#10b981" opacity=".9">
                 <animate attributeName="r" values="4;6;4" dur="2s" repeatCount="indefinite"/>
                 <animate attributeName="opacity" values=".9;.5;.9" dur="2s" repeatCount="indefinite"/>
               </circle>
-              <circle cx="166" cy="222" r="5" fill="rgba(37,99,201,.2)" stroke="#2563c9" stroke-width="1.8"/>
-              <text x="172" y="220" fill="#4a6b56" font-size="9" font-family="Plus Jakarta Sans" font-weight="600">Nairobi</text>
-              <circle cx="174" cy="256" r="7" fill="rgba(201,138,0,.15)" stroke="#c98a00" stroke-width="1.8"/>
-              <text x="150" y="270" fill="#c98a00" font-size="8.5" font-family="Plus Jakarta Sans" font-weight="700">JKIA Cargo</text>
-              <text x="185" y="205" fill="#1a7a45" font-size="8" font-family="Plus Jakarta Sans" font-weight="700">~98 km</text>
+              <circle cx="166" cy="222" r="5" fill="rgba(96,165,250,.15)" stroke="#60a5fa" stroke-width="1.8"/>
+              <text x="172" y="220" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans" font-weight="600">Nairobi</text>
+              <circle cx="174" cy="256" r="7" fill="rgba(251,191,36,.12)" stroke="#fbbf24" stroke-width="1.8"/>
+              <text x="150" y="270" fill="#fbbf24" font-size="8.5" font-family="Plus Jakarta Sans" font-weight="700">JKIA Cargo</text>
+              <text x="185" y="205" fill="#10b981" font-size="8" font-family="Plus Jakarta Sans" font-weight="700">~98 km</text>
             </svg>
             <div style="display:flex;gap:14px;margin-top:8px;font-size:11.5px;flex-wrap:wrap">
               <div style="display:flex;align-items:center;gap:5px"><div style="width:12px;height:2px;background:var(--ok);border-radius:2px"></div>Active route</div>
@@ -1365,7 +1365,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
             </div>
           </div></div>
           <div style="display:flex;flex-direction:column;gap:14px">
-            <div class="card"><div class="hd"><h4>Active Route</h4></div><div class="bd">
+            <div class="card"><div class="hd"><h4>Active Route</h4><a class="lnk" onclick="openModal('modal-route')">View Details →</a></div><div class="bd">
               <div class="trow"><div class="tlbl">Driver</div><div class="tval" style="font-size:12.5px">James Mutua</div></div>
               <div class="trow"><div class="tlbl">Vehicle</div><div class="tval">KBZ 441T</div></div>
               <div class="trow"><div class="tlbl">Destination</div><div class="tval">JKIA Cargo</div></div>
@@ -1567,7 +1567,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <div class="topbar">
       <div class="crumb">Commercial<b>Sales</b></div>
       <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search orders, buyers…"></div>
-      <div class="tbright"><button class="btn primary" style="padding:7px 13px;font-size:12px">+ New Order</button><div class="who"><div class="av">JM</div><div><b>James Mwangi</b><small>Farm Director</small></div></div></div>
+      <div class="tbright"><button class="btn primary" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-new-order')">+ New Order</button><div class="who"><div class="av">JM</div><div><b>James Mwangi</b><small>Farm Director</small></div></div></div>
     </div>
     <div class="content">
       <div class="kpis">
@@ -1663,7 +1663,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <div class="topbar">
       <div class="crumb">Commercial<b>Procurement</b></div>
       <div class="srch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input placeholder="Search POs, PRs, vendors…"></div>
-      <div class="tbright"><button class="btn primary" style="padding:7px 13px;font-size:12px">+ New PR</button><div class="who"><div class="av">JK</div><div><b>Joseph Kariuki</b><small>Storekeeper</small></div></div></div>
+      <div class="tbright"><button class="btn primary" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-new-pr')">+ New PR</button><div class="who"><div class="av">JK</div><div><b>Joseph Kariuki</b><small>Storekeeper</small></div></div></div>
     </div>
     <div class="content">
       <div class="kpis">
@@ -1682,11 +1682,11 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       </div>
 
       <div class="tab-panel show" data-tg="pc" data-tab="prs">
-        <div class="card"><div class="hd"><h4>Open Purchase Requests</h4><button class="btn" style="padding:6px 12px;font-size:11.5px">Manual PR</button></div>
+        <div class="card"><div class="hd"><h4>Open Purchase Requests</h4><button class="btn" style="padding:6px 12px;font-size:11.5px" onclick="openModal('modal-new-pr')">Manual PR</button></div>
         <table><thead><tr><th>PR No.</th><th>Item</th><th>Qty</th><th>Requested By</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
-          <tr><td>PR-2406-001</td><td style="font-weight:600">Ferti Fertiliser</td><td>25 L</td><td>Grace Njoroge</td><td><span class="tag t-err">High</span></td><td><span class="tag t-warn">Pending</span></td><td><button class="btn primary" style="padding:4px 10px;font-size:11px">Approve</button></td></tr>
-          <tr><td>PR-2406-002</td><td style="font-weight:600">Stem Sleeves (500/pk)</td><td>20 packs</td><td>David Otieno</td><td><span class="tag t-err">High</span></td><td><span class="tag t-warn">Pending</span></td><td><button class="btn primary" style="padding:4px 10px;font-size:11px">Approve</button></td></tr>
+          <tr><td>PR-2406-001</td><td style="font-weight:600">Ferti Fertiliser</td><td>25 L</td><td>Grace Njoroge</td><td><span class="tag t-err">High</span></td><td><span class="tag t-warn">Pending</span></td><td><button class="btn primary" style="padding:4px 10px;font-size:11px" onclick="openModal('modal-approve-po')">Approve</button></td></tr>
+          <tr><td>PR-2406-002</td><td style="font-weight:600">Stem Sleeves (500/pk)</td><td>20 packs</td><td>David Otieno</td><td><span class="tag t-err">High</span></td><td><span class="tag t-warn">Pending</span></td><td><button class="btn primary" style="padding:4px 10px;font-size:11px" onclick="openModal('modal-approve-po')">Approve</button></td></tr>
           <tr><td>PR-2406-003</td><td style="font-weight:600">Movento 100 SC</td><td>10 L</td><td>James Mwangi</td><td><span class="tag t-info">Medium</span></td><td><span class="tag t-gray">Draft</span></td><td><button class="btn" style="padding:4px 10px;font-size:11px">Review</button></td></tr>
         </tbody></table></div>
       </div>
@@ -2030,8 +2030,8 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       <div class="grid2">
         <div class="card"><div class="hd"><h4>Temperature Trend — Last 12h</h4></div><div class="bd" style="padding:10px">
           <svg viewBox="0 0 380 100" style="width:100%">
-            <defs><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1aa56a" stop-opacity=".15"/><stop offset="100%" stop-color="#1aa56a" stop-opacity="0"/></linearGradient>
-            <linearGradient id="tg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c98a00" stop-opacity=".2"/><stop offset="100%" stop-color="#c98a00" stop-opacity="0"/></linearGradient></defs>
+            <defs><linearGradient id="tg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity=".15"/><stop offset="100%" stop-color="#10b981" stop-opacity="0"/></linearGradient>
+            <linearGradient id="tg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fbbf24" stop-opacity=".2"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></linearGradient></defs>
             <line x1="30" y1="10" x2="30" y2="90" stroke="var(--line)" stroke-width="1"/>
             <line x1="30" y1="90" x2="370" y2="90" stroke="var(--line)" stroke-width="1"/>
             <text x="20" y="35" fill="var(--ink-2)" font-size="7" text-anchor="end">3°C</text>
@@ -2350,9 +2350,260 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 </div>
 </section>
 
+<!-- ═══════════════════════════════════════
+     SCREEN — ONBOARDING
+═══════════════════════════════════════ -->
+<section class="screen" data-s="Onboarding">
+<p class="caption"><b>Farm onboarding</b> — a guided 4-step setup wizard to get Cenancle Kenya fully configured in Flori-Core within minutes.</p>
+<div class="onboard-wrap">
+  <div class="ob-progress"><div class="ob-progress-fill" id="ob-progress-fill" style="width:25%"></div></div>
+  <div class="ob-stepper">
+    <div class="ob-step done" id="ob-s1"><div class="ob-step-num">✓</div><div class="ob-step-label">Farm Profile</div></div>
+    <div class="ob-connector done" id="ob-c1"></div>
+    <div class="ob-step active" id="ob-s2"><div class="ob-step-num">2</div><div class="ob-step-label">Zones</div></div>
+    <div class="ob-connector" id="ob-c2"></div>
+    <div class="ob-step pending" id="ob-s3"><div class="ob-step-num">3</div><div class="ob-step-label">Team</div></div>
+    <div class="ob-connector" id="ob-c3"></div>
+    <div class="ob-step pending" id="ob-s4"><div class="ob-step-num">4</div><div class="ob-step-label">IoT Setup</div></div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="ob-card" id="ob-step1" style="display:none">
+    <h3>Farm Profile</h3>
+    <p class="sub">Tell us about your farm so we can personalise your Flori-Core experience.</p>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Farm Name <span style="color:var(--danger)">*</span></label><input value="Cenancle Kenya Ltd" placeholder="Farm name"></div>
+      <div class="ob-field"><label>Registration No.</label><input value="CPR/2019/00341" placeholder="KRA/BN number"></div>
+    </div>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Country <span style="color:var(--danger)">*</span></label><select><option>Kenya</option><option>Tanzania</option><option>Ethiopia</option><option>Uganda</option></select></div>
+      <div class="ob-field"><label>County / Region</label><input value="Naivasha, Nakuru County" placeholder="County or region"></div>
+    </div>
+    <div class="ob-field"><label>Primary Crop <span style="color:var(--danger)">*</span></label><select><option>Cut Flowers (Roses)</option><option>Cut Flowers (Mixed)</option><option>Vegetables</option><option>Fruits</option></select></div>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Total Area (ha)</label><input value="7.5" placeholder="Hectares"></div>
+      <div class="ob-field"><label>Certifications held</label><input value="GlobalG.A.P., KFC, MPS-A" placeholder="e.g. GlobalG.A.P."></div>
+    </div>
+    <div class="ob-nav">
+      <span style="font-size:12px;color:var(--ink-2)">Step 1 of 4</span>
+      <button class="btn primary" onclick="obNext(2)">Next — Zones →</button>
+    </div>
+  </div>
+
+  <!-- Step 2 (shown by default) -->
+  <div class="ob-card" id="ob-step2">
+    <h3>Growing Zones</h3>
+    <p class="sub">Add your greenhouse / production zones. You can add more zones later from Farm Zones.</p>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Zone Name <span style="color:var(--danger)">*</span></label><input value="Zone A" placeholder="e.g. Greenhouse A"></div>
+      <div class="ob-field"><label>Area (ha) <span style="color:var(--danger)">*</span></label><input value="3.2" placeholder="Hectares" type="number"></div>
+    </div>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Primary Variety</label><input value="Red Naomi" placeholder="Rose variety"></div>
+      <div class="ob-field"><label>Irrigation Type</label><select><option>Drip Irrigation</option><option>Overhead Sprinklers</option><option>Flood</option><option>None</option></select></div>
+    </div>
+    <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15);border-radius:9px;padding:12px 14px;margin:12px 0;font-size:12.5px">
+      <strong style="color:var(--brand)">3 zones detected</strong> — Zone A (3.2 ha · Red Naomi), Zone B (2.8 ha · Avalanche White), Zone C (1.5 ha · Pink Floyd) have been imported from your uploaded zone map.
+    </div>
+    <div class="ob-nav">
+      <button class="btn ghost" onclick="obNext(1)">← Back</button>
+      <button class="btn primary" onclick="obNext(3)">Next — Team →</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="ob-card" id="ob-step3" style="display:none">
+    <h3>Team &amp; Roles</h3>
+    <p class="sub">Add your core team. They'll receive login invites via email after setup.</p>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Full Name <span style="color:var(--danger)">*</span></label><input value="James Mwangi" placeholder="Full name"></div>
+      <div class="ob-field"><label>Email</label><input value="james@cenancle.co.ke" placeholder="Work email"></div>
+    </div>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Role <span style="color:var(--danger)">*</span></label><select><option>Farm Director</option><option>Production Manager</option><option>Pack House Supervisor</option><option>Finance Officer</option><option>HR Manager</option></select></div>
+      <div class="ob-field"><label>Access Level</label><select><option>Admin</option><option>Manager</option><option>Staff</option><option>View Only</option></select></div>
+    </div>
+    <div style="background:rgba(255,255,255,.04);border:1px dashed var(--line);border-radius:9px;padding:12px 14px;margin:12px 0;font-size:12.5px;color:var(--ink-2);text-align:center;cursor:pointer">
+      + Add another team member
+    </div>
+    <div class="ob-nav">
+      <button class="btn ghost" onclick="obNext(2)">← Back</button>
+      <button class="btn primary" onclick="obNext(4)">Next — IoT →</button>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="ob-card" id="ob-step4" style="display:none">
+    <h3>IoT &amp; Sensors</h3>
+    <p class="sub">Connect your sensor network. You can skip this and configure sensors later from IoT Telemetry.</p>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Gateway Type</label><select><option>Netafim NMC</option><option>Growlink</option><option>FarmHQ</option><option>Custom MQTT</option><option>None / Skip</option></select></div>
+      <div class="ob-field"><label>MQTT Broker URL</label><input value="mqtt://iot.cenancle.co.ke:1883" placeholder="mqtt://..."></div>
+    </div>
+    <div class="ob-grid">
+      <div class="ob-field"><label>Sensor Count</label><input value="12" placeholder="Number of sensors" type="number"></div>
+      <div class="ob-field"><label>Default Sync Interval</label><select><option>Every 5 minutes</option><option>Every 15 minutes</option><option>Every 30 minutes</option><option>Every hour</option></select></div>
+    </div>
+    <div style="background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.15);border-radius:9px;padding:12px 14px;margin:12px 0">
+      <div style="font-size:12.5px;font-weight:700;color:var(--brand);margin-bottom:4px">12 sensors detected</div>
+      <div style="font-size:12px;color:var(--ink-2)">Temperature (6), Humidity (3), Soil Moisture (3) — all responding to gateway ping.</div>
+    </div>
+    <div class="ob-nav">
+      <button class="btn ghost" onclick="obNext(3)">← Back</button>
+      <button class="btn primary" onclick="obFinish()">Complete Setup →</button>
+    </div>
+  </div>
+</div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SCREEN — CALENDAR
+═══════════════════════════════════════ -->
+<section class="screen" data-s="Calendar">
+<p class="caption"><b>Farm calendar</b> — June 2026 schedule showing all production cycles, spray applications, HR events, compliance deadlines, and financial milestones.</p>
+<div class="app">
+  <div class="side"></div>
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Farm<b>Calendar</b></div>
+      <div style="flex:1"></div>
+      <div class="tbright"><button class="btn ghost" style="padding:7px 13px;font-size:12px">← May</button><button class="btn ghost" style="padding:7px 13px;font-size:12px">Jul →</button><div class="who"><div class="av">JM</div><div><b>James Mwangi</b><small>Farm Director</small></div></div></div>
+    </div>
+    <div class="content">
+      <div class="tabs">
+        <span class="on" data-tg="cal" data-tab="month" onclick="showTab('cal','month')">Month</span>
+        <span data-tg="cal" data-tab="week" onclick="showTab('cal','week')">Week (Jun 2–8)</span>
+        <span data-tg="cal" data-tab="list" onclick="showTab('cal','list')">Event List</span>
+      </div>
+
+      <!-- MONTH VIEW -->
+      <div class="tab-panel show" data-tg="cal" data-tab="month">
+        <div class="cal-toolbar">
+          <h3>June 2026</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:11.5px">
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(16,185,129,.18);display:inline-block"></span>Production</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(251,191,36,.15);display:inline-block"></span>Spray/IPM</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(167,139,250,.15);display:inline-block"></span>HR</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(96,165,250,.15);display:inline-block"></span>Finance</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:2px;background:rgba(248,113,113,.15);display:inline-block"></span>Compliance</span>
+          </div>
+        </div>
+        <div class="cal-grid">
+          <div class="cal-day-hd">Mon</div><div class="cal-day-hd">Tue</div><div class="cal-day-hd">Wed</div>
+          <div class="cal-day-hd">Thu</div><div class="cal-day-hd">Fri</div><div class="cal-day-hd">Sat</div><div class="cal-day-hd">Sun</div>
+          <!-- Week 1: Jun 1–7 -->
+          <div class="cal-day"><div class="cal-day-num">1</div><div class="cal-ev-fin cal-event">KPI targets set</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">2</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">3</div><div class="cal-ev-fin cal-event">FloraHolland pymt</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">4</div><div class="cal-ev-spray cal-event">Movento — Zone A</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">5</div><div class="cal-ev-spray cal-event">Switch WG — B&amp;C</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">6</div><div class="cal-ev-ops cal-event">Zone B irrigation</div><div class="cal-ev-maint cal-event">CR2 temp alert!</div><div class="cal-ev-fin cal-event">PO-0035/36 sent</div></div>
+          <div class="cal-day today"><div class="cal-day-num">7</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <!-- Week 2: Jun 8–14 -->
+          <div class="cal-day"><div class="cal-day-num">8</div><div class="cal-ev-spray cal-event">IPM scouting all</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">9</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">10</div><div class="cal-ev-hr cal-event">Food Safety training</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">11</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">12</div><div class="cal-ev-spray cal-event">Floramite — Zone A</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">13</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">14</div><div class="cal-ev-prod cal-event">FC-2406-044 harvest</div></div>
+          <!-- Week 3: Jun 15–21 -->
+          <div class="cal-day"><div class="cal-day-num">15</div><div class="cal-ev-fin cal-event">Q2 casual payroll</div><div class="cal-ev-fin cal-event">NSSF/NHIF due</div></div>
+          <div class="cal-day"><div class="cal-day-num">16</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">17</div><div class="cal-ev-fin cal-event">Agri-KE invoice due</div></div>
+          <div class="cal-day"><div class="cal-day-num">18</div><div class="cal-ev-fin cal-event">KLP invoice due</div></div>
+          <div class="cal-day"><div class="cal-day-num">19</div><div class="cal-ev-prod cal-event">Zone A harvest</div></div>
+          <div class="cal-day"><div class="cal-day-num">20</div><div class="cal-ev-hr cal-event">Cold chain deadline</div><div class="cal-ev-hr cal-event">Fire safety drill</div></div>
+          <div class="cal-day"><div class="cal-day-num">21</div></div>
+          <!-- Week 4: Jun 22–28 -->
+          <div class="cal-day"><div class="cal-day-num">22</div></div>
+          <div class="cal-day"><div class="cal-day-num">23</div></div>
+          <div class="cal-day"><div class="cal-day-num">24</div></div>
+          <div class="cal-day"><div class="cal-day-num">25</div><div class="cal-ev-fin cal-event">HELB deduction</div></div>
+          <div class="cal-day"><div class="cal-day-num">26</div></div>
+          <div class="cal-day"><div class="cal-day-num">27</div></div>
+          <div class="cal-day"><div class="cal-day-num">28</div><div class="cal-ev-prod cal-event">FC-2406-045 est.</div></div>
+          <!-- Week 5: Jun 29–30 + overflow -->
+          <div class="cal-day"><div class="cal-day-num">29</div></div>
+          <div class="cal-day"><div class="cal-day-num">30</div><div class="cal-ev-hr cal-event">Q2 Appraisals due</div><div class="cal-ev-comp cal-event">GlobalG.A.P. review</div></div>
+          <div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div><div class="cal-day empty"></div>
+        </div>
+      </div>
+
+      <!-- WEEK VIEW -->
+      <div class="tab-panel" data-tg="cal" data-tab="week">
+        <div class="cal-toolbar"><h3>Week 23 — Jun 2–8, 2026</h3></div>
+        <div class="card"><div class="bd" style="padding:0;overflow-x:auto">
+          <div class="week-grid">
+            <div class="week-hd"></div>
+            <div class="week-hd">Mon 2</div><div class="week-hd">Tue 3</div><div class="week-hd">Wed 4</div>
+            <div class="week-hd today-col">Thu 5 ★</div><div class="week-hd">Fri 6</div><div class="week-hd">Sat 7</div><div class="week-hd">Sun 8</div>
+            <div class="week-time">06:00</div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest starts</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest</div><div class="week-ev cal-ev-fin">FloraHolland pymt</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest</div><div class="week-ev cal-ev-spray">Movento spray 10:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest</div><div class="week-ev cal-ev-spray">Switch WG 11:30</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest</div><div class="week-ev cal-ev-ops">Zone B irrigation adj.</div><div class="week-ev cal-ev-maint">CR2 temp alert!</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Zone A harvest</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-spray">IPM scouting all zones</div></div>
+            <div class="week-time">08:00</div>
+            <div class="week-cell"></div><div class="week-cell"></div>
+            <div class="week-cell"><div class="week-ev cal-ev-ops">Morning walk 06:30</div></div>
+            <div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="week-time">10:00</div>
+            <div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="week-cell"><div class="week-ev cal-ev-spray">Switch WG apply Zone B+C</div></div>
+            <div class="week-cell"></div><div class="week-cell"></div><div class="week-cell"></div>
+            <div class="week-time">14:00</div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"><div class="week-ev cal-ev-prod">Harvest close 14:00</div></div>
+            <div class="week-cell"></div>
+          </div>
+        </div></div>
+      </div>
+
+      <!-- LIST VIEW -->
+      <div class="tab-panel" data-tg="cal" data-tab="list">
+        <div class="card"><div class="hd"><h4>All June 2026 Events</h4></div><div class="bd">
+          <div class="cal-list-item"><div class="cal-list-date">Jun 1</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">KPI targets set for June 2026</div><div class="cal-list-meta">Finance · Monthly milestone</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 1–30</div><div class="cal-list-dot" style="background:var(--brand)"></div><div class="cal-list-content"><div class="cal-list-title">Zone A daily harvest 06:00–14:00</div><div class="cal-list-meta">Production · 21,500 stems/day · Peter Mutua</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 1–30</div><div class="cal-list-dot" style="background:var(--brand-2)"></div><div class="cal-list-content"><div class="cal-list-title">Morning farm walk 06:30 daily</div><div class="cal-list-meta">Operations · All zones · James Kariuki</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 3</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">FloraHolland payment received — KES 1.25M</div><div class="cal-list-meta">Finance · INV-2406-039</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 4</div><div class="cal-list-dot" style="background:var(--warn)"></div><div class="cal-list-content"><div class="cal-list-title">Movento 100 SC spray — Zone A</div><div class="cal-list-meta">Spray/IPM · Thrips/Aphids · Paul Kamau · PHI 7 days</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 5</div><div class="cal-list-dot" style="background:var(--warn)"></div><div class="cal-list-content"><div class="cal-list-title">Switch 62.5 WG spray — Zone B &amp; C</div><div class="cal-list-meta">Spray/IPM · Botrytis · James Otieno · PHI 3 days</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 6</div><div class="cal-list-dot" style="background:var(--brand-2)"></div><div class="cal-list-content"><div class="cal-list-title">Zone B soil moisture correction (irrigation freq.)</div><div class="cal-list-meta">Operations · Agnes Wanjiku · 61% → 6× cycles/day</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 6</div><div class="cal-list-dot" style="background:var(--danger)"></div><div class="cal-list-content"><div class="cal-list-title">Cold Room 2 temperature alert — 3.4°C</div><div class="cal-list-meta">Maintenance · URGENT · Compressor at MAX</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 6</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">PO-2026-0035 &amp; 0036 auto-drafted &amp; dispatched</div><div class="cal-list-meta">Procurement · KLP Agro / Florex Packaging</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 8</div><div class="cal-list-dot" style="background:var(--warn)"></div><div class="cal-list-content"><div class="cal-list-title">IPM weekly scouting — all zones</div><div class="cal-list-meta">Spray/IPM · Scout team · Report due by 17:00</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 10</div><div class="cal-list-dot" style="background:var(--purple)"></div><div class="cal-list-content"><div class="cal-list-title">Food Safety &amp; Hygiene Refresher</div><div class="cal-list-meta">HR/Training · Pack House · 8 staff · Pack house 08:00</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 12</div><div class="cal-list-dot" style="background:var(--warn)"></div><div class="cal-list-content"><div class="cal-list-title">Floramite SC spray — Zone A (Spider Mites)</div><div class="cal-list-meta">Spray/IPM · Paul Kamau · PHI 3 days</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 14</div><div class="cal-list-dot" style="background:var(--brand)"></div><div class="cal-list-content"><div class="cal-list-title">FC-2406-044 harvest complete — Red Naomi</div><div class="cal-list-meta">Production · Zone A · Est. 128,000 stems total</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 15</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">Q2 payroll — casual workers (180 staff)</div><div class="cal-list-meta">Finance · HR · Approval required before 14:00</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 15</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">NSSF / NHIF remittance due</div><div class="cal-list-meta">Finance · Statutory deductions · Deadline midnight</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 17</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">Agri-Kenya invoice SINV-0287 due — KES 24,000</div><div class="cal-list-meta">Finance · Packaging supply invoice</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 18</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">KLP Agro invoice SINV-0288 due — KES 28,000</div><div class="cal-list-meta">Finance · Agrochemicals supply invoice</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 20</div><div class="cal-list-dot" style="background:var(--purple)"></div><div class="cal-list-content"><div class="cal-list-title">Grace Njoroge cold chain training deadline</div><div class="cal-list-meta">HR/Training · Certification renewal required</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 20</div><div class="cal-list-dot" style="background:var(--purple)"></div><div class="cal-list-content"><div class="cal-list-title">Fire Safety &amp; Evacuation Drill — all staff (312)</div><div class="cal-list-meta">HR/Training · Mandatory · 09:00–11:00</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 25</div><div class="cal-list-dot" style="background:var(--info)"></div><div class="cal-list-content"><div class="cal-list-title">HELB deduction remittance</div><div class="cal-list-meta">Finance · Higher Education Loans Board</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 28</div><div class="cal-list-dot" style="background:var(--brand)"></div><div class="cal-list-content"><div class="cal-list-title">FC-2406-045 harvest estimate — Avalanche White</div><div class="cal-list-meta">Production · Zone B · Est. 102,000 stems total</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 30</div><div class="cal-list-dot" style="background:var(--purple)"></div><div class="cal-list-content"><div class="cal-list-title">Q2 Appraisals — submission deadline (all managers)</div><div class="cal-list-meta">HR/Training · via Flori-Core HR portal</div></div></div>
+          <div class="cal-list-item"><div class="cal-list-date">Jun 30</div><div class="cal-list-dot" style="background:var(--danger)"></div><div class="cal-list-content"><div class="cal-list-title">GlobalG.A.P. Q2 internal review</div><div class="cal-list-meta">Compliance · Documentation audit · Farm Director</div></div></div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
 <div class="footnote">
-  <b>Flori-Core Enterprise OS</b> — Cenancle Kenya Farm Management System &nbsp;·&nbsp; Mockups by <b>Webtech Solutions KE</b><br>
-  Next.js 14 · TypeScript · PostgreSQL · Prisma · Nairobi, Kenya
+  <b>Flori-Core Enterprise OS</b> — Cenancle Kenya Farm Management System &nbsp;·&nbsp; Demo by <b>Flori-Core</b><br>
+  Next.js · TypeScript · PostgreSQL · Prisma · Nairobi, Kenya
 </div>
 </div><!-- /wrap -->
 
@@ -2361,7 +2612,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 
 /* ── NAV REGISTRY ── */
 const SCREENS = [
-  'Login','Dashboard','Farm Zones','Production','Farm Operations',
+  'Login','Onboarding','Dashboard','Calendar','Farm Zones','Production','Farm Operations',
   'Pack House','Cold Room','Team Access','HR & Training','Logistics',
   'Inventory','Stores','Sales','Procurement','Financials','Payroll',
   'Compliance Vault','IoT Telemetry','Audit Trail','AI Assistant',
@@ -2371,6 +2622,8 @@ const SCREENS = [
 /* ── SIDEBAR ITEMS ── */
 const NAV_ITEMS = [
   ['Dashboard',    'M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z', null],
+  ['Calendar',     'M8 2v3M16 2v3M3 7h18M3 7a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2V9a2 2 0 00-2-2H3z', null],
+  ['Onboarding',   'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM9 12l2 2 4-4', null],
   ['Farm Zones',   'M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z', null],
   ['Production',   'M12 2c0 6-5 9-5 14a5 5 0 0010 0c0-5-5-8-5-14z', null],
   ['Farm Ops',     'M12 22V12M12 12C12 7 7 4 7 4s5 3 5 8M12 12c0-5 5-8 5-8s-5 3-5 8', null],
@@ -2441,6 +2694,271 @@ function go(name) {
 
 /* ── INIT SIDEBARS ── */
 allScreens.forEach(s => s.querySelectorAll('.side').forEach(sb => sb.innerHTML = sidebarHTML(s.dataset.s)));
+
+/* ── MODAL HELPERS ── */
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('open');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
+
+/* ── FLOATING CHAT ── */
+function toggleChat() {
+  const panel = document.getElementById('fchat-panel');
+  panel.classList.toggle('open');
+}
+document.getElementById('fchat-send').addEventListener('click', function() {
+  const inp = document.getElementById('fchat-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  const msgs = document.getElementById('fchat-msgs');
+  msgs.insertAdjacentHTML('beforeend', `<div class="fchat-bubble me">${val}</div>`);
+  inp.value = '';
+  setTimeout(() => {
+    msgs.insertAdjacentHTML('beforeend', `<div class="fchat-bubble ai">Got it! Let me look that up across your farm data…</div>`);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 700);
+  msgs.scrollTop = msgs.scrollHeight;
+});
+document.getElementById('fchat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('fchat-send').click();
+});
+
+/* ── ONBOARDING WIZARD ── */
+function obNext(step) {
+  [1,2,3,4].forEach(i => {
+    const el = document.getElementById('ob-step' + i);
+    if (el) el.style.display = i === step ? 'block' : 'none';
+    const sEl = document.getElementById('ob-s' + i);
+    if (sEl) {
+      sEl.className = 'ob-step ' + (i < step ? 'done' : i === step ? 'active' : 'pending');
+      sEl.querySelector('.ob-step-num').textContent = i < step ? '✓' : i;
+    }
+    const cEl = document.getElementById('ob-c' + i);
+    if (cEl) cEl.className = 'ob-connector' + (i < step ? ' done' : '');
+  });
+  const fill = document.getElementById('ob-progress-fill');
+  if (fill) fill.style.width = (step * 25) + '%';
+}
+function obFinish() {
+  const card = document.querySelector('#ob-step4');
+  if (card) card.innerHTML = `<div style="text-align:center;padding:20px 0">
+    <div style="width:56px;height:56px;border-radius:50%;background:var(--okbg);display:grid;place-items:center;margin:0 auto 16px;font-size:24px">✓</div>
+    <h3 style="color:var(--brand);margin-bottom:8px">Setup complete!</h3>
+    <p style="color:var(--ink-2);font-size:13.5px;max-width:380px;margin:0 auto 22px">Cenancle Kenya is now fully configured. Your dashboard is ready with live data from all zones.</p>
+    <button class="btn primary" onclick="go('Dashboard')" style="padding:11px 28px;font-size:14px">Go to Dashboard →</button>
+  </div>`;
+}
 </script>
+
+<!-- ═══════════════════════════════════════
+     MODAL OVERLAYS (7)
+═══════════════════════════════════════ -->
+
+<!-- Modal 1: New Production Cycle -->
+<div class="modal-overlay" id="modal-new-cycle">
+  <div class="modal">
+    <div class="mhd"><h3>New Production Cycle</h3><button class="mclose" onclick="closeModal('modal-new-cycle')">✕</button></div>
+    <div class="mbd">
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Batch ID<span class="req">*</span></label><input value="FC-2406-047" placeholder="Auto-generated"></div>
+        <div class="fld"><label>Zone<span class="req">*</span></label><select><option>Zone A — Red Naomi</option><option>Zone B — Avalanche White</option><option>Zone C — Pink Floyd</option></select></div>
+        <div class="fld"><label>Variety<span class="req">*</span></label><input value="Red Naomi" placeholder="Rose variety"></div>
+        <div class="fld"><label>Planting Date<span class="req">*</span></label><input type="date" value="2026-06-07"></div>
+        <div class="fld"><label>Est. Harvest Date</label><input type="date" value="2026-08-25"></div>
+        <div class="fld"><label>Target Stems</label><input value="22,000" placeholder="Stems per cycle"></div>
+      </div>
+      <div class="fsec">Planting Details</div>
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Seedling Supplier</label><input value="Dümmen Orange" placeholder="Supplier name"></div>
+        <div class="fld"><label>Rootstock / Clone</label><input value="Natal Briar" placeholder="Rootstock"></div>
+        <div class="fld"><label>Plants per ha</label><input value="80,000" type="number"></div>
+        <div class="fld"><label>Area (ha)</label><input value="3.2" type="number" step="0.1"></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-new-cycle')">Cancel</button>
+        <button class="btn primary">Create Cycle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 2: Log Activity -->
+<div class="modal-overlay" id="modal-log-activity">
+  <div class="modal">
+    <div class="mhd"><h3>Log Farm Activity</h3><button class="mclose" onclick="closeModal('modal-log-activity')">✕</button></div>
+    <div class="mbd">
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Activity Type<span class="req">*</span></label><select><option>Harvesting</option><option>Irrigation</option><option>Fertilisation</option><option>Spray Application</option><option>Pest Scouting</option><option>Maintenance</option><option>Other</option></select></div>
+        <div class="fld"><label>Zone<span class="req">*</span></label><select><option>Zone A</option><option>Zone B</option><option>Zone C</option><option>All Zones</option><option>Pack House</option></select></div>
+        <div class="fld"><label>Date &amp; Time<span class="req">*</span></label><input type="datetime-local" value="2026-06-07T06:30"></div>
+        <div class="fld"><label>Assigned Worker</label><input value="Peter Mutua" placeholder="Worker name"></div>
+      </div>
+      <div class="fld" style="margin-top:12px"><label>Notes / Observations</label><input placeholder="Describe what was done, any issues observed…"></div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-log-activity')">Cancel</button>
+        <button class="btn primary">Log Activity</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 3: New Purchase Requisition -->
+<div class="modal-overlay" id="modal-new-pr">
+  <div class="modal">
+    <div class="mhd"><h3>New Purchase Requisition</h3><button class="mclose" onclick="closeModal('modal-new-pr')">✕</button></div>
+    <div class="mbd">
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>PR Number</label><input value="PR-2026-0048" placeholder="Auto-generated" readonly></div>
+        <div class="fld"><label>Requested By<span class="req">*</span></label><input value="James Mwangi" placeholder="Your name"></div>
+        <div class="fld"><label>Department<span class="req">*</span></label><select><option>Farm Operations</option><option>Pack House</option><option>Stores</option><option>HR</option><option>Maintenance</option></select></div>
+        <div class="fld"><label>Date Required<span class="req">*</span></label><input type="date" value="2026-06-14"></div>
+      </div>
+      <div class="fsec">Items</div>
+      <div class="formgrid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="fld"><label>Item Name<span class="req">*</span></label><input value="Switch 62.5 WG" placeholder="Item description"></div>
+        <div class="fld"><label>Quantity<span class="req">*</span></label><input value="20" type="number"></div>
+        <div class="fld"><label>Unit</label><input value="kg" placeholder="kg, L, pcs…"></div>
+        <div class="fld"><label>Estimated Cost (KES)</label><input value="48,000" placeholder="0.00"></div>
+        <div class="fld"><label>Preferred Vendor</label><input value="KLP Agro Supplies" placeholder="Vendor name"></div>
+        <div class="fld"><label>Urgency</label><select><option>Normal</option><option>Urgent</option><option>Critical</option></select></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-new-pr')">Cancel</button>
+        <button class="btn primary">Submit PR</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 4: New Sales Order -->
+<div class="modal-overlay" id="modal-new-order">
+  <div class="modal">
+    <div class="mhd"><h3>New Sales Order</h3><button class="mclose" onclick="closeModal('modal-new-order')">✕</button></div>
+    <div class="mbd">
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Order ID</label><input value="SO-2406-093" readonly placeholder="Auto-generated"></div>
+        <div class="fld"><label>Buyer<span class="req">*</span></label><select><option>FloraHolland Amsterdam</option><option>Dubai Floral WS</option><option>Interflora UK</option><option>Marks &amp; Spencer</option><option>Naivas Supermarkets</option><option>New Buyer…</option></select></div>
+        <div class="fld"><label>Variety<span class="req">*</span></label><select><option>Red Naomi</option><option>Avalanche White</option><option>Pink Floyd</option><option>Mixed</option></select></div>
+        <div class="fld"><label>Stems Ordered<span class="req">*</span></label><input value="12,000" type="number" step="100"></div>
+        <div class="fld"><label>Price per Stem (USD)</label><input value="0.20" type="number" step="0.01"></div>
+        <div class="fld"><label>Dispatch Date<span class="req">*</span></label><input type="date" value="2026-06-10"></div>
+        <div class="fld"><label>Incoterm</label><select><option>FOB Nairobi</option><option>CIF Amsterdam</option><option>EXW Farm Gate</option></select></div>
+        <div class="fld"><label>Channel</label><select><option>Export — Air</option><option>Export — Sea</option><option>Local</option></select></div>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-new-order')">Cancel</button>
+        <button class="btn primary">Create Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 5: Approve Purchase Order -->
+<div class="modal-overlay" id="modal-approve-po">
+  <div class="modal">
+    <div class="mhd"><h3>Approve Purchase Order</h3><button class="mclose" onclick="closeModal('modal-approve-po')">✕</button></div>
+    <div class="mbd">
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">PO Number</div><div style="font-weight:700">PO-2026-0035</div></div>
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">Vendor</div><div style="font-weight:700">KLP Agro Supplies</div></div>
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">Item</div><div style="font-weight:700">Switch 62.5 WG × 10 kg</div></div>
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">Total (KES)</div><div style="font-weight:700;color:var(--ok)">KES 24,000</div></div>
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">Requested By</div><div>James Mwangi</div></div>
+          <div><div style="font-size:10.5px;color:var(--ink-2);text-transform:uppercase;margin-bottom:3px">Required By</div><div>10 Jun 2026</div></div>
+        </div>
+      </div>
+      <div class="fld"><label>Approval Note (optional)</label><input placeholder="Add a note for the procurement record…"></div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-approve-po')" style="color:var(--danger);border-color:rgba(248,113,113,.3)">Reject</button>
+        <button class="btn ghost" onclick="closeModal('modal-approve-po')">Cancel</button>
+        <button class="btn primary">Approve PO</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 6: Record GRN -->
+<div class="modal-overlay" id="modal-grn">
+  <div class="modal">
+    <div class="mhd"><h3>Record Goods Receipt (GRN)</h3><button class="mclose" onclick="closeModal('modal-grn')">✕</button></div>
+    <div class="mbd">
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>GRN Number</label><input value="GRN-0289" readonly></div>
+        <div class="fld"><label>PO Reference<span class="req">*</span></label><select><option>PO-2026-0035 — KLP Agro</option><option>PO-2026-0036 — Florex Packaging</option><option>PO-2026-0034 — Agri-Kenya</option></select></div>
+        <div class="fld"><label>Received Date<span class="req">*</span></label><input type="date" value="2026-06-07"></div>
+        <div class="fld"><label>Received By<span class="req">*</span></label><input value="Joseph Kariuki" placeholder="Storekeeper"></div>
+        <div class="fld"><label>Qty Ordered</label><input value="10" type="number" readonly></div>
+        <div class="fld"><label>Qty Received<span class="req">*</span></label><input value="10" type="number"></div>
+        <div class="fld"><label>Condition</label><select><option>Good — Accepted</option><option>Partially Damaged</option><option>Rejected</option></select></div>
+        <div class="fld"><label>Delivery Note No.</label><input placeholder="Supplier DN number"></div>
+      </div>
+      <div class="fld" style="margin-top:12px"><label>Remarks</label><input placeholder="Any notes about the delivery…"></div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-grn')">Cancel</button>
+        <button class="btn primary">Save GRN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal 7: Route / Dispatch Details -->
+<div class="modal-overlay" id="modal-route">
+  <div class="modal">
+    <div class="mhd"><h3>Dispatch Route Details</h3><button class="mclose" onclick="closeModal('modal-route')">✕</button></div>
+    <div class="mbd">
+      <div style="background:var(--okbg);border:1px solid rgba(16,185,129,.2);border-radius:9px;padding:11px 14px;margin-bottom:14px;display:flex;gap:10px;align-items:center">
+        <div class="pulse" style="background:var(--ok);width:8px;height:8px"></div>
+        <div style="font-size:12.5px;font-weight:600;color:var(--ok)">En Route — ETA 06:20 JKIA</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12.5px;margin-bottom:16px">
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Vehicle Reg</div><div style="font-weight:700">KBZ 441T</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Driver</div><div style="font-weight:700">Daniel Omondi</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Departure</div><div style="font-weight:700">06 Jun · 14:05</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Destination</div><div style="font-weight:700">JKIA Cargo Terminal</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Order</div><div style="font-weight:700">SO-2406-088 · FloraHolland</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Cargo</div><div style="font-weight:700">192 boxes · 24,000 stems</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Temp at Load</div><div style="font-weight:700;color:var(--ok)">2.2°C ✓</div></div>
+        <div><div style="color:var(--ink-2);font-size:10.5px;text-transform:uppercase;margin-bottom:3px">Flight</div><div style="font-weight:700">KQ 102 · 09:35 NBO→AMS</div></div>
+      </div>
+      <div class="fsec">Cold Chain Checkpoints</div>
+      <div class="progitem"><div class="step d">✓</div><div><div class="pl">Farm gate departure</div><div class="pt2">14:05 · Temp 2.2°C · Sealed</div></div></div>
+      <div class="progitem"><div class="step a">2</div><div><div class="pl">JKIA cargo terminal</div><div class="pt2">Est. 06:20 · In transit</div></div></div>
+      <div class="progitem"><div class="step p">3</div><div><div class="pl">Flight KQ 102 loaded</div><div class="pt2">09:35 · Pending</div></div></div>
+      <div class="progitem"><div class="step p">4</div><div><div class="pl">Amsterdam Schiphol arrival</div><div class="pt2">Est. Jun 7 · 16:20 local</div></div></div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-route')">Close</button>
+        <button class="btn primary">Mark Delivered</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     FLOATING AI CHAT WIDGET
+═══════════════════════════════════════ -->
+<button class="fchat-btn" onclick="toggleChat()" title="Ask Flori AI">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+</button>
+<div class="fchat-panel" id="fchat-panel">
+  <div class="fchat-header">
+    <div class="fav"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+    <div style="flex:1"><div style="font-size:13px;font-weight:700">Flori AI Assistant</div><div style="font-size:10.5px;color:var(--ink-2)">Farm intelligence · Always on</div></div>
+    <button onclick="toggleChat()" style="background:none;border:none;color:var(--ink-2);cursor:pointer;font-size:16px">✕</button>
+  </div>
+  <div class="fchat-msgs" id="fchat-msgs">
+    <div class="fchat-bubble ai">Hi James 👋 — Zone B moisture is at 61%, down from 68% yesterday. Want me to draft an irrigation adjustment schedule?</div>
+    <div class="fchat-bubble ai">Also: Cold Room 2 hit 3.4°C at 02:14. I've already notified the maintenance team. Shall I log a formal incident?</div>
+  </div>
+  <div class="fchat-inp">
+    <input id="fchat-input" placeholder="Ask about zones, harvest, payroll…">
+    <button id="fchat-send">Send</button>
+  </div>
+</div>
+
 </body>
 </html>
