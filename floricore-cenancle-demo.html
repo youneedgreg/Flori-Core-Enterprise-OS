@@ -917,12 +917,12 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div class="card"><div class="hd"><h4>Grade Distribution — Today</h4></div><div class="bd">
             <div style="display:flex;align-items:center;gap:24px">
               <svg width="120" height="120" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#d4ead9" stroke-width="18"/>
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#1a7a45" stroke-width="18" stroke-dasharray="243 288.5" stroke-dashoffset="72" opacity=".8"/>
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#c98a00" stroke-width="18" stroke-dasharray="37.5 288.5" stroke-dashoffset="-171" opacity=".8"/>
-                <circle cx="60" cy="60" r="46" fill="none" stroke="#d6452f" stroke-width="18" stroke-dasharray="8.6 288.5" stroke-dashoffset="-208.5" opacity=".8"/>
-                <text x="60" y="56" text-anchor="middle" fill="#152b1e" font-size="17" font-family="Sora" font-weight="700">84%</text>
-                <text x="60" y="70" text-anchor="middle" fill="#4a6b56" font-size="10" font-family="Plus Jakarta Sans">Grade A</text>
+                <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="18"/>
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#10b981" stroke-width="18" stroke-dasharray="243 288.5" stroke-dashoffset="72" opacity=".8"/>
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#fbbf24" stroke-width="18" stroke-dasharray="37.5 288.5" stroke-dashoffset="-171" opacity=".8"/>
+                <circle cx="60" cy="60" r="46" fill="none" stroke="#f87171" stroke-width="18" stroke-dasharray="8.6 288.5" stroke-dashoffset="-208.5" opacity=".8"/>
+                <text x="60" y="56" text-anchor="middle" fill="#e2e8f0" font-size="17" font-family="Sora" font-weight="700">84%</text>
+                <text x="60" y="70" text-anchor="middle" fill="#64748b" font-size="10" font-family="Plus Jakarta Sans">Grade A</text>
               </svg>
               <div style="display:flex;flex-direction:column;gap:10px">
                 <div style="display:flex;align-items:center;gap:8px"><div style="width:10px;height:10px;border-radius:50%;background:var(--ok)"></div><div><div style="font-size:12.5px;font-weight:700">84% — Grade A (Premium)</div><div style="font-size:11px;color:var(--ink-2)">32,256 stems</div></div></div>
@@ -1054,27 +1054,23 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         <div class="hd"><h4>Temperature Trend — Last 6 Hours <span style="font-size:11px;color:var(--ink-2);font-weight:400">06/06/2026 · 05:45–11:45</span></h4></div>
         <div class="bd" style="overflow-x:auto">
           <svg width="100%" height="90" viewBox="0 0 740 90" preserveAspectRatio="xMidYMid meet" style="min-width:480px">
-            <line x1="30" y1="20" x2="740" y2="20" stroke="#d4ead9" stroke-width="1"/>
-            <line x1="30" y1="45" x2="740" y2="45" stroke="#d4ead9" stroke-width="1"/>
-            <line x1="30" y1="68" x2="740" y2="68" stroke="#d4ead9" stroke-width="1"/>
-            <text x="0" y="24" fill="#4a6b56" font-size="9" font-family="Plus Jakarta Sans">4°C</text>
-            <text x="0" y="48" fill="#d6452f" font-size="9" font-family="Plus Jakarta Sans">3°C</text>
-            <text x="0" y="71" fill="#4a6b56" font-size="9" font-family="Plus Jakarta Sans">2°C</text>
-            <!-- CR1 stable -->
-            <polyline points="30,58 150,55 270,57 390,56 510,55 630,58 740,56" fill="none" stroke="#1a7a45" stroke-width="2.5" stroke-linejoin="round"/>
-            <!-- CR2 rising -->
-            <polyline points="30,48 150,46 270,44 390,40 510,36 630,30 740,22" fill="none" stroke="#c98a00" stroke-width="2.5" stroke-linejoin="round"/>
-            <!-- 3C limit -->
-            <line x1="30" y1="45" x2="740" y2="45" stroke="#d6452f" stroke-width="1" stroke-dasharray="5,4"/>
-            <text x="740" y="44" fill="#d6452f" font-size="9" font-family="Plus Jakarta Sans" text-anchor="end">↑ 3°C limit</text>
-            <!-- time labels -->
-            <text x="30" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">05:45</text>
-            <text x="150" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">06:45</text>
-            <text x="270" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">07:45</text>
-            <text x="390" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">08:45</text>
-            <text x="510" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">09:45</text>
-            <text x="630" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">10:45</text>
-            <text x="710" y="88" fill="#94a3b8" font-size="9" font-family="Plus Jakarta Sans">11:45</text>
+            <line x1="30" y1="20" x2="740" y2="20" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <line x1="30" y1="45" x2="740" y2="45" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <line x1="30" y1="68" x2="740" y2="68" stroke="rgba(255,255,255,.07)" stroke-width="1"/>
+            <text x="0" y="24" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">4°C</text>
+            <text x="0" y="48" fill="#f87171" font-size="9" font-family="Plus Jakarta Sans">3°C</text>
+            <text x="0" y="71" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">2°C</text>
+            <polyline points="30,58 150,55 270,57 390,56 510,55 630,58 740,56" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linejoin="round"/>
+            <polyline points="30,48 150,46 270,44 390,40 510,36 630,30 740,22" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linejoin="round"/>
+            <line x1="30" y1="45" x2="740" y2="45" stroke="#f87171" stroke-width="1" stroke-dasharray="5,4"/>
+            <text x="740" y="44" fill="#f87171" font-size="9" font-family="Plus Jakarta Sans" text-anchor="end">↑ 3°C limit</text>
+            <text x="30" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">05:45</text>
+            <text x="150" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">06:45</text>
+            <text x="270" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">07:45</text>
+            <text x="390" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">08:45</text>
+            <text x="510" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">09:45</text>
+            <text x="630" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">10:45</text>
+            <text x="710" y="88" fill="#64748b" font-size="9" font-family="Plus Jakarta Sans">11:45</text>
           </svg>
           <div style="display:flex;gap:18px;margin-top:6px;font-size:11.5px">
             <div style="display:flex;align-items:center;gap:6px"><div style="width:14px;height:3px;background:var(--ok);border-radius:2px"></div>Cold Room 1</div>
@@ -1593,23 +1589,23 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
             <div style="background:var(--panel-2);border-radius:8px;padding:12px;border-left:3px solid var(--ink-2)">
               <div style="font-size:10px;font-weight:700;color:var(--ink-2);text-transform:uppercase;margin-bottom:8px">Enquiry</div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Edeka Germany</div><div style="font-size:11px;color:var(--ink-2)">9,600 stems · $1,920</div></div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">FTD Group USA</div><div style="font-size:11px;color:var(--ink-2)">4,800 stems · $960</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Edeka Germany</div><div style="font-size:11px;color:var(--ink-2)">9,600 stems · $1,920</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">FTD Group USA</div><div style="font-size:11px;color:var(--ink-2)">4,800 stems · $960</div></div>
             </div>
             <div style="background:var(--panel-2);border-radius:8px;padding:12px;border-left:3px solid var(--info)">
               <div style="font-size:10px;font-weight:700;color:var(--info);text-transform:uppercase;margin-bottom:8px">Confirmed</div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Marks &amp; Spencer</div><div style="font-size:11px;color:var(--ink-2)">4,500 stems · $1,350</div></div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Naivas Supermarkets</div><div style="font-size:11px;color:var(--ink-2)">2,400 stems · KES 96,000</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Marks &amp; Spencer</div><div style="font-size:11px;color:var(--ink-2)">4,500 stems · $1,350</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Naivas Supermarkets</div><div style="font-size:11px;color:var(--ink-2)">2,400 stems · KES 96,000</div></div>
             </div>
             <div style="background:var(--panel-2);border-radius:8px;padding:12px;border-left:3px solid var(--warn)">
               <div style="font-size:10px;font-weight:700;color:var(--warn);text-transform:uppercase;margin-bottom:8px">Packing</div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Dubai Floral WS</div><div style="font-size:11px;color:var(--ink-2)">9,600 stems · $2,880</div></div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Interflora UK</div><div style="font-size:11px;color:var(--ink-2)">12,000 stems · $2,400</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">Dubai Floral WS</div><div style="font-size:11px;color:var(--ink-2)">9,600 stems · $2,880</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Interflora UK</div><div style="font-size:11px;color:var(--ink-2)">12,000 stems · $2,400</div></div>
             </div>
             <div style="background:var(--panel-2);border-radius:8px;padding:12px;border-left:3px solid var(--ok)">
               <div style="font-size:10px;font-weight:700;color:var(--ok);text-transform:uppercase;margin-bottom:8px">Dispatched</div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">FloraHolland</div><div style="font-size:11px;color:var(--ink-2)">24,000 stems · $4,800</div></div>
-              <div style="background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Aldi Sud</div><div style="font-size:11px;color:var(--ink-2)">6,000 stems · $1,200</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px;margin-bottom:6px"><div style="font-weight:600;font-size:12px">FloraHolland</div><div style="font-size:11px;color:var(--ink-2)">24,000 stems · $4,800</div></div>
+              <div style="background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:8px"><div style="font-weight:600;font-size:12px">Aldi Sud</div><div style="font-size:11px;color:var(--ink-2)">6,000 stems · $1,200</div></div>
             </div>
           </div>
         </div></div>
@@ -2081,10 +2077,10 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
     <div class="topbar">
       <div class="crumb">Security<b>Audit Trail</b></div>
       <div style="display:flex;gap:8px;flex:1;max-width:480px;margin:0 16px">
-        <select style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--ink);background:#fff;flex:1">
+        <select style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.04);flex:1">
           <option>All Modules</option><option>Authentication</option><option>Procurement</option><option>Payroll</option><option>Compliance Vault</option>
         </select>
-        <select style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--ink);background:#fff;flex:1">
+        <select style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12.5px;color:var(--ink);background:rgba(255,255,255,.04);flex:1">
           <option>All Users</option><option>James Mwangi</option><option>Mary Wanjiku</option><option>David Otieno</option>
         </select>
       </div>
@@ -2204,6 +2200,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 ═══════════════════════════════════════ -->
 <section class="screen" data-s="Communications">
 <p class="caption"><b>Communications</b> — centralised message log for email, WhatsApp, and SMS sent to buyers, suppliers, and staff from within Flori-Core.</p>
+<div class="alert info" style="margin-bottom:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><div><strong>Planned Q3 2026</strong> — Full two-way messaging hub (email, WhatsApp Business API, SMS) with thread history and read receipts is scheduled for release in Q3 2026. Current view shows a preview of the message log.</div></div>
 <div class="app">
   <div class="side"></div>
   <div class="main">
@@ -2233,7 +2230,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         </tr>
         <tr>
           <td style="font-family:monospace;font-size:11.5px">13:30</td>
-          <td><span class="tag t-ok" style="background:#dcfce7;color:#166534">WhatsApp</span></td>
+          <td><span class="tag t-ok" style="background:rgba(16,185,129,.15);color:#34d399">WhatsApp</span></td>
           <td>James Mutua (Driver)</td>
           <td style="font-size:12.5px">Route update: JKIA Cargo gate B — ETA confirmed 14:30</td>
           <td>Mary Wanjiku</td>
@@ -2257,7 +2254,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
         </tr>
         <tr>
           <td style="font-family:monospace;font-size:11.5px">09:00</td>
-          <td><span class="tag t-ok" style="background:#dcfce7;color:#166534">WhatsApp</span></td>
+          <td><span class="tag t-ok" style="background:rgba(16,185,129,.15);color:#34d399">WhatsApp</span></td>
           <td>Grace Njoroge (Staff)</td>
           <td style="font-size:12.5px">Please complete Cold Chain Handling course by 20 Jun</td>
           <td>Mary Wanjiku</td>
@@ -2283,6 +2280,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 ═══════════════════════════════════════ -->
 <section class="screen" data-s="Automations">
 <p class="caption"><b>Automations</b> — configure trigger-based rules across the farm OS: alerts, emails, approval workflows, and IoT responses — all managed from one place.</p>
+<div class="alert info" style="margin-bottom:14px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><div><strong>Planned Q3 2026</strong> — Full no-code automation builder with conditional logic, multi-step workflows, and IoT integration is scheduled for release in Q3 2026. Existing rules shown below are already live in the backend.</div></div>
 <div class="app">
   <div class="side"></div>
   <div class="main">
