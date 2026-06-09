@@ -66,7 +66,7 @@ h1,h2,h3,h4{font-family:'Sora',sans-serif;letter-spacing:-.02em}
 .side .blogo div b{color:#fff;font-family:'Sora';font-size:13px;font-weight:700;display:block;line-height:1.1}
 .side .blogo div span{font-size:9px;letter-spacing:.18em;color:var(--brand)}
 .navsec{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:12px 10px 5px}
-.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#3d5748;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;position:relative;margin-bottom:2px;border:1px solid transparent}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;color:#7fb99a;text-decoration:none;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;position:relative;margin-bottom:2px;border:1px solid transparent}
 .side a svg{width:15px;height:15px;opacity:.6;flex:none}
 .side a .bdg{margin-left:auto;font-size:9.5px;font-weight:700;padding:1px 6px;border-radius:999px;background:rgba(251,191,36,.15);color:var(--warn)}
 .side a .bdg.new{background:rgba(16,185,129,.2);color:var(--brand)}
@@ -1624,7 +1624,7 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
       </div>
 
       <div class="tab-panel" data-tg="sl" data-tab="invoices">
-        <div class="card"><div class="hd"><h4>Invoices</h4></div>
+        <div class="card"><div class="hd"><h4>Invoices</h4><button class="btn primary" style="padding:7px 13px;font-size:12px" onclick="openModal('modal-new-invoice')">+ New Invoice</button></div>
         <table><thead><tr><th>Invoice</th><th>Buyer</th><th>Amount</th><th>Issued</th><th>Due</th><th>Status</th></tr></thead>
         <tbody>
           <tr><td>INV-2406-044</td><td>FloraHolland Amsterdam</td><td>USD 4,800</td><td>04 Jun</td><td>11 Jun</td><td><span class="tag t-warn">Awaiting</span></td></tr>
@@ -1651,6 +1651,89 @@ tbody tr:hover{background:rgba(255,255,255,.025)}
 </div>
 </section>
 
+
+<!-- ── MODAL: NEW INVOICE ── -->
+<div class="modal-overlay" id="modal-new-invoice">
+  <div class="modal" style="max-width:580px">
+    <div class="mhd">
+      <h3>New Sales Invoice</h3>
+      <button class="mclose" onclick="closeModal('modal-new-invoice')">✕</button>
+    </div>
+    <div class="mbd">
+      <div class="fsec">Invoice Details</div>
+      <div class="formgrid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="fld"><label>Invoice No <span class="req">*</span></label><input value="INV-2406-045" readonly style="opacity:.6"></div>
+        <div class="fld"><label>Issue Date <span class="req">*</span></label><input type="date" value="2026-06-09"></div>
+        <div class="fld"><label>Due Date <span class="req">*</span></label><input type="date" value="2026-06-16"></div>
+      </div>
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Buyer <span class="req">*</span></label>
+          <select>
+            <option>FloraHolland Amsterdam</option>
+            <option>Dubai Floral Wholesale</option>
+            <option>Interflora UK</option>
+            <option>Marks &amp; Spencer UK</option>
+            <option>Aldi Sud Germany</option>
+            <option>Edeka Germany</option>
+            <option>Naivas Supermarkets</option>
+            <option>FTD Group USA</option>
+          </select>
+        </div>
+        <div class="fld"><label>Related Order</label>
+          <select>
+            <option value="">— None —</option>
+            <option>SO-2406-088 · FloraHolland · 24,000 stems</option>
+            <option>SO-2406-089 · Interflora · 12,000 stems</option>
+            <option>SO-2406-090 · Dubai Floral · 9,600 stems</option>
+            <option>SO-2406-091 · M&amp;S UK · 4,500 stems</option>
+            <option>SO-2406-092 · Naivas · 2,400 stems</option>
+          </select>
+        </div>
+      </div>
+      <div class="fsec">Line Items</div>
+      <table style="margin-bottom:10px">
+        <thead><tr><th>Description</th><th>Qty (stems)</th><th>Unit Price</th><th>Currency</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><input style="width:100%;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;outline:none" value="Red Naomi — Grade A"></td>
+            <td><input style="width:80px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;outline:none" value="12,000"></td>
+            <td><input style="width:80px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;outline:none" value="0.20"></td>
+            <td><select style="border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;outline:none"><option>USD</option><option>KES</option><option>EUR</option><option>GBP</option><option>AED</option></select></td>
+            <td style="font-weight:700;color:var(--ok)">USD 2,400</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size:12px;color:var(--brand);cursor:pointer;margin-bottom:12px" onclick="">+ Add line item</div>
+      <div class="formgrid" style="grid-template-columns:1fr 1fr">
+        <div class="fld"><label>Payment Terms</label>
+          <select>
+            <option>Net 7 days</option>
+            <option>Net 14 days</option>
+            <option>Net 30 days</option>
+            <option>On delivery</option>
+          </select>
+        </div>
+        <div class="fld"><label>Delivery Method</label>
+          <select>
+            <option>Email (PDF)</option>
+            <option>WhatsApp</option>
+            <option>Portal download</option>
+          </select>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:4px"><label>Notes / Reference</label><input placeholder="e.g. Airwaybill KQ 7842, delivery ref…"></div>
+      <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin-top:14px">
+        <div style="font-size:12px;color:var(--ink-2)">Invoice Total</div>
+        <div style="font-size:20px;font-weight:700;font-family:'Sora';color:var(--ok)">USD 2,400.00</div>
+      </div>
+      <div class="btnrow">
+        <button class="btn ghost" onclick="closeModal('modal-new-invoice')">Cancel</button>
+        <button class="btn ghost" style="border-color:rgba(96,165,250,.3);color:var(--info)">Save Draft</button>
+        <button class="btn primary" onclick="closeModal('modal-new-invoice')">Generate &amp; Send Invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════
      SCREEN 13 — PROCUREMENT
@@ -2629,15 +2712,15 @@ const NAV_ITEMS = [
   ['Farm Ops',     'M12 22V12M12 12C12 7 7 4 7 4s5 3 5 8M12 12c0-5 5-8 5-8s-5 3-5 8', null],
   ['Pack House',   'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z', null],
   ['Cold Room',    'M12 2v20M4.93 4.93l14.14 14.14M2 12h20M4.93 19.07 19.07 4.93', '!'],
-  ['Team Access',  'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', null],
-  ['HR & Training','M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z', null],
-  ['Logistics',    'M1 3h15v13H1zM16 8h4l4 4v5h-8V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z', '22'],
-  ['Inventory',    'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8M12 2v10M3 7l9 5 9-5', null],
-  ['Stores',       'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0', '2'],
   ['Sales',        'M22 12h-4l-3 9L9 3l-3 9H2', null],
-  ['Procurement',  'M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2M9 2h6v4H9V2zM12 11v6M9 14h6', '3'],
   ['Financials',   'M3 3v18h18M18 17V9M13 17V5M8 17v-3', null],
+  ['Procurement',  'M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2M9 2h6v4H9V2zM12 11v6M9 14h6', '3'],
+  ['Stores',       'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0', '2'],
+  ['Inventory',    'M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8M12 2v10M3 7l9 5 9-5', null],
+  ['HR & Training','M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z', null],
   ['Payroll',      'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 12h.01M6 12h.01M18 12h.01', null],
+  ['Logistics',    'M1 3h15v13H1zM16 8h4l4 4v5h-8V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z', '22'],
+  ['Team Access',  'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75', null],
   ['Compliance',   'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z', null],
   ['IoT Telemetry','M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z', null],
   ['Audit Trail',  'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8', null],
@@ -2648,9 +2731,10 @@ const NAV_ITEMS = [
 
 function sidebarHTML(active) {
   const links = NAV_ITEMS.map(([name, d, badge]) => {
-    const on = name === active || (name === 'Farm Ops' && active === 'Farm Operations') ? ' class="on"' : '';
+    const screenName = name === 'Farm Ops' ? 'Farm Operations' : name === 'Compliance' ? 'Compliance Vault' : name;
+    const on = name === active || screenName === active ? ' class="on"' : '';
     const bdg = badge ? `<span class="bdg${badge==='NEW'?' new':''}">${badge}</span>` : '';
-    return `<a${on} onclick="go('${name === 'Farm Ops' ? 'Farm Operations' : name}')">
+    return `<a${on} onclick="go('${screenName}')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>
       ${name}${bdg}
     </a>`;
