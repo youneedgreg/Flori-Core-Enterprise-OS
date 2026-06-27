@@ -2,6 +2,8 @@
 
 A production-grade, multi-tenant **Farm Operating System** purpose-built for high-altitude floriculture. Flori-Core connects physical field operations — zones, crop cycles, cold chain, pack house, IoT sensors — with global market logistics, finance, and compliance through a unified, secure digital platform.
 
+At its core is a real-time **IoT telemetry pipeline**: field sensors stream temperature, moisture, EC, and pH readings that are ingested over MQTT (EMQX) and persisted in **TimescaleDB** — a time-series extension on PostgreSQL chosen specifically so high-frequency sensor data and conventional relational ERP data (crop cycles, inventory, finance) can live in the same database, queried together, instead of stitching together two separate stores. Automation rules evaluate this telemetry in real time to drive alerting (cold-room breaches, irrigation thresholds, etc.).
+
 Designed for commercial flower farms that sell to international buyers (EU, UK, UAE), Flori-Core replaces disconnected spreadsheets and paper trails with a single system of record covering every department: from stem counting on the harvest floor to payroll disbursements and GlobalG.A.P. certificate tracking.
 
 ---
