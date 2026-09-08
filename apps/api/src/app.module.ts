@@ -3,6 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
+import { DemoModule } from './demo/demo.module';
 import { AuthModule } from './auth/auth.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { CommunicationsModule } from './communications/communications.module';
@@ -56,6 +57,7 @@ import { ChatModule } from './chat/chat.module';
 @Module({
   imports: [
     PrismaModule,
+    DemoModule,
     AuthModule,
     CommunicationsModule,
     OnboardingModule,

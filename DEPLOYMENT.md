@@ -139,19 +139,87 @@ the development values.
 - [ ] **Deploy the `/flori-core-users` removal** — push so Render rebuilds.
 - [ ] **Register an account through the UI.** The definitive end-to-end test: exercises
       Neon, the seeded roles, JWT issuance, and CORS in one flow.
-- [ ] **Preview deployments are not wired.** `NEXT_PUBLIC_API_URL` and
-      `NEXT_PUBLIC_MAPBOX_TOKEN` exist only in the **Production** scope, so every preview
-      build falls back to `http://localhost:3001` and has no Mapbox token. Render already
-      allows preview origins (`CORS_ALLOW_VERCEL_PREVIEWS=true`), so only the Vercel side
-      is missing:
+- [x] **Preview deployments wired.** `NEXT_PUBLIC_API_URL` and `NEXT_PUBLIC_MAPBOX_TOKEN`
+      added to the **Preview** scope (all branches). Render already allows preview origins
+      via `CORS_ALLOW_VERCEL_PREVIEWS=true`, so PR previews now reach the live API.
 
-      ```bash
-      cd apps/web
-      printf 'https://flori-core-api.onrender.com' | vercel env add NEXT_PUBLIC_API_URL preview
-      grep '^NEXT_PUBLIC_MAPBOX_TOKEN=' ../../.env | cut -d= -f2- \
-        | tr -d '"' | vercel env add NEXT_PUBLIC_MAPBOX_TOKEN preview
-      ```
+      > CLI note: `vercel env add <name> preview --value ... --yes` still blocks asking for a
+      > git branch. Pass an empty string as the positional branch argument to mean
+      > "all preview branches":
+      >
+      > ```bash
+      > vercel env add NEXT_PUBLIC_API_URL preview "" --value '<url>' --yes
+      > ```
 
+## Demo data
+
+One fully-populated tenant — **Waridi Flowers Ltd** (slug `waridi`), a Naivasha rose farm
+with 12 months of history across every module.
+
+### Seeding
+
+```bash
+set -a; . apps/web/.env.local; set +a
+cd apps/api && pnpm demo:seed
+```
+
+> **This TRUNCATES every table except `roles` before seeding.** It is repeatable by design
+> and must never be pointed at a database holding real data.
+
+Roughly 80k rows: 8 login users, 68 employees, 14 zones, 8 rose varieties, 30 crop cycles,
+~49k telemetry readings (hourly for the last 30 days, 6-hourly before that), ~230 orders
+with invoices and payments, 260 batches with QC logs and packed boxes, full chart of
+accounts with journals, 12 monthly payroll runs with payslips, procurement from purchase
+request through PO, GRN, vendor invoice and payment, plus deliveries, training, appraisals
+and audit logs.
+
+### Login credentials
+
+Every account uses the same password: **`FloriCore!Demo2026`**
+
+| Email | Role | Position |
+|---|---|---|
+| `admin@waridi.demo` | gold_admin | Managing Director (full access) |
+| `supervisor@waridi.demo` | field_supervisor | Head of Production |
+| `qc@waridi.demo` | qc_lead | QC Lead |
+| `accountant@waridi.demo` | accountant | Financial Controller |
+| `hr@waridi.demo` | hr_manager | HR Manager |
+| `driver@waridi.demo` | driver | Lead Driver |
+| `stores@waridi.demo` | store_manager | Stores Manager |
+| `sales@waridi.demo` | sales_agent | Export Sales Lead |
+
+> A shared password on a public URL means anyone who finds the link can sign in as
+> `gold_admin`. Fine for a demo; never reuse this pattern for a real tenant.
+
+### Nightly refresh
+
+A Vercel Cron job runs at **01:00 UTC** daily (`apps/web/vercel.json`):
+
+`/api/cron/demo-refresh` → `POST {API}/demo/refresh`
+
+It shifts every timestamp column in the schema forward by the number of whole days since
+the data was last current, so relative spacing is preserved (an invoice raised three days
+after dispatch still is) and the dashboards never look abandoned. The outbound call also
+wakes the sleeping Render service and produces the database activity that stops Neon
+archiving an idle branch.
+
+Required environment variables:
+
+| Variable | Where | Purpose |
+|---|---|---|
+| `DEMO_REFRESH_TOKEN` | **both** Render and Vercel | Shared secret; must match exactly. The `/demo/*` endpoints return 403 unless it is set, so they are inert in a normal deployment. |
+| `CRON_SECRET` | Vercel | Vercel sends it as `Authorization: Bearer …`; the route rejects anything else. |
+
+Trigger it by hand with:
+
+```bash
+curl -X POST -H "x-demo-token: $DEMO_REFRESH_TOKEN" https://flori-core-api.onrender.com/demo/refresh
+```
+
+Vercel's Hobby plan allows one cron invocation per day and may delay it by up to an hour —
+fine for a nightly job.
+
+---
 
 ## Ongoing maintenance
 

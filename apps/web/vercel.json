@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "buildCommand": "cd ../.. && pnpm turbo run build --filter=@flori/web...",
   "installCommand": "pnpm install --frozen-lockfile",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/cron/demo-refresh",
+      "schedule": "0 1 * * *"
+    }
+  ]
 }
