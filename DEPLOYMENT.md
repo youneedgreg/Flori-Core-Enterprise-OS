@@ -32,17 +32,24 @@ The web app is a pure frontend — no API routes, it only calls `NEXT_PUBLIC_API
 - [x] `render.yaml` blueprint committed
 - [x] Catch-up migration committed (`20260908210000_catchup_schema_drift`, commit `215500d`)
 
+- [x] Dockerfiles pin `pnpm@10.7.0` / `turbo@2.10.12` (see Troubleshooting)
+- [x] Removed unauthenticated `GET /flori-core-users`
+- [x] **Web deployed and live** — https://flori-core-web.vercel.app
+- [x] **API deployed and live** — https://flori-core-api.onrender.com
+- [x] End-to-end verified: health 200, CORS allows the Vercel domain, refuses others
+
 Vercel project: `gregory-temwas-projects/flori-core-web`
 GitHub repo: `youneedgreg/Flori-Core-Enterprise-OS`
+Live web: https://flori-core-web.vercel.app
+Live API: https://flori-core-api.onrender.com
 
 ---
 
 ## Phase A — before anything is public
 
-- [ ] **Remove or guard `GET /flori-core-users`** (`apps/api/src/app.service.ts:12`)
-      Unauthenticated. Returns every user in every tenant, with tenant and role joined.
-      Nothing in the codebase calls it. It becomes internet-facing the moment Render
-      assigns a URL.
+- [x] **Removed `GET /flori-core-users`** — was unauthenticated and returned every user in
+      every tenant. Deleted from `app.controller.ts` and `app.service.ts`.
+      **Not yet deployed** — push to Render to close it on the live API.
 
 ---
 
@@ -121,25 +128,30 @@ the development values.
 
 ## Phase D — connect and verify
 
-- [ ] If the Render URL differs from what you set in Phase B, update `NEXT_PUBLIC_API_URL`
-      in Vercel **and redeploy**. `NEXT_PUBLIC_*` is compiled into the bundle at build time —
-      changing the variable alone does nothing.
+- [x] `NEXT_PUBLIC_API_URL` baked into the production bundle as
+      `https://flori-core-api.onrender.com` (verified by reading the deployed client chunks)
+- [x] `CORS_ORIGINS` on Render matches the production alias `https://flori-core-web.vercel.app`
+- [x] `curl https://flori-core-api.onrender.com/` -> 200 `Hello World!`
+- [x] CORS echoes the Vercel domain; a foreign origin gets no allow header
 
-- [ ] If the Vercel domain differs from what you set in Phase C, fix `CORS_ORIGINS` on Render
-      or every browser request is refused.
+### Still open
 
-- [ ] Verify:
+- [ ] **Deploy the `/flori-core-users` removal** — push so Render rebuilds.
+- [ ] **Register an account through the UI.** The definitive end-to-end test: exercises
+      Neon, the seeded roles, JWT issuance, and CORS in one flow.
+- [ ] **Preview deployments are not wired.** `NEXT_PUBLIC_API_URL` and
+      `NEXT_PUBLIC_MAPBOX_TOKEN` exist only in the **Production** scope, so every preview
+      build falls back to `http://localhost:3001` and has no Mapbox token. Render already
+      allows preview origins (`CORS_ALLOW_VERCEL_PREVIEWS=true`), so only the Vercel side
+      is missing:
 
-```bash
-curl https://<render-url>/                             # -> Hello World!
+      ```bash
+      cd apps/web
+      printf 'https://flori-core-api.onrender.com' | vercel env add NEXT_PUBLIC_API_URL preview
+      grep '^NEXT_PUBLIC_MAPBOX_TOKEN=' ../../.env | cut -d= -f2- \
+        | tr -d '"' | vercel env add NEXT_PUBLIC_MAPBOX_TOKEN preview
+      ```
 
-curl -H "Origin: https://<vercel-domain>" -i https://<render-url>/ \
-  | grep -i access-control-allow-origin                # -> your domain echoed back
-```
-
-- [ ] Register an account through the UI. That exercises Neon, the seeded roles, and CORS at once.
-
----
 
 ## Ongoing maintenance
 

@@ -9,9 +9,4 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  @Get('flori-core-users')
-  async getSystemUsers() {
-    return this.appService.getSystemUsers();
-  }
 }
