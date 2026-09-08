@@ -4,7 +4,11 @@ FROM node:20-alpine AS base
 RUN apk update && apk add --no-cache libc6-compat
 
 # Install pnpm and turbo
-RUN npm install -g pnpm turbo
+# Pin both tools. An unpinned `pnpm` installs the latest major, which reads the
+# `packageManager` field, tries to self-install pnpm@10.7.0, and fails with
+# ERR_PNPM_PNPM_ENGINE_IDENTITY_UNVERIFIABLE because the lockfile (v9.0) has no
+# @pnpm/exe integrity entry. Matching the version outright avoids the self-install.
+RUN npm install -g pnpm@10.7.0 turbo@2.10.12
 
 # First stage: prune the workspace to only what's needed for the API
 FROM base AS builder

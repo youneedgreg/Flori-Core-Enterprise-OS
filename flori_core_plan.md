@@ -84,9 +84,14 @@
 - `Dockerfile` per app + `docker-compose.yml` for local dev
 - GitHub Actions: lint → test → build → deploy on merge to `main`
 - Vercel for frontend preview deployments per PR
-- AWS ECS Fargate for NestJS API production
+- ~~AWS ECS Fargate for NestJS API production~~ → **superseded**, see below
 - AWS S3 + CloudFront for static assets
 - Sentry DSN configured for both apps
+
+> **Current deployment target: see [DEPLOYMENT.md](./DEPLOYMENT.md)** — a step-by-step
+> runbook for the live split deployment (Vercel for the web app, Render for the API,
+> Neon for Postgres). It supersedes the AWS ECS/RDS approach described here and in
+> `PRODUCTION.md`, and carries the remaining checklist of manual dashboard steps.
 
 ### 0.7 Landing Page (Public-facing)
 - Next.js marketing page for the SaaS product
