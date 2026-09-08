@@ -166,7 +166,8 @@ cd apps/api && pnpm demo:seed
 > **This TRUNCATES every table except `roles` before seeding.** It is repeatable by design
 > and must never be pointed at a database holding real data.
 
-Roughly 80k rows: 8 login users, 68 employees, 14 zones, 8 rose varieties, 30 crop cycles,
+Seeded and verified: **86 tables, 68,145 rows, every table populated** (the script
+reports this itself). 8 login users, 68 employees, 14 zones, 8 rose varieties, 30 crop cycles,
 ~49k telemetry readings (hourly for the last 30 days, 6-hourly before that), ~230 orders
 with invoices and payments, 260 batches with QC logs and packed boxes, full chart of
 accounts with journals, 12 monthly payroll runs with payslips, procurement from purchase
@@ -218,6 +219,36 @@ curl -X POST -H "x-demo-token: $DEMO_REFRESH_TOKEN" https://flori-core-api.onren
 
 Vercel's Hobby plan allows one cron invocation per day and may delay it by up to an hour —
 fine for a nightly job.
+
+---
+
+## Security fixes applied
+
+Two unauthenticated endpoints were live on the public API and have been closed.
+
+**`GET /flori-core-users`** — returned every user in every tenant with tenant and role
+joined. Nothing called it. Removed from `app.controller.ts` / `app.service.ts`.
+
+**`/super-admin/*`** — generic CRUD (`GET`/`POST`/`PATCH`/`DELETE`) over *every* Prisma
+model with no guards at all, plus a `/flori-core-dashboard` page that called it with no
+token and was not covered by the middleware matcher. Anyone with the URL could read, edit
+or delete the entire database without logging in.
+
+Now `@UseGuards(JwtAuthGuard, RolesGuard)` + `@Roles('gold_admin')`, with the frontend
+sending the access token from the `access_token` cookie on all five call sites, and
+`/flori-core-dashboard` added to the middleware matcher.
+
+Verified against the seeded database:
+
+| Request | Result |
+|---|---|
+| `/super-admin/zone` anonymous | **401** |
+| `/super-admin/zone` as `driver@waridi.demo` | **403** |
+| `/super-admin/zone` as `admin@waridi.demo` | **200**, 14 zones |
+| `/zones` as `driver@waridi.demo` | **200** (normal access unaffected) |
+
+> If you add another generic admin surface, guard it at the controller. The Nest app has
+> no global guard — every controller is public until it declares otherwise.
 
 ---
 

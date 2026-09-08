@@ -23,7 +23,9 @@ export function middleware(request: NextRequest) {
   const authPaths = ['/login', '/signup', '/'];
   
   // Dashboard and protected routes
-  const isDashboardRoute = pathname.startsWith('/dashboard');
+  const isDashboardRoute =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/flori-core-dashboard');
 
   if (token) {
     const expired = isTokenExpired(token);
@@ -60,5 +62,12 @@ export function middleware(request: NextRequest) {
 
 // Config to run middleware on auth-related paths AND dashboard routes
 export const config = {
-  matcher: ['/', '/login', '/signup', '/dashboard/:path*'],
+  matcher: [
+    '/',
+    '/login',
+    '/signup',
+    '/dashboard/:path*',
+    '/flori-core-dashboard/:path*',
+    '/flori-core-dashboard',
+  ],
 };

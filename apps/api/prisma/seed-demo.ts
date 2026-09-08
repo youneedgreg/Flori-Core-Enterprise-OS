@@ -963,9 +963,15 @@ async function main() {
   }));
   await insert('vendor', vendors);
 
-  const purchaseRequests = Array.from({ length: 45 }, () => {
+  const purchaseRequests = Array.from({ length: 90 }, () => {
     const it = pick(storeItems);
-    const status = pick(['PENDING', 'APPROVED', 'APPROVED', 'CONVERTED', 'REJECTED']);
+    // Weighted towards CONVERTED: everything downstream (POs, GRNs, vendor
+    // invoices, payments) cascades from these, so a low conversion rate leaves
+    // the receiving and payables screens looking empty.
+    const status = pick([
+      'PENDING', 'APPROVED', 'REJECTED',
+      'CONVERTED', 'CONVERTED', 'CONVERTED', 'CONVERTED',
+    ]);
     const qty = float(50, 400, 0);
     return {
       id: uid(), tenantId, status, generatedBy: chance(0.6) ? 'AUTO_REORDER' : storeManager.id,
@@ -993,7 +999,10 @@ async function main() {
     poItems.push(...lines);
     purchaseOrders.push({
       id: poId, tenantId, poNumber: `PO-${String(i + 1).padStart(5, '0')}`,
-      status: pick(['SENT', 'ACKNOWLEDGED', 'RECEIVED', 'RECEIVED', 'PARTIALLY_RECEIVED']),
+      status: pick([
+        'SENT', 'ACKNOWLEDGED',
+        'RECEIVED', 'RECEIVED', 'RECEIVED', 'PARTIALLY_RECEIVED',
+      ]),
       vendorId: pr.vendorId, purchaseRequestId: pr.id,
       expectedDelivery: daysAgo(-int(1, 20)),
       totalAmount: money(lines.reduce((s, l) => s + l.totalPrice, 0)),
@@ -1337,8 +1346,8 @@ async function main() {
     createdAt: daysAgo(int(0, 200)),
   })));
 
-  const chatSessions = users.slice(0, 4).flatMap((u) =>
-    Array.from({ length: 2 }, () => ({
+  const chatSessions = users.flatMap((u) =>
+    Array.from({ length: int(2, 4) }, () => ({
       id: uid(), tenantId, userId: u.id,
       title: pick(['Harvest forecast question', 'Cold room troubleshooting', 'Invoice aging summary', 'Stock reorder advice']),
       createdAt: daysAgo(int(0, 40)),
@@ -1346,10 +1355,29 @@ async function main() {
   );
   await insert('chatSession', chatSessions);
 
-  await insert('chatMessage', chatSessions.flatMap((s) => [
-    { id: uid(), sessionId: s.id, role: 'user', content: 'What is our projected harvest for the next two weeks?', tokensUsed: 0, createdAt: s.createdAt },
-    { id: uid(), sessionId: s.id, role: 'assistant', content: 'Based on the active crop cycles, projected harvest for the next 14 days is approximately 186,000 stems, with Red Naomi and Mondial accounting for 58% of the volume.', tokensUsed: int(180, 900), createdAt: new Date(s.createdAt.getTime() + 4000) },
-  ]));
+  const CHAT_EXCHANGES: [string, string][] = [
+    ['What is our projected harvest for the next two weeks?',
+     'Based on the active crop cycles, projected harvest for the next 14 days is approximately 186,000 stems, with Red Naomi and Mondial accounting for 58% of the volume.'],
+    ['Which cold room breached temperature this week?',
+     'Cold Room A exceeded 8°C twice this week — Tuesday 03:14 for 12 minutes and Thursday 02:40 for 7 minutes. Both were resolved automatically once the compressor cycled.'],
+    ['Which invoices are overdue?',
+     'There are 14 invoices past their due date totalling €48,210. The largest is INV-00187 (€9,430, 22 days overdue) for Dutch Flower Group.'],
+    ['Which store items need reordering?',
+     'Six items are at or below their reorder point, including Export Carton 60cm, Nitrile Gloves and Calcium Nitrate. Purchase requests have been raised automatically for all six.'],
+    ['How did rejection rates trend last month?',
+     'Grade rejections averaged 5.8% last month, down from 7.1% the month before. The improvement is concentrated in GH-03 and GH-06 following the botrytis spray programme.'],
+  ];
+  await insert('chatMessage', chatSessions.flatMap((s) => {
+    const turns = int(1, 3);
+    return Array.from({ length: turns }).flatMap((_, t) => {
+      const [q, a] = CHAT_EXCHANGES[(t + turns) % CHAT_EXCHANGES.length];
+      const base = s.createdAt.getTime() + t * 120_000;
+      return [
+        { id: uid(), sessionId: s.id, role: 'user', content: q, tokensUsed: 0, createdAt: new Date(base) },
+        { id: uid(), sessionId: s.id, role: 'assistant', content: a, tokensUsed: int(180, 900), createdAt: new Date(base + 4000) },
+      ];
+    });
+  }));
 
   // ---- coverage check ------------------------------------------------------
   // Prove every table actually received rows rather than assuming it.

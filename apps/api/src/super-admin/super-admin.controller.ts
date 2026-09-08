@@ -7,9 +7,21 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SuperAdminService } from './super-admin.service';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 
+/**
+ * Generic CRUD over every Prisma model. This is an administrative back door by
+ * design, so it is restricted to authenticated gold_admin users — without these
+ * guards the whole database is readable, writable and deletable by anyone who
+ * can reach the API.
+ */
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('gold_admin')
 @Controller('super-admin')
 export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}

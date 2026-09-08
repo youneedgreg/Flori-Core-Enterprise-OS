@@ -15,6 +15,16 @@ import { toast, Toaster } from 'sonner';
 // --- Types ---
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// The super-admin API is restricted to authenticated gold_admin users, so every
+// request must carry the access token (same pattern as lib/api/chat.ts).
+const authHeaders = (extra: Record<string, string> = {}) => {
+  const token = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('access_token='))
+    ?.split('=')[1];
+  return { ...extra, ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+};
+
 interface ModelConfig {
   id: string;
   name: string;
@@ -70,7 +80,7 @@ export default function FloriCoreDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API}/super-admin/metadata/models`);
+        const res = await fetch(`${API}/super-admin/metadata/models`, { headers: authHeaders() });
         if (res.ok) {
           const keys: string[] = await res.json();
           const configs: ModelConfig[] = keys.map(k => {
@@ -103,7 +113,7 @@ export default function FloriCoreDashboard() {
       const include = includes[activeModel];
       const url = `${API}/super-admin/${activeModel}${include ? `?include=${include}` : ''}`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, { headers: authHeaders() });
       if (!response.ok) throw new Error(`Failed to fetch ${activeModel} data`);
       const result = await response.json();
       const extracted = Array.isArray(result) ? result : (result?.data || []);
@@ -128,7 +138,7 @@ export default function FloriCoreDashboard() {
   const handleDelete = async (id: string) => {
     setIsDeleting(true);
     try {
-      const response = await fetch(`${API}/super-admin/${activeModel}/${id}`, { method: 'DELETE' });
+      const response = await fetch(`${API}/super-admin/${activeModel}/${id}`, { method: 'DELETE', headers: authHeaders() });
       if (!response.ok) throw new Error('Delete failed');
       setData(data.filter(item => item.id !== id));
       setConfirmDeleteId(null);
@@ -146,7 +156,10 @@ export default function FloriCoreDashboard() {
     try {
       const ids = Array.from(selectedIds);
       await Promise.all(ids.map(id =>
-        fetch(`${API}/super-admin/${activeModel}/${id}`, { method: 'DELETE' })
+        fetch(`${API}/super-admin/${activeModel}/${id}`, {
+          method: 'DELETE',
+          headers: authHeaders(),
+        })
       ));
       toast.success(`${ids.length} records purged`);
       setSelectedIds(new Set());
@@ -180,7 +193,7 @@ export default function FloriCoreDashboard() {
       
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: authHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(payload),
       });
 
