@@ -1,4 +1,27 @@
-'use client';
+import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
+import { JsonLd } from '@/components/marketing/JsonLd';
+import { breadcrumbs, graph, webPage } from '@/lib/schema';
+
+export const metadata: Metadata = pageMetadata({
+  title: 'Privacy Notice',
+  socialTitle: 'Privacy Notice — Flori-Core',
+  description: 'How Flori-Core handles farm and personal data: what is collected, where it is hosted, who can access it and how long it is kept.',
+  path: '/privacy',
+});
+
+const structuredData = graph([
+  webPage({
+    path: '/privacy',
+    name: 'Privacy notice — Flori-Core Enterprise OS',
+    description: 'How Flori-Core handles farm and personal data: what is collected, where it is hosted, who can access it and how long it is kept.',
+  }),
+  breadcrumbs([
+    { name: 'Home', path: '/' },
+    { name: 'Privacy', path: '/privacy' },
+  ]),
+]);
+
 
 import React from 'react';
 import Link from 'next/link';
@@ -10,6 +33,7 @@ export default function PrivacyPolicy() {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col pt-32 relative overflow-hidden">
+      <JsonLd data={structuredData} />
       {/* Background Decorative Glows */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-brand-green/5 blur-[150px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2" />
       <div className="absolute top-1/2 left-0 w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full pointer-events-none -translate-x-1/2" />
