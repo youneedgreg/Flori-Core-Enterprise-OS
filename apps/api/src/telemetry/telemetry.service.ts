@@ -2,11 +2,37 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { Injectable, Logger, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  Inject,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AlertsService } from '../alerts/alerts.service';
 import { AutomationRulesService } from '../automation-rules/automation-rules.service';
 import { TelemetryGateway } from './telemetry.gateway';
+
+/**
+ * Bucket widths come from a query string, so only accept a simple
+ * "<n> <unit>" form. The value is still bound as a query parameter; this
+ * check exists to reject nonsense with a 400 instead of a database error.
+ */
+const BUCKET_INTERVAL_PATTERN = /^\d{1,4} (second|minute|hour|day)s?$/;
+
+function normalizeBucketInterval(bucketInterval: string): string {
+  const interval = bucketInterval.trim().toLowerCase();
+
+  if (!BUCKET_INTERVAL_PATTERN.test(interval)) {
+    throw new BadRequestException(
+      `Invalid bucket interval: "${bucketInterval}". ` +
+        'Expected a value like "5 minutes" or "1 hour".',
+    );
+  }
+
+  return interval;
+}
 
 @Injectable()
 export class TelemetryService {
@@ -89,22 +115,26 @@ export class TelemetryService {
     sensorType: string,
     bucketInterval = '1 minute',
   ) {
-    // TimescaleDB specific raw query for bucketing
-    return await this.prisma.$queryRawUnsafe(`
-      SELECT 
-        time_bucket('${bucketInterval}', timestamp) AS bucket,
+    const interval = normalizeBucketInterval(bucketInterval);
+
+    // `date_bin` is standard PostgreSQL (14+) and behaves like TimescaleDB's
+    // `time_bucket` when given the epoch as its origin. Using it keeps this
+    // query portable to any Postgres (Neon, RDS, local) with no extension.
+    return await this.prisma.$queryRaw`
+      SELECT
+        date_bin(${interval}::interval, "timestamp", TIMESTAMP '1970-01-01') AS bucket,
         avg(value) AS avg_value,
         max(value) AS max_value,
         min(value) AS min_value
       FROM telemetry_readings
-      WHERE "tenantId" = '${tenantId}'
-        AND "deviceId" = '${deviceId}'
-        AND "sensorType" = '${sensorType}'
-        AND timestamp > now() - INTERVAL '24 hours'
+      WHERE "tenantId" = ${tenantId}
+        AND "deviceId" = ${deviceId}
+        AND "sensorType" = ${sensorType}
+        AND "timestamp" > now() - INTERVAL '24 hours'
       GROUP BY bucket
       ORDER BY bucket DESC
-      LIMIT 100;
-    `);
+      LIMIT 100
+    `;
   }
 
   async getLatestReadings(tenantId: string) {

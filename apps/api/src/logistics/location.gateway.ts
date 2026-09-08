@@ -9,10 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { corsOptions } from '../config/cors';
 
 // NOTE: Ideally use WsJwtGuard, assuming standard JwtAuthGuard works or can be adapted
 @WebSocketGateway({
-  cors: { origin: '*' },
+  cors: corsOptions,
   namespace: '/logistics',
 })
 export class LocationGateway

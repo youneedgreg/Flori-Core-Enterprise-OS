@@ -10,12 +10,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { TelemetryService } from './telemetry.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { corsOptions } from '../config/cors';
 
-@WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
-})
+@WebSocketGateway({ cors: corsOptions })
 export class TelemetryGateway
   implements
     OnGatewayInit,

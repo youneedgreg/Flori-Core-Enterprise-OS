@@ -9,13 +9,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { corsOptions } from '../config/cors';
 
-@WebSocketGateway({
-  cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true,
-  },
-})
+@WebSocketGateway({ cors: corsOptions })
 export class NotificationsGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

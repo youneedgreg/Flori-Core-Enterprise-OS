@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import * as express from 'express';
+import { corsOptions } from './config/cors';
 
 async function bootstrap() {
   Sentry.init({
@@ -22,13 +23,11 @@ async function bootstrap() {
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   app.useGlobalPipes(new ValidationPipe());
-  app.enableCors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true,
-  });
+  app.enableCors(corsOptions);
 
   const port = process.env.PORT ?? 3001;
-  await app.listen(port);
-  console.log(`🚀 API running on http://localhost:${port}`);
+  // Bind all interfaces so container platforms can route to the process.
+  await app.listen(port, '0.0.0.0');
+  console.log(`🚀 API listening on port ${port}`);
 }
 void bootstrap();
