@@ -257,6 +257,67 @@ fine for a nightly job.
 
 ---
 
+## Marketing site
+
+The standalone `flori-core-website` is merged into `apps/web`, so one deployment serves both
+the public site and the application. Seven indexable pages:
+
+`/` · `/platform` · `/compliance-security` · `/faq` · `/book-a-demo` · `/privacy` · `/terms`
+
+Copy lives in `apps/web/lib/marketing-content.ts` as data, shared between the condensed home
+page and the full `/platform` page. Layout primitives are in
+`apps/web/components/marketing/`. Everything is a server component except `DemoForm` and
+`AuditTrail`.
+
+### SEO
+
+The old landing page was `'use client'`, which meant it could export no metadata at all, and
+the layout pointed `og:image` at `/og-image.png`, which did not exist. Both are fixed.
+
+| Asset | File |
+|---|---|
+| Per-page metadata + canonical | `lib/seo.ts` (`pageMetadata`) |
+| JSON-LD graph | `lib/schema.ts`, rendered by `components/marketing/JsonLd.tsx` |
+| Origin, nav, non-indexable paths | `lib/site.ts` |
+| `robots.txt` | `app/robots.ts` |
+| `sitemap.xml` | `app/sitemap.ts` |
+| Web app manifest | `app/manifest.ts` |
+| Social card, icons | `app/opengraph-image.png`, `app/icon.svg`, `app/apple-icon.png` |
+
+Verified in the build output: seven unique canonicals, seven unique titles, valid JSON-LD on
+each (`SoftwareApplication`, `FAQPage`, `ContactPage`, `BreadcrumbList`, `WebPage`), and
+`og:image` resolving absolute.
+
+**`NEXT_PUBLIC_SITE_URL` must be set** (it is, for Production and Preview). Unset, canonicals
+and the sitemap resolve against `https://flori-core.example` and are silently wrong.
+
+Two traps worth remembering:
+
+- **`title.template` applies to child segments only.** `app/page.tsx` shares the root segment
+  with the layout, so the home page never receives the ` | Flori-Core` suffix — its title
+  spells the brand out in full instead.
+- **`Disallow: /login/` does not block `/login`.** Trailing slashes in `robots.ts` restrict the
+  rule to paths *below* the segment. `NON_INDEXABLE_PATHS` are listed without one.
+
+### Demo enquiries
+
+`POST /marketing/demo-request` on the API emails the enquiry via Resend. It is unauthenticated
+by necessity, so: the recipient comes from `DEMO_ENQUIRY_TO` and never from the request body
+(it cannot be aimed at a third party), every field is length-capped by `DemoRequestDto`, there
+is a hidden honeypot field, and submissions are rate-limited to 5 per IP per hour in memory.
+
+Requires on Render: `DEMO_ENQUIRY_TO`, plus the existing `RESEND_API_KEY` and
+`RESEND_FROM_EMAIL`. Without them the endpoint returns 503 and logs, rather than failing silently.
+
+### Pricing
+
+The `$99 / $299 / Custom` tiers are gone, replaced by "Request pricing on the demo call" —
+per-farm deployment does not have honest public tiers. `components/landing/` still holds
+`HeroSection`, `FeaturesSection`, `PricingSection` and `ContactForm`, now with **no importers**.
+Delete them when you are satisfied with the new pages.
+
+---
+
 ## Security fixes applied
 
 Two unauthenticated endpoints were live on the public API and have been closed.
