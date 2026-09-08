@@ -1,0 +1,82 @@
+# Render blueprint for the Flori-Core API.
+#
+# The web app (apps/web) is deployed separately on Vercel. This service hosts
+# the NestJS API, which needs a long-lived process for its Socket.IO gateways,
+# its MQTT subscriber, and its in-process @nestjs/schedule cron jobs.
+#
+# Region note: the Neon database is in AWS us-east-1, so this service runs in
+# Virginia to keep database round trips on the same coast.
+
+services:
+  - type: web
+    name: flori-core-api
+    runtime: docker
+    repo: https://github.com/youneedgreg/Flori-Core-Enterprise-OS
+    branch: main
+    region: virginia
+    plan: free
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    autoDeploy: true
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: PORT
+        value: 3001
+
+      # --- Database (set from the Neon integration) ---------------------
+      # DATABASE_URL          -> Neon POOLED connection string
+      # DIRECT_DATABASE_URL   -> Neon UNPOOLED string, used by Prisma CLI
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_DATABASE_URL
+        sync: false
+
+      # --- CORS ---------------------------------------------------------
+      # Set to the Vercel production domain, e.g.
+      #   https://flori-core-web.vercel.app,https://app.floricore.com
+      - key: CORS_ORIGINS
+        sync: false
+      # Allows https://*.vercel.app so Vercel preview deployments can call the API.
+      - key: CORS_ALLOW_VERCEL_PREVIEWS
+        value: "true"
+
+      # --- Auth ---------------------------------------------------------
+      # Generated once by Render; never reuse the development values.
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 7d
+
+      # --- Object storage -----------------------------------------------
+      # Required: the free plan has no persistent disk, so the local upload
+      # fallback in packing/storage.service.ts would lose files on restart.
+      - key: AWS_REGION
+        sync: false
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_S3_BUCKET_NAME
+        sync: false
+
+      # --- Third-party services -----------------------------------------
+      - key: MQTT_BROKER_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: MISTRAL_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
