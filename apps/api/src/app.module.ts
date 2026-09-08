@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { DemoModule } from './demo/demo.module';
+import { MarketingModule } from './marketing/marketing.module';
 import { AuthModule } from './auth/auth.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 import { CommunicationsModule } from './communications/communications.module';
@@ -58,6 +59,7 @@ import { ChatModule } from './chat/chat.module';
   imports: [
     PrismaModule,
     DemoModule,
+    MarketingModule,
     AuthModule,
     CommunicationsModule,
     OnboardingModule,
