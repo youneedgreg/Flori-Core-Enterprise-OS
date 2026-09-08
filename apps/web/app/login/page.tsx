@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { LoginSchema } from '@flori/shared';
 import { z } from 'zod';
 import { toast } from 'sonner';
+import { signIn } from '@/lib/auth';
+import { isDemoMode } from '@/lib/demo';
+import { DemoAccounts } from './DemoAccounts';
 import { 
   AtSign, Lock, ArrowRight, ShieldCheck, 
   LayoutDashboard, TrendingUp 
@@ -23,32 +26,9 @@ export default function LoginPage() {
 
     try {
       LoginSchema.parse({ email, password });
-      
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const response = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
-      document.cookie = `refresh_token=${data.refresh_token}; path=/; max-age=604800; samesite=lax`;
-
-      if (data.mustChangePassword) {
-        window.location.href = '/change-password';
-      } else if (data.isOnboarded) {
-        window.location.href = '/dashboard';
-      } else {
-        window.location.href = '/onboarding';
-      }
+      // Shared with the demo role switcher — see lib/auth.ts.
+      window.location.href = await signIn(email, password);
     } catch (err) {
       console.error("Login Error:", err);
       if (err instanceof z.ZodError) {
@@ -170,6 +150,8 @@ export default function LoginPage() {
               </Link>
             </p>
           </div>
+
+          {isDemoMode() && <DemoAccounts />}
 
           {/* Background decoration in card */}
           <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-brand-green/10 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />

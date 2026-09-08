@@ -192,6 +192,41 @@ Every account uses the same password: **`FloriCore!Demo2026`**
 > A shared password on a public URL means anyone who finds the link can sign in as
 > `gold_admin`. Fine for a demo; never reuse this pattern for a real tenant.
 
+### Demo sign-in panel
+
+The login page carries a one-click role switcher, modelled on the sign-in page of
+`../law-firm_management_system`. Eight buttons, ordered widest remit first; clicking one
+signs straight in as that account. The form and the buttons share `signIn()` in
+`apps/web/lib/auth.ts`, so there is one place that knows how a session is established.
+
+The roster lives in `apps/web/lib/demo.ts`. Required environment variables on Vercel
+(both set for Production and Preview):
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_DEMO_MODE` | `true` |
+| `NEXT_PUBLIC_DEMO_PASSWORD` | `FloriCore!Demo2026` — must match `DEMO_PASSWORD` in `apps/api/prisma/seed-demo.ts` |
+
+`isDemoMode()` requires both, because a panel whose buttons all fail for want of a
+password is worse than no panel.
+
+**What the gate does and does not do.** With the variables unset the panel is not
+rendered and the password appears in no build artefact — verified by grepping
+`.next/static` and `.next/server` after a clean build. It does **not** remove the module
+from the bundle: the role labels and the eight `@waridi.demo` addresses still ship in a
+JavaScript chunk, because the login page imports them statically and a dead branch does
+not drop the import. Harmless for a real tenant (those accounts would not exist in its
+database), but if you want genuinely no trace, delete `apps/web/lib/demo.ts` and
+`apps/web/app/login/DemoAccounts.tsx` and remove the two lines that reference them.
+
+**The descriptions say what each role is for, not what it is barred from.** The dashboard
+navigation is not filtered by role — `DashboardShell` reads the role from the JWT and
+renders all 16 nav items regardless — and only `hr`, `hr/biometric` and `super-admin`
+declare `@Roles` on the API. Every demo account can therefore reach most screens. Wording
+the roster as "X and nothing else" would be a claim the code does not honour.
+
+---
+
 ### Nightly refresh
 
 A Vercel Cron job runs at **01:00 UTC** daily (`apps/web/vercel.json`):

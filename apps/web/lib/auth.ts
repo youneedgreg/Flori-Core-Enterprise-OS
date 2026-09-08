@@ -88,3 +88,38 @@ export async function refreshToken(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Signs in against the API and stores the session cookies.
+ *
+ * Shared by the sign-in form and the demo role switcher so there is one place
+ * that knows how a session is established and where a given user lands — two
+ * copies of that would drift the moment one of them gained a redirect case.
+ *
+ * Returns the path to send the browser to; throws with the API's message on
+ * failure so the caller can surface it.
+ */
+export async function signIn(
+  email: string,
+  password: string,
+): Promise<string> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const response = await fetch(`${apiUrl}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || 'Login failed');
+  }
+
+  document.cookie = `access_token=${data.access_token}; path=/; max-age=3600; samesite=lax`;
+  document.cookie = `refresh_token=${data.refresh_token}; path=/; max-age=604800; samesite=lax`;
+
+  if (data.mustChangePassword) return '/change-password';
+  return data.isOnboarded ? '/dashboard' : '/onboarding';
+}
