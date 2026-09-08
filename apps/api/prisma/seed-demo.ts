@@ -20,6 +20,7 @@ import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { DEFAULT_ROLES } from '@flori/shared';
 
 const connectionString = `${process.env.DATABASE_URL}`;
 const pool = new Pool({ connectionString });
@@ -70,12 +71,15 @@ async function resetDatabase() {
   const tables: { tablename: string }[] = await prisma.$queryRawUnsafe(
     `select tablename from pg_tables where schemaname = 'public'`,
   );
-  const keep = new Set(['_prisma_migrations', 'roles']);
+  // `roles` cannot be preserved here: TRUNCATE ... CASCADE also clears every
+  // table holding a foreign key into a truncated one, and roles.tenantId
+  // references tenants. The roles are therefore re-created below.
+  const keep = new Set(['_prisma_migrations']);
   const targets = tables
     .map((t) => `"${t.tablename}"`)
     .filter((t) => !keep.has(t.replace(/"/g, '')));
 
-  console.log(`Truncating ${targets.length} tables (keeping roles)...`);
+  console.log(`Truncating ${targets.length} tables...`);
   await prisma.$executeRawUnsafe(
     `TRUNCATE TABLE ${targets.join(', ')} RESTART IDENTITY CASCADE`,
   );
@@ -192,7 +196,22 @@ async function main() {
   // ---- users ---------------------------------------------------------------
   // One password hash reused for every account (they all share DEMO_PASSWORD).
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
-  const systemRoles = await prisma.role.findMany({ where: { tenantId: null } });
+  const ROLE_DESCRIPTIONS: Record<string, string> = {
+    gold_admin: 'Full access to every module and tenant setting.',
+    field_supervisor: 'Production, crop cycles, spraying and field labour.',
+    qc_lead: 'Pack house grading, QC logs and finished-goods inventory.',
+    accountant: 'Ledger, invoicing, budgets and payroll reporting.',
+    hr_manager: 'Employees, attendance, leave, training and appraisals.',
+    driver: 'Delivery routes and proof of delivery capture.',
+    store_manager: 'Stores, stock movements and procurement.',
+    sales_agent: 'CRM, leads and order management.',
+  };
+  const systemRoles = DEFAULT_ROLES.map((r) => ({
+    id: uid(), name: r.name, permissions: r.permissions as any,
+    description: ROLE_DESCRIPTIONS[r.name] ?? null,
+    isSystem: true, tenantId: null,
+  }));
+  await insert('role', systemRoles);
   const roleByName: Record<string, any> = Object.fromEntries(
     systemRoles.map((r: any) => [r.name, r]),
   );
@@ -1331,6 +1350,28 @@ async function main() {
     { id: uid(), sessionId: s.id, role: 'user', content: 'What is our projected harvest for the next two weeks?', tokensUsed: 0, createdAt: s.createdAt },
     { id: uid(), sessionId: s.id, role: 'assistant', content: 'Based on the active crop cycles, projected harvest for the next 14 days is approximately 186,000 stems, with Red Naomi and Mondial accounting for 58% of the volume.', tokensUsed: int(180, 900), createdAt: new Date(s.createdAt.getTime() + 4000) },
   ]));
+
+  // ---- coverage check ------------------------------------------------------
+  // Prove every table actually received rows rather than assuming it.
+  const allTables: { tablename: string }[] = await prisma.$queryRawUnsafe(
+    `select tablename from pg_tables
+      where schemaname = 'public' and tablename <> '_prisma_migrations'
+      order by tablename`,
+  );
+  const unionSql = allTables
+    .map((t) => `select '${t.tablename}' as t, count(*)::int as n from "${t.tablename}"`)
+    .join(' union all ');
+  const counts: { t: string; n: number }[] = await prisma.$queryRawUnsafe(unionSql);
+  const empty = counts.filter((c) => c.n === 0).map((c) => c.t);
+  const totalRows = counts.reduce((sum, c) => sum + c.n, 0);
+
+  console.log(`\n  ${counts.length} tables, ${totalRows.toLocaleString()} rows total`);
+  if (empty.length) {
+    console.log(`\n  ⚠️  ${empty.length} table(s) still empty:`);
+    for (const t of empty) console.log(`      - ${t}`);
+  } else {
+    console.log('  ✅ every table populated');
+  }
 
   // ---- done ----------------------------------------------------------------
   console.log('\n' + '='.repeat(64));
