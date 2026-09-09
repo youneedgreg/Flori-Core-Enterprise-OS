@@ -10,6 +10,7 @@ import { AuditTrail } from '@/components/marketing/AuditTrail';
 import { DomainBlock } from '@/components/marketing/DomainBlock';
 import { JsonLd } from '@/components/marketing/JsonLd';
 import { DemoForm } from '@/components/marketing/DemoForm';
+import { AppScreenshot } from '@/components/marketing/AppScreenshot';
 import {
   Section,
   Container,
@@ -150,6 +151,45 @@ export default function HomePage() {
             </div>
           </Container>
         </section>
+
+        {/* ── The product itself ───────────────────────────────────────── */}
+        <Section tone="panel">
+          <Container className="grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+            <div className="fc-reveal">
+              <Eyebrow>Not a mockup</Eyebrow>
+              <H2 className="text-2xl sm:text-3xl">
+                Everything below is a screenshot of the demo you can open right now.
+              </H2>
+              <Lede className="text-sm">
+                One seeded farm — Waridi Flowers, eight greenhouses in Naivasha —
+                with a year of harvests, orders, payroll runs and sensor readings
+                already in it. Pick a role on the sign-in page and you are looking
+                at the same screens, with the same numbers.
+              </Lede>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href="/login"
+                  className="rounded-full bg-brand-green px-6 py-3 text-sm font-black text-[#04221a] shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-95"
+                >
+                  Open the demo
+                </Link>
+                <Link
+                  href="/platform"
+                  className="rounded-full border border-white/15 px-6 py-3 text-sm font-bold text-white transition-colors hover:border-brand-green/40 hover:text-brand-green"
+                >
+                  See every module
+                </Link>
+              </div>
+            </div>
+
+            <AppScreenshot
+              className="fc-reveal"
+              src="/screens/dashboard.webp"
+              alt="Flori-Core dashboard showing production output, pending dispatches, revenue and live cold-room telemetry"
+              caption="The command centre: output, dispatch, revenue and workforce at a glance, with cold-room temperature and zone moisture live down the right."
+            />
+          </Container>
+        </Section>
 
         {/* ── Failure modes ────────────────────────────────────────────── */}
         <Section>

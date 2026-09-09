@@ -8,6 +8,8 @@ import { JsonLd } from '@/components/marketing/JsonLd';
 import { Section, Container, Eyebrow } from '@/components/marketing/primitives';
 import { breadcrumbs, graph, webPage } from '@/lib/schema';
 import { PLATFORM_DOMAINS } from '@/lib/marketing-content';
+import { DOMAIN_SCREENS } from '@/lib/screens';
+import { AppScreenshot } from '@/components/marketing/AppScreenshot';
 
 const DESCRIPTION =
   'Seventeen modules across Grow, Measure, Move, Sell & Buy and Run: farm zones, IoT telemetry, pack house, cold room, logistics, sales, payroll and compliance.';
@@ -72,7 +74,9 @@ export default function PlatformPage() {
           </Container>
         </Section>
 
-        {PLATFORM_DOMAINS.map((domain, i) => (
+        {PLATFORM_DOMAINS.map((domain, i) => {
+          const screen = DOMAIN_SCREENS[domain.id];
+          return (
           <Section
             key={domain.id}
             id={domain.id}
@@ -86,6 +90,16 @@ export default function PlatformPage() {
                 </h2>
                 <p className="text-[15px] text-slate-400">{domain.blurb}</p>
               </div>
+
+              {screen && (
+                <AppScreenshot
+                  className="fc-reveal mt-8"
+                  src={screen.src}
+                  alt={screen.alt}
+                  caption={screen.caption}
+                  priority={i === 0}
+                />
+              )}
 
               <div className="fc-reveal-group mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {domain.modules.map((m) => (
@@ -132,7 +146,8 @@ export default function PlatformPage() {
               </div>
             </Container>
           </Section>
-        ))}
+          );
+        })}
 
         <CtaBand
           heading="See it run against your own operation."
