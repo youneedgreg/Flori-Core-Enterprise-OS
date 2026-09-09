@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { LoginSchema } from '@flori/shared';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { signIn } from '@/lib/auth';
+import { warmApi } from '@/lib/warm-api';
+import { useSlowNotice } from '@/lib/use-slow-notice';
 import { isDemoMode } from '@/lib/demo';
 import { DemoAccounts } from './DemoAccounts';
 import { 
@@ -18,6 +20,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // The API sleeps on the free tier. Start it waking on mount rather than
+  // letting the first sign-in pay for the cold start. Safe to call here as well
+  // as in DemoAccounts — warmApi() de-duplicates per page load.
+  useEffect(() => {
+    void warmApi();
+  }, []);
+
+  const showColdNotice = useSlowNotice(isLoading);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,6 +128,16 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
+
+            {showColdNotice && !error && (
+              <div
+                role="status"
+                className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-4 text-xs leading-relaxed text-amber-300/90"
+              >
+                Waking the demo server. It sleeps after fifteen minutes idle, so
+                the first sign-in can take up to a minute.
+              </div>
+            )}
 
             {error && (
               <div className="p-4 rounded-2xl bg-red-500/5 border border-red-500/20 text-red-400 text-xs font-bold animate-in slide-in-from-top-2 duration-300">

@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { signIn } from '@/lib/auth';
+import { warmApi } from '@/lib/warm-api';
+import { useSlowNotice } from '@/lib/use-slow-notice';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/lib/demo';
 
 /**
@@ -17,6 +19,14 @@ import { DEMO_ACCOUNTS, DEMO_PASSWORD } from '@/lib/demo';
  */
 export function DemoAccounts() {
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+
+  // Start the server warming while the visitor reads the roster, so the click
+  // that follows is not the request that pays for the cold start.
+  useEffect(() => {
+    void warmApi();
+  }, []);
+
+  const showColdNotice = useSlowNotice(pendingEmail !== null);
 
   const handleClick = async (email: string) => {
     setPendingEmail(email);
@@ -44,6 +54,16 @@ export function DemoAccounts() {
         </code>
         . Pick a role to sign in directly.
       </p>
+
+      {showColdNotice && (
+        <p
+          role="status"
+          className="mb-4 rounded-xl border border-amber-500/20 bg-amber-500/[0.06] px-4 py-3 text-xs leading-relaxed text-amber-300/90"
+        >
+          Waking the demo server. It sleeps after fifteen minutes idle, so the
+          first sign-in can take up to a minute. Later ones are immediate.
+        </p>
+      )}
 
       <ul className="space-y-2">
         {DEMO_ACCOUNTS.map((account) => {
