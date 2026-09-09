@@ -46,7 +46,11 @@ export class InventoryController {
     @Query('status') status?: string,
     @Query('varietyId') varietyId?: string,
   ) {
-    return this.inventoryService.getPackedBoxes(req.user.tenantId, status, varietyId);
+    return this.inventoryService.getPackedBoxes(
+      req.user.tenantId,
+      status,
+      varietyId,
+    );
   }
 
   // ── Raw Stem Inventory ────────────────────────────────────────────────────────
@@ -59,9 +63,13 @@ export class InventoryController {
   adjustFlowerInventory(
     @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
-    @Body() data: { quantity: number; notes?: string },
+    @Body() data: { quantity: number },
   ) {
-    return this.inventoryService.adjustFlowerInventory(req.user.tenantId, id, data.quantity, data.notes);
+    return this.inventoryService.adjustFlowerInventory(
+      req.user.tenantId,
+      id,
+      data.quantity,
+    );
   }
 
   // ── Wastage ───────────────────────────────────────────────────────────────────

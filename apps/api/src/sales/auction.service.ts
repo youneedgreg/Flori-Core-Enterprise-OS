@@ -1,6 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuctionLotStatus, OrderType, OrderStatus, QCGrade, CustomerType, CustomerSegment } from '@prisma/client';
+import {
+  Prisma,
+  AuctionLotStatus,
+  OrderType,
+  OrderStatus,
+  QCGrade,
+  CustomerType,
+  CustomerSegment,
+} from '@prisma/client';
 
 export interface CreateAuctionLotDto {
   clockNumber: string;
@@ -27,15 +40,20 @@ export class AuctionService {
       where: { tenantId },
       include: {
         variety: { select: { name: true } },
-        order: { select: { orderNumber: true, invoice: { select: { invoiceNumber: true, totalAmount: true } } } }
+        order: {
+          select: {
+            orderNumber: true,
+            invoice: { select: { invoiceNumber: true, totalAmount: true } },
+          },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: 'desc' },
     });
   }
 
   async createAuctionLot(tenantId: string, dto: CreateAuctionLotDto) {
     const variety = await this.prisma.variety.findFirst({
-      where: { id: dto.varietyId, tenantId }
+      where: { id: dto.varietyId, tenantId },
     });
     if (!variety) throw new NotFoundException('Variety not found');
 
@@ -49,8 +67,8 @@ export class AuctionService {
         totalBunches: dto.totalBunches,
         totalStems: dto.bunchSize * dto.totalBunches,
         expectedPrice: dto.expectedPrice,
-        status: AuctionLotStatus.PREPARED
-      }
+        status: AuctionLotStatus.PREPARED,
+      },
     });
   }
 
@@ -70,12 +88,18 @@ export class AuctionService {
 
     for (const result of results) {
       const lot = await this.prisma.auctionLot.findFirst({
-        where: { tenantId, clockNumber: result.clockNumber, status: AuctionLotStatus.PREPARED },
-        include: { variety: true }
+        where: {
+          tenantId,
+          clockNumber: result.clockNumber,
+          status: AuctionLotStatus.PREPARED,
+        },
+        include: { variety: true },
       });
 
       if (!lot) {
-        this.logger.warn(`Lot with clock number ${result.clockNumber} not found or not in PREPARED state.`);
+        this.logger.warn(
+          `Lot with clock number ${result.clockNumber} not found or not in PREPARED state.`,
+        );
         continue;
       }
 
@@ -91,7 +115,7 @@ export class AuctionService {
         grade: lot.grade,
         bunchSize: lot.bunchSize,
         totalBunches: lot.totalBunches,
-        totalStems: lot.totalStems
+        totalStems: lot.totalStems,
       });
     }
 
@@ -100,7 +124,7 @@ export class AuctionService {
     }
 
     let auctionCustomer = await this.prisma.customer.findFirst({
-      where: { tenantId, type: CustomerType.AUCTION_HOUSE }
+      where: { tenantId, type: CustomerType.AUCTION_HOUSE },
     });
 
     if (!auctionCustomer) {
@@ -109,8 +133,8 @@ export class AuctionService {
           tenantId,
           name: 'Dutch Flower Auction',
           type: CustomerType.AUCTION_HOUSE,
-          segment: CustomerSegment.EXPORT
-        }
+          segment: CustomerSegment.EXPORT,
+        },
       });
     }
 
@@ -121,7 +145,7 @@ export class AuctionService {
       const year = new Date().getFullYear();
       const orderNumber = `ORD-${year}-${String(count + 1).padStart(5, '0')}`;
 
-      const items = lotsToUpdate.map(lot => ({
+      const items = lotsToUpdate.map((lot) => ({
         varietyId: lot.id,
         varietyName: lot.varietyName,
         grade: lot.grade,
@@ -130,7 +154,7 @@ export class AuctionService {
         quantity: lot.totalStems,
         pricePerStem: lot.actualPrice,
         totalValue: lot.totalValue,
-        clockNumber: lot.clockNumber
+        clockNumber: lot.clockNumber,
       }));
 
       const order = await tx.order.create({
@@ -141,9 +165,9 @@ export class AuctionService {
           status: OrderStatus.INVOICED,
           orderNumber,
           totalAmount: totalOrderAmount,
-          items: items as any,
-          notes: 'Auto-generated from Auction Results'
-        }
+          items: items as Prisma.InputJsonValue,
+          notes: 'Auto-generated from Auction Results',
+        },
       });
 
       for (const lot of lotsToUpdate) {
@@ -153,8 +177,8 @@ export class AuctionService {
             actualPrice: lot.actualPrice,
             status: AuctionLotStatus.AUCTIONED,
             auctionDate: new Date(),
-            orderId: order.id
-          }
+            orderId: order.id,
+          },
         });
       }
 
@@ -165,14 +189,14 @@ export class AuctionService {
           orderId: order.id,
           invoiceNumber,
           totalAmount: totalOrderAmount,
-          status: 'SENT'
-        }
+          status: 'SENT',
+        },
       });
 
       return {
         order,
         invoice,
-        lotsImported: lotsToUpdate.length
+        lotsImported: lotsToUpdate.length,
       };
     });
   }

@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuditLogService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(
+  findAll(
     tenantId: string,
     filters: {
       actorId?: string;
@@ -15,7 +16,7 @@ export class AuditLogService {
       endDate?: string;
     },
   ) {
-    const where: any = { tenantId };
+    const where: Prisma.AuditLogWhereInput = { tenantId };
 
     if (filters.actorId) where.actorId = filters.actorId;
     if (filters.action)
@@ -23,12 +24,13 @@ export class AuditLogService {
     if (filters.entityType) where.entityType = filters.entityType;
 
     if (filters.startDate || filters.endDate) {
-      where.timestamp = {};
-      if (filters.startDate) where.timestamp.gte = new Date(filters.startDate);
-      if (filters.endDate) where.timestamp.lte = new Date(filters.endDate);
+      const timestamp: Prisma.DateTimeFilter = {};
+      if (filters.startDate) timestamp.gte = new Date(filters.startDate);
+      if (filters.endDate) timestamp.lte = new Date(filters.endDate);
+      where.timestamp = timestamp;
     }
 
-    return (this.prisma as any).auditLog.findMany({
+    return this.prisma.auditLog.findMany({
       where,
       include: {
         actor: {
@@ -43,16 +45,16 @@ export class AuditLogService {
     });
   }
 
-  async create(data: {
+  create(data: {
     tenantId: string;
     actorId?: string;
     action: string;
     entityType: string;
     entityId?: string;
-    beforeState?: any;
-    afterState?: any;
+    beforeState?: Prisma.InputJsonValue;
+    afterState?: Prisma.InputJsonValue;
   }) {
-    return (this.prisma as any).auditLog.create({
+    return this.prisma.auditLog.create({
       data: {
         ...data,
         timestamp: new Date(),

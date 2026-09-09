@@ -18,7 +18,7 @@ export class CropCyclesService {
   ) {}
 
   findAll(tenantId: string) {
-    return (this.prisma as any).cropCycle.findMany({
+    return this.prisma.cropCycle.findMany({
       where: { tenantId },
       include: {
         variety: true,

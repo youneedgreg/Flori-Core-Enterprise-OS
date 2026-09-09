@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -20,7 +21,10 @@ export class ProductsService {
     return product;
   }
 
-  async create(tenantId: string, data: any) {
+  async create(
+    tenantId: string,
+    data: Omit<Prisma.ProductUncheckedCreateInput, 'tenantId'>,
+  ) {
     return await this.prisma.product.create({
       data: {
         ...data,
@@ -29,7 +33,11 @@ export class ProductsService {
     });
   }
 
-  async update(tenantId: string, id: string, data: any) {
+  async update(
+    tenantId: string,
+    id: string,
+    data: Prisma.ProductUncheckedUpdateInput,
+  ) {
     await this.findOne(tenantId, id);
     return await this.prisma.product.update({
       where: { id },

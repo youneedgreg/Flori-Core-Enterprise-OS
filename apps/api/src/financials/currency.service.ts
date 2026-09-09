@@ -30,7 +30,7 @@ export class CurrencyService {
   }
 
   async updateTenantBaseCurrency(tenantId: string, currency: string) {
-    const updated = await (this.prisma as any).tenant.update({
+    const updated = await this.prisma.tenant.update({
       where: { id: tenantId },
       data: { baseCurrency: currency.toUpperCase() },
     });

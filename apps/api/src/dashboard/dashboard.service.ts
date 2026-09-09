@@ -5,7 +5,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class DashboardService {
   constructor(private prisma: PrismaService) {}
 
-  async getStats(tenantId: string) {
+  getStats(tenantId: string) {
     console.log(`[DashboardService] Fetching stats for tenant: ${tenantId}`);
     // In a real app, these would be aggregated from their respective models.
     // Since we are building the Master Dashboard (v1.3), we'll provide simulated data.

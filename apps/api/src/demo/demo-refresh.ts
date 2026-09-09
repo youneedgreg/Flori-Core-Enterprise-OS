@@ -26,33 +26,46 @@ export interface RefreshResult {
 }
 
 type RawClient = {
-  $queryRawUnsafe: (sql: string, ...args: any[]) => Promise<any>;
-  $executeRawUnsafe: (sql: string, ...args: any[]) => Promise<any>;
+  $queryRawUnsafe: <T = unknown>(sql: string, ...args: unknown[]) => Promise<T>;
+  $executeRawUnsafe: (sql: string, ...args: unknown[]) => Promise<number>;
 };
 
 export async function refreshDemoData(db: RawClient): Promise<RefreshResult> {
-  const anchor: { latest: Date | null }[] = await db.$queryRawUnsafe(
+  const anchor = await db.$queryRawUnsafe<{ latest: Date | null }[]>(
     `select max("${ANCHOR_COLUMN}") as latest from "${ANCHOR_TABLE}"`,
   );
   const latest = anchor[0]?.latest;
 
   if (!latest) {
-    return { shiftedDays: 0, tablesUpdated: 0, columnsUpdated: 0, skipped: true };
+    return {
+      shiftedDays: 0,
+      tablesUpdated: 0,
+      columnsUpdated: 0,
+      skipped: true,
+    };
   }
 
-  const days = Math.floor((Date.now() - new Date(latest).getTime()) / 86_400_000);
+  const days = Math.floor(
+    (Date.now() - new Date(latest).getTime()) / 86_400_000,
+  );
   if (days < 1) {
-    return { shiftedDays: 0, tablesUpdated: 0, columnsUpdated: 0, skipped: true };
+    return {
+      shiftedDays: 0,
+      tablesUpdated: 0,
+      columnsUpdated: 0,
+      skipped: true,
+    };
   }
 
   // Every timestamp column in the public schema.
-  const columns: { table_name: string; column_name: string }[] =
-    await db.$queryRawUnsafe(
-      `select table_name, column_name
+  const columns = await db.$queryRawUnsafe<
+    { table_name: string; column_name: string }[]
+  >(
+    `select table_name, column_name
          from information_schema.columns
         where table_schema = 'public'
           and data_type in ('timestamp without time zone', 'timestamp with time zone')`,
-    );
+  );
 
   const targets = columns.filter((c) => !EXCLUDED_TABLES.has(c.table_name));
   const tables = new Set<string>();

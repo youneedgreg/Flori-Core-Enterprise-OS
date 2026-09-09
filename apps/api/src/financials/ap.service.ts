@@ -24,7 +24,7 @@ export class APService {
   // ── Vendor Invoice CRUD ──────────────────────────────────────────────────────
 
   getVendorInvoices(tenantId: string, status?: string) {
-    return (this.prisma as any).vendorInvoice.findMany({
+    return this.prisma.vendorInvoice.findMany({
       where: { tenantId, ...(status ? { status } : {}) },
       include: {
         vendor: { select: { id: true, name: true, email: true } },
