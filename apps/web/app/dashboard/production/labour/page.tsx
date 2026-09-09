@@ -27,11 +27,31 @@ const TASK_TYPES = [
   { value: 'MAINTENANCE', label: 'General Maintenance' },
 ];
 
+interface LabourLog {
+  id: string;
+  taskType: string;
+  hours: number;
+  stemsCut: number;
+  timestamp: string;
+  user: { email: string };
+  zone: { name: string };
+}
+
+interface TeamMember {
+  id: string;
+  email: string;
+}
+
+interface Zone {
+  id: string;
+  name: string;
+}
+
 export default function LabourDashboard() {
-  const [logs, setLogs] = useState<any[]>([]);
-  const [stats, setStats] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [zones, setZones] = useState<any[]>([]);
+  const [logs, setLogs] = useState<LabourLog[]>([]);
+  const [stats, setStats] = useState<Record<string, unknown>[]>([]);
+  const [users, setUsers] = useState<TeamMember[]>([]);
+  const [zones, setZones] = useState<Zone[]>([]);
   const [loading, setLoading] = useState(true);
   const [isLogging, setIsLogging] = useState(false);
   
@@ -41,7 +61,7 @@ export default function LabourDashboard() {
     taskType: 'HARVEST',
     hours: 8,
     stemsCut: 0,
-    gpsLocation: null as any,
+    gpsLocation: null as { lat: number; lng: number } | null,
   });
 
   const fetchInitialData = useCallback(async () => {
@@ -271,7 +291,7 @@ export default function LabourDashboard() {
                </div>
 
                <div className="space-y-4">
-                 {logs.map((log: any) => (
+                 {logs.map((log) => (
                    <div key={log.id} className="group bg-white/5 border border-white/5 rounded-3xl p-6 flex items-center justify-between hover:bg-white/[0.07] transition-all">
                       <div className="flex items-center gap-6">
                          <div className="p-4 bg-white/5 rounded-2xl text-white">

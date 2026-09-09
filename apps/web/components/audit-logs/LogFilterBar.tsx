@@ -3,10 +3,18 @@
 import React from 'react';
 import { Search, Filter, Download, X } from 'lucide-react';
 
+export interface LogFilters {
+  actorId: string;
+  action: string;
+  entityType: string;
+  startDate: string;
+  endDate: string;
+}
+
 interface LogFilterBarProps {
-  onFilterChange: (filters: any) => void;
+  onFilterChange: (filters: LogFilters) => void;
   onExport: () => void;
-  filters: any;
+  filters: LogFilters;
 }
 
 export default function LogFilterBar({ onFilterChange, onExport, filters }: LogFilterBarProps) {

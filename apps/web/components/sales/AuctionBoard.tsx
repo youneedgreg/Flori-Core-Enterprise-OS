@@ -2,8 +2,31 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Loader2, Tag, Search, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function AuctionBoard({ apiBase, getAuthHeader, onRefresh }: any) {
-  const [lots, setLots] = useState<any[]>([]);
+interface AuctionLot {
+  id: string;
+  clockNumber: string;
+  status: string;
+  grade: string;
+  totalStems: number;
+  totalBunches: number;
+  bunchSize: number;
+  actualPrice?: number | null;
+  variety?: { name: string } | null;
+  order?: { invoice?: { invoiceNumber: string } | null } | null;
+}
+
+interface AuctionBoardProps {
+  apiBase: string;
+  getAuthHeader: () => Record<string, string> | null;
+  onRefresh: unknown;
+}
+
+export function AuctionBoard({
+  apiBase,
+  getAuthHeader,
+  onRefresh,
+}: AuctionBoardProps) {
+  const [lots, setLots] = useState<AuctionLot[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 

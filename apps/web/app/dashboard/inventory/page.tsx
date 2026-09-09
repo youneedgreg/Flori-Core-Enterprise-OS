@@ -196,8 +196,10 @@ function WastageModal({
       toast.success('Wastage recorded successfully');
       onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err.message ?? 'Could not record wastage');
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Could not record wastage',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -343,8 +345,8 @@ function AdjustStockModal({
       toast.success('Stock updated');
       onSuccess();
       onClose();
-    } catch (err: any) {
-      toast.error(err.message ?? 'Could not update stock');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Could not update stock');
     } finally {
       setSubmitting(false);
     }

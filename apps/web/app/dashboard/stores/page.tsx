@@ -165,7 +165,7 @@ function AddItemModal({ currency, vendors, onClose, onSuccess }: {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success(`"${form.name}" added to catalogue`);
       onSuccess(); onClose();
-    } catch (err: any) { toast.error(err.message ?? 'Could not add item'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not add item'); }
     finally { setSubmitting(false); }
   };
 
@@ -281,7 +281,7 @@ function MovementModal({ items, zones, onClose, onSuccess, prefillItemId }: {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success('Movement recorded');
       onSuccess(); onClose();
-    } catch (err: any) { toast.error(err.message ?? 'Could not record movement'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not record movement'); }
     finally { setSubmitting(false); }
   };
 
@@ -387,7 +387,7 @@ function AddVendorModal({ onClose, onSuccess }: { onClose: () => void; onSuccess
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success(`Vendor "${form.name}" added`);
       onSuccess(); onClose();
-    } catch (err: any) { toast.error(err.message ?? 'Could not add vendor'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not add vendor'); }
     finally { setSubmitting(false); }
   };
 
@@ -479,7 +479,7 @@ function CreatePRModal({ items, vendors, onClose, onSuccess }: {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success('Purchase Request created');
       onSuccess(); onClose();
-    } catch (err: any) { toast.error(err.message ?? 'Could not create PR'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not create PR'); }
     finally { setSubmitting(false); }
   };
 
@@ -579,7 +579,7 @@ function ItemDetailPanel({ item, movements, currency, onClose, onMovement, onEdi
       toast.success('Item updated');
       setEditMode(false);
       onEdit('refresh', 0);
-    } catch (err: any) { toast.error(err.message ?? 'Could not update item'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not update item'); }
     finally { setSaving(false); }
   };
 
@@ -812,7 +812,7 @@ export default function StoresPage() {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success('PR approved — PO created');
       fetchAll();
-    } catch (err: any) { toast.error(err.message ?? 'Could not approve PR'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not approve PR'); }
   };
 
   const handleRejectPR = async (pr: PurchaseRequest) => {
@@ -829,7 +829,7 @@ export default function StoresPage() {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success('PR rejected');
       fetchAll();
-    } catch (err: any) { toast.error(err.message ?? 'Could not reject PR'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not reject PR'); }
   };
 
   const handleUpdatePOStatus = async (po: PurchaseOrder, status: string) => {
@@ -844,7 +844,7 @@ export default function StoresPage() {
       if (!res.ok) throw new Error((await res.json()).message);
       toast.success(`PO ${po.poNumber} → ${status}`);
       fetchAll();
-    } catch (err: any) { toast.error(err.message ?? 'Could not update PO'); }
+    } catch (err) { toast.error(err instanceof Error ? err.message : 'Could not update PO'); }
   };
 
   const tabs: { key: Tab; label: string; badge?: number }[] = [

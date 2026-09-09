@@ -64,8 +64,10 @@ export default function ChangePasswordPage() {
       setTimeout(() => {
         window.location.href = '/dashboard';
       }, 2000);
-    } catch (err: any) {
-      toast.error(err.message);
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Could not update password',
+      );
     } finally {
       setIsLoading(false);
     }

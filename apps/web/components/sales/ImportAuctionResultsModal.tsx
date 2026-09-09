@@ -2,7 +2,21 @@ import React, { useState } from 'react';
 import { X, Loader2, UploadCloud } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function ImportAuctionResultsModal({ isOpen, onClose, apiBase, getAuthHeader, onSuccess }: any) {
+interface ImportAuctionResultsModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  apiBase: string;
+  getAuthHeader: () => Record<string, string> | null;
+  onSuccess: () => void;
+}
+
+export function ImportAuctionResultsModal({
+  isOpen,
+  onClose,
+  apiBase,
+  getAuthHeader,
+  onSuccess,
+}: ImportAuctionResultsModalProps) {
   const [loading, setLoading] = useState(false);
   const [inputText, setInputText] = useState('');
 
@@ -49,8 +63,10 @@ export function ImportAuctionResultsModal({ isOpen, onClose, apiBase, getAuthHea
       }
       toast.success('Auction results imported successfully!');
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to import results');
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to import results',
+      );
     } finally {
       setLoading(false);
     }

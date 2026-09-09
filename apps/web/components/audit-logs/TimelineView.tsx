@@ -12,6 +12,7 @@ import {
   FileText,
   ShieldCheck
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface AuditLog {
   id: string;
@@ -19,14 +20,17 @@ interface AuditLog {
   entityType: string;
   entityId?: string;
   timestamp: string;
-  beforeState?: any;
-  afterState?: any;
+  beforeState?: unknown;
+  afterState?: unknown;
   actor?: {
     email: string;
   };
 }
 
-const actionStyles: Record<string, { icon: any; color: string; bg: string }> = {
+const actionStyles: Record<
+  string,
+  { icon: LucideIcon; color: string; bg: string }
+> = {
   POST: { icon: Plus, color: 'text-emerald-400', bg: 'bg-emerald-500/10' },
   PATCH: { icon: Edit3, color: 'text-amber-400', bg: 'bg-amber-500/10' },
   DELETE: { icon: Trash2, color: 'text-rose-400', bg: 'bg-rose-500/10' },
@@ -98,7 +102,7 @@ export default function TimelineView({ logs }: { logs: AuditLog[] }) {
                   </button>
                 </div>
 
-                {isExpanded && log.afterState && (
+                {isExpanded && Boolean(log.afterState) && (
                   <div className="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 font-mono text-xs overflow-x-auto space-y-2">
                     <div className="flex items-center gap-2 mb-2 text-emerald-500/50">
                       <FileText className="w-3 h-3" />
