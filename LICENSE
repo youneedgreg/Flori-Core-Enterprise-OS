@@ -1,0 +1,64 @@
+Flori-Core Enterprise OS — Proprietary Software Licence
+Copyright (c) 2026 Gregory Temwa Odete. All rights reserved.
+
+This software and its source code, including but not limited to its
+architecture, database schema, API design, and user interface design system
+(collectively, the "Software"), are the exclusive property of the copyright
+holder.
+
+THIS IS NOT OPEN SOURCE SOFTWARE. The Software is made visible for reference,
+review, and evaluation purposes only. No licence, right, or interest in the
+Software is granted to any person or organisation other than the copyright
+holder, whether express, implied, by estoppel, or otherwise.
+
+PROHIBITED WITHOUT PRIOR WRITTEN PERMISSION
+
+Except with the prior written permission of the copyright holder, you may not:
+
+1. Use the Software, in whole or in part, in any commercial, revenue-
+   generating, or for-profit capacity. You may not use this code to make money,
+   whether by selling it, licensing it, offering it as a service, using it to
+   operate a business, or embedding it in any paid or monetised product.
+
+2. Copy, reproduce, fork, modify, adapt, translate, merge, publish, distribute,
+   sublicense, sell, rent, lease, or otherwise transfer the Software or any
+   portion of it.
+
+3. Create derivative works based on the Software, or reuse its source code,
+   architecture, database schema, or design system as the basis for a
+   competing, similar, or replacement product.
+
+4. Deploy, host, or operate the Software — publicly or privately, for yourself
+   or on behalf of any third party.
+
+5. Reverse engineer, decompile, or disassemble any compiled or deployed form of
+   the Software.
+
+6. Remove, alter, or obscure this notice or any copyright, trademark, or
+   attribution notice contained in the Software.
+
+PERMITTED
+
+You may read and study the source code for personal, non-commercial educational
+purposes. This permission does not extend to reproducing or reusing the code in
+any form.
+
+COMMERCIAL LICENSING
+
+Commercial use requires a separate written licence agreement with the copyright
+holder. Enquiries should be directed to the copyright holder.
+
+NO WARRANTY
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+TERMINATION
+
+Any use of the Software in breach of these terms terminates all permissions
+granted here immediately and automatically, and may constitute copyright
+infringement actionable under applicable law.

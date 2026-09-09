@@ -6,6 +6,10 @@ At its core is a real-time **IoT telemetry pipeline**: field sensors stream temp
 
 Designed for commercial flower farms that sell to international buyers (EU, UK, UAE), Flori-Core replaces disconnected spreadsheets and paper trails with a single system of record covering every department: from stem counting on the harvest floor to payroll disbursements and GlobalG.A.P. certificate tracking.
 
+> **Proprietary software — all rights reserved.** This repository is *not* open
+> source and carries no permission to reuse it. You may read the code; you may
+> not deploy it, build on it, or use it to make money. See [License](#license).
+
 ---
 
 ## What the App Does
@@ -249,3 +253,43 @@ The app uses a consistent glassmorphic dark theme:
 ## Production
 
 For AWS deployment, TimescaleDB configuration, and production environment setup, see [`PRODUCTION.md`](./PRODUCTION.md) and the full design specification at [`flori_core_plan.md`](./flori_core_plan.md).
+
+---
+
+## License
+
+**Proprietary — All Rights Reserved.**
+Copyright © 2026 Gregory Temwa Odete.
+
+Flori-Core Enterprise OS is **not open source**. The source is visible for
+reference, review, and evaluation only. No licence — express or implied — is
+granted to any person or organisation other than the copyright holder. The
+absence of an open-source licence means all rights are reserved by default.
+
+### You may not use this code to make money
+
+Without prior written permission from the copyright holder, you may **not**:
+
+- Use this code, in whole or in part, in any **commercial, revenue-generating,
+  or for-profit** capacity — including selling it, licensing it, offering it as
+  a service, running a business on it, or embedding it in any paid product;
+- Copy, fork, modify, merge, publish, distribute, sublicense, or sell the
+  software or any part of it;
+- Create derivative works, or reuse the source, architecture, database schema,
+  or design system as the basis for a competing or similar product;
+- Deploy, host, or operate it — publicly or privately, for yourself or for a
+  third party;
+- Remove or obscure the copyright and licence notices.
+
+### You may
+
+Read and study the source for personal, non-commercial learning. That permission
+stops at reading — it does not extend to reusing the code in any form.
+
+### Commercial licensing
+
+Commercial use requires a separate written licence agreement. Direct enquiries
+to the copyright holder.
+
+The full and controlling terms are in [`LICENSE`](./LICENSE). Where this summary
+and `LICENSE` differ, `LICENSE` governs.
