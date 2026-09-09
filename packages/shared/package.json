@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "echo \"@flori/shared has no tests yet\""
   },
   "dependencies": {
     "zod": "^3.24.2"
