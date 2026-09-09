@@ -104,7 +104,9 @@ export class TeamService {
       where: { email: dto.email },
     });
     if (existing && existing.tenantId !== tenantId) {
-      throw new BadRequestException('Email already registered to another workspace');
+      throw new BadRequestException(
+        'Email already registered to another workspace',
+      );
     }
 
     const user = await this.prisma.user.upsert({
@@ -191,7 +193,9 @@ export class TeamService {
   async resetPassword(tenantId: string, id: string) {
     const member = await this.findOne(tenantId, id);
 
-    const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId } });
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+    });
     if (!tenant) throw new NotFoundException('Tenant not found');
 
     const tempPassword = crypto.randomBytes(10).toString('hex');
@@ -220,7 +224,10 @@ export class TeamService {
       console.error('[TEAM] Password reset email failed:', e);
     }
 
-    return { tempPassword, message: 'Password reset. New credentials sent to member.' };
+    return {
+      tempPassword,
+      message: 'Password reset. New credentials sent to member.',
+    };
   }
 
   async removeMember(tenantId: string, id: string, requesterId: string) {
@@ -240,7 +247,9 @@ export class TeamService {
       include: { role: true },
     });
     if (member?.role?.name === 'gold_admin' && admins.length === 1) {
-      throw new ForbiddenException('Cannot remove the last Gold Admin from the workspace');
+      throw new ForbiddenException(
+        'Cannot remove the last Gold Admin from the workspace',
+      );
     }
 
     return this.prisma.user.delete({ where: { id } });
@@ -249,7 +258,13 @@ export class TeamService {
   async getRoles(tenantId: string) {
     return this.prisma.role.findMany({
       where: { tenantId },
-      select: { id: true, name: true, description: true, permissions: true, isSystem: true },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        permissions: true,
+        isSystem: true,
+      },
       orderBy: { name: 'asc' },
     });
   }

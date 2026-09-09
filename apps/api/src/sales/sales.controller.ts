@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
@@ -101,10 +100,7 @@ export class SalesController {
   }
 
   @Get('customers/:id/timeline')
-  async getCrmTimeline(
-    @Req() req: ExpressRequest,
-    @Param('id') id: string,
-  ) {
+  async getCrmTimeline(@Req() req: ExpressRequest, @Param('id') id: string) {
     const tenantId = req.user.tenantId;
     return this.salesService.getCrmTimeline(tenantId, id);
   }

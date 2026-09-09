@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-inferrable-types */
 /**
  * Flori-Core Enterprise OS — Knowledge Base
  * Searchable registry of module docs, how-to guides, error resolution, and glossary.

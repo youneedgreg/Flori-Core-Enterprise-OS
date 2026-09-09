@@ -40,10 +40,7 @@ export class TeamController {
   }
 
   @Post('invite')
-  invite(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: InviteMemberDto,
-  ) {
+  invite(@Req() req: AuthenticatedRequest, @Body() dto: InviteMemberDto) {
     return this.teamService.inviteMember(req.tenantId, dto);
   }
 
@@ -57,10 +54,7 @@ export class TeamController {
   }
 
   @Post(':id/reset-password')
-  resetPassword(
-    @Req() req: AuthenticatedRequest,
-    @Param('id') id: string,
-  ) {
+  resetPassword(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.teamService.resetPassword(req.tenantId, id);
   }
 

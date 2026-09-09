@@ -238,11 +238,19 @@ export class LogisticsService {
     const route = await (this.prisma as any).deliveryRoute.findFirst({
       where: { id, tenantId },
       include: {
-        driver: { select: { id: true, email: true, firstName: true, lastName: true } },
+        driver: {
+          select: { id: true, email: true, firstName: true, lastName: true },
+        },
         vehicle: true,
         deliveryStops: {
           include: {
-            order: { include: { customer: { select: { name: true, address: true, phone: true } } } },
+            order: {
+              include: {
+                customer: {
+                  select: { name: true, address: true, phone: true },
+                },
+              },
+            },
           },
           orderBy: { sequenceIndex: 'asc' },
         },
@@ -300,7 +308,9 @@ export class LogisticsService {
   }
 
   async updateVehicle(tenantId: string, id: string, data: any) {
-    const vehicle = await (this.prisma as any).vehicle.findFirst({ where: { id, tenantId } });
+    const vehicle = await (this.prisma as any).vehicle.findFirst({
+      where: { id, tenantId },
+    });
     if (!vehicle) throw new NotFoundException('Vehicle not found');
     return (this.prisma as any).vehicle.update({ where: { id }, data });
   }

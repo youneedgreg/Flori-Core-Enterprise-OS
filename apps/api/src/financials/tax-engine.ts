@@ -2,7 +2,7 @@ export function calculateNssf(gross: number): number {
   if (gross <= 8000) {
     return gross * 0.06;
   } else if (gross <= 36000) {
-    return (8000 * 0.06) + ((gross - 8000) * 0.06);
+    return 8000 * 0.06 + (gross - 8000) * 0.06;
   }
   return 2160;
 }
@@ -11,19 +11,23 @@ export function calculateShif(gross: number): number {
   return gross * 0.0275;
 }
 
-export function calculatePaye(gross: number, nssf: number, shif: number): number {
+export function calculatePaye(
+  gross: number,
+  nssf: number,
+  shif: number,
+): number {
   const taxableIncome = gross - nssf;
-  
+
   if (taxableIncome <= 24000) return 0;
-  
+
   let tax = 0;
   let remaining = taxableIncome;
 
   if (remaining > 24000) {
-    tax += 24000 * 0.10;
+    tax += 24000 * 0.1;
     remaining -= 24000;
   } else {
-    tax += remaining * 0.10;
+    tax += remaining * 0.1;
     remaining = 0;
   }
 
@@ -36,10 +40,10 @@ export function calculatePaye(gross: number, nssf: number, shif: number): number
   }
 
   if (remaining > 467667) {
-    tax += 467667 * 0.30;
+    tax += 467667 * 0.3;
     remaining -= 467667;
   } else {
-    tax += remaining * 0.30;
+    tax += remaining * 0.3;
     remaining = 0;
   }
 
@@ -57,7 +61,7 @@ export function calculatePaye(gross: number, nssf: number, shif: number): number
 
   const personalRelief = 2400;
   const shifRelief = shif * 0.15;
-  
+
   tax = tax - personalRelief - shifRelief;
   return tax > 0 ? tax : 0;
 }

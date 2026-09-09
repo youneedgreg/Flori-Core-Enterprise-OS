@@ -1,12 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
-  Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ScoutingReportsService } from './scouting-reports.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import type { Request } from 'express';
 
-interface AuthenticatedRequest extends Request { user: any; tenantId: string; }
+interface AuthenticatedRequest extends Request {
+  user: any;
+  tenantId: string;
+}
 
 @UseGuards(JwtAuthGuard)
 @Controller('farm-operations/scouting-reports')
@@ -33,7 +44,11 @@ export class ScoutingReportsController {
   }
 
   @Patch(':id')
-  update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() data: any) {
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() data: any,
+  ) {
     return this.service.update(req.tenantId, id, data);
   }
 

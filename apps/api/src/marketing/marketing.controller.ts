@@ -117,7 +117,9 @@ export class MarketingController {
     });
 
     if (response.error) {
-      this.logger.error(`Resend rejected demo request: ${response.error.message}`);
+      this.logger.error(
+        `Resend rejected demo request: ${response.error.message}`,
+      );
       throw new ServiceUnavailableException(
         'We could not send your enquiry. Please email us directly.',
       );

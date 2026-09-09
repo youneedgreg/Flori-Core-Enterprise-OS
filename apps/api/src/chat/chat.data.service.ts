@@ -219,7 +219,9 @@ export class ChatDataService {
     const records = await this.prisma.trainingRecord.findMany({
       where: { tenantId },
       include: {
-        employee: { select: { firstName: true, lastName: true, employeeNumber: true } },
+        employee: {
+          select: { firstName: true, lastName: true, employeeNumber: true },
+        },
         course: { select: { name: true, category: true } },
       },
       orderBy: { completionDate: 'desc' },
@@ -237,7 +239,11 @@ export class ChatDataService {
     }));
   }
 
-  async getLogisticsPerformance(tenantId: string, startDate: string, endDate: string) {
+  async getLogisticsPerformance(
+    tenantId: string,
+    startDate: string,
+    endDate: string,
+  ) {
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -255,12 +261,16 @@ export class ChatDataService {
     let completedStops = 0;
     let onTimeStops = 0;
 
-    routes.forEach(route => {
-      route.deliveryStops.forEach(stop => {
+    routes.forEach((route) => {
+      route.deliveryStops.forEach((stop) => {
         totalStops++;
         if (stop.status === 'DELIVERED' || stop.status === 'COMPLETED') {
           completedStops++;
-          if (stop.expectedArrival && stop.actualArrival && stop.actualArrival <= stop.expectedArrival) {
+          if (
+            stop.expectedArrival &&
+            stop.actualArrival &&
+            stop.actualArrival <= stop.expectedArrival
+          ) {
             onTimeStops++;
           }
         }
@@ -284,7 +294,8 @@ export class ChatDataService {
       totalRoutes: routes.length,
       totalDeliveries: totalStops,
       completedDeliveries: completedStops,
-      onTimeDeliveryPercentage: completedStops > 0 ? (onTimeStops / completedStops) * 100 : 0,
+      onTimeDeliveryPercentage:
+        completedStops > 0 ? (onTimeStops / completedStops) * 100 : 0,
       totalWastageQuantity: wastage._sum.quantity || 0,
       totalWastageCostImpact: wastage._sum.costImpact || 0,
     };

@@ -15,28 +15,43 @@ import {
  * somebody's inbox.
  */
 export class DemoRequestDto {
-  @IsString() @IsNotEmpty() @MaxLength(120)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
   name: string;
 
-  @IsString() @IsNotEmpty() @MaxLength(160)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(160)
   farm: string;
 
-  @IsString() @IsNotEmpty() @MaxLength(60)
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(60)
   role: string;
 
-  @IsEmail() @MaxLength(160)
+  @IsEmail()
+  @MaxLength(160)
   email: string;
 
-  @IsOptional() @IsString() @MaxLength(40)
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
   phone?: string;
 
-  @IsOptional() @IsString() @MaxLength(40)
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
   hectares?: string;
 
-  @IsOptional() @IsString() @MaxLength(60)
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
   headcount?: string;
 
-  @IsOptional() @IsString() @MaxLength(2000)
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
   notes?: string;
 
   /**
@@ -44,6 +59,8 @@ export class DemoRequestDto {
    * the request is accepted and dropped rather than refused — a 400 tells the
    * script what to change.
    */
-  @IsOptional() @IsString() @MaxLength(200)
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
   company?: string;
 }

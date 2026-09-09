@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 import {
   Injectable,
   NotFoundException,
@@ -187,7 +185,6 @@ export class SalesService {
 
   // ── Contact Logs ───────────────────────────────────────────────────────────
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   async createContactLog(
     tenantId: string,
     userId: string,
@@ -385,7 +382,9 @@ export class SalesService {
       this.prisma.order.findMany({ where: { tenantId, isTemplate: false } }),
     ]);
 
-    const activeLeads = leads.filter((l) => !['ACTIVE', 'LOST'].includes(l.status)).length;
+    const activeLeads = leads.filter(
+      (l) => !['ACTIVE', 'LOST'].includes(l.status),
+    ).length;
     const pipelineValue = leads
       .filter((l) => !['ACTIVE', 'LOST'].includes(l.status))
       .reduce((sum, l) => sum + (l.value ?? 0), 0);
