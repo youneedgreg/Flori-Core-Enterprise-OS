@@ -57,9 +57,9 @@ export default function FaqPage() {
 
       <main>
         <Section tone="hero">
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <Eyebrow>Frequently asked</Eyebrow>
-            <h1 className="mt-4 max-w-[24ch] font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-4 max-w-[24ch] text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
               The questions farms actually ask.
             </h1>
             <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-slate-400">
@@ -75,14 +75,14 @@ export default function FaqPage() {
         </Section>
 
         <Section>
-          <Container className="py-16">
+          <Container className="py-12 sm:py-16">
             <div className="fc-reveal-group grid gap-4 lg:grid-cols-2">
               {FAQ.map((item) => (
                 <article
                   key={item.q}
                   className="rounded-2xl border border-white/[0.09] bg-white/[0.03] p-7"
                 >
-                  <h2 className="font-display text-lg font-bold leading-snug text-white">
+                  <h2 className="text-lg font-bold leading-snug text-white">
                     {item.q}
                   </h2>
                   <p className="mt-3 text-[14.5px] leading-relaxed text-slate-400">

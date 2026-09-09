@@ -53,9 +53,9 @@ export default function CompliancePage() {
 
       <main>
         <Section tone="hero">
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <Eyebrow>Compliance &amp; Security</Eyebrow>
-            <h1 className="mt-4 max-w-[26ch] font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-4 max-w-[26ch] text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
               The record an auditor asks for, kept as the work happens.
             </h1>
             <p className="mt-6 max-w-[64ch] text-base leading-relaxed text-slate-400">
@@ -70,8 +70,8 @@ export default function CompliancePage() {
         </Section>
 
         <Section>
-          <Container className="py-16">
-            <h2 className="max-w-[32ch] font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+          <Container className="py-12 sm:py-16">
+            <h2 className="max-w-[32ch] text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Three records that decide an audit.
             </h2>
             <div className="fc-reveal-group mt-9 grid gap-4 md:grid-cols-3">
@@ -80,7 +80,7 @@ export default function CompliancePage() {
                   key={r.title}
                   className="rounded-2xl border border-white/[0.09] bg-white/[0.03] p-7"
                 >
-                  <h3 className="font-display text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-white">
                     {r.title}
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-slate-400">
@@ -93,7 +93,7 @@ export default function CompliancePage() {
         </Section>
 
         <Section tone="panel">
-          <Container className="grid gap-12 py-16 lg:grid-cols-[1fr_0.9fr]">
+          <Container className="grid gap-12 py-12 sm:py-16 lg:grid-cols-[1fr_0.9fr]">
             <div>
               <Eyebrow>Audit trail</Eyebrow>
               <H2 className="text-2xl sm:text-3xl">
@@ -127,7 +127,7 @@ export default function CompliancePage() {
         </Section>
 
         <Section>
-          <Container className="py-16">
+          <Container className="py-12 sm:py-16">
             <Eyebrow>Security</Eyebrow>
             <H2 className="max-w-[34ch] text-2xl sm:text-3xl">
               Each farm&apos;s data is its own. Each role sees only its work.
@@ -139,7 +139,7 @@ export default function CompliancePage() {
                   key={s.title}
                   className="rounded-2xl border border-white/[0.09] bg-white/[0.03] p-7"
                 >
-                  <h3 className="font-display text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-white">
                     {s.title}
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-slate-400">
@@ -151,13 +151,13 @@ export default function CompliancePage() {
 
             <div className="mt-9">
               <Panel label="Role-based access">
-                <div className="grid grid-cols-[150px_minmax(0,1fr)]">
+                <div className="grid grid-cols-1 sm:grid-cols-[150px_minmax(0,1fr)]">
                   {RBAC.map((r) => (
                     <Fragment key={r.role}>
-                      <div className="border-b border-white/[0.07] px-5 py-3.5 font-display text-[13px] font-bold text-white">
+                      <div className="border-white/[0.07] px-5 pb-1 pt-3.5 text-[13px] font-bold text-white sm:border-b sm:py-3.5">
                         {r.role}
                       </div>
-                      <div className="border-b border-white/[0.07] px-5 py-3.5 text-[13px] leading-relaxed text-slate-400">
+                      <div className="border-b border-white/[0.07] px-5 pb-3.5 pt-0 text-[13px] leading-relaxed text-slate-400 sm:pt-3.5">
                         {r.scope}
                       </div>
                     </Fragment>

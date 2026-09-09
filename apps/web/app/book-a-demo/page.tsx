@@ -41,7 +41,7 @@ export default function BookADemoPage() {
         <Container className="grid gap-12 py-20 lg:grid-cols-[1fr_0.8fr] lg:py-24">
           <div>
             <Eyebrow>Book a demo</Eyebrow>
-            <h1 className="mt-4 font-display text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-4xl">
+            <h1 className="mt-4 text-3xl font-bold leading-[1.12] tracking-tight text-white sm:text-4xl">
               A walkthrough against your farm, not a slide deck.
             </h1>
             <p className="mt-5 max-w-[52ch] text-base leading-relaxed text-slate-400">
@@ -53,7 +53,7 @@ export default function BookADemoPage() {
             <div className="mt-8 flex flex-col gap-5 border-t border-white/[0.08] pt-7">
               {CONTACT_NOTES.map((n) => (
                 <div key={n.title}>
-                  <h2 className="font-display text-base font-bold text-white">
+                  <h2 className="text-base font-bold text-white">
                     {n.title}
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-400">

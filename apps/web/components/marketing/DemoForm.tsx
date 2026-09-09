@@ -52,7 +52,7 @@ export function DemoForm({ variant = 'full' }: { variant?: 'full' | 'compact' })
   if (status === 'sent') {
     return (
       <div className="rounded-3xl border border-white/[0.09] bg-white/[0.03] p-8">
-        <h2 className="font-display text-2xl font-bold text-white">
+        <h2 className="text-2xl font-bold text-white">
           Request received.
         </h2>
         <p className="mt-3 text-[15px] leading-relaxed text-slate-400">

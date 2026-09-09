@@ -82,7 +82,7 @@ export default function HomePage() {
               fill
               priority
               sizes="100vw"
-              className="fc-hero-media object-cover opacity-[0.55]"
+              className="object-cover opacity-[0.55]"
             />
             <div className="absolute inset-0 bg-[#060d0a]/45" />
             <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_10%,transparent_0%,#060d0a_78%)]" />
@@ -90,7 +90,7 @@ export default function HomePage() {
           </div>
 
           <Container className="relative z-10 grid gap-14 py-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-32">
-            <div className="fc-hero-copy">
+            <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-brand-green/30 bg-brand-green/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-brand-green">
                 <span className="relative flex h-2 w-2" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
@@ -98,7 +98,7 @@ export default function HomePage() {
                 </span>
                 For commercial high-altitude flower farms
               </p>
-              <h1 className="mt-6 font-display text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 The operating system for commercial flower farms.
               </h1>
               <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-slate-300">
@@ -135,7 +135,7 @@ export default function HomePage() {
                     key={s.when}
                     className="flex gap-4 border-b border-white/[0.07] px-5 py-4 last:border-b-0"
                   >
-                    <span className={`shrink-0 font-display text-sm font-bold ${s.tone}`}>
+                    <span className={`shrink-0 text-sm font-bold ${s.tone}`}>
                       {s.when}
                     </span>
                     <div>
@@ -153,7 +153,7 @@ export default function HomePage() {
 
         {/* ── Failure modes ────────────────────────────────────────────── */}
         <Section>
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <div className="fc-reveal max-w-[60ch]">
               <Eyebrow>The failure modes</Eyebrow>
               <H2>
@@ -168,10 +168,10 @@ export default function HomePage() {
             <div className="fc-reveal-group mt-11 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {FAILURE_MODES.map((f, i) => (
                 <Card key={f.title}>
-                  <span className="font-display text-sm font-bold text-brand-green">
+                  <span className="text-sm font-bold text-brand-green">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <h3 className="mt-3 font-display text-lg font-bold text-white">
+                  <h3 className="mt-3 text-lg font-bold text-white">
                     {f.title}
                   </h3>
                   <p className="mt-2 text-[13px] leading-relaxed text-slate-400">
@@ -185,7 +185,7 @@ export default function HomePage() {
 
         {/* ── The system of record ─────────────────────────────────────── */}
         <Section id="system" tone="tinted-top">
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <div className="fc-reveal grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] lg:gap-12">
               <div>
                 <Eyebrow>The system of record</Eyebrow>
@@ -203,7 +203,7 @@ export default function HomePage() {
                 of step with what is described further down. */}
             <div className="fc-reveal mt-10 rounded-3xl border border-white/[0.09] bg-white/[0.03] p-7 sm:p-9">
               <div className="flex flex-wrap items-baseline justify-between gap-4">
-                <h3 className="font-display text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-white">
                   Deploy the modules you need. Leave the rest.
                 </h3>
                 <span className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-green">
@@ -222,7 +222,7 @@ export default function HomePage() {
                   <div key={domain.id}>
                     <a
                       href={`#${domain.id}`}
-                      className="font-display text-[13px] font-bold uppercase tracking-[0.14em] text-brand-green transition-colors hover:text-emerald-300"
+                      className="text-[13px] font-bold uppercase tracking-[0.14em] text-brand-green transition-colors hover:text-emerald-300"
                     >
                       {domain.title}
                     </a>
@@ -311,7 +311,7 @@ export default function HomePage() {
               <div className="mt-7 grid gap-3">
                 {HOME_SECURITY.map((s) => (
                   <Card key={s.title} className="p-5">
-                    <h3 className="font-display text-base font-bold text-white">
+                    <h3 className="text-base font-bold text-white">
                       {s.title}
                     </h3>
                     <p className="mt-2 text-[13px] leading-relaxed text-slate-400">
@@ -323,13 +323,13 @@ export default function HomePage() {
             </div>
 
             <Panel label="Role-based access">
-              <div className="grid grid-cols-[150px_minmax(0,1fr)]">
+              <div className="grid grid-cols-1 sm:grid-cols-[150px_minmax(0,1fr)]">
                 {RBAC.map((r) => (
                   <Fragment key={r.role}>
-                    <div className="border-b border-white/[0.07] px-5 py-3.5 font-display text-[13px] font-bold text-white">
+                    <div className="border-white/[0.07] px-5 pb-1 pt-3.5 text-[13px] font-bold text-white sm:border-b sm:py-3.5">
                       {r.role}
                     </div>
-                    <div className="border-b border-white/[0.07] px-5 py-3.5 text-[13px] leading-relaxed text-slate-400">
+                    <div className="border-b border-white/[0.07] px-5 pb-3.5 pt-0 text-[13px] leading-relaxed text-slate-400 sm:pt-3.5">
                       {r.scope}
                     </div>
                   </Fragment>
@@ -341,7 +341,7 @@ export default function HomePage() {
 
         {/* ── Built for Kenya ──────────────────────────────────────────── */}
         <Section tone="tinted-bottom">
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <div className="fc-reveal max-w-[62ch]">
               <Eyebrow>Built for Kenyan flower farming</Eyebrow>
               <H2>Not a generic ERP with a flower skin.</H2>
@@ -353,7 +353,7 @@ export default function HomePage() {
             <div className="fc-reveal-group mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {KENYA_CARDS.map((c) => (
                 <Card key={c.title}>
-                  <h3 className="font-display text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-white">
                     {c.title}
                   </h3>
                   <p className="mt-2 text-[13px] leading-relaxed text-slate-400">

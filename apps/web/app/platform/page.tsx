@@ -48,9 +48,9 @@ export default function PlatformPage() {
 
       <main>
         <Section tone="hero">
-          <Container className="py-20">
+          <Container className="py-14 sm:py-20">
             <Eyebrow>Platform</Eyebrow>
-            <h1 className="mt-4 max-w-[24ch] font-display text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-4 max-w-[24ch] text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
               Every department on one record.
             </h1>
             <p className="mt-6 max-w-[62ch] text-base leading-relaxed text-slate-400">
@@ -79,9 +79,9 @@ export default function PlatformPage() {
             tone={i % 2 === 1 ? 'panel' : 'default'}
             className="scroll-mt-20"
           >
-            <Container className="py-16">
+            <Container className="py-12 sm:py-16">
               <div className="fc-reveal flex flex-wrap items-baseline gap-4">
-                <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                   {domain.title}
                 </h2>
                 <p className="text-[15px] text-slate-400">{domain.blurb}</p>
@@ -93,7 +93,7 @@ export default function PlatformPage() {
                     key={m.name}
                     className="rounded-2xl border border-white/[0.09] bg-white/[0.03] p-7"
                   >
-                    <h3 className="font-display text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-white">
                       {m.name}
                     </h3>
                     <p className="mt-3 text-sm leading-relaxed text-slate-400">

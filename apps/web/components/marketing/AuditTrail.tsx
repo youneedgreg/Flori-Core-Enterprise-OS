@@ -45,7 +45,7 @@ export function AuditTrail({
             >
               <span className="min-w-0">
                 <span className="block text-sm text-slate-300">
-                  <span className="font-display font-bold text-white">{entry.op}</span>
+                  <span className="font-bold text-white">{entry.op}</span>
                   {' · '}
                   {entry.subject}
                 </span>
@@ -59,16 +59,16 @@ export function AuditTrail({
             </button>
 
             {isOpen && (
-              <div id={panelId} className="border-t border-white/[0.07] bg-black/20 px-5 py-3 font-mono text-[12px]">
+              <div id={panelId} className="border-t border-white/[0.07] bg-black/20 px-4 py-3 font-mono text-[11px] sm:px-5 sm:text-[12px]">
                 {entry.rows.map((row, r) => (
                   <div
                     key={r}
                     className={`flex gap-3 py-1 ${
-                      row.kind === 'added' ? 'text-emerald-400' : 'text-red-400'
-                    }`}
+ row.kind === 'added' ? 'text-emerald-400' : 'text-red-400'
+ }`}
                   >
-                    <span className="w-36 shrink-0 text-slate-500">{row.field}</span>
-                    <span>{row.value}</span>
+                    <span className="w-24 shrink-0 text-slate-500 sm:w-36">{row.field}</span>
+                    <span className="min-w-0 break-words">{row.value}</span>
                   </div>
                 ))}
               </div>

@@ -1,5 +1,9 @@
 import React from 'react';
 
+/** Joins class strings without leaving the stray spaces template literals do. */
+const cx = (...parts: (string | undefined | false)[]) =>
+  parts.filter(Boolean).join(' ');
+
 /**
  * Layout primitives for the marketing pages.
  *
@@ -34,7 +38,7 @@ export function Section({
   return (
     <section
       id={id}
-      className={`border-b border-white/[0.07] ${TONES[tone]} ${className}`}
+      className={cx('border-b border-white/[0.07]', TONES[tone], className)}
     >
       {children}
     </section>
@@ -49,7 +53,7 @@ export function Container({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`mx-auto max-w-[1240px] px-6 lg:px-8 ${className}`}>
+    <div className={cx('mx-auto max-w-[1240px] px-6 lg:px-8', className)}>
       {children}
     </div>
   );
@@ -72,7 +76,7 @@ export function H2({
 }) {
   return (
     <h2
-      className={`mt-4 font-display text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl ${className}`}
+      className={cx('mt-4 text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-4xl', className)}
     >
       {children}
     </h2>
@@ -87,7 +91,7 @@ export function Lede({
   children: React.ReactNode;
 }) {
   return (
-    <p className={`mt-5 text-base leading-relaxed text-slate-400 ${className}`}>
+    <p className={cx('mt-5 text-base leading-relaxed text-slate-400', className)}>
       {children}
     </p>
   );
@@ -102,7 +106,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-white/[0.09] bg-white/[0.03] p-6 ${className}`}
+      className={cx('rounded-2xl border border-white/[0.09] bg-white/[0.03] p-6', className)}
     >
       {children}
     </div>
