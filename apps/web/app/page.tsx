@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
 import { graph, software, webPage } from '@/lib/schema';
@@ -43,6 +44,9 @@ export const metadata: Metadata = pageMetadata({
   path: '/',
 });
 
+/** Counted, not typed — the copy said "seventeen" while the data held sixteen. */
+const MODULE_COUNT = HOME_DOMAINS.reduce((n, d) => n + d.modules.length, 0);
+
 const DOMAIN_LINKS = [
   { href: '#grow', label: 'Grow' },
   { href: '#measure', label: 'Measure' },
@@ -68,69 +72,89 @@ export default function HomePage() {
 
       <main>
         {/* ── Hero ─────────────────────────────────────────────────────── */}
-        <Section tone="hero">
-          <Container className="grid gap-14 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-24">
-            <div>
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-[11px] font-bold text-slate-400">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-green" aria-hidden="true" />
+        <section className="relative overflow-hidden border-b border-white/[0.07]">
+          {/* The flower carried over from the original landing page. Decorative,
+              so it is marked aria-hidden and carries an empty alt. */}
+          <div className="pointer-events-none absolute inset-0 z-0" aria-hidden="true">
+            <Image
+              src="/hero-bg.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="fc-hero-media object-cover opacity-[0.55]"
+            />
+            <div className="absolute inset-0 bg-[#060d0a]/45" />
+            <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_50%_10%,transparent_0%,#060d0a_78%)]" />
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-[#060d0a]" />
+          </div>
+
+          <Container className="relative z-10 grid gap-14 py-24 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:py-32">
+            <div className="fc-hero-copy">
+              <p className="inline-flex items-center gap-2 rounded-full border border-brand-green/30 bg-brand-green/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-brand-green">
+                <span className="relative flex h-2 w-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-brand-green" />
+                </span>
                 For commercial high-altitude flower farms
               </p>
-              <h1 className="mt-6 font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-[54px]">
+              <h1 className="mt-6 font-display text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl lg:text-6xl">
                 The operating system for commercial flower farms.
               </h1>
-              <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-slate-400">
+              <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-slate-300">
                 One system of record from stem counting on the harvest floor to
                 payroll disbursement and certificate expiry — so every department,
                 every sensor and every shipment reconciles against the same numbers.
               </p>
               <div className="mt-9 flex flex-wrap gap-3">
                 <Link
-                  href="/book-a-demo"
-                  className="rounded-full bg-brand-green px-7 py-3.5 text-sm font-black text-[#04221a] shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 active:scale-95"
+                  href="/login"
+                  className="rounded-full bg-brand-green px-7 py-3.5 text-sm font-black text-[#04221a] shadow-lg shadow-emerald-500/25 transition-all hover:bg-emerald-400 hover:shadow-emerald-500/40 active:scale-95"
                 >
-                  Book a demo
+                  Check it out — live demo
                 </Link>
                 <Link
-                  href="/platform"
+                  href="/book-a-demo"
                   className="rounded-full border border-white/15 px-7 py-3.5 text-sm font-bold text-white transition-colors hover:border-brand-green/40 hover:text-brand-green"
                 >
-                  See the platform
+                  Book a walkthrough
                 </Link>
               </div>
-              <p className="mt-6 text-[13px] text-slate-600">
-                Deployed per farm with multi-tenant data isolation. Request pricing
-                on the demo call.
+              <p className="mt-6 text-[13px] text-slate-400">
+                A fully seeded farm, one click per role. No sign-up, nothing to install.
               </p>
             </div>
 
-            <Panel
-              label="What a week without a system of record costs"
-              chip={<span className="h-1.5 w-1.5 rounded-full bg-red-400" aria-hidden="true" />}
-            >
-              {STAKES.map((s) => (
-                <div
-                  key={s.when}
-                  className="flex gap-4 border-b border-white/[0.07] px-5 py-4 last:border-b-0"
-                >
-                  <span className={`shrink-0 font-display text-sm font-bold ${s.tone}`}>
-                    {s.when}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-200">{s.what}</p>
-                    <p className="mt-1.5 text-[13px] leading-relaxed text-slate-500">
-                      {s.why}
-                    </p>
+            <div className="fc-reveal">
+              <Panel
+                label="What a week without a system of record costs"
+                chip={<span className="h-1.5 w-1.5 rounded-full bg-red-400" aria-hidden="true" />}
+              >
+                {STAKES.map((s) => (
+                  <div
+                    key={s.when}
+                    className="flex gap-4 border-b border-white/[0.07] px-5 py-4 last:border-b-0"
+                  >
+                    <span className={`shrink-0 font-display text-sm font-bold ${s.tone}`}>
+                      {s.when}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-200">{s.what}</p>
+                      <p className="mt-1.5 text-[13px] leading-relaxed text-slate-500">
+                        {s.why}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </Panel>
+                ))}
+              </Panel>
+            </div>
           </Container>
-        </Section>
+        </section>
 
         {/* ── Failure modes ────────────────────────────────────────────── */}
         <Section>
           <Container className="py-20">
-            <div className="max-w-[60ch]">
+            <div className="fc-reveal max-w-[60ch]">
               <Eyebrow>The failure modes</Eyebrow>
               <H2>
                 Spreadsheets don&apos;t fail loudly. They fail four days before an
@@ -141,7 +165,7 @@ export default function HomePage() {
                 never share a record.
               </Lede>
             </div>
-            <div className="mt-11 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="fc-reveal-group mt-11 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {FAILURE_MODES.map((f, i) => (
                 <Card key={f.title}>
                   <span className="font-display text-sm font-bold text-brand-green">
@@ -162,7 +186,7 @@ export default function HomePage() {
         {/* ── The system of record ─────────────────────────────────────── */}
         <Section id="system" tone="tinted-top">
           <Container className="py-20">
-            <div className="grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] lg:gap-12">
+            <div className="fc-reveal grid items-end gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] lg:gap-12">
               <div>
                 <Eyebrow>The system of record</Eyebrow>
                 <H2>Seventeen modules, one database, one set of numbers.</H2>
@@ -174,7 +198,51 @@ export default function HomePage() {
               </p>
             </div>
 
-            <nav aria-label="Module domains" className="mt-9 flex flex-wrap gap-2">
+            {/* Every module at a glance, before the detail below. Built from the
+                same HOME_DOMAINS data as the blocks, so the list cannot fall out
+                of step with what is described further down. */}
+            <div className="fc-reveal mt-10 rounded-3xl border border-white/[0.09] bg-white/[0.03] p-7 sm:p-9">
+              <div className="flex flex-wrap items-baseline justify-between gap-4">
+                <h3 className="font-display text-lg font-bold text-white">
+                  Deploy the modules you need. Leave the rest.
+                </h3>
+                <span className="text-[11px] font-black uppercase tracking-[0.18em] text-brand-green">
+                  {MODULE_COUNT} modules · 5 domains
+                </span>
+              </div>
+              <p className="mt-3 max-w-[68ch] text-sm leading-relaxed text-slate-400">
+                Every deployment is configured to the farm. Turn on the pack house
+                and cold chain without payroll, or run compliance and stores while
+                production stays on paper for a season — modules can be added later
+                without a migration, because they were always one database.
+              </p>
+
+              <div className="mt-8 grid gap-x-8 gap-y-7 sm:grid-cols-2 lg:grid-cols-3">
+                {HOME_DOMAINS.map((domain) => (
+                  <div key={domain.id}>
+                    <a
+                      href={`#${domain.id}`}
+                      className="font-display text-[13px] font-bold uppercase tracking-[0.14em] text-brand-green transition-colors hover:text-emerald-300"
+                    >
+                      {domain.title}
+                    </a>
+                    <ul className="mt-3 space-y-2">
+                      {domain.modules.map((m) => (
+                        <li key={m.name} className="flex gap-2.5 text-sm text-slate-300">
+                          <span
+                            className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-brand-green/60"
+                            aria-hidden="true"
+                          />
+                          {m.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <nav aria-label="Module domains" className="mt-10 flex flex-wrap gap-2">
               {DOMAIN_LINKS.map((d) => (
                 <a
                   key={d.href}
@@ -194,7 +262,7 @@ export default function HomePage() {
 
         {/* ── Compliance ───────────────────────────────────────────────── */}
         <Section id="compliance" tone="panel">
-          <Container className="grid gap-12 py-20 lg:grid-cols-[1fr_0.85fr]">
+          <Container className="fc-reveal-group grid gap-12 py-20 lg:grid-cols-[1fr_0.85fr]">
             <div>
               <Eyebrow>Audit-ready, year-round</Eyebrow>
               <H2>
@@ -234,7 +302,7 @@ export default function HomePage() {
 
         {/* ── Security & access ────────────────────────────────────────── */}
         <Section>
-          <Container className="grid gap-12 py-20 lg:grid-cols-2">
+          <Container className="fc-reveal-group grid gap-12 py-20 lg:grid-cols-2">
             <div>
               <Eyebrow>Security &amp; access</Eyebrow>
               <H2 className="text-2xl sm:text-3xl">
@@ -274,7 +342,7 @@ export default function HomePage() {
         {/* ── Built for Kenya ──────────────────────────────────────────── */}
         <Section tone="tinted-bottom">
           <Container className="py-20">
-            <div className="max-w-[62ch]">
+            <div className="fc-reveal max-w-[62ch]">
               <Eyebrow>Built for Kenyan flower farming</Eyebrow>
               <H2>Not a generic ERP with a flower skin.</H2>
               <Lede>
@@ -282,7 +350,7 @@ export default function HomePage() {
                 Naivasha farm week.
               </Lede>
             </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="fc-reveal-group mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {KENYA_CARDS.map((c) => (
                 <Card key={c.title}>
                   <h3 className="font-display text-base font-bold text-white">
@@ -299,7 +367,7 @@ export default function HomePage() {
 
         {/* ── Demo ─────────────────────────────────────────────────────── */}
         <section id="demo" className="bg-[#04120d]">
-          <Container className="grid gap-12 py-20 lg:grid-cols-[1fr_0.8fr]">
+          <Container className="fc-reveal-group grid gap-12 py-20 lg:grid-cols-[1fr_0.8fr]">
             <div>
               <Eyebrow>Book a demo</Eyebrow>
               <H2 className="text-2xl sm:text-3xl">

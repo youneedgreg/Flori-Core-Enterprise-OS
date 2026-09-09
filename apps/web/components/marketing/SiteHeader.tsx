@@ -41,11 +41,17 @@ export function SiteHeader({ active }: { active?: string }) {
         </nav>
 
         <div className="flex items-center gap-3">
+          {/* "Sign in" invites people who already have an account. This links to
+              the seeded demo, where the sign-in page offers a role to click. */}
           <Link
             href="/login"
-            className="hidden text-sm font-bold text-white transition-colors hover:text-brand-green sm:block"
+            className="hidden items-center gap-1.5 text-sm font-bold text-white transition-colors hover:text-brand-green sm:inline-flex"
           >
-            Sign in
+            <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-green opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand-green" />
+            </span>
+            Try the live demo
           </Link>
           <Link
             href="/book-a-demo"
