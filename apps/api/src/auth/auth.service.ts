@@ -114,7 +114,6 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    console.log('[AUTH] login called, dto =', JSON.stringify(dto));
     try {
       const user = await this.prisma.user.findUnique({
         where: { email: dto.email },
