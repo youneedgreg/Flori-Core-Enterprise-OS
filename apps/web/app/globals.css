@@ -164,3 +164,86 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+/* ── Scroll experience (marketing pages) ──────────────────────────────────
+   Scroll-driven CSS animations rather than a JavaScript observer. Three
+   reasons: the content is present and visible in the server-rendered HTML
+   with no hydration step, these run off the compositor so they do not stutter
+   on a mid-range phone, and nothing here ships a byte of JavaScript.
+
+   Every rule is wrapped in @supports, so the default — and the outcome in any
+   browser without scroll-driven animation — is the finished state: fully
+   visible, untransformed. An animation that fails cannot hide content.        */
+
+@keyframes fc-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fc-hero-drift {
+  from {
+    transform: scale(1.05);
+    opacity: 0.55;
+  }
+  to {
+    transform: scale(1.24) translateY(70px);
+    opacity: 0.08;
+  }
+}
+
+@keyframes fc-hero-lift {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-60px);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Rises into place as it enters the viewport, settling well before the
+       element reaches the middle of the screen — a reveal still running when
+       you are already reading reads as lag, not polish. */
+    .fc-reveal {
+      animation: fc-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+
+    /* Children of a group each animate on their own timeline, which produces
+       the stagger for free as they cross the threshold in turn. */
+    .fc-reveal-group > * {
+      animation: fc-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 26%;
+    }
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* The hero image drifts and dissolves as the first screen scrolls away. */
+    .fc-hero-media {
+      animation: fc-hero-drift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 100vh;
+      will-change: transform, opacity;
+    }
+
+    /* The hero copy leaves slightly faster than the image behind it. */
+    .fc-hero-copy {
+      animation: fc-hero-lift linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80vh;
+      will-change: transform, opacity;
+    }
+  }
+}

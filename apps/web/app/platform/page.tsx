@@ -80,14 +80,14 @@ export default function PlatformPage() {
             className="scroll-mt-20"
           >
             <Container className="py-16">
-              <div className="flex flex-wrap items-baseline gap-4">
+              <div className="fc-reveal flex flex-wrap items-baseline gap-4">
                 <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
                   {domain.title}
                 </h2>
                 <p className="text-[15px] text-slate-400">{domain.blurb}</p>
               </div>
 
-              <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="fc-reveal-group mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {domain.modules.map((m) => (
                   <div
                     key={m.name}

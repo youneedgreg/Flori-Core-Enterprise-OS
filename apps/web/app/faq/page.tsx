@@ -76,7 +76,7 @@ export default function FaqPage() {
 
         <Section>
           <Container className="py-16">
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="fc-reveal-group grid gap-4 lg:grid-cols-2">
               {FAQ.map((item) => (
                 <article
                   key={item.q}

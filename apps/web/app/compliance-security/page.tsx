@@ -74,7 +74,7 @@ export default function CompliancePage() {
             <h2 className="max-w-[32ch] font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
               Three records that decide an audit.
             </h2>
-            <div className="mt-9 grid gap-4 md:grid-cols-3">
+            <div className="fc-reveal-group mt-9 grid gap-4 md:grid-cols-3">
               {COMPLIANCE_RECORDS.map((r) => (
                 <div
                   key={r.title}
@@ -133,7 +133,7 @@ export default function CompliancePage() {
               Each farm&apos;s data is its own. Each role sees only its work.
             </H2>
 
-            <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="fc-reveal-group mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {COMPLIANCE_SECURITY.map((s) => (
                 <div
                   key={s.title}
