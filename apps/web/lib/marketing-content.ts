@@ -101,6 +101,7 @@ export const HOME_DOMAINS: Domain[] = [
       { name: "HR & Training", body: "Permanent and casual workforce, contracts, training records, handler certification tracking and performance appraisals." },
       { name: "Payroll", body: "Monthly runs for salaried and casual workers, payslips, NSSF/NHIF/PAYE deductions, bulk approval and payslip delivery by email and SMS." },
       { name: "Compliance", body: "Certificate registry with expiry alerts, spray logs, chemical usage auditing and a full audit trail." },
+      { name: "Team & Access", body: "User accounts, roles and permissions per farm — who may see payroll, who may sign off a spray, who may only record a delivery." },
     ],
   },
 ];
@@ -156,6 +157,7 @@ export const PLATFORM_DOMAINS: Domain[] = [
       { name: "HR & Training", body: "One workforce register for permanent and casual staff.", features: ["Contracts and worker records", "Training records", "Handler certification tracking", "Performance appraisals"] },
       { name: "Payroll", body: "Monthly runs for salaried and casual workers.", features: ["NSSF / NHIF / PAYE deductions", "Payslips per worker", "Bulk approval", "Payslip delivery by email and SMS"] },
       { name: "Compliance", body: "The evidence layer over everything above.", features: ["Certificate registry with expiry alerts", "Spray logs", "Chemical usage auditing", "Full audit trail"] },
+      { name: "Team & Access", body: "Who may do what, per farm.", features: ["User accounts and invitations", "Role assignment", "Permission scopes per module", "Access history"] },
     ],
   },
 ];
