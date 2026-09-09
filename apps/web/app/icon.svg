@@ -1,4 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Flori-Core">
-  <rect width="64" height="64" rx="12" fill="#060D0A"/>
-  <rect x="14" y="14" width="36" height="36" rx="9" fill="#0E3B2B" stroke="#34D399" stroke-width="4"/>
+  <rect width="64" height="64" rx="14" fill="#060D0A"/>
+  <g fill="#34D399">
+    <ellipse cx="32.00" cy="20.80" rx="7.9" ry="12.2" transform="rotate(0.00 32.00 20.80)"/>
+    <ellipse cx="42.65" cy="28.54" rx="7.9" ry="12.2" transform="rotate(72.00 42.65 28.54)"/>
+    <ellipse cx="38.58" cy="41.06" rx="7.9" ry="12.2" transform="rotate(144.00 38.58 41.06)"/>
+    <ellipse cx="25.42" cy="41.06" rx="7.9" ry="12.2" transform="rotate(216.00 25.42 41.06)"/>
+    <ellipse cx="21.35" cy="28.54" rx="7.9" ry="12.2" transform="rotate(288.00 21.35 28.54)"/>
+  </g>
+  <circle cx="32" cy="32" r="6.6" fill="#060D0A"/>
+  <circle cx="32" cy="32" r="4.6" fill="#FBBF24"/>
 </svg>
