@@ -13,6 +13,17 @@ import { ChatDataService } from './chat.data.service';
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 
+const ANTHROPIC_MODEL = 'claude-sonnet-4-20250514';
+const MISTRAL_MODEL = 'mistral-large-latest';
+// Upper bound on tool-use round trips per user message. Without it a model
+// that keeps requesting tools loops forever and burns the tenant's budget.
+export const MAX_TOOL_ROUNDS = 5;
+export const STEP_LIMIT_MESSAGE =
+  "I couldn't finish that within the allowed number of steps. Please try a narrower question.";
+const HISTORY_LIMIT = 20;
+
+type TokenUsage = { tokens: number };
+
 @Injectable()
 export class ChatService {
   private anthropic: Anthropic | null = null;
@@ -127,7 +138,7 @@ export class ChatService {
     }));
 
     // 2. Save user message
-    await this.prisma.chatMessage.create({
+    const userMessage = await this.prisma.chatMessage.create({
       data: {
         sessionId: session.id,
         role: 'user',
@@ -136,14 +147,21 @@ export class ChatService {
       },
     });
 
-    // 3. Fetch past messages for context
-    const pastMessages = await this.prisma.chatMessage.findMany({
-      where: { sessionId: session.id },
-      orderBy: { createdAt: 'asc' },
-      take: 20, // last 20 messages for context
+    // 3. Fetch the most recent messages for context (newest first, then put
+    // back in order). The message just saved is excluded because it is
+    // appended below together with its attachments.
+    const recentMessages = await this.prisma.chatMessage.findMany({
+      where: { sessionId: session.id, id: { not: userMessage.id } },
+      orderBy: { createdAt: 'desc' },
+      take: HISTORY_LIMIT,
     });
+    const history = recentMessages.reverse();
+    // The conversation sent to the model must open with a user turn.
+    while (history.length > 0 && history[0].role === 'assistant') {
+      history.shift();
+    }
 
-    const anthropicMessages = pastMessages.map((m) => ({
+    const anthropicMessages = history.map((m) => ({
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: m.content,
     })) as Anthropic.MessageParam[];
@@ -319,72 +337,25 @@ export class ChatService {
       ];
 
       let responseContent = '';
-      let totalTokens = 0;
+      // Counts every provider call, including a Claude attempt that failed
+      // part-way, so the tenant budget reflects what was actually spent.
+      const usage: TokenUsage = { tokens: 0 };
+      // Snapshot before the Claude loop appends tool_use / tool_result blocks,
+      // so a fallback starts from the plain conversation.
+      const baseMessages = [...anthropicMessages];
 
       try {
         if (!this.anthropic) {
           throw new Error('Anthropic API key is missing');
         }
         // 5. Try Anthropic first
-        const response = await this.anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 2048,
-          system: systemPrompt,
-          messages: anthropicMessages,
-          tools: chatTools,
-        });
-
-        let currentResponse = response;
-        let inputTokens = currentResponse.usage.input_tokens;
-        let outputTokens = currentResponse.usage.output_tokens;
-
-        // Handle tool calls for Anthropic
-        while (currentResponse.stop_reason === 'tool_use') {
-          const toolUse = currentResponse.content.find(
-            (c) => c.type === 'tool_use',
-          ) as Anthropic.ToolUseBlock;
-          if (!toolUse) break;
-
-          anthropicMessages.push({
-            role: 'assistant',
-            content: currentResponse.content,
-          });
-
-          const toolArgs = toolUse.input as Record<string, any>;
-          const toolResultData = await this.executeTool(
-            tenantId,
-            toolUse.name,
-            toolArgs,
-          );
-
-          anthropicMessages.push({
-            role: 'user',
-            content: [
-              {
-                type: 'tool_result',
-                tool_use_id: toolUse.id,
-                content: JSON.stringify(toolResultData),
-              },
-            ],
-          });
-
-          currentResponse = await this.anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 2048,
-            system: systemPrompt,
-            messages: anthropicMessages,
-            tools: chatTools,
-          });
-
-          inputTokens += currentResponse.usage.input_tokens;
-          outputTokens += currentResponse.usage.output_tokens;
-        }
-
-        const textContent = currentResponse.content.find(
-          (c) => c.type === 'text',
-        ) as Anthropic.TextBlock;
-        responseContent = textContent ? textContent.text : 'No text response';
-        totalTokens = inputTokens + outputTokens;
+        responseContent = await this.runAnthropic(
+          tenantId,
+          systemPrompt,
+          anthropicMessages,
+          chatTools,
+          usage,
+        );
       } catch (anthropicError: any) {
         console.error(
           'Anthropic failed, falling back to Mistral:',
@@ -392,63 +363,17 @@ export class ChatService {
         );
 
         // 6. Fallback to Mistral
-        const mistralMessages = this.convertToOpenAI(
-          anthropicMessages,
-          systemPrompt,
-        );
-        const mistralTools = this.convertToOpenAITools(chatTools);
-
         if (!this.mistral) {
           throw new Error('Mistral API key is missing');
         }
-
-        const mistralResponse = await this.mistral.chat.completions.create({
-          model: 'mistral-large-latest',
-          messages: mistralMessages,
-          tools: mistralTools,
-        });
-
-        let currentMistralResponse = mistralResponse;
-
-        // Handle tool calls for Mistral
-        while (
-          currentMistralResponse.choices[0].finish_reason === 'tool_calls'
-        ) {
-          const toolCalls =
-            currentMistralResponse.choices[0].message.tool_calls;
-          if (!toolCalls) break;
-
-          mistralMessages.push(currentMistralResponse.choices[0].message);
-
-          for (const toolCall of toolCalls) {
-            if (toolCall.type === 'function') {
-              const toolArgs = JSON.parse(toolCall.function.arguments);
-              const toolResultData = await this.executeTool(
-                tenantId,
-                toolCall.function.name,
-                toolArgs,
-              );
-
-              mistralMessages.push({
-                role: 'tool',
-                tool_call_id: toolCall.id,
-                content: JSON.stringify(toolResultData),
-              } as any);
-            }
-          }
-
-          currentMistralResponse = await this.mistral.chat.completions.create({
-            model: 'mistral-large-latest',
-            messages: mistralMessages,
-            tools: mistralTools,
-          });
-        }
-
-        responseContent =
-          currentMistralResponse.choices[0].message.content ||
-          'No Mistral response';
-        totalTokens = currentMistralResponse.usage?.total_tokens || 0;
+        responseContent = await this.runMistral(
+          tenantId,
+          this.convertToOpenAI(baseMessages, systemPrompt),
+          this.convertToOpenAITools(chatTools),
+          usage,
+        );
       }
+      const totalTokens = usage.tokens;
 
       // 7. Save assistant message
       const assistantMessage = await this.prisma.chatMessage.create({
@@ -482,7 +407,111 @@ export class ChatService {
     }
   }
 
-  private async executeTool(tenantId: string, toolName: string, toolArgs: any) {
+  private async runAnthropic(
+    tenantId: string,
+    systemPrompt: string,
+    messages: Anthropic.MessageParam[],
+    tools: Anthropic.Tool[],
+    usage: TokenUsage,
+  ): Promise<string> {
+    const anthropic = this.anthropic!;
+
+    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+      const response = await anthropic.messages.create({
+        model: ANTHROPIC_MODEL,
+        max_tokens: 2048,
+        system: systemPrompt,
+        messages,
+        tools,
+      });
+      usage.tokens +=
+        response.usage.input_tokens + response.usage.output_tokens;
+
+      const toolUses = response.content.filter(
+        (c): c is Anthropic.ToolUseBlock => c.type === 'tool_use',
+      );
+      if (response.stop_reason !== 'tool_use' || toolUses.length === 0) {
+        const text = response.content
+          .filter((c): c is Anthropic.TextBlock => c.type === 'text')
+          .map((c) => c.text)
+          .join('\n');
+        return text || 'No text response';
+      }
+      if (round === MAX_TOOL_ROUNDS) break;
+
+      messages.push({ role: 'assistant', content: response.content });
+      // Claude can request several tools in one turn. Every tool_use block
+      // needs a matching tool_result, or the next request is rejected.
+      const results = await Promise.all(
+        toolUses.map(async (toolUse) => ({
+          type: 'tool_result' as const,
+          tool_use_id: toolUse.id,
+          content: JSON.stringify(
+            await this.executeTool(
+              tenantId,
+              toolUse.name,
+              (toolUse.input ?? {}) as Record<string, unknown>,
+            ),
+          ),
+        })),
+      );
+      messages.push({ role: 'user', content: results });
+    }
+
+    return STEP_LIMIT_MESSAGE;
+  }
+
+  private async runMistral(
+    tenantId: string,
+    messages: OpenAI.ChatCompletionMessageParam[],
+    tools: OpenAI.ChatCompletionTool[],
+    usage: TokenUsage,
+  ): Promise<string> {
+    const mistral = this.mistral!;
+
+    for (let round = 0; round <= MAX_TOOL_ROUNDS; round++) {
+      const response = await mistral.chat.completions.create({
+        model: MISTRAL_MODEL,
+        messages,
+        tools,
+      });
+      usage.tokens += response.usage?.total_tokens ?? 0;
+
+      const message = response.choices[0]?.message;
+      if (!message) throw new Error('Mistral returned no choices');
+      const toolCalls = message.tool_calls ?? [];
+      if (toolCalls.length === 0) {
+        return message.content || 'No Mistral response';
+      }
+      if (round === MAX_TOOL_ROUNDS) break;
+
+      messages.push(message);
+      for (const toolCall of toolCalls) {
+        let result: unknown;
+        if (toolCall.type !== 'function') {
+          result = { error: `Unsupported tool call type ${toolCall.type}` };
+        } else {
+          const args = parseToolArguments(toolCall.function.arguments);
+          result = args
+            ? await this.executeTool(tenantId, toolCall.function.name, args)
+            : { error: 'Tool arguments were not valid JSON' };
+        }
+        messages.push({
+          role: 'tool',
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(result),
+        });
+      }
+    }
+
+    return STEP_LIMIT_MESSAGE;
+  }
+
+  private async executeTool(
+    tenantId: string,
+    toolName: string,
+    toolArgs: Record<string, any>,
+  ) {
     try {
       switch (toolName) {
         case 'getHarvestStats':
@@ -582,5 +611,18 @@ export class ChatService {
     }
 
     return this.chatAction.executeAction(tenantId, userId, actionType, payload);
+  }
+}
+
+// Tool arguments are written by the model; a malformed string must become a
+// tool error the model can see, not an exception that aborts the request.
+export function parseToolArguments(raw: string): Record<string, any> | null {
+  try {
+    const parsed: unknown = JSON.parse(raw || '{}');
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, any>)
+      : null;
+  } catch {
+    return null;
   }
 }

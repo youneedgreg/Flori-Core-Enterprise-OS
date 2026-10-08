@@ -160,6 +160,8 @@ Immutable log of all system actions. Filterable by user, module, action type, an
 ### AI Assistant
 Conversational AI layer for operational queries. Ask questions like "projected output this week?" or "which zone has the lowest yield this cycle?" and get structured responses grounded in live farm data.
 
+Under the hood (`apps/api/src/chat/chat.service.ts`): Claude with tool use over seven read-only, tenant-scoped data tools (harvest, KPIs, stock, expiring documents, financials, training, logistics), falling back to Mistral through an OpenAI-compatible client if Claude is unavailable. Each tenant has an AI token budget checked before every request and charged for every provider call, including a failed attempt before fallback. The tool loop is capped at five rounds, every tool call in a turn is answered, and malformed model-written arguments come back to the model as tool errors rather than aborting the request.
+
 ### Communications & Notifications
 Automated notification engine. Triggers email, WhatsApp, and SMS for critical events (cold room alerts, payroll ready, compliance expiry, dispatch confirmations). In-app notification drawer with per-user preference toggles.
 
