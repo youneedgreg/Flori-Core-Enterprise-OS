@@ -2,13 +2,45 @@
 
 A production-grade, multi-tenant **Farm Operating System** purpose-built for high-altitude floriculture. Flori-Core connects physical field operations — zones, crop cycles, cold chain, pack house, IoT sensors — with global market logistics, finance, and compliance through a unified, secure digital platform.
 
-At its core is a real-time **IoT telemetry pipeline**: field sensors stream temperature, moisture, EC, and pH readings that are ingested over MQTT (EMQX) and persisted in **TimescaleDB** — a time-series extension on PostgreSQL chosen specifically so high-frequency sensor data and conventional relational ERP data (crop cycles, inventory, finance) can live in the same database, queried together, instead of stitching together two separate stores. Automation rules evaluate this telemetry in real time to drive alerting (cold-room breaches, irrigation thresholds, etc.).
+At its core is a real-time **IoT telemetry pipeline**: field sensors publish temperature, moisture, EC, and pH readings over MQTT (EMQX), and the API writes each one to **PostgreSQL** — the same database that holds the ERP data (crop cycles, inventory, finance), so sensor history and operational records can be queried together instead of stitched across two stores. Time-series queries use standard Postgres (`date_bin()`), so the same schema runs on Neon in production and on a TimescaleDB image locally. Every reading is checked against the tenant's automation rules, which raise alerts (cold-room breaches, irrigation thresholds, etc.), and is pushed to open dashboards over Socket.IO.
 
 Designed for commercial flower farms that sell to international buyers (EU, UK, UAE), Flori-Core replaces disconnected spreadsheets and paper trails with a single system of record covering every department: from stem counting on the harvest floor to payroll disbursements and GlobalG.A.P. certificate tracking.
 
 > **Proprietary software — all rights reserved.** This repository is *not* open
 > source and carries no permission to reuse it. You may read the code; you may
 > not deploy it, build on it, or use it to make money. See [License](#license).
+
+**Live demo:** [flori-core-web.vercel.app](https://flori-core-web.vercel.app) — click
+**Check it out — live demo** on the home page, then pick a role under *Demo Accounts*
+to sign in to a fully seeded farm. The API sleeps after fifteen minutes idle, so the
+first sign-in can take up to a minute.
+
+---
+
+## Screenshots
+
+Captured from the live demo, signed in as the seeded Managing Director.
+
+| | |
+|---|---|
+| ![Home page](docs/screenshots/home.webp) | ![Sign-in page with one-click demo accounts](docs/screenshots/login.webp) |
+| **Home page** — the "Check it out — live demo" button leads to sign-in | **Sign-in** — one-click demo accounts, one per role |
+| ![Dashboard](docs/screenshots/dashboard.webp) | ![Farm Zones](docs/screenshots/zones.webp) |
+| **Dashboard** — KPIs, quick actions, telemetry pulse, audit stream | **Farm Zones** — 14 zones, area and sensor counts per block |
+| ![Production](docs/screenshots/production.webp) | ![Farm Operations](docs/screenshots/operations.webp) |
+| **Production** — propagation timeline across greenhouses | **Farm Operations** — soil tests, pest alerts, field activity tabs |
+| ![IoT Telemetry](docs/screenshots/telemetry.webp) | ![Cold Room](docs/screenshots/cold-room.webp) |
+| **IoT Telemetry** — live sensor streams over Socket.IO | **Cold Room** — climate monitoring with a breach alert raised |
+| ![Pack House](docs/screenshots/pack-house.webp) | ![Inventory](docs/screenshots/inventory.webp) |
+| **Pack House** — intake batches awaiting QC grading | **Inventory** — available-to-promise by variety and grade |
+| ![Logistics](docs/screenshots/logistics.webp) | ![Sales & CRM](docs/screenshots/sales.webp) |
+| **Logistics** — route builder, map and active fleet | **Sales & CRM** — buyer pipeline from prospect to converted |
+| ![Procurement](docs/screenshots/procurement.webp) | ![Financials](docs/screenshots/financials.webp) |
+| **Procurement** — low-stock scan feeding purchase requests | **Financials** — accounts receivable and invoice aging |
+| ![Compliance](docs/screenshots/compliance.webp) | ![HR & Training](docs/screenshots/hr-training.webp) |
+| **Compliance** — certificate vault with expiry tracking | **HR & Training** — training records, scores and certificates |
+| ![Team & Access](docs/screenshots/team.webp) | |
+| **Team & Access** — members, roles and security status | |
 
 ---
 
@@ -41,14 +73,76 @@ This repository is a monorepo managed with **Turborepo** and **pnpm workspaces**
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (App Router), Tailwind CSS, Framer Motion |
-| Backend API | NestJS, TypeScript |
-| Database | PostgreSQL + TimescaleDB (IoT telemetry) |
-| ORM | Prisma Client |
-| Caching & Sessions | Redis |
-| Auth | JWT (access + refresh tokens, HTTP-only cookies) |
+| Frontend | Next.js 16 (App Router), React 19, Tailwind CSS 4, Framer Motion |
+| Backend API | NestJS 11, TypeScript |
+| Database | PostgreSQL — Neon in production, TimescaleDB image locally |
+| ORM | Prisma 7 |
+| Auth | JWT (access + refresh tokens in cookies set by the web client) |
 | IoT Messaging | EMQX (MQTT broker) |
 | Package Manager | pnpm |
+
+### System diagram
+
+```mermaid
+flowchart TB
+    Browser["Browser<br/>dashboard · driver view"]
+    Sensors["Field sensors<br/>moisture · temp · EC · pH"]
+
+    subgraph Vercel["Vercel"]
+        Web["Next.js web app<br/>(apps/web)"]
+        Cron["Vercel Cron<br/>nightly demo refresh"]
+    end
+
+    Broker["EMQX MQTT broker"]
+
+    subgraph Render["Render — NestJS API (apps/api), Docker"]
+        REST["REST controllers<br/>JWT auth · tenant scoping"]
+        WS["Socket.IO gateways<br/>telemetry · location · notifications"]
+        MQ["MQTT subscriber<br/>farm/+/zone/+/sensor"]
+        Rules["Automation rules → alerts"]
+        Jobs["Scheduled jobs<br/>insights · compliance · procurement"]
+        Chat["AI assistant<br/>tool-use loop"]
+    end
+
+    DB[("PostgreSQL via Prisma<br/>Neon in prod · TimescaleDB locally")]
+
+    subgraph AI["LLM providers"]
+        Claude["Anthropic Claude"]
+        Mistral["Mistral (fallback)"]
+    end
+
+    subgraph Services["Third-party services"]
+        Resend["Resend — email"]
+        Twilio["Twilio — WhatsApp"]
+        S3["AWS S3 — labels, docs"]
+        Sentry["Sentry — errors"]
+    end
+
+    Browser -->|HTTPS| Web
+    Web -->|REST + JWT| REST
+    Web <-->|WebSocket| WS
+    Cron -->|POST /demo/refresh| REST
+
+    Sensors -->|MQTT| Broker
+    Broker --> MQ
+    REST -. actuator commands .-> Broker
+    MQ --> Rules
+    MQ -->|live readings| WS
+
+    REST --> DB
+    MQ --> DB
+    Jobs --> DB
+    Chat --> DB
+
+    Chat --> Claude
+    Chat -. on failure .-> Mistral
+    Render --> Services
+```
+
+The API runs as a long-lived container rather than serverless functions because it
+holds Socket.IO connections, a persistent MQTT subscription and in-process cron jobs;
+see [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the split. Every tenant's data is isolated
+by `tenantId`, which the API reads from the JWT and the MQTT topic.
 
 ---
 
@@ -57,7 +151,7 @@ This repository is a monorepo managed with **Turborepo** and **pnpm workspaces**
 ```
 flori-core/
 ├── apps/
-│   ├── web/                  # Next.js 14 frontend (App Router)
+│   ├── web/                  # Next.js 16 frontend (App Router)
 │   │   └── src/app/
 │   │       ├── flori-core-dashboard/   # Main authenticated app shell
 │   │       ├── login/
@@ -171,7 +265,7 @@ Automated notification engine. Triggers email, WhatsApp, and SMS for critical ev
 
 ### Prerequisites
 - [Node.js](https://nodejs.org/) v20+
-- [pnpm](https://pnpm.io/) v9+
+- [pnpm](https://pnpm.io/) v10 (the repo pins `pnpm@10.7.0`; `corepack enable` picks it up)
 - [Docker & Docker Compose](https://www.docker.com/)
 
 ### 1. Install dependencies
@@ -180,33 +274,65 @@ Automated notification engine. Triggers email, WhatsApp, and SMS for critical ev
 pnpm install
 ```
 
-### 2. Start infrastructure services
+### 2. Start Postgres and the MQTT broker
 
 ```bash
-docker compose up -d db redis emqx
+docker compose up -d db emqx
 ```
 
-The EMQX MQTT dashboard is available at `http://localhost:18083`
-- Username: `admin`
-- Password: `admin123`
+EMQX is only needed for live sensor ingest. Without it the API still runs, but logs
+MQTT connection errors and the telemetry screens stay empty.
 
-### 3. Set up the database
+The EMQX dashboard is at `http://localhost:18083` (username `admin`, password
+`admin123`).
 
-Push the Prisma schema to the running PostgreSQL instance:
+### 3. Configure environment variables
+
+The API reads `apps/api/.env`; the root `.env.example` lists every variable it uses.
 
 ```bash
-pnpm --filter @flori/api exec prisma db push
+cp .env.example apps/api/.env
 ```
 
-Seed default roles and the initial Gold Admin account:
+Its defaults already match the Docker database, broker and local CORS origins. Leave
+`DIRECT_DATABASE_URL` unset locally — it is only for Neon's unpooled connection, and
+an empty value stops the Prisma CLI from connecting.
+
+To show the one-click demo accounts on the sign-in page, create `apps/web/.env.local`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_DEMO_MODE=true
+NEXT_PUBLIC_DEMO_PASSWORD=<the password printed by demo:seed in step 4>
+```
+
+### 4. Set up the database
+
+Apply the migrations, then seed the system roles:
 
 ```bash
-npx tsx apps/api/prisma/seed.ts
+pnpm --filter @flori/api exec prisma migrate deploy
 ```
 
-Default test credentials: `admin@floricore.io` / `admin123`
+```bash
+pnpm --filter @flori/api exec prisma db seed
+```
 
-### 4. Start all services
+The role seed creates no users. Either sign up at `/signup` to create your own farm,
+or load the demo farm — the same seeded Waridi tenant as the live demo, with eight
+accounts that share one password:
+
+```bash
+pnpm --filter @flori/api demo:seed
+```
+
+> `demo:seed` **truncates every table except `roles`** before seeding. Never point it
+> at a database holding real data.
+
+It prints the shared password and the account list (`admin@waridi.demo` is the
+Managing Director).
+
+### 5. Start all services
 
 ```bash
 pnpm run dev
@@ -217,24 +343,32 @@ pnpm run dev
 | Web App | http://localhost:3000 |
 | API Server | http://localhost:3001 |
 
+Open the web app and click **Check it out — live demo**, then pick a role.
+
 ---
 
 ## Environment Variables
 
-Create `.env` files in each app based on their respective `.env.example` files.
-
-Key variables:
+API (`apps/api/.env`, template in the root `.env.example`):
 
 ```env
-# apps/api/.env
-DATABASE_URL=postgresql://...
-REDIS_URL=redis://localhost:6379
+DATABASE_URL=postgresql://...          # pooled connection string on Neon
+DIRECT_DATABASE_URL=                   # Neon only: unpooled string for the Prisma CLI
 JWT_SECRET=...
 JWT_REFRESH_SECRET=...
 MQTT_BROKER_URL=mqtt://localhost:1883
+CORS_ORIGINS=http://localhost:3000     # comma-separated; defaults to localhost
+ANTHROPIC_API_KEY=...                  # AI assistant (Mistral is the fallback)
+MISTRAL_API_KEY=...
+```
 
-# apps/web/.env.local
+Web (`apps/web/.env.local`):
+
+```env
 NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_MAPBOX_TOKEN=...           # logistics map
+NEXT_PUBLIC_DEMO_MODE=true             # optional: demo-account panel on /login
+NEXT_PUBLIC_DEMO_PASSWORD=...
 ```
 
 ---
