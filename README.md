@@ -10,6 +10,38 @@ Designed for commercial flower farms that sell to international buyers (EU, UK, 
 > source and carries no permission to reuse it. You may read the code; you may
 > not deploy it, build on it, or use it to make money. See [License](#license).
 
+**Live demo:** [flori-core-web.vercel.app](https://flori-core-web.vercel.app) — click
+**Check it out — live demo** on the home page, then pick a role under *Demo Accounts*
+to sign in to a fully seeded farm. The API sleeps after fifteen minutes idle, so the
+first sign-in can take up to a minute.
+
+---
+
+## Screenshots
+
+Captured from the live demo, signed in as the seeded Managing Director.
+
+| | |
+|---|---|
+| ![Home page](docs/screenshots/home.webp) | ![Sign-in page with one-click demo accounts](docs/screenshots/login.webp) |
+| **Home page** — the "Check it out — live demo" button leads to sign-in | **Sign-in** — one-click demo accounts, one per role |
+| ![Dashboard](docs/screenshots/dashboard.webp) | ![Farm Zones](docs/screenshots/zones.webp) |
+| **Dashboard** — KPIs, quick actions, telemetry pulse, audit stream | **Farm Zones** — 14 zones, area and sensor counts per block |
+| ![Production](docs/screenshots/production.webp) | ![Farm Operations](docs/screenshots/operations.webp) |
+| **Production** — propagation timeline across greenhouses | **Farm Operations** — soil tests, pest alerts, field activity tabs |
+| ![IoT Telemetry](docs/screenshots/telemetry.webp) | ![Cold Room](docs/screenshots/cold-room.webp) |
+| **IoT Telemetry** — live sensor streams over Socket.IO | **Cold Room** — climate monitoring with a breach alert raised |
+| ![Pack House](docs/screenshots/pack-house.webp) | ![Inventory](docs/screenshots/inventory.webp) |
+| **Pack House** — intake batches awaiting QC grading | **Inventory** — available-to-promise by variety and grade |
+| ![Logistics](docs/screenshots/logistics.webp) | ![Sales & CRM](docs/screenshots/sales.webp) |
+| **Logistics** — route builder, map and active fleet | **Sales & CRM** — buyer pipeline from prospect to converted |
+| ![Procurement](docs/screenshots/procurement.webp) | ![Financials](docs/screenshots/financials.webp) |
+| **Procurement** — low-stock scan feeding purchase requests | **Financials** — accounts receivable and invoice aging |
+| ![Compliance](docs/screenshots/compliance.webp) | ![HR & Training](docs/screenshots/hr-training.webp) |
+| **Compliance** — certificate vault with expiry tracking | **HR & Training** — training records, scores and certificates |
+| ![Team & Access](docs/screenshots/team.webp) | |
+| **Team & Access** — members, roles and security status | |
+
 ---
 
 ## What the App Does
@@ -41,14 +73,76 @@ This repository is a monorepo managed with **Turborepo** and **pnpm workspaces**
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (App Router), Tailwind CSS, Framer Motion |
-| Backend API | NestJS, TypeScript |
-| Database | PostgreSQL + TimescaleDB (IoT telemetry) |
-| ORM | Prisma Client |
-| Caching & Sessions | Redis |
-| Auth | JWT (access + refresh tokens, HTTP-only cookies) |
+| Frontend | Next.js 16 (App Router), React 19, Tailwind CSS 4, Framer Motion |
+| Backend API | NestJS 11, TypeScript |
+| Database | PostgreSQL — Neon in production, TimescaleDB image locally |
+| ORM | Prisma 7 |
+| Auth | JWT (access + refresh tokens in cookies set by the web client) |
 | IoT Messaging | EMQX (MQTT broker) |
 | Package Manager | pnpm |
+
+### System diagram
+
+```mermaid
+flowchart TB
+    Browser["Browser<br/>dashboard · driver view"]
+    Sensors["Field sensors<br/>moisture · temp · EC · pH"]
+
+    subgraph Vercel["Vercel"]
+        Web["Next.js web app<br/>(apps/web)"]
+        Cron["Vercel Cron<br/>nightly demo refresh"]
+    end
+
+    Broker["EMQX MQTT broker"]
+
+    subgraph Render["Render — NestJS API (apps/api), Docker"]
+        REST["REST controllers<br/>JWT auth · tenant scoping"]
+        WS["Socket.IO gateways<br/>telemetry · location · notifications"]
+        MQ["MQTT subscriber<br/>farm/+/zone/+/sensor"]
+        Rules["Automation rules → alerts"]
+        Jobs["Scheduled jobs<br/>insights · compliance · procurement"]
+        Chat["AI assistant<br/>tool-use loop"]
+    end
+
+    DB[("PostgreSQL via Prisma<br/>Neon in prod · TimescaleDB locally")]
+
+    subgraph AI["LLM providers"]
+        Claude["Anthropic Claude"]
+        Mistral["Mistral (fallback)"]
+    end
+
+    subgraph Services["Third-party services"]
+        Resend["Resend — email"]
+        Twilio["Twilio — WhatsApp"]
+        S3["AWS S3 — labels, docs"]
+        Sentry["Sentry — errors"]
+    end
+
+    Browser -->|HTTPS| Web
+    Web -->|REST + JWT| REST
+    Web <-->|WebSocket| WS
+    Cron -->|POST /demo/refresh| REST
+
+    Sensors -->|MQTT| Broker
+    Broker --> MQ
+    REST -. actuator commands .-> Broker
+    MQ --> Rules
+    MQ -->|live readings| WS
+
+    REST --> DB
+    MQ --> DB
+    Jobs --> DB
+    Chat --> DB
+
+    Chat --> Claude
+    Chat -. on failure .-> Mistral
+    Render --> Services
+```
+
+The API runs as a long-lived container rather than serverless functions because it
+holds Socket.IO connections, a persistent MQTT subscription and in-process cron jobs;
+see [`DEPLOYMENT.md`](./DEPLOYMENT.md) for the split. Every tenant's data is isolated
+by `tenantId`, which the API reads from the JWT and the MQTT topic.
 
 ---
 
@@ -57,7 +151,7 @@ This repository is a monorepo managed with **Turborepo** and **pnpm workspaces**
 ```
 flori-core/
 ├── apps/
-│   ├── web/                  # Next.js 14 frontend (App Router)
+│   ├── web/                  # Next.js 16 frontend (App Router)
 │   │   └── src/app/
 │   │       ├── flori-core-dashboard/   # Main authenticated app shell
 │   │       ├── login/
